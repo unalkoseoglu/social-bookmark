@@ -18,23 +18,13 @@ class ShareViewController: UIViewController {
         
         // Share edilen içeriği al
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProvider = extensionItem.attachments?.first else {
+              let itemProviders = extensionItem.attachments,
+              !itemProviders.isEmpty else {
             close()
             return
         }
-        
-        // URL'i çek
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] url, _ in
-                self?.handleLoadedItem(url)
-            }
-        } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { [weak self] text, _ in
-                self?.handleLoadedItem(text)
-            }
-        } else {
-            close()
-        }
+
+        loadURL(from: itemProviders, index: 0)
     }
     
     // MARK: - Setup
@@ -116,7 +106,13 @@ class ShareViewController: UIViewController {
                 return
             }
 
-            if let text = item as? String, let detectedURL = parseURL(from: text) {
+            if let data = item as? Data, let shareURL = URL(dataRepresentation: data, relativeTo: nil) {
+                setupSwiftUIView(with: shareURL)
+                return
+            }
+
+            if let text = (item as? String) ?? (item as? NSAttributedString)?.string,
+               let detectedURL = parseURL(from: text) {
                 setupSwiftUIView(with: detectedURL)
                 return
             }
@@ -134,5 +130,43 @@ class ShareViewController: UIViewController {
         }
 
         return URL(string: String(text[urlRange]))
+    }
+
+    private func loadURL(from providers: [NSItemProvider], index: Int) {
+        guard index < providers.count else {
+            close()
+            return
+        }
+
+        let provider = providers[index]
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] item, _ in
+                guard let self else { return }
+
+                if let item {
+                    handleLoadedItem(item)
+                } else {
+                    loadURL(from: providers, index: index + 1)
+                }
+            }
+            return
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { [weak self] item, _ in
+                guard let self else { return }
+
+                if let item {
+                    handleLoadedItem(item)
+                } else {
+                    loadURL(from: providers, index: index + 1)
+                }
+            }
+            return
+        }
+
+        // Beklenen tip yoksa sıradaki provider'a geç
+        loadURL(from: providers, index: index + 1)
     }
 }
