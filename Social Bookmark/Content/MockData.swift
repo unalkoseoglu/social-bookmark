@@ -48,6 +48,13 @@ final class PreviewMockRepository: BookmarkRepositoryProtocol {
             note: "New features in iOS 18",
             source: .youtube,
             tags: ["WWDC", "SwiftUI", "iOS18"]
+        ),
+        Bookmark(
+            title: "LinkedIn Engineering Blog",
+            url: "https://www.linkedin.com/posts/linkedin-engineering_scaling-content-platform",
+            note: "How LinkedIn scales its content platform",
+            source: .linkedin,
+            tags: ["LinkedIn", "Architecture"]
         )
     ]
     
@@ -144,9 +151,25 @@ extension Bookmark {
         isRead: true,
         tags: ["Tutorial"]
     )
-    
+
+    static let sampleLinkedIn = Bookmark(
+        title: "LinkedIn Post: Product Updates",
+        url: "https://www.linkedin.com/posts/company/product-updates",
+        note: "Latest platform releases",
+        source: .linkedin,
+        tags: ["Release", "LinkedIn"]
+    )
+
+    static let sampleReddit = Bookmark(
+        title: "Reddit: SwiftUI Tips Thread",
+        url: "https://www.reddit.com/r/swift/comments/abc123/swiftui_tips/",
+        note: "Community-sourced SwiftUI performance tricks",
+        source: .reddit,
+        tags: ["Reddit", "SwiftUI"]
+    )
+
     /// Tüm sample bookmarklar
     static var samples: [Bookmark] {
-        [sampleArticle, sampleTwitter, sampleMedium]
+        [sampleArticle, sampleTwitter, sampleMedium, sampleLinkedIn, sampleReddit]
     }
 }
