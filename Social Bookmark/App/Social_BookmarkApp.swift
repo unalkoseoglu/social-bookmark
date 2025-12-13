@@ -4,13 +4,17 @@ import SwiftData
 @main
 struct Social_BookmarkApp: App {
     // MARK: - Properties
-    
+
     /// SwiftData container - veritabanı yöneticisi
     let modelContainer: ModelContainer
-    
+
     /// Bookmark repository - app genelinde paylaşılan
     let bookmarkRepository: BookmarkRepositoryProtocol
-    
+
+    /// Seçilen uygulama dili
+    @AppStorage(AppLanguage.storageKey)
+    private var selectedLanguageRawValue = AppLanguage.system.rawValue
+
     /// App Group ID - Extension ile paylaşım için
     static let appGroupID = "group.com.unal.socialbookmark" // DEĞIŞTIR!
     
@@ -64,9 +68,14 @@ struct Social_BookmarkApp: App {
             BookmarkListView(
                 viewModel: BookmarkListViewModel(repository: bookmarkRepository)
             )
+            .environment(\.locale, appLanguage.locale)
         }
         // Model container'ı tüm view hierarchy'e enjekte et
         .modelContainer(modelContainer)
+    }
+
+    private var appLanguage: AppLanguage {
+        AppLanguage(rawValue: selectedLanguageRawValue) ?? .system
     }
     
     // MARK: - Sample Data (Development)

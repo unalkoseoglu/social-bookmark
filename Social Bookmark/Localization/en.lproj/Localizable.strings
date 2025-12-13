@@ -167,3 +167,13 @@
 "⚠️ Görsel yüklenemedi" = "⚠️ Image could not be loaded";
 "✅ TweetPreviewView: Görsel gösteriliyor (\(imageData.count) bytes)" = "✅ TweetPreviewView: Görsel gösteriliyor (\(imageData.count) bytes)";
 "❌ OCR Error: \(error.localizedDescription)" = "❌ OCR Error: \(error.localizedDescription)";
+"Ayarlar" = "Settings";
+"Genel" = "General";
+"Uygulama Dili" = "App Language";
+"Sistem (Varsayılan)" = "System (Default)";
+"Cihaz dilini kullanır" = "Use device language";
+"Türkçe" = "Turkish";
+"Arayüzü Türkçe kullan" = "Use the app in Turkish";
+"İngilizce" = "English";
+"Use the app in English" = "Use the app in English";
+"Dil değişikliği uygulamayı yeniden başlatmadan uygulanır." = "Language changes apply without restarting the app.";
