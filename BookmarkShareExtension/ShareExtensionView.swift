@@ -22,6 +22,9 @@ struct ShareExtensionView: View {
     @State private var note: String = ""
     @State private var selectedSource: BookmarkSource = .other
     @State private var tagsInput: String = ""
+    @State private var metadataTitle: String?
+    @State private var metadataDescription: String?
+    @State private var metadataError: String?
     
     /// Loading state
     @State private var isLoadingMetadata = false
@@ -37,7 +40,10 @@ struct ShareExtensionView: View {
             Form {
                 // URL bölümü
                 urlSection
-                
+
+                // Metadata önizleme
+                metadataSection
+
                 // Temel bilgiler
                 basicInfoSection
                 
@@ -76,6 +82,32 @@ struct ShareExtensionView: View {
             }
         } header: {
             Text("Kaynak")
+        }
+    }
+
+    /// Metadata önizleme
+    @ViewBuilder
+    private var metadataSection: some View {
+        if metadataTitle != nil || metadataDescription != nil || metadataError != nil {
+            Section("Önizleme") {
+                if let metaTitle = metadataTitle {
+                    Label(metaTitle, systemImage: "text.book.closed")
+                        .labelStyle(.titleAndIcon)
+                }
+
+                if let metaDescription = metadataDescription {
+                    Text(metaDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+
+                if let metadataError {
+                    Label(metadataError, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.subheadline)
+                }
+            }
         }
     }
     
@@ -156,40 +188,58 @@ struct ShareExtensionView: View {
     /// Metadata çek
     private func fetchMetadata() async {
         isLoadingMetadata = true
-        
+        metadataError = nil
+        metadataTitle = nil
+        metadataDescription = nil
+
         // Kaynak otomatik tespit et
         selectedSource = BookmarkSource.detect(from: url.absoluteString)
-        
+
         do {
             let metadata = try await URLMetadataService.shared.fetchMetadata(from: url.absoluteString)
-            
+
             if let metaTitle = metadata.title {
-                title = cleanMetaTitle(metaTitle)
-            } else {
-                // Fallback: URL'in son path component'i
-                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+                let cleaned = cleanMetaTitle(metaTitle)
+                metadataTitle = cleaned
+
+                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    title = cleaned
+                }
             }
-            
+
             if let metaDescription = metadata.description {
-                note = String(metaDescription.prefix(500))
+                metadataDescription = metaDescription
+
+                if note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    note = String(metaDescription.prefix(500))
+                }
             }
         } catch {
+            metadataError = error.localizedDescription
+
             // Metadata çekilemezse URL'den tahmin et
-            title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            }
         }
-        
+
         isLoadingMetadata = false
     }
     
     /// Bookmark kaydet
     private func saveBookmark() {
         isSaving = true
-        
+
         let parsedTags = tagsInput
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-        
+            .reduce(into: [String]()) { uniqueTags, tag in
+                if !uniqueTags.contains(tag) {
+                    uniqueTags.append(tag)
+                }
+            }
+
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
             url: url.absoluteString,
