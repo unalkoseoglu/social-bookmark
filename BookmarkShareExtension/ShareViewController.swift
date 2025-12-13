@@ -25,14 +25,12 @@ class ShareViewController: UIViewController {
         
         // URL'i çek
         if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (url, error) in
-                DispatchQueue.main.async {
-                    if let shareURL = url as? URL {
-                        self?.setupSwiftUIView(with: shareURL)
-                    } else {
-                        self?.close()
-                    }
-                }
+            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] url, _ in
+                self?.handleLoadedItem(url)
+            }
+        } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
+            itemProvider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { [weak self] text, _ in
+                self?.handleLoadedItem(text)
             }
         } else {
             close()
@@ -100,10 +98,41 @@ class ShareViewController: UIViewController {
             close()
         }
     }
-    
+
     // MARK: - Actions
     
     private func close() {
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
+    }
+
+    // MARK: - Helpers
+
+    private func handleLoadedItem(_ item: NSSecureCoding?) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            if let shareURL = item as? URL {
+                setupSwiftUIView(with: shareURL)
+                return
+            }
+
+            if let text = item as? String, let detectedURL = parseURL(from: text) {
+                setupSwiftUIView(with: detectedURL)
+                return
+            }
+
+            close()
+        }
+    }
+
+    private func parseURL(from text: String) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        guard let match = detector.firstMatch(in: text, options: [], range: range),
+              let urlRange = Range(match.range, in: text) else {
+            return nil
+        }
+
+        return URL(string: String(text[urlRange]))
     }
 }
