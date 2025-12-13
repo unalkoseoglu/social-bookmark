@@ -27,6 +27,8 @@ struct AddBookmarkView: View {
         NavigationStack {
             Form {
                 basicInfoSection
+                linkedinPreviewSection
+                redditPreviewSection
                 tweetPreviewSection
                 detailsSection
                 tagsSection
@@ -72,7 +74,19 @@ struct AddBookmarkView: View {
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
-                
+
+                if viewModel.isLinkedInURL(viewModel.url) {
+                    Image(systemName: "link")
+                        .foregroundStyle(.cyan)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
+                if viewModel.isRedditURL(viewModel.url) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .foregroundStyle(.orange)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
                 if TwitterService.shared.isTwitterURL(viewModel.url) {
                     Image(systemName: "bird.fill")
                         .foregroundStyle(.blue)
@@ -99,11 +113,27 @@ struct AddBookmarkView: View {
                     .font(.caption)
             }
             
-            if viewModel.fetchedTweet != nil {
+            if let linkedInContent = viewModel.fetchedLinkedInContent {
+                Label(
+                    "LinkedIn içeriği çekildi",
+                    systemImage: "checkmark.circle.fill"
+                )
+                .foregroundStyle(.cyan)
+                .font(.caption)
+                .accessibilityLabel(linkedInContent.title)
+            } else if let redditPost = viewModel.fetchedRedditPost {
+                Label(
+                    "Reddit içeriği çekildi",
+                    systemImage: "checkmark.circle.fill"
+                )
+                .foregroundStyle(.orange)
+                .font(.caption)
+                .accessibilityLabel(redditPost.title)
+            } else if viewModel.fetchedTweet != nil {
                 HStack {
                     Label("Tweet içeriği çekildi", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    
+
                     // Görsel sayısı badge'i ← YENİ
                     if viewModel.tweetImagesData.count > 0 {
                         Text("(\(viewModel.tweetImagesData.count) görsel)")
@@ -118,7 +148,31 @@ struct AddBookmarkView: View {
             }
         }
     }
-    
+
+    @ViewBuilder
+    private var linkedinPreviewSection: some View {
+        if let content = viewModel.fetchedLinkedInContent {
+            Section {
+                LinkedInPreviewView(content: content)
+            } header: {
+                Label("LinkedIn Önizleme", systemImage: "link")
+                    .foregroundStyle(.cyan)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var redditPreviewSection: some View {
+        if let post = viewModel.fetchedRedditPost {
+            Section {
+                RedditPreviewView(post: post)
+            } header: {
+                Label("Reddit Önizleme", systemImage: "bubble.left.and.bubble.right.fill")
+                    .foregroundStyle(.orange)
+            }
+        }
+    }
+
     /// Tweet önizleme - çoklu görsel destekli ← GÜNCELLENDİ
     @ViewBuilder
     private var tweetPreviewSection: some View {

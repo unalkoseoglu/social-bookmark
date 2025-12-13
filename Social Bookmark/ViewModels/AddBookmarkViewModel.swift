@@ -34,10 +34,12 @@ final class AddBookmarkViewModel {
     private(set) var isLoadingMetadata = false
     private(set) var fetchedMetadata: URLMetadataService.URLMetadata?
     private var metadataFetchTask: Task<Void, Never>?
-    
+
     // MARK: - Twitter State
-    
+
     private(set) var fetchedTweet: TwitterService.Tweet?
+    private(set) var fetchedLinkedInContent: LinkedInContent?
+    private(set) var fetchedRedditPost: RedditPost?
     
     /// Tüm tweet görselleri (çoklu destek) ← YENİ
     private(set) var tweetImagesData: [Data] = []
@@ -55,9 +57,23 @@ final class AddBookmarkViewModel {
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol
-    
-    init(repository: BookmarkRepositoryProtocol) {
+    private let linkedinAuthClient: LinkedInAuthProviding
+    private let linkedinContentClient: LinkedInContentProviding
+    private let linkedinHTMLParser: LinkedInHTMLParsing
+    private let redditService: RedditPostProviding
+
+    init(
+        repository: BookmarkRepositoryProtocol,
+        linkedinAuthClient: LinkedInAuthProviding = LinkedInAuthClient(),
+        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient(),
+        linkedinHTMLParser: LinkedInHTMLParsing = LinkedInHTMLParser(),
+        redditService: RedditPostProviding = RedditService()
+    ) {
         self.repository = repository
+        self.linkedinAuthClient = linkedinAuthClient
+        self.linkedinContentClient = linkedinContentClient
+        self.linkedinHTMLParser = linkedinHTMLParser
+        self.redditService = redditService
     }
     
     // MARK: - Public Methods
@@ -96,10 +112,17 @@ final class AddBookmarkViewModel {
         await MainActor.run {
             isLoadingMetadata = true
             fetchedTweet = nil
+            fetchedLinkedInContent = nil
+            fetchedRedditPost = nil
+            fetchedMetadata = nil
             tweetImagesData = []
         }
-        
-        if TwitterService.shared.isTwitterURL(url) {
+
+        if isLinkedInURL(url) {
+            await fetchLinkedInContent()
+        } else if redditService.isRedditURL(url) {
+            await fetchRedditContent()
+        } else if TwitterService.shared.isTwitterURL(url) {
             await fetchTwitterContent()
         } else {
             await fetchGenericMetadata()
@@ -121,6 +144,77 @@ final class AddBookmarkViewModel {
             }
         }
     }
+
+    // MARK: - LinkedIn Methods
+
+    private func fetchLinkedInContent() async {
+        guard let linkURL = URL(string: url) else { return }
+
+        do {
+            let token = try await linkedinAuthClient.ensureValidToken()
+            let content = try await linkedinContentClient.fetchContent(from: linkURL, token: token)
+
+            await applyLinkedInContent(content)
+        } catch LinkedInError.authorizationRequired {
+            await fetchLinkedInContentViaHTML(linkURL)
+        } catch LinkedInError.missingCredentials {
+            await fetchLinkedInContentViaHTML(linkURL)
+        } catch {
+            print("❌ LinkedIn hatası: \(error.localizedDescription)")
+            await fetchLinkedInContentViaHTML(linkURL)
+        }
+    }
+
+    private func fetchLinkedInContentViaHTML(_ url: URL) async {
+        do {
+            let content = try await linkedinHTMLParser.parseContent(from: url)
+            await applyLinkedInContent(content)
+        } catch {
+            print("❌ LinkedIn HTML parse hatası: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    private func applyLinkedInContent(_ content: LinkedInContent) {
+        fetchedLinkedInContent = content
+
+        if title.isEmpty {
+            title = content.title
+        }
+
+        if note.isEmpty {
+            note = content.summary
+        }
+
+        selectedSource = .linkedin
+    }
+
+    // MARK: - Reddit Methods
+
+    private func fetchRedditContent() async {
+        do {
+            let post = try await redditService.fetchPost(from: url)
+            await applyRedditPost(post)
+        } catch {
+            print("❌ Reddit hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata()
+        }
+    }
+
+    @MainActor
+    private func applyRedditPost(_ post: RedditPost) {
+        fetchedRedditPost = post
+
+        if title.isEmpty {
+            title = post.title
+        }
+
+        if note.isEmpty {
+            note = post.summary
+        }
+
+        selectedSource = .reddit
+    }
     
     func resetForm() {
         title = ""
@@ -133,9 +227,11 @@ final class AddBookmarkViewModel {
         isLoadingMetadata = false
         metadataFetchTask?.cancel()
         fetchedTweet = nil
+        fetchedLinkedInContent = nil
+        fetchedRedditPost = nil
         tweetImagesData = []
     }
-    
+
     // MARK: - Twitter Methods
     
     private func fetchTwitterContent() async {
@@ -283,6 +379,21 @@ final class AddBookmarkViewModel {
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
+    }
+
+    func isLinkedInURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+
+        guard lowercased.contains("linkedin.com") else { return false }
+
+        return lowercased.contains("/posts/") ||
+        lowercased.contains("/feed/update/") ||
+        lowercased.contains("/company/") ||
+        lowercased.contains("/in/")
+    }
+
+    func isRedditURL(_ urlString: String) -> Bool {
+        redditService.isRedditURL(urlString)
     }
     
     private func cleanMetaTitle(_ title: String) -> String {
