@@ -18,25 +18,13 @@ class ShareViewController: UIViewController {
         
         // Share edilen içeriği al
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProvider = extensionItem.attachments?.first else {
+              let itemProviders = extensionItem.attachments,
+              !itemProviders.isEmpty else {
             close()
             return
         }
-        
-        // URL'i çek
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (url, error) in
-                DispatchQueue.main.async {
-                    if let shareURL = url as? URL {
-                        self?.setupSwiftUIView(with: shareURL)
-                    } else {
-                        self?.close()
-                    }
-                }
-            }
-        } else {
-            close()
-        }
+
+        loadURL(from: itemProviders, index: 0)
     }
     
     // MARK: - Setup
@@ -100,10 +88,85 @@ class ShareViewController: UIViewController {
             close()
         }
     }
-    
+
     // MARK: - Actions
     
     private func close() {
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
+    }
+
+    // MARK: - Helpers
+
+    private func handleLoadedItem(_ item: NSSecureCoding?) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            if let shareURL = item as? URL {
+                setupSwiftUIView(with: shareURL)
+                return
+            }
+
+            if let data = item as? Data, let shareURL = URL(dataRepresentation: data, relativeTo: nil) {
+                setupSwiftUIView(with: shareURL)
+                return
+            }
+
+            if let text = (item as? String) ?? (item as? NSAttributedString)?.string,
+               let detectedURL = parseURL(from: text) {
+                setupSwiftUIView(with: detectedURL)
+                return
+            }
+
+            close()
+        }
+    }
+
+    private func parseURL(from text: String) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        guard let match = detector.firstMatch(in: text, options: [], range: range),
+              let urlRange = Range(match.range, in: text) else {
+            return nil
+        }
+
+        return URL(string: String(text[urlRange]))
+    }
+
+    private func loadURL(from providers: [NSItemProvider], index: Int) {
+        guard index < providers.count else {
+            close()
+            return
+        }
+
+        let provider = providers[index]
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] item, _ in
+                guard let self else { return }
+
+                if let item {
+                    handleLoadedItem(item)
+                } else {
+                    loadURL(from: providers, index: index + 1)
+                }
+            }
+            return
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { [weak self] item, _ in
+                guard let self else { return }
+
+                if let item {
+                    handleLoadedItem(item)
+                } else {
+                    loadURL(from: providers, index: index + 1)
+                }
+            }
+            return
+        }
+
+        // Beklenen tip yoksa sıradaki provider'a geç
+        loadURL(from: providers, index: index + 1)
     }
 }
