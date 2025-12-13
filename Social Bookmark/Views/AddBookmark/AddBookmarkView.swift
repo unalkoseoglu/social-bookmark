@@ -3,8 +3,9 @@ import SwiftUI
 /// Yeni bookmark ekleme ekranı (Modal sheet olarak açılır)
 struct AddBookmarkView: View {
     // MARK: - Properties
-    
+
     @State private var viewModel: AddBookmarkViewModel
+    private let onSaved: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
     
@@ -15,8 +16,9 @@ struct AddBookmarkView: View {
     
     // MARK: - Initialization
     
-    init(viewModel: AddBookmarkViewModel) {
+    init(viewModel: AddBookmarkViewModel, onSaved: (() -> Void)? = nil) {
         _viewModel = State(initialValue: viewModel)
+        self.onSaved = onSaved
     }
     
     // MARK: - Body
@@ -441,6 +443,7 @@ struct AddBookmarkView: View {
         let finalImageData = viewModel.tweetImagesData.first ?? manualImageData
         
         if viewModel.saveBookmark(withImage: finalImageData, extractedText: viewModel.note) {
+            onSaved?()
             dismiss()
         }
     }
