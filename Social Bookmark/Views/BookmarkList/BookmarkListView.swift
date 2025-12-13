@@ -145,10 +145,16 @@ struct BookmarkListView: View {
     /// Toolbar içeriği
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        // Sağ üst: Yeni bookmark ekle
-        ToolbarItem(placement: .topBarTrailing) {
+        // Sağ üst: Yeni bookmark ekle ve ayarlar
+        ToolbarItemGroup(placement: .topBarTrailing) {
             Button(action: { showingAddSheet = true }) {
                 Image(systemName: "plus")
+            }
+
+            NavigationLink {
+                SettingsView()
+            } label: {
+                Image(systemName: "gearshape")
             }
         }
         
