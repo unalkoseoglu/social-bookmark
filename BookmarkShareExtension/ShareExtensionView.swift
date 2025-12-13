@@ -127,6 +127,32 @@ struct ShareExtensionView: View {
             }
         }
     }
+
+    /// Metadata önizleme
+    @ViewBuilder
+    private var metadataSection: some View {
+        if metadataTitle != nil || metadataDescription != nil || metadataError != nil {
+            Section("Önizleme") {
+                if let metaTitle = metadataTitle {
+                    Label(metaTitle, systemImage: "text.book.closed")
+                        .labelStyle(.titleAndIcon)
+                }
+
+                if let metaDescription = metadataDescription {
+                    Text(metaDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+
+                if let metadataError {
+                    Label(metadataError, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.subheadline)
+                }
+            }
+        }
+    }
     
     /// Başlık ve kaynak
     private var basicInfoSection: some View {
