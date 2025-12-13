@@ -46,6 +46,11 @@
 "Kaydet" = "Save";
 "Kaynak" = "Source";
 "Kopyala" = "Copy";
+"LinkedIn içeriği çekildi" = "LinkedIn content fetched";
+"LinkedIn Önizleme" = "LinkedIn Preview";
+"LinkedIn yetkilendirmesi gerekiyor" = "LinkedIn authorization required";
+"Reddit içeriği çekildi" = "Reddit content fetched";
+"Reddit Önizleme" = "Reddit Preview";
 "Link" = "Link";
 "Metin bulunamadı" = "No text found";
 "Minimal Bookmark" = "Minimal Bookmark";
