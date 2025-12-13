@@ -77,10 +77,10 @@
 			);
 			target = C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */;
 		};
-		C088D30B2EEA32C900FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */ = {
+		C088D37F2EEE086600FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Social-Bookmark-Info.plist",
+				"/Localized: Localizable.strings",
 			);
 			target = C0867EFA2EE9A86D000C8D7D /* Social Bookmark */;
 		};
@@ -90,7 +90,7 @@
 		C0867EFD2EE9A86D000C8D7D /* Social Bookmark */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C088D30B2EEA32C900FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */,
+				C088D37F2EEE086600FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */,
 				C0867F932EEA2B68000C8D7D /* Exceptions for "Social Bookmark" folder in "BookmarkShareExtension" target */,
 			);
 			path = "Social Bookmark";
@@ -297,6 +297,7 @@
 			knownRegions = (
 				en,
 				Base,
+				tr,
 			);
 			mainGroup = C0867EF22EE9A86D000C8D7D;
 			minimizedProjectReferenceProxies = 1;

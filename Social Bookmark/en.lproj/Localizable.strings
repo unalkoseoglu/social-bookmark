@@ -1,0 +1,138 @@
+/*
+   Localizable.strings (English)
+   Social Bookmark
+*/
+
+// MARK: - Common
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.error" = "Error";
+"common.ok" = "OK";
+"common.copy" = "Copy";
+"common.loading" = "Loading...";
+
+// MARK: - App
+"app.title" = "Social Bookmark";
+
+// MARK: - Bookmark List
+"bookmarkList.searchPrompt" = "Search title or note";
+"bookmarkList.filterAll" = "All";
+"bookmarkList.filterUnreadOnly" = "Unread Only";
+"bookmarkList.clearFilters" = "Clear Filters";
+"bookmarkList.totalCount" = "%d total";
+"bookmarkList.unreadCount" = "%d unread";
+"bookmarkList.markAsRead" = "Mark as Read";
+"bookmarkList.markAsUnread" = "Mark as Unread";
+
+// MARK: - Empty State
+"emptyState.title" = "No bookmarks yet";
+"emptyState.message" = "Start saving valuable content you find on the internet";
+"emptyState.addFirstBookmark" = "Add First Bookmark";
+
+// MARK: - Add Bookmark
+"addBookmark.title" = "New Bookmark";
+"addBookmark.sectionBasicInfo" = "Basic Info";
+"addBookmark.titlePlaceholder" = "Title";
+"addBookmark.urlPlaceholder" = "URL (optional)";
+"addBookmark.invalidURL" = "Invalid URL format";
+"addBookmark.tweetFetched" = "Tweet content fetched";
+"addBookmark.pageInfoFetched" = "Page info filled";
+"addBookmark.sectionDetails" = "Details";
+"addBookmark.sourcePicker" = "Source";
+"addBookmark.notePlaceholder" = "Notes (optional)";
+"addBookmark.sectionTags" = "Tags";
+"addBookmark.tagsPlaceholder" = "Tags (comma separated)";
+"addBookmark.tagsExample" = "Example: Swift, iOS, Tutorial";
+"addBookmark.sectionPhoto" = "Photo";
+"addBookmark.addPhoto" = "Add Photo";
+"addBookmark.removePhoto" = "Remove";
+"addBookmark.ocrProcessing" = "OCR processing...";
+"addBookmark.sectionErrors" = "Errors";
+"addBookmark.imageCount" = "(%d images)";
+"addBookmark.imagesLoading" = "%d images loading...";
+
+// MARK: - Tweet Preview
+"tweetPreview.title" = "Tweet Preview";
+"tweetPreview.imageCount" = "%d images";
+"tweetPreview.imageLoading" = "Image loading...";
+
+// MARK: - Bookmark Detail
+"bookmarkDetail.title" = "Details";
+"bookmarkDetail.read" = "Read";
+"bookmarkDetail.sectionImage" = "Image";
+"bookmarkDetail.imageCount" = "%d images";
+"bookmarkDetail.sectionLink" = "Link";
+"bookmarkDetail.sectionNotes" = "Notes";
+"bookmarkDetail.sectionTags" = "Tags";
+"bookmarkDetail.sectionInfo" = "Info";
+"bookmarkDetail.createdAt" = "Created";
+"bookmarkDetail.duration" = "Duration";
+"bookmarkDetail.imageCountLabel" = "%d items";
+"bookmarkDetail.markAsUnread" = "Mark as Unread";
+"bookmarkDetail.markAsRead" = "Mark as Read";
+"bookmarkDetail.openInBrowser" = "Open in Browser";
+"bookmarkDetail.deleteTitle" = "Delete Bookmark?";
+"bookmarkDetail.deleteMessage" = "This action cannot be undone.";
+
+// MARK: - Edit Bookmark
+"editBookmark.title" = "Edit";
+
+// MARK: - Image Picker
+"imagePicker.title" = "Image Source";
+"imagePicker.addPhoto" = "Add Photo";
+"imagePicker.subtitle" = "Take from camera or select from gallery";
+"imagePicker.takePhoto" = "Take Photo";
+"imagePicker.selectFromGallery" = "Select from Gallery";
+
+// MARK: - Image Crop
+"imageCrop.title" = "Edit";
+"imageCrop.rotate" = "Rotate";
+"imageCrop.reset" = "Reset";
+"imageCrop.filters" = "Filters";
+"imageCrop.ocr" = "OCR";
+"imageCrop.ocrResult" = "OCR Result";
+"imageCrop.noTextFound" = "No text found";
+
+// MARK: - Share Extension
+"shareExtension.title" = "Save Bookmark";
+"shareExtension.sectionSource" = "Source";
+"shareExtension.sectionNotes" = "Notes";
+"shareExtension.notePlaceholder" = "Add your notes here";
+
+// MARK: - Bookmark Sources
+"source.twitter" = "Twitter/X";
+"source.medium" = "Medium";
+"source.reddit" = "Reddit";
+"source.blog" = "Blog";
+"source.article" = "Article";
+"source.youtube" = "YouTube";
+"source.github" = "GitHub";
+"source.other" = "Other";
+
+// MARK: - Validation Errors
+"validation.titleRequired" = "Title is required";
+"validation.titleTooLong" = "Title too long (max 200 characters)";
+"validation.invalidURL" = "Invalid URL format";
+"validation.noteTooLong" = "Note too long (max 5000 characters)";
+
+// MARK: - OCR Errors
+"ocr.invalidImage" = "Invalid image format";
+"ocr.noTextFound" = "No text found in image";
+"ocr.cropFailed" = "Image crop failed";
+"ocr.processingFailed" = "Processing error: %@";
+
+// MARK: - URL Metadata Errors
+"urlMetadata.invalidURL" = "Invalid URL format";
+"urlMetadata.invalidResponse" = "Server did not respond";
+"urlMetadata.invalidData" = "Data could not be read";
+"urlMetadata.fetchFailed" = "Metadata fetch failed: %@";
+
+// MARK: - Twitter Errors
+"twitter.invalidURL" = "Invalid Twitter URL";
+"twitter.networkError" = "Network connection error";
+"twitter.apiError" = "API error (code: %d)";
+"twitter.tweetNotFound" = "Tweet not found";
+"twitter.parseError" = "Tweet data could not be read";

@@ -9,12 +9,20 @@ import UniformTypeIdentifiers
 class ShareViewController: UIViewController {
     // MARK: - Properties
     
-    private var hostingController: UIHostingController<ShareExtensionView>?
+    private var hostingController: UIViewController?
+    private let loadingTimeoutSeconds: TimeInterval = 8.0
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Timeout'u ayarla
+        DispatchQueue.main.asyncAfter(deadline: .now() + loadingTimeoutSeconds) { [weak self] in
+            guard let self = self, self.hostingController == nil else { return }
+            print("⚠️ Share Extension URL loading timeout")
+            self.close()
+        }
 
         Task { await loadSharedURL() }
     }
@@ -22,10 +30,13 @@ class ShareViewController: UIViewController {
     // MARK: - Setup
     
     private func setupSwiftUIView(with url: URL) {
+        print("🔧 Setting up SwiftUI view...")
+        
         // SwiftData container oluştur
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.unal.socialbookmark" // DEĞIŞTIR!
         ) else {
+            print("❌ App Group container bulunamadı")
             close()
             return
         }
@@ -43,6 +54,8 @@ class ShareViewController: UIViewController {
                 configurations: configuration
             )
             
+            print("✅ ModelContainer created successfully")
+            
             let repository = BookmarkRepository(modelContext: container.mainContext)
             
             // SwiftUI view oluştur
@@ -50,9 +63,11 @@ class ShareViewController: UIViewController {
                 url: url,
                 repository: repository,
                 onSave: { [weak self] in
+                    print("💾 Bookmark saved from Share Extension")
                     self?.close()
                 },
                 onCancel: { [weak self] in
+                    print("❌ Share Extension cancelled")
                     self?.close()
                 }
             )
@@ -60,7 +75,7 @@ class ShareViewController: UIViewController {
             
             // Hosting controller
             let hosting = UIHostingController(rootView: swiftUIView)
-            hostingController = hosting as? UIHostingController<ShareExtensionView>
+            self.hostingController = hosting
             
             // Child view controller olarak ekle
             addChild(hosting)
@@ -75,6 +90,7 @@ class ShareViewController: UIViewController {
             ])
             
             hosting.didMove(toParent: self)
+            print("✅ SwiftUI view setup complete")
         } catch {
             print("❌ Extension container error: \(error)")
             close()
@@ -106,87 +122,147 @@ class ShareViewController: UIViewController {
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
               let itemProviders = extensionItem.attachments,
               !itemProviders.isEmpty else {
-            close()
+            await MainActor.run { self.close() }
             return
         }
+        
+        print("📱 Share Extension: \(itemProviders.count) item provider(s) found")
 
-        guard let shareURL = await firstAvailableURL(from: itemProviders) else {
-            close()
-            return
-        }
-
-        await MainActor.run { setupSwiftUIView(with: shareURL) }
-    }
-
-    private func firstAvailableURL(from providers: [NSItemProvider]) async -> URL? {
-        await withTaskGroup(of: URL?.self) { group in
-            for provider in providers {
-                group.addTask { [weak self] in
-                    guard let self else { return nil }
-                    return await self.loadURL(from: provider)
+        // URL'yi paralel olarak ara (timeout ile)
+        do {
+            let shareURL = try await withThrowingTaskGroup(of: URL?.self) { group -> URL in
+                // Her provider için task ekle
+                for provider in itemProviders {
+                    group.addTask { [weak self] in
+                        await self?.loadURL(from: provider)
+                    }
                 }
-            }
-
-            for await result in group {
-                if let result {
-                    group.cancelAll()
-                    return result
+                
+                // İlk başarılı URL'yi döndür
+                for try await result in group {
+                    if let result {
+                        group.cancelAll()
+                        return result
+                    }
                 }
+                
+                throw NSError(domain: "ShareExt", code: -1, userInfo: [NSLocalizedDescriptionKey: "URL bulunamadı"])
             }
-
-            return nil
+            
+            print("✅ URL found: \(shareURL.absoluteString)")
+            await MainActor.run { self.setupSwiftUIView(with: shareURL) }
+        } catch {
+            print("❌ URL loading failed: \(error.localizedDescription)")
+            await MainActor.run { self.close() }
         }
     }
 
     private func loadURL(from provider: NSItemProvider) async -> URL? {
-        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier),
-           let url = try? await loadItem(for: UTType.url, from: provider) as? URL {
-            return url
+        // Sıra önemli: URL -> String (Plain text)
+        
+        // 1. URL type olarak kontrol et
+        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+            do {
+                if let url = try await loadItem(for: UTType.url, from: provider) as? URL {
+                    print("✅ URL loaded via UTType.url")
+                    return url
+                }
+            } catch {
+                print("⚠️ UTType.url loading failed: \(error.localizedDescription)")
+            }
         }
-
-        if provider.canLoadObject(ofClass: NSString.self),
-           let text = try? await loadObject(ofClass: NSString.self, from: provider) {
-            return parseURL(from: text as String)
+        
+        // 2. Plain text olarak kontrol et
+        if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+            do {
+                if let text = try await loadItem(for: UTType.plainText, from: provider) as? String {
+                    if let url = parseURL(from: text) {
+                        print("✅ URL parsed from plain text")
+                        return url
+                    }
+                }
+            } catch {
+                print("⚠️ Plain text loading failed: \(error.localizedDescription)")
+            }
         }
-
-        if provider.canLoadObject(ofClass: NSAttributedString.self),
-           let text = try? await loadObject(ofClass: NSAttributedString.self, from: provider) {
-            return parseURL(from: text.string)
+        
+        // 3. String sınıfından yükle
+        if provider.canLoadObject(ofClass: String.self) {
+            do {
+                if let text = try await loadObject(ofClass: String.self, from: provider) as? String {
+                    if let url = parseURL(from: text) {
+                        print("✅ URL parsed from String object")
+                        return url
+                    }
+                }
+            } catch {
+                print("⚠️ String object loading failed: \(error.localizedDescription)")
+            }
         }
-
-        if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier),
-           let text = try? await loadItem(for: UTType.plainText, from: provider) as? String {
-            return parseURL(from: text)
-        }
-
-        if provider.canLoadObject(ofClass: NSData.self),
-           let data = try? await loadObject(ofClass: NSData.self, from: provider) {
-            return URL(dataRepresentation: data as Data, relativeTo: nil)
-        }
-
+        
+        print("⚠️ No URL found in item provider")
         return nil
     }
 
     private func loadObject<T>(ofClass aClass: T.Type, from provider: NSItemProvider) async throws -> T? where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
-        try await withCheckedThrowingContinuation { continuation in
-            provider.loadObject(ofClass: aClass) { object, error in
+        var completed = false
+        var progressRef: Progress?
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let progress = provider.loadObject(ofClass: aClass) { [weak provider] object, error in
+                guard !completed else { return }
+                completed = true
+                
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
                     continuation.resume(returning: object)
                 }
             }
+            
+            progressRef = progress
+            
+            // Timeout: 5 saniye
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                guard !completed, let progress = progressRef else { return }
+                
+                completed = true
+                progress.cancel()
+                continuation.resume(throwing: NSError(
+                    domain: "ShareExt",
+                    code: -2,
+                    userInfo: [NSLocalizedDescriptionKey: "Load timeout"]
+                ))
+            }
         }
     }
 
     private func loadItem(for type: UTType, from provider: NSItemProvider) async throws -> NSSecureCoding? {
-        try await withCheckedThrowingContinuation { continuation in
-            provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { item, error in
+        var completed = false
+        
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<NSSecureCoding?, Error>) in
+            _ = provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { [weak provider] item, error in
+                guard !completed else { return }
+                completed = true
+                
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
-                    continuation.resume(returning: item as? NSSecureCoding)
+                    let result = item
+                    continuation.resume(returning: result)
                 }
+            }
+            
+            // Timeout: 5 saniye
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                guard !completed else { return }
+                
+                completed = true
+                continuation.resume(throwing: NSError(
+                    domain: "ShareExt",
+                    code: -2,
+                    userInfo: [NSLocalizedDescriptionKey: "Load timeout"]
+                ))
             }
         }
     }

@@ -159,7 +159,7 @@ final class RedditService: RedditPostProviding {
     }
 
     private func extractImageURL(from data: RedditPostData) -> URL? {
-        if let previewURL = data.preview?.images?.first?.source.url?.replacingOccurrences(of: "&amp;", with: "&"),
+        if let previewURL = data.preview?.images?.first?.source.url.replacingOccurrences(of: "&amp;", with: "&"),
            let url = URL(string: previewURL) {
             return url
         }
