@@ -1,10 +1,11 @@
 import SwiftUI
+import UIKit
 
 /// Safari Extension'dan açılan SwiftUI view
 /// Kullanıcı buradan bookmark'ı kaydeder
 struct ShareExtensionView: View {
     // MARK: - Properties
-    
+
     /// Safari'den gelen URL
     let url: URL
     
@@ -22,6 +23,9 @@ struct ShareExtensionView: View {
     @State private var note: String = ""
     @State private var selectedSource: BookmarkSource = .other
     @State private var tagsInput: String = ""
+    @State private var metadataTitle: String?
+    @State private var metadataDescription: String?
+    @State private var metadataError: String?
     
     /// Loading state
     @State private var isLoadingMetadata = false
@@ -29,22 +33,24 @@ struct ShareExtensionView: View {
     
     /// Klavye focus
     @FocusState private var focusedField: Field?
-    
+
+    private var backgroundColor: Color { Color(.systemGroupedBackground) }
+    private var cardBackground: Color { Color(.secondarySystemGroupedBackground) }
+    private var accentColor: Color { Color(.systemBlue) }
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             Form {
-                // URL bölümü
-                urlSection
-                
-                // Temel bilgiler
+                sharedURLSection
+
                 basicInfoSection
-                
-                // Detaylar
+
+                metadataSection
+
                 detailsSection
-                
-                // Etiketler
+
                 tagsSection
             }
             .navigationTitle("Bookmark Kaydet")
@@ -52,6 +58,9 @@ struct ShareExtensionView: View {
             .toolbar {
                 toolbarContent
             }
+            .scrollContentBackground(.hidden)
+            .background(backgroundColor)
+            .listSectionSpacing(12)
             .disabled(isSaving)
             .task {
                 // View açılınca metadata çek
@@ -62,69 +71,314 @@ struct ShareExtensionView: View {
     
     // MARK: - Sections
     
-    /// URL gösterimi
-    private var urlSection: some View {
+    /// Paylaşılan URL
+    private var sharedURLSection: some View {
         Section {
-            HStack {
-                Image(systemName: "link")
-                    .foregroundStyle(.blue)
-                
-                Text(url.absoluteString)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+            VStack(alignment: .leading, spacing: 12) {
+                Label {
+                    Text(url.absoluteString)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                } icon: {
+                    Image(systemName: "link")
+                        .foregroundStyle(accentColor)
+                }
+
+                HStack(spacing: 12) {
+                    Button {
+                        UIPasteboard.general.string = url.absoluteString
+                    } label: {
+                        Label("Kopyala", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(accentColor)
+
+                    Spacer()
+
+                    Button {
+                        Task { await fetchMetadata() }
+                    } label: {
+                        Label("Yenile", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isLoadingMetadata)
+                }
+                .font(.footnote)
             }
+            .padding(10)
+            .background(cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         } header: {
-            Text("Kaynak")
+            Label("Paylaşılan İçerik", systemImage: "square.and.arrow.up")
+                .foregroundStyle(accentColor)
+        }
+    }
+
+    /// Metadata önizleme
+    @ViewBuilder
+    private var metadataSection: some View {
+        if isLoadingMetadata || metadataTitle != nil || metadataDescription != nil || metadataError != nil {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    metadataStatusRow
+
+                    if isLoadingMetadata {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("Sayfa bilgileri getiriliyor")
+                                .font(.subheadline)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Color(.tertiarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+
+                    if let metaTitle = metadataTitle {
+                        metadataCard(title: metaTitle, description: metadataDescription)
+                    }
+
+                    if let metadataError {
+                        metadataErrorCard(metadataError)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .headerProminence(.increased)
+            .header {
+                Label("Önizleme", systemImage: "text.bubble")
+                    .foregroundStyle(accentColor)
+            }
         }
     }
     
     /// Başlık ve kaynak
     private var basicInfoSection: some View {
-        Section("Temel Bilgiler") {
-            // Başlık
-            HStack {
-                TextField("Başlık", text: $title, axis: .vertical)
-                    .lineLimit(2...4)
-                    .focused($focusedField, equals: .title)
-                
-                if isLoadingMetadata {
-                    ProgressView()
-                        .progressViewStyle(.circular)
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .center, spacing: 8) {
+                    TextField("Başlık", text: $title, axis: .vertical)
+                        .lineLimit(2...4)
+                        .focused($focusedField, equals: .title)
+
+                    if isLoadingMetadata {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    } else if !title.trimmingCharacters(in: .whitespaces).isEmpty {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(.green)
+                            .font(.caption)
+                    }
                 }
-            }
-            
-            // Kaynak
-            Picker("Kaynak", selection: $selectedSource) {
-                ForEach(BookmarkSource.allCases) { source in
-                    Text(source.displayName)
-                        .tag(source)
+
+                Picker("Kaynak", selection: $selectedSource) {
+                    ForEach(BookmarkSource.allCases) { source in
+                        Text(source.displayName)
+                            .tag(source)
+                    }
                 }
+                .pickerStyle(.segmented)
             }
-            .pickerStyle(.menu)
+            .padding(.vertical, 4)
+        } header: {
+            Label("Temel Bilgiler", systemImage: "text.book.closed")
+                .foregroundStyle(accentColor)
         }
     }
     
     /// Notlar
     private var detailsSection: some View {
-        Section("Notlar") {
-            TextField("Notlarınızı buraya ekleyin", text: $note, axis: .vertical)
-                .lineLimit(3...6)
-                .focused($focusedField, equals: .note)
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                TextField("Notlarınızı buraya ekleyin", text: $note, axis: .vertical)
+                    .lineLimit(3...6)
+                    .focused($focusedField, equals: .note)
+
+                Divider().padding(.vertical, 4)
+
+                sourceSummary
+            }
+        } header: {
+            Label("Detaylar", systemImage: "square.and.pencil")
+                .foregroundStyle(accentColor)
         }
     }
     
     /// Etiketler
     private var tagsSection: some View {
         Section {
-            TextField("Etiketler (virgülle ayır)", text: $tagsInput)
-                .focused($focusedField, equals: .tags)
+            VStack(alignment: .leading, spacing: 8) {
+                TextField("Etiketler (virgülle ayır)", text: $tagsInput)
+                    .focused($focusedField, equals: .tags)
+
+                Text("Örnek: Swift, iOS, Tutorial")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         } header: {
-            Text("Etiketler")
-        } footer: {
-            Text("Örnek: Swift, iOS, Tutorial")
-                .font(.caption)
+            Label("Etiketler", systemImage: "tag")
+                .foregroundStyle(accentColor)
         }
+    }
+
+    private var sourceCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label {
+                Text(url.absoluteString)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+            } icon: {
+                Image(systemName: "globe")
+                    .foregroundStyle(accentColor)
+            }
+
+            HStack {
+                Label(selectedSource.displayName, systemImage: "bookmark")
+                    .font(.footnote)
+                    .foregroundStyle(selectedSource.color)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                    .background(selectedSource.color.opacity(0.12))
+                    .clipShape(Capsule())
+
+                Spacer()
+
+                Button {
+                    UIPasteboard.general.string = url.absoluteString
+                } label: {
+                    Label("Kopyala", systemImage: "doc.on.doc")
+                        .labelStyle(.titleAndIcon)
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .padding()
+        .background(Color(.tertiarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var metadataStatusRow: some View {
+        HStack(spacing: 10) {
+            Image(systemName: metadataStatusIcon)
+                .foregroundStyle(metadataStatusColor)
+            Text(metadataStatusText)
+                .font(.caption)
+                .foregroundStyle(metadataStatusColor)
+            Spacer()
+
+            Button {
+                Task { await fetchMetadata() }
+            } label: {
+                Label("Yenile", systemImage: "arrow.clockwise")
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.borderless)
+            .disabled(isLoadingMetadata)
+        }
+        .padding(10)
+        .background(metadataStatusColor.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private var sourceSummary: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Kaynak", systemImage: "link")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text(url.absoluteString)
+                .font(.footnote)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+
+            HStack(spacing: 12) {
+                Image(systemName: "paperclip")
+                Text(selectedSource.displayName)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.tertiarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var metadataStatusIcon: String {
+        if isLoadingMetadata { return "hourglass" }
+        if metadataError != nil { return "exclamationmark.triangle.fill" }
+        if metadataTitle != nil || metadataDescription != nil { return "checkmark.seal.fill" }
+        return "sparkle.magnifyingglass"
+    }
+
+    private var metadataStatusText: String {
+        if isLoadingMetadata { return "Metadata çekiliyor" }
+        if let metadataError { return "Metadata alınamadı: \(metadataError)" }
+        if metadataTitle != nil || metadataDescription != nil { return "Sayfa bilgileri dolduruldu" }
+        return "Metadata bekleniyor"
+    }
+
+    private var metadataStatusColor: Color {
+        if isLoadingMetadata { return .orange }
+        if metadataError != nil { return .red }
+        if metadataTitle != nil || metadataDescription != nil { return .green }
+        return accentColor
+    }
+
+    private func metadataCard(title: String, description: String?) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "doc.text.image")
+                    .foregroundStyle(accentColor)
+                Text("Sayfa Özeti")
+                    .font(.headline)
+                Spacer()
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+                    .font(.caption)
+            }
+
+            Divider()
+
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+
+            if let description, !description.isEmpty {
+                Text(description)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(4)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.tertiarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private func metadataErrorCard(_ message: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Metadata çekilemedi")
+                    .font(.subheadline.weight(.semibold))
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding()
+        .background(Color.orange.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
     
     /// Toolbar
@@ -156,40 +410,58 @@ struct ShareExtensionView: View {
     /// Metadata çek
     private func fetchMetadata() async {
         isLoadingMetadata = true
-        
+        metadataError = nil
+        metadataTitle = nil
+        metadataDescription = nil
+
         // Kaynak otomatik tespit et
         selectedSource = BookmarkSource.detect(from: url.absoluteString)
-        
+
         do {
             let metadata = try await URLMetadataService.shared.fetchMetadata(from: url.absoluteString)
-            
+
             if let metaTitle = metadata.title {
-                title = cleanMetaTitle(metaTitle)
-            } else {
-                // Fallback: URL'in son path component'i
-                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+                let cleaned = cleanMetaTitle(metaTitle)
+                metadataTitle = cleaned
+
+                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    title = cleaned
+                }
             }
-            
+
             if let metaDescription = metadata.description {
-                note = String(metaDescription.prefix(500))
+                metadataDescription = metaDescription
+
+                if note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    note = String(metaDescription.prefix(500))
+                }
             }
         } catch {
+            metadataError = error.localizedDescription
+
             // Metadata çekilemezse URL'den tahmin et
-            title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            }
         }
-        
+
         isLoadingMetadata = false
     }
     
     /// Bookmark kaydet
     private func saveBookmark() {
         isSaving = true
-        
+
         let parsedTags = tagsInput
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-        
+            .reduce(into: [String]()) { uniqueTags, tag in
+                if !uniqueTags.contains(tag) {
+                    uniqueTags.append(tag)
+                }
+            }
+
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
             url: url.absoluteString,
@@ -197,13 +469,10 @@ struct ShareExtensionView: View {
             source: selectedSource,
             tags: parsedTags
         )
-        
+
         repository.create(newBookmark)
-        
-        // Kısa bir gecikme ile UI feedback
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            onSave()
-        }
+
+        onSave()
     }
     
     /// Meta title temizle
