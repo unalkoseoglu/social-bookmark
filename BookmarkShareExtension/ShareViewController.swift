@@ -167,13 +167,13 @@ class ShareViewController: UIViewController {
         return nil
     }
 
-    private func loadObject<T: NSItemProviderReading>(ofClass aClass: T.Type, from provider: NSItemProvider) async throws -> T? {
+    private func loadObject<T>(ofClass aClass: T.Type, from provider: NSItemProvider) async throws -> T? where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
         try await withCheckedThrowingContinuation { continuation in
             provider.loadObject(ofClass: aClass) { object, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
-                    continuation.resume(returning: object as? T)
+                    continuation.resume(returning: object)
                 }
             }
         }

@@ -52,6 +52,7 @@ struct ShareExtensionView: View {
                 detailsSection
 
                 tagsSection
+                    .listRowBackground(cardBackground)
             }
             .navigationTitle("Bookmark Kaydet")
             .navigationBarTitleDisplayMode(.inline)
@@ -145,11 +146,12 @@ struct ShareExtensionView: View {
                     }
                 }
                 .padding(.vertical, 4)
-            } header: {
+            }
+            .headerProminence(.increased)
+            .header {
                 Label("Önizleme", systemImage: "text.bubble")
                     .foregroundStyle(accentColor)
             }
-            .headerProminence(.increased)
         }
     }
     
