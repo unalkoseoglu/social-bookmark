@@ -4,7 +4,7 @@ import SwiftUI
 /// Kullanıcı buradan bookmark'ı kaydeder
 struct ShareExtensionView: View {
     // MARK: - Properties
-    
+
     /// Safari'den gelen URL
     let url: URL
     
@@ -22,6 +22,9 @@ struct ShareExtensionView: View {
     @State private var note: String = ""
     @State private var selectedSource: BookmarkSource = .other
     @State private var tagsInput: String = ""
+    @State private var metadataTitle: String?
+    @State private var metadataDescription: String?
+    @State private var metadataError: String?
     
     /// Loading state
     @State private var isLoadingMetadata = false
@@ -29,29 +32,38 @@ struct ShareExtensionView: View {
     
     /// Klavye focus
     @FocusState private var focusedField: Field?
-    
+
+    private var backgroundColor: Color { Color(.systemGroupedBackground) }
+    private var cardBackground: Color { Color(.secondarySystemGroupedBackground) }
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             Form {
-                // URL bölümü
                 urlSection
-                
-                // Temel bilgiler
+                    .listRowBackground(cardBackground)
+
+                metadataSection
+                    .listRowBackground(cardBackground)
+
                 basicInfoSection
-                
-                // Detaylar
+                    .listRowBackground(cardBackground)
+
                 detailsSection
-                
-                // Etiketler
+                    .listRowBackground(cardBackground)
+
                 tagsSection
+                    .listRowBackground(cardBackground)
             }
             .navigationTitle("Bookmark Kaydet")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
             }
+            .scrollContentBackground(.hidden)
+            .background(backgroundColor)
+            .listSectionSpacing(12)
             .disabled(isSaving)
             .task {
                 // View açılınca metadata çek
@@ -65,43 +77,81 @@ struct ShareExtensionView: View {
     /// URL gösterimi
     private var urlSection: some View {
         Section {
-            HStack {
-                Image(systemName: "link")
-                    .foregroundStyle(.blue)
-                
-                Text(url.absoluteString)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+            VStack(alignment: .leading, spacing: 12) {
+                Label {
+                    Text(url.absoluteString)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                } icon: {
+                    Image(systemName: "link")
+                        .foregroundStyle(.blue)
+                }
+
+                sourceBadge
             }
+            .padding(.vertical, 4)
         } header: {
-            Text("Kaynak")
+            Label("Kaynak", systemImage: "globe")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    /// Metadata önizleme
+    @ViewBuilder
+    private var metadataSection: some View {
+        if isLoadingMetadata || metadataTitle != nil || metadataDescription != nil || metadataError != nil {
+            Section("Önizleme") {
+                if isLoadingMetadata {
+                    Label("Sayfa bilgileri getiriliyor", systemImage: "sparkle.magnifyingglass")
+                        .foregroundStyle(.blue)
+                }
+
+                if let metaTitle = metadataTitle {
+                    Label(metaTitle, systemImage: "text.book.closed")
+                        .labelStyle(.titleAndIcon)
+                }
+
+                if let metaDescription = metadataDescription {
+                    Text(metaDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+
+                if let metadataError {
+                    Label(metadataError, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.subheadline)
+                }
+            }
         }
     }
     
     /// Başlık ve kaynak
     private var basicInfoSection: some View {
         Section("Temel Bilgiler") {
-            // Başlık
-            HStack {
-                TextField("Başlık", text: $title, axis: .vertical)
-                    .lineLimit(2...4)
-                    .focused($focusedField, equals: .title)
-                
-                if isLoadingMetadata {
-                    ProgressView()
-                        .progressViewStyle(.circular)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 8) {
+                    TextField("Başlık", text: $title, axis: .vertical)
+                        .lineLimit(2...4)
+                        .focused($focusedField, equals: .title)
+
+                    if isLoadingMetadata {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    }
                 }
-            }
-            
-            // Kaynak
-            Picker("Kaynak", selection: $selectedSource) {
-                ForEach(BookmarkSource.allCases) { source in
-                    Text(source.displayName)
-                        .tag(source)
+
+                Picker("Kaynak", selection: $selectedSource) {
+                    ForEach(BookmarkSource.allCases) { source in
+                        Text(source.displayName)
+                            .tag(source)
+                    }
                 }
+                .pickerStyle(.menu)
             }
-            .pickerStyle(.menu)
+            .padding(.vertical, 4)
         }
     }
     
@@ -124,6 +174,28 @@ struct ShareExtensionView: View {
         } footer: {
             Text("Örnek: Swift, iOS, Tutorial")
                 .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var sourceBadge: some View {
+        HStack {
+            Label(selectedSource.displayName, systemImage: "bookmark")
+                .font(.footnote)
+                .foregroundStyle(selectedSource.color)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .background(selectedSource.color.opacity(0.1))
+                .clipShape(Capsule())
+
+            Spacer()
+
+            Button {
+                selectedSource = .other
+            } label: {
+                Text("Kaynağı değiştir")
+                    .font(.caption)
+            }
         }
     }
     
@@ -156,40 +228,58 @@ struct ShareExtensionView: View {
     /// Metadata çek
     private func fetchMetadata() async {
         isLoadingMetadata = true
-        
+        metadataError = nil
+        metadataTitle = nil
+        metadataDescription = nil
+
         // Kaynak otomatik tespit et
         selectedSource = BookmarkSource.detect(from: url.absoluteString)
-        
+
         do {
             let metadata = try await URLMetadataService.shared.fetchMetadata(from: url.absoluteString)
-            
+
             if let metaTitle = metadata.title {
-                title = cleanMetaTitle(metaTitle)
-            } else {
-                // Fallback: URL'in son path component'i
-                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+                let cleaned = cleanMetaTitle(metaTitle)
+                metadataTitle = cleaned
+
+                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    title = cleaned
+                }
             }
-            
+
             if let metaDescription = metadata.description {
-                note = String(metaDescription.prefix(500))
+                metadataDescription = metaDescription
+
+                if note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    note = String(metaDescription.prefix(500))
+                }
             }
         } catch {
+            metadataError = error.localizedDescription
+
             // Metadata çekilemezse URL'den tahmin et
-            title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+            }
         }
-        
+
         isLoadingMetadata = false
     }
     
     /// Bookmark kaydet
     private func saveBookmark() {
         isSaving = true
-        
+
         let parsedTags = tagsInput
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-        
+            .reduce(into: [String]()) { uniqueTags, tag in
+                if !uniqueTags.contains(tag) {
+                    uniqueTags.append(tag)
+                }
+            }
+
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
             url: url.absoluteString,
@@ -197,13 +287,10 @@ struct ShareExtensionView: View {
             source: selectedSource,
             tags: parsedTags
         )
-        
+
         repository.create(newBookmark)
-        
-        // Kısa bir gecikme ile UI feedback
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            onSave()
-        }
+
+        onSave()
     }
     
     /// Meta title temizle
