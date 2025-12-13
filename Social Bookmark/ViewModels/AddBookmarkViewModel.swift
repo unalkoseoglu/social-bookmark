@@ -38,6 +38,7 @@ final class AddBookmarkViewModel {
     // MARK: - Twitter State
     
     private(set) var fetchedTweet: TwitterService.Tweet?
+    private(set) var fetchedLinkedInContent: LinkedInContent?
     
     /// Tüm tweet görselleri (çoklu destek) ← YENİ
     private(set) var tweetImagesData: [Data] = []
@@ -55,9 +56,17 @@ final class AddBookmarkViewModel {
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol
-    
-    init(repository: BookmarkRepositoryProtocol) {
+    private let linkedinAuthClient: LinkedInAuthProviding
+    private let linkedinContentClient: LinkedInContentProviding
+
+    init(
+        repository: BookmarkRepositoryProtocol,
+        linkedinAuthClient: LinkedInAuthProviding = LinkedInAuthClient(),
+        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient()
+    ) {
         self.repository = repository
+        self.linkedinAuthClient = linkedinAuthClient
+        self.linkedinContentClient = linkedinContentClient
     }
     
     // MARK: - Public Methods
@@ -96,10 +105,13 @@ final class AddBookmarkViewModel {
         await MainActor.run {
             isLoadingMetadata = true
             fetchedTweet = nil
+            fetchedLinkedInContent = nil
             tweetImagesData = []
         }
-        
-        if TwitterService.shared.isTwitterURL(url) {
+
+        if isLinkedInURL(url) {
+            await fetchLinkedInContent()
+        } else if TwitterService.shared.isTwitterURL(url) {
             await fetchTwitterContent()
         } else {
             await fetchGenericMetadata()
@@ -121,6 +133,37 @@ final class AddBookmarkViewModel {
             }
         }
     }
+
+    // MARK: - LinkedIn Methods
+
+    private func fetchLinkedInContent() async {
+        guard let linkURL = URL(string: url) else { return }
+
+        do {
+            let token = try await linkedinAuthClient.ensureValidToken()
+            let content = try await linkedinContentClient.fetchContent(from: linkURL, token: token)
+
+            await MainActor.run {
+                fetchedLinkedInContent = content
+
+                if title.isEmpty {
+                    title = content.title
+                }
+
+                if note.isEmpty {
+                    note = content.summary
+                }
+
+                selectedSource = .linkedin
+            }
+        } catch LinkedInError.authorizationRequired {
+            await MainActor.run {
+                validationErrors = ["LinkedIn yetkilendirmesi gerekiyor"]
+            }
+        } catch {
+            print("❌ LinkedIn hatası: \(error.localizedDescription)")
+        }
+    }
     
     func resetForm() {
         title = ""
@@ -133,6 +176,7 @@ final class AddBookmarkViewModel {
         isLoadingMetadata = false
         metadataFetchTask?.cancel()
         fetchedTweet = nil
+        fetchedLinkedInContent = nil
         tweetImagesData = []
     }
     
@@ -283,6 +327,17 @@ final class AddBookmarkViewModel {
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
+    }
+
+    func isLinkedInURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+
+        guard lowercased.contains("linkedin.com") else { return false }
+
+        return lowercased.contains("/posts/") ||
+        lowercased.contains("/feed/update/") ||
+        lowercased.contains("/company/") ||
+        lowercased.contains("/in/")
     }
     
     private func cleanMetaTitle(_ title: String) -> String {
