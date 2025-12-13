@@ -159,9 +159,17 @@ extension Bookmark {
         source: .linkedin,
         tags: ["Release", "LinkedIn"]
     )
-    
+
+    static let sampleReddit = Bookmark(
+        title: "Reddit: SwiftUI Tips Thread",
+        url: "https://www.reddit.com/r/swift/comments/abc123/swiftui_tips/",
+        note: "Community-sourced SwiftUI performance tricks",
+        source: .reddit,
+        tags: ["Reddit", "SwiftUI"]
+    )
+
     /// Tüm sample bookmarklar
     static var samples: [Bookmark] {
-        [sampleArticle, sampleTwitter, sampleMedium, sampleLinkedIn]
+        [sampleArticle, sampleTwitter, sampleMedium, sampleLinkedIn, sampleReddit]
     }
 }
