@@ -138,10 +138,24 @@ final class RedditService: RedditPostProviding {
     }
 
     private func decodePost(from data: Data, originalURL: URL) throws -> RedditPost {
-        let listings = try JSONDecoder().decode([RedditListing].self, from: data)
+        let decoder = JSONDecoder()
 
-        guard let postData = listings.first?.data.children.first?.data else {
+        let postData: RedditPostData
+
+        if let listings = try? decoder.decode([RedditListing].self, from: data),
+           let first = listings.first?.data.children.first?.data {
+            postData = first
+        } else if let listing = try? decoder.decode(RedditListing.self, from: data),
+                  let first = listing.data.children.first?.data {
+            postData = first
+        } else if let listings = try? decoder.decode([RedditListing].self, from: data),
+                  !listings.isEmpty {
             throw RedditError.notFound
+        } else if let listing = try? decoder.decode(RedditListing.self, from: data),
+                  !listing.data.children.isEmpty {
+            throw RedditError.notFound
+        } else {
+            throw RedditError.decodingFailed
         }
 
         let imageURL = extractImageURL(from: postData)

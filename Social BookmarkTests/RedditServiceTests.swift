@@ -46,6 +46,40 @@ final class RedditServiceTests: XCTestCase {
         XCTAssertEqual(post.imageURL?.absoluteString, "https://i.redd.it/image.png")
     }
 
+    func testParsesObjectListingPayload() async throws {
+        let responseJSON = """
+        {
+          "kind": "Listing",
+          "data": {
+            "children": [
+              {"data": {
+                "title": "Object Payload",
+                "author": "reddituser",
+                "subreddit": "swift",
+                "selftext": "Body text",
+                "ups": 77,
+                "num_comments": 12,
+                "thumbnail": "https://i.redd.it/image.png"
+              }}
+            ]
+          }
+        }
+        """
+
+        RedditMockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, Data(responseJSON.utf8))
+        }
+
+        let service = RedditService(session: session)
+        let post = try await service.fetchPost(from: "https://reddit.com/r/swift/comments/objectpayload")
+
+        XCTAssertEqual(post.title, "Object Payload")
+        XCTAssertEqual(post.author, "reddituser")
+        XCTAssertEqual(post.subreddit, "swift")
+        XCTAssertEqual(post.imageURL?.absoluteString, "https://i.redd.it/image.png")
+    }
+
     func testResolvesShortShareLinkBeforeFetchingJSON() async throws {
         let responseJSON = """
         [{
