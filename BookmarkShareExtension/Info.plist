@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionAttributes</key>
+        <dict>
+            <key>NSExtensionActivationRule</key>
+            <dict>
+                <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+                <integer>1</integer>
+                <key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
+                <integer>1</integer>
+            </dict>
+        </dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.share-services</string>
+        <key>NSExtensionPrincipalClass</key>
+        <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+    </dict>
+</dict>
+</plist>
+```
+
+---
+
+### ADIM 3: MainInterface.storyboard'ı Sil
+
+Eğer **MainInterface.storyboard** dosyası varsa:
+
+1. Sol panelde **BookmarkShareExtension** klasöründe bul
+2. Sağ tık → **Delete**
+3. **Move to Trash** seç (Remove Reference değil!)
+
+---
+
+### ADIM 4: Visual Olarak Düzenleme (Daha Kolay)
+
+Eğer XML görmüyorsan:
+
+1. **Info.plist**'e tıkla
+2. Sağ tık → **Open As** → **Source Code**
+3. Yukarıdaki XML'i kopyala-yapıştır
+4. **Cmd + S** (kaydet)
+
+VEYA Property List görünümünde:
+
+1. **NSExtension** → **NSExtensionMainStoryboard** satırını bul
+2. Sil (- butonu ile)
+3. **NSExtension** altına yeni satır ekle (+ butonu)
+4. Key: `NSExtensionPrincipalClass`
+5. Type: `String`
+6. Value: `$(PRODUCT_MODULE_NAME).ShareViewController`
+
+---
+
+### ADIM 5: Build Settings Kontrolü
+
+1. Proje dosyasına tıkla
+2. **TARGETS** → **BookmarkShareExtension** seç
+3. **Build Settings** tab
+4. Search bar'a "Module" yaz
+5. **Defines Module** → `YES` olmalı
+
+---
+
+### ADIM 6: Temizle ve Yeniden Build
+```
+1. Clean Build Folder (Cmd + Shift + K)
+2. Delete App from Simulator (uzun bas → Delete App)
+3. Build (Cmd + B)
+4. Run (Cmd + R)
