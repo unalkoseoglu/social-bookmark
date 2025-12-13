@@ -58,7 +58,9 @@ final class RedditService: RedditPostProviding {
             throw RedditError.invalidURL
         }
 
-        guard let apiURL = redditJSONURL(from: url) else {
+        let resolvedURL = try await resolveCanonicalURL(from: url)
+
+        guard let apiURL = redditJSONURL(from: resolvedURL) else {
             throw RedditError.invalidURL
         }
 
@@ -92,6 +94,26 @@ final class RedditService: RedditPostProviding {
     }
 
     // MARK: - Private Helpers
+
+    private func resolveCanonicalURL(from url: URL) async throws -> URL {
+        let requiresResolution = (url.host?.contains("redd.it") ?? false) || url.path.contains("/s/")
+        guard requiresResolution else { return url }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 8
+
+        do {
+            let (_, response) = try await session.data(for: request)
+            if let redirectedURL = (response as? HTTPURLResponse)?.url ?? response.url {
+                return redirectedURL
+            }
+        } catch {
+            return url
+        }
+
+        return url
+    }
 
     private func redditJSONURL(from url: URL) -> URL? {
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)

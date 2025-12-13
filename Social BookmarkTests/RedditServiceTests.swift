@@ -46,6 +46,52 @@ final class RedditServiceTests: XCTestCase {
         XCTAssertEqual(post.imageURL?.absoluteString, "https://i.redd.it/image.png")
     }
 
+    func testResolvesShortShareLinkBeforeFetchingJSON() async throws {
+        let responseJSON = """
+        [{
+          "data": {
+            "children": [
+              {"data": {
+                "title": "Resolved Post",
+                "author": "redirected",
+                "subreddit": "swift",
+                "selftext": "Body text",
+                "ups": 10,
+                "num_comments": 2
+              }}
+            ]
+          }
+        }]
+        """
+
+        var requests: [URL] = []
+
+        RedditMockURLProtocol.requestHandler = { request in
+            guard let url = request.url else {
+                throw URLError(.badURL)
+            }
+
+            requests.append(url)
+
+            if requests.count == 1 {
+                let redirectedURL = URL(string: "https://www.reddit.com/r/swift/comments/abc123")!
+                let response = HTTPURLResponse(url: redirectedURL, statusCode: 200, httpVersion: nil, headerFields: nil)!
+                return (response, Data())
+            }
+
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, Data(responseJSON.utf8))
+        }
+
+        let service = RedditService(session: session)
+        let post = try await service.fetchPost(from: "https://www.reddit.com/r/swift/s/shortlink")
+
+        XCTAssertEqual(post.title, "Resolved Post")
+        XCTAssertEqual(requests.first?.absoluteString, "https://www.reddit.com/r/swift/s/shortlink")
+        XCTAssertTrue(requests.count >= 2)
+        XCTAssertTrue(requests[1].absoluteString.contains("/r/swift/comments/abc123.json"))
+    }
+
     func testViewModelAppliesRedditPost() async {
         let repository = PreviewMockRepository.shared
         repository.bookmarks = []
