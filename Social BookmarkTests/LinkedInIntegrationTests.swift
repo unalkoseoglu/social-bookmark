@@ -91,6 +91,33 @@ final class LinkedInIntegrationTests: XCTestCase {
         XCTAssertTrue(viewModel.isLinkedInURL("https://www.linkedin.com/company/example"))
         XCTAssertFalse(viewModel.isLinkedInURL("https://www.example.com"))
     }
+
+    func testLinkedInHTMLFallbackUsedWhenAuthFails() async throws {
+        let repository = PreviewMockRepository.shared
+        repository.bookmarks = []
+
+        let failingAuth = MockLinkedInAuthClient(token: nil)
+        let htmlParser = MockLinkedInHTMLParser(content: LinkedInContent(
+            title: "Parsed Title",
+            summary: "Parsed summary",
+            imageURL: URL(string: "https://example.com/image.jpg"),
+            author: "linkedin.com"
+        ))
+
+        let viewModel = AddBookmarkViewModel(
+            repository: repository,
+            linkedinAuthClient: failingAuth,
+            linkedinContentClient: MockLinkedInContentClient(content: LinkedInContent(title: "", summary: "", imageURL: nil, author: "")),
+            linkedinHTMLParser: htmlParser
+        )
+
+        viewModel.url = "https://www.linkedin.com/posts/example"
+        await viewModel.fetchMetadata()
+
+        XCTAssertEqual(viewModel.selectedSource, .linkedin)
+        XCTAssertEqual(viewModel.fetchedLinkedInContent?.title, "Parsed Title")
+        XCTAssertEqual(htmlParser.parseCallCount, 1)
+    }
 }
 
 // MARK: - Test Doubles
@@ -139,6 +166,20 @@ final class MockLinkedInContentClient: LinkedInContentProviding {
 
     func fetchContent(from url: URL, token: LinkedInAccessToken) async throws -> LinkedInContent {
         content
+    }
+}
+
+final class MockLinkedInHTMLParser: LinkedInHTMLParsing {
+    let content: LinkedInContent
+    private(set) var parseCallCount = 0
+
+    init(content: LinkedInContent) {
+        self.content = content
+    }
+
+    func parseContent(from url: URL) async throws -> LinkedInContent {
+        parseCallCount += 1
+        return content
     }
 }
 

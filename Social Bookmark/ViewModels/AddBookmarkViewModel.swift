@@ -58,15 +58,18 @@ final class AddBookmarkViewModel {
     private let repository: BookmarkRepositoryProtocol
     private let linkedinAuthClient: LinkedInAuthProviding
     private let linkedinContentClient: LinkedInContentProviding
+    private let linkedinHTMLParser: LinkedInHTMLParsing
 
     init(
         repository: BookmarkRepositoryProtocol,
         linkedinAuthClient: LinkedInAuthProviding = LinkedInAuthClient(),
-        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient()
+        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient(),
+        linkedinHTMLParser: LinkedInHTMLParsing = LinkedInHTMLParser()
     ) {
         self.repository = repository
         self.linkedinAuthClient = linkedinAuthClient
         self.linkedinContentClient = linkedinContentClient
+        self.linkedinHTMLParser = linkedinHTMLParser
     }
     
     // MARK: - Public Methods
@@ -143,26 +146,39 @@ final class AddBookmarkViewModel {
             let token = try await linkedinAuthClient.ensureValidToken()
             let content = try await linkedinContentClient.fetchContent(from: linkURL, token: token)
 
-            await MainActor.run {
-                fetchedLinkedInContent = content
-
-                if title.isEmpty {
-                    title = content.title
-                }
-
-                if note.isEmpty {
-                    note = content.summary
-                }
-
-                selectedSource = .linkedin
-            }
+            await applyLinkedInContent(content)
         } catch LinkedInError.authorizationRequired {
-            await MainActor.run {
-                validationErrors = ["LinkedIn yetkilendirmesi gerekiyor"]
-            }
+            await fetchLinkedInContentViaHTML(linkURL)
+        } catch LinkedInError.missingCredentials {
+            await fetchLinkedInContentViaHTML(linkURL)
         } catch {
             print("❌ LinkedIn hatası: \(error.localizedDescription)")
+            await fetchLinkedInContentViaHTML(linkURL)
         }
+    }
+
+    private func fetchLinkedInContentViaHTML(_ url: URL) async {
+        do {
+            let content = try await linkedinHTMLParser.parseContent(from: url)
+            await applyLinkedInContent(content)
+        } catch {
+            print("❌ LinkedIn HTML parse hatası: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    private func applyLinkedInContent(_ content: LinkedInContent) {
+        fetchedLinkedInContent = content
+
+        if title.isEmpty {
+            title = content.title
+        }
+
+        if note.isEmpty {
+            note = content.summary
+        }
+
+        selectedSource = .linkedin
     }
     
     func resetForm() {

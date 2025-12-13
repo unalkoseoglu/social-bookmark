@@ -56,6 +56,10 @@ protocol LinkedInContentProviding {
     func fetchContent(from url: URL, token: LinkedInAccessToken) async throws -> LinkedInContent
 }
 
+protocol LinkedInHTMLParsing {
+    func parseContent(from url: URL) async throws -> LinkedInContent
+}
+
 // MARK: - Keychain Storage
 
 class LinkedInTokenStore {
@@ -107,6 +111,43 @@ class LinkedInTokenStore {
             kSecAttrAccount as String: account
         ]
         SecItemDelete(query as CFDictionary)
+    }
+}
+
+// MARK: - HTML Parser (fallback when OAuth isn't available)
+
+final class LinkedInHTMLParser: LinkedInHTMLParsing {
+    private let metadataService: URLMetadataService
+
+    init(metadataService: URLMetadataService = .shared) {
+        self.metadataService = metadataService
+    }
+
+    func parseContent(from url: URL) async throws -> LinkedInContent {
+        do {
+            // Attempt the richer LinkPresentation-powered fetch first
+            let metadata = try? await metadataService.fetchMetadata(from: url.absoluteString)
+
+            if let metadata {
+                return LinkedInContent(
+                    title: metadata.title ?? "LinkedIn", // fallback title
+                    summary: metadata.description ?? "",
+                    imageURL: metadata.imageURL,
+                    author: url.host ?? "LinkedIn"
+                )
+            }
+
+            // Fallback: lightweight HTML parsing
+            let fallback = try await metadataService.fetchMetadataFallback(from: url.absoluteString)
+            return LinkedInContent(
+                title: fallback.title ?? "LinkedIn",
+                summary: fallback.description ?? "",
+                imageURL: fallback.imageURL,
+                author: url.host ?? "LinkedIn"
+            )
+        } catch {
+            throw LinkedInError.failedToDecode
+        }
     }
 }
 
