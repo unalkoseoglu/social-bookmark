@@ -52,6 +52,7 @@ struct ShareExtensionView: View {
                 detailsSection
 
                 tagsSection
+                    .listRowBackground(cardBackground)
             }
             .navigationTitle("Bookmark Kaydet")
             .navigationBarTitleDisplayMode(.inline)
