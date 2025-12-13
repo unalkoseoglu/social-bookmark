@@ -38,6 +38,7 @@ final class AddBookmarkViewModel {
     // MARK: - Twitter State
     
     private(set) var fetchedTweet: TwitterService.Tweet?
+    private(set) var fetchedLinkedInContent: LinkedInContent?
     
     /// Tüm tweet görselleri (çoklu destek) ← YENİ
     private(set) var tweetImagesData: [Data] = []
@@ -55,9 +56,20 @@ final class AddBookmarkViewModel {
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol
-    
-    init(repository: BookmarkRepositoryProtocol) {
+    private let linkedinAuthClient: LinkedInAuthProviding
+    private let linkedinContentClient: LinkedInContentProviding
+    private let linkedinHTMLParser: LinkedInHTMLParsing
+
+    init(
+        repository: BookmarkRepositoryProtocol,
+        linkedinAuthClient: LinkedInAuthProviding = LinkedInAuthClient(),
+        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient(),
+        linkedinHTMLParser: LinkedInHTMLParsing = LinkedInHTMLParser()
+    ) {
         self.repository = repository
+        self.linkedinAuthClient = linkedinAuthClient
+        self.linkedinContentClient = linkedinContentClient
+        self.linkedinHTMLParser = linkedinHTMLParser
     }
     
     // MARK: - Public Methods
@@ -96,10 +108,13 @@ final class AddBookmarkViewModel {
         await MainActor.run {
             isLoadingMetadata = true
             fetchedTweet = nil
+            fetchedLinkedInContent = nil
             tweetImagesData = []
         }
-        
-        if TwitterService.shared.isTwitterURL(url) {
+
+        if isLinkedInURL(url) {
+            await fetchLinkedInContent()
+        } else if TwitterService.shared.isTwitterURL(url) {
             await fetchTwitterContent()
         } else {
             await fetchGenericMetadata()
@@ -121,6 +136,50 @@ final class AddBookmarkViewModel {
             }
         }
     }
+
+    // MARK: - LinkedIn Methods
+
+    private func fetchLinkedInContent() async {
+        guard let linkURL = URL(string: url) else { return }
+
+        do {
+            let token = try await linkedinAuthClient.ensureValidToken()
+            let content = try await linkedinContentClient.fetchContent(from: linkURL, token: token)
+
+            await applyLinkedInContent(content)
+        } catch LinkedInError.authorizationRequired {
+            await fetchLinkedInContentViaHTML(linkURL)
+        } catch LinkedInError.missingCredentials {
+            await fetchLinkedInContentViaHTML(linkURL)
+        } catch {
+            print("❌ LinkedIn hatası: \(error.localizedDescription)")
+            await fetchLinkedInContentViaHTML(linkURL)
+        }
+    }
+
+    private func fetchLinkedInContentViaHTML(_ url: URL) async {
+        do {
+            let content = try await linkedinHTMLParser.parseContent(from: url)
+            await applyLinkedInContent(content)
+        } catch {
+            print("❌ LinkedIn HTML parse hatası: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    private func applyLinkedInContent(_ content: LinkedInContent) {
+        fetchedLinkedInContent = content
+
+        if title.isEmpty {
+            title = content.title
+        }
+
+        if note.isEmpty {
+            note = content.summary
+        }
+
+        selectedSource = .linkedin
+    }
     
     func resetForm() {
         title = ""
@@ -133,6 +192,7 @@ final class AddBookmarkViewModel {
         isLoadingMetadata = false
         metadataFetchTask?.cancel()
         fetchedTweet = nil
+        fetchedLinkedInContent = nil
         tweetImagesData = []
     }
     
@@ -283,6 +343,17 @@ final class AddBookmarkViewModel {
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
+    }
+
+    func isLinkedInURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+
+        guard lowercased.contains("linkedin.com") else { return false }
+
+        return lowercased.contains("/posts/") ||
+        lowercased.contains("/feed/update/") ||
+        lowercased.contains("/company/") ||
+        lowercased.contains("/in/")
     }
     
     private func cleanMetaTitle(_ title: String) -> String {

@@ -5,6 +5,7 @@ import SwiftUI
 /// Codable: JSON'a çevrilebilir (iCloud sync için gerekli)
 /// CaseIterable: Tüm case'leri döngüde kullanmak için
 enum BookmarkSource: String, Codable, CaseIterable {
+    case linkedin = "LinkedIn"
     case twitter = "Twitter/X"
     case medium = "Medium"
     case reddit = "Reddit"
@@ -19,6 +20,8 @@ enum BookmarkSource: String, Codable, CaseIterable {
     /// Her kaynak için emoji icon
     var emoji: String {
         switch self {
+        case .linkedin:
+            return "🔗"
         case .twitter:
             return "𝕏"
         case .medium:
@@ -41,6 +44,8 @@ enum BookmarkSource: String, Codable, CaseIterable {
     /// Her kaynak için tema rengi
     var color: Color {
         switch self {
+        case .linkedin:
+            return .cyan
         case .twitter:
             return .blue
         case .medium:
@@ -73,8 +78,10 @@ extension BookmarkSource {
     /// Örnek: "twitter.com" içeriyorsa -> .twitter
     static func detect(from urlString: String) -> BookmarkSource {
         let lowercased = urlString.lowercased()
-        
-        if lowercased.contains("twitter.com") || lowercased.contains("x.com") {
+
+        if lowercased.contains("linkedin.com") {
+            return .linkedin
+        } else if lowercased.contains("twitter.com") || lowercased.contains("x.com") {
             return .twitter
         } else if lowercased.contains("medium.com") {
             return .medium
