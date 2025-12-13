@@ -43,21 +43,13 @@ struct ShareExtensionView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // URL bölümü
-                urlSection
+                sharedURLSection
 
-                // Metadata önizleme
-                metadataSection
-
-                // Temel bilgiler
                 basicInfoSection
-                    .listRowBackground(cardBackground)
 
                 metadataSection
-                    .listRowBackground(cardBackground)
 
                 detailsSection
-                    .listRowBackground(cardBackground)
 
                 tagsSection
                     .listRowBackground(cardBackground)
@@ -80,12 +72,59 @@ struct ShareExtensionView: View {
     
     // MARK: - Sections
     
+    /// Paylaşılan URL
+    private var sharedURLSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                Label {
+                    Text(url.absoluteString)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                } icon: {
+                    Image(systemName: "link")
+                        .foregroundStyle(accentColor)
+                }
+
+                HStack(spacing: 12) {
+                    Button {
+                        UIPasteboard.general.string = url.absoluteString
+                    } label: {
+                        Label("Kopyala", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(accentColor)
+
+                    Spacer()
+
+                    Button {
+                        Task { await fetchMetadata() }
+                    } label: {
+                        Label("Yenile", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isLoadingMetadata)
+                }
+                .font(.footnote)
+            }
+            .padding(10)
+            .background(cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } header: {
+            Label("Paylaşılan İçerik", systemImage: "square.and.arrow.up")
+                .foregroundStyle(accentColor)
+        }
+    }
+
     /// Metadata önizleme
     @ViewBuilder
     private var metadataSection: some View {
         if isLoadingMetadata || metadataTitle != nil || metadataDescription != nil || metadataError != nil {
-            Section("Önizleme") {
-                VStack(alignment: .leading, spacing: 10) {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    metadataStatusRow
+
                     if isLoadingMetadata {
                         HStack(spacing: 10) {
                             ProgressView()
@@ -93,7 +132,7 @@ struct ShareExtensionView: View {
                                 .font(.subheadline)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
+                        .padding(12)
                         .background(Color(.tertiarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -106,42 +145,20 @@ struct ShareExtensionView: View {
                         metadataErrorCard(metadataError)
                     }
                 }
+                .padding(.vertical, 4)
             }
-        }
-    }
-
-    /// Metadata önizleme
-    @ViewBuilder
-    private var metadataSection: some View {
-        if metadataTitle != nil || metadataDescription != nil || metadataError != nil {
-            Section("Önizleme") {
-                if let metaTitle = metadataTitle {
-                    Label(metaTitle, systemImage: "text.book.closed")
-                        .labelStyle(.titleAndIcon)
-                }
-
-                if let metaDescription = metadataDescription {
-                    Text(metaDescription)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                }
-
-                if let metadataError {
-                    Label(metadataError, systemImage: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                        .font(.subheadline)
-                }
+            .headerProminence(.increased)
+            .header {
+                Label("Önizleme", systemImage: "text.bubble")
+                    .foregroundStyle(accentColor)
             }
         }
     }
     
     /// Başlık ve kaynak
     private var basicInfoSection: some View {
-        Section("Temel Bilgiler") {
+        Section {
             VStack(alignment: .leading, spacing: 12) {
-                sourceCard
-
                 HStack(alignment: .center, spacing: 8) {
                     TextField("Başlık", text: $title, axis: .vertical)
                         .lineLimit(2...4)
@@ -164,28 +181,29 @@ struct ShareExtensionView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-
-                metadataStatusRow
             }
             .padding(.vertical, 4)
+        } header: {
+            Label("Temel Bilgiler", systemImage: "text.book.closed")
+                .foregroundStyle(accentColor)
         }
     }
     
     /// Notlar
     private var detailsSection: some View {
-        Section("Detaylar") {
+        Section {
             VStack(alignment: .leading, spacing: 12) {
                 TextField("Notlarınızı buraya ekleyin", text: $note, axis: .vertical)
                     .lineLimit(3...6)
                     .focused($focusedField, equals: .note)
-                    .padding(10)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Divider().padding(.vertical, 4)
 
                 sourceSummary
             }
+        } header: {
+            Label("Detaylar", systemImage: "square.and.pencil")
+                .foregroundStyle(accentColor)
         }
     }
     
@@ -195,16 +213,14 @@ struct ShareExtensionView: View {
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Etiketler (virgülle ayır)", text: $tagsInput)
                     .focused($focusedField, equals: .tags)
-                    .padding(10)
-                    .background(Color(.tertiarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Text("Örnek: Swift, iOS, Tutorial")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         } header: {
-            Text("Etiketler")
+            Label("Etiketler", systemImage: "tag")
+                .foregroundStyle(accentColor)
         }
     }
 

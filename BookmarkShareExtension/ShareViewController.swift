@@ -15,16 +15,8 @@ class ShareViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Share edilen içeriği al
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProviders = extensionItem.attachments,
-              !itemProviders.isEmpty else {
-            close()
-            return
-        }
 
-        loadURL(from: itemProviders, index: 0)
+        Task { await loadSharedURL() }
     }
     
     // MARK: - Setup
@@ -97,30 +89,6 @@ class ShareViewController: UIViewController {
 
     // MARK: - Helpers
 
-    private func handleLoadedItem(_ item: NSSecureCoding?) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-
-            if let shareURL = item as? URL {
-                setupSwiftUIView(with: shareURL)
-                return
-            }
-
-            if let data = item as? Data, let shareURL = URL(dataRepresentation: data, relativeTo: nil) {
-                setupSwiftUIView(with: shareURL)
-                return
-            }
-
-            if let text = (item as? String) ?? (item as? NSAttributedString)?.string,
-               let detectedURL = parseURL(from: text) {
-                setupSwiftUIView(with: detectedURL)
-                return
-            }
-
-            close()
-        }
-    }
-
     private func parseURL(from text: String) -> URL? {
         guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
@@ -132,41 +100,94 @@ class ShareViewController: UIViewController {
         return URL(string: String(text[urlRange]))
     }
 
-    private func loadURL(from providers: [NSItemProvider], index: Int) {
-        guard index < providers.count else {
+    // MARK: - Async loaders
+
+    private func loadSharedURL() async {
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
+              let itemProviders = extensionItem.attachments,
+              !itemProviders.isEmpty else {
             close()
             return
         }
 
-        let provider = providers[index]
-
-        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] item, _ in
-                guard let self else { return }
-
-                if let item {
-                    handleLoadedItem(item)
-                } else {
-                    loadURL(from: providers, index: index + 1)
-                }
-            }
+        guard let shareURL = await firstAvailableURL(from: itemProviders) else {
+            close()
             return
         }
 
-        if provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
-            provider.loadItem(forTypeIdentifier: UTType.text.identifier, options: nil) { [weak self] item, _ in
-                guard let self else { return }
+        await MainActor.run { setupSwiftUIView(with: shareURL) }
+    }
 
-                if let item {
-                    handleLoadedItem(item)
-                } else {
-                    loadURL(from: providers, index: index + 1)
+    private func firstAvailableURL(from providers: [NSItemProvider]) async -> URL? {
+        await withTaskGroup(of: URL?.self) { group in
+            for provider in providers {
+                group.addTask { [weak self] in
+                    guard let self else { return nil }
+                    return await self.loadURL(from: provider)
                 }
             }
-            return
+
+            for await result in group {
+                if let result {
+                    group.cancelAll()
+                    return result
+                }
+            }
+
+            return nil
+        }
+    }
+
+    private func loadURL(from provider: NSItemProvider) async -> URL? {
+        if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier),
+           let url = try? await loadItem(for: UTType.url, from: provider) as? URL {
+            return url
         }
 
-        // Beklenen tip yoksa sıradaki provider'a geç
-        loadURL(from: providers, index: index + 1)
+        if provider.canLoadObject(ofClass: NSString.self),
+           let text = try? await loadObject(ofClass: NSString.self, from: provider) {
+            return parseURL(from: text as String)
+        }
+
+        if provider.canLoadObject(ofClass: NSAttributedString.self),
+           let text = try? await loadObject(ofClass: NSAttributedString.self, from: provider) {
+            return parseURL(from: text.string)
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier),
+           let text = try? await loadItem(for: UTType.plainText, from: provider) as? String {
+            return parseURL(from: text)
+        }
+
+        if provider.canLoadObject(ofClass: NSData.self),
+           let data = try? await loadObject(ofClass: NSData.self, from: provider) {
+            return URL(dataRepresentation: data as Data, relativeTo: nil)
+        }
+
+        return nil
+    }
+
+    private func loadObject<T>(ofClass aClass: T.Type, from provider: NSItemProvider) async throws -> T? where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.loadObject(ofClass: aClass) { object, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: object)
+                }
+            }
+        }
+    }
+
+    private func loadItem(for type: UTType, from provider: NSItemProvider) async throws -> NSSecureCoding? {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { item, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: item as? NSSecureCoding)
+                }
+            }
+        }
     }
 }
