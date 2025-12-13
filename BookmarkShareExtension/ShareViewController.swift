@@ -15,28 +15,8 @@ class ShareViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Share edilen içeriği al
-        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProvider = extensionItem.attachments?.first else {
-            close()
-            return
-        }
-        
-        // URL'i çek
-        if itemProvider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-            itemProvider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { [weak self] (url, error) in
-                DispatchQueue.main.async {
-                    if let shareURL = url as? URL {
-                        self?.setupSwiftUIView(with: shareURL)
-                    } else {
-                        self?.close()
-                    }
-                }
-            }
-        } else {
-            close()
-        }
+
+        Task { await loadSharedURL() }
     }
     
     // MARK: - Setup
@@ -100,10 +80,97 @@ class ShareViewController: UIViewController {
             close()
         }
     }
-    
+
     // MARK: - Actions
     
     private func close() {
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
+    }
+
+    // MARK: - Helpers
+
+    private func parseURL(from text: String) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        guard let match = detector.firstMatch(in: text, options: [], range: range),
+              let urlRange = Range(match.range, in: text) else {
+            return nil
+        }
+
+        return URL(string: String(text[urlRange]))
+    }
+
+    // MARK: - Async loaders
+
+    private func loadSharedURL() async {
+        guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
+              let itemProviders = extensionItem.attachments,
+              !itemProviders.isEmpty else {
+            close()
+            return
+        }
+
+        guard let shareURL = await firstAvailableURL(from: itemProviders) else {
+            close()
+            return
+        }
+
+        await MainActor.run { setupSwiftUIView(with: shareURL) }
+    }
+
+    private func firstAvailableURL(from providers: [NSItemProvider]) async -> URL? {
+        await withTaskGroup(of: URL?.self) { group in
+            for provider in providers {
+                group.addTask { [weak self] in
+                    guard let self else { return nil }
+                    return await self.loadURL(from: provider)
+                }
+            }
+
+            for await result in group {
+                if let result {
+                    group.cancelAll()
+                    return result
+                }
+            }
+
+            return nil
+        }
+    }
+
+    private func loadURL(from provider: NSItemProvider) async -> URL? {
+        if provider.canLoadObject(ofClass: NSURL.self),
+           let url = try? await loadObject(ofClass: NSURL.self, from: provider) {
+            return url as URL
+        }
+
+        if provider.canLoadObject(ofClass: NSString.self),
+           let text = try? await loadObject(ofClass: NSString.self, from: provider) {
+            return parseURL(from: text as String)
+        }
+
+        if provider.canLoadObject(ofClass: NSAttributedString.self),
+           let text = try? await loadObject(ofClass: NSAttributedString.self, from: provider) {
+            return parseURL(from: text.string)
+        }
+
+        if provider.canLoadObject(ofClass: NSData.self),
+           let data = try? await loadObject(ofClass: NSData.self, from: provider) {
+            return URL(dataRepresentation: data as Data, relativeTo: nil)
+        }
+
+        return nil
+    }
+
+    private func loadObject<T>(ofClass aClass: T.Type, from provider: NSItemProvider) async throws -> T? where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
+        try await withCheckedThrowingContinuation { continuation in
+            provider.loadObject(ofClass: aClass) { object, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: object)
+                }
+            }
+        }
     }
 }
