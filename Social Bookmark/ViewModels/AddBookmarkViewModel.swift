@@ -91,6 +91,7 @@ final class AddBookmarkViewModel {
         self.repository = repository
         self.categoryRepository = categoryRepository
         self.categories = self.categoryRepository.fetchAll()
+        print("📝 AddBookmarkViewModel initialized with \(self.categories.count) categories: \(self.categories.map { $0.name }.joined(separator: ", "))")
     }
     
     // MARK: - Public Methods

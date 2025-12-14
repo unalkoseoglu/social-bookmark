@@ -400,31 +400,62 @@ struct AddBookmarkView: View {
     private var organizationSection: some View {
         Section("Organizasyon") {
             // Kategori seçici
-            Picker("Kategori", selection: $viewModel.selectedCategoryId) {
-                Text("Kategori Yok").tag(nil as UUID?)
-                Divider()
-                ForEach(viewModel.categories) { category in
-                    HStack {
-                        Image(systemName: category.icon)
-                            .foregroundStyle(category.color)
-                        Text(category.name)
+            if viewModel.categories.isEmpty {
+                Text("Kategori yükleniyor...")
+                    .foregroundStyle(.secondary)
+            } else {
+                Picker(selection: $viewModel.selectedCategoryId) {
+                    Text("Kategori Yok")
+                        .tag(nil as UUID?)
+                    
+                    ForEach(viewModel.categories) { category in
+                        HStack(spacing: 8) {
+                            Image(systemName: category.icon)
+                                .foregroundStyle(category.color)
+                            Text(category.name)
+                        }
+                        .tag(category.id as UUID?)
                     }
-                    .tag(category.id as UUID?)
+                } label: {
+                    HStack {
+                        Text("Kategori")
+                        Spacer()
+                        if let categoryId = viewModel.selectedCategoryId,
+                           let category = viewModel.categories.first(where: { $0.id == categoryId }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: category.icon)
+                                    .foregroundStyle(category.color)
+                                Text(category.name)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else {
+                            Text("Seç")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
-            .pickerStyle(.menu)
             
             // Kaynak seçici
-            Picker("Kaynak", selection: $viewModel.selectedSource) {
+            Picker(selection: $viewModel.selectedSource) {
                 ForEach(BookmarkSource.allCases) { source in
-                    HStack {
+                    HStack(spacing: 8) {
                         Text(source.emoji)
                         Text(source.displayName)
                     }
                     .tag(source)
                 }
+            } label: {
+                HStack {
+                    Text("Kaynak")
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text(viewModel.selectedSource.emoji)
+                        Text(viewModel.selectedSource.displayName)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
-            .pickerStyle(.menu)
         }
     }
     
