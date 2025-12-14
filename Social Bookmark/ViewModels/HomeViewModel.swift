@@ -92,47 +92,6 @@ final class HomeViewModel {
         bookmarks.filter { $0.categoryId == category.id }
     }
     
-    /// QuickFilter için bookmark sayısı
-    func count(for filter: QuickFilter) -> Int {
-        switch filter {
-        case .unread:
-            return unreadCount
-        case .favorites:
-            return favoritesCount
-        case .today:
-            return todayCount
-        case .thisWeek:
-            return thisWeekCount
-        case .uncategorized:
-            return uncategorizedCount
-        case .source(let source):
-            return bookmarks.filter { $0.source == source }.count
-        }
-    }
-    
-    /// QuickFilter için bookmarkları getir
-    func bookmarks(for filter: QuickFilter) -> [Bookmark] {
-        switch filter {
-        case .unread:
-            return bookmarks.filter { !$0.isRead }
-        case .favorites:
-            return bookmarks.filter { $0.isFavorite }
-        case .today:
-            let calendar = Calendar.current
-            let startOfDay = calendar.startOfDay(for: Date())
-            return bookmarks.filter { $0.createdAt >= startOfDay }
-        case .thisWeek:
-            let calendar = Calendar.current
-            guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) else {
-                return []
-            }
-            return bookmarks.filter { $0.createdAt >= weekStart }
-        case .uncategorized:
-            return bookmarks.filter { $0.categoryId == nil }
-        case .source(let source):
-            return bookmarks.filter { $0.source == source }
-        }
-    }
     
     /// Varsayılan kategorileri oluştur
     func createDefaultCategories() {
