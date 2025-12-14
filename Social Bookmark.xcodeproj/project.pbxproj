@@ -71,6 +71,7 @@
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
+				Models/SortOption.swift,
 				Repositories/BookmarkRepository.swift,
 				Repositories/CategoryRepository.swift,
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,

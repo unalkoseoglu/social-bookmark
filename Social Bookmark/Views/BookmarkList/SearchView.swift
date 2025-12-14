@@ -186,25 +186,7 @@ struct SearchView: View {
                             searchResults = viewModel.bookmarks.filter { $0.isFavorite }
                         }
                         
-                        SearchSuggestionCard(
-                            title: "Bugün",
-                            icon: "sun.max.fill",
-                            color: .blue,
-                            count: viewModel.todayCount
-                        ) {
-                            searchText = "date:today"
-                            searchResults = viewModel.bookmarks(for: .today)
-                        }
-                        
-                        SearchSuggestionCard(
-                            title: "Bu Hafta",
-                            icon: "calendar",
-                            color: .green,
-                            count: viewModel.thisWeekCount
-                        ) {
-                            searchText = "date:week"
-                            searchResults = viewModel.bookmarks(for: .thisWeek)
-                        }
+                       
                     }
                 }
                 
