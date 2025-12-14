@@ -27,37 +27,122 @@ struct BookmarkDetailView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                headerSection
-                    .padding(.horizontal, 16)
+            LazyVStack(alignment: .leading, spacing: 24) {
+                // Hero Section - Başlık ve Ana Bilgiler
+                VStack(alignment: .leading, spacing: 16) {
+                    // Source + Read Status
+                    HStack(spacing: 12) {
+                        HStack(spacing: 6) {
+                            Text(bookmark.source.emoji)
+                                .font(.system(size: 18))
+                            Text(bookmark.source.rawValue.capitalized)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(.systemGray5))
+                        .clipShape(Capsule())
+                        
+                        Spacer()
+                        
+                        if bookmark.isRead {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption)
+                                Text("Okundu")
+                                    .font(.caption2)
+                            }
+                            .foregroundStyle(.green)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.green.opacity(0.1))
+                            .clipShape(Capsule())
+                        }
+                    }
+                    
+                    // Başlık - Büyük ve belirgin
+                    Text(bookmark.title)
+                        .font(.system(size: 28, weight: .bold, design: .default))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    // Kategori ve Tarih
+                    HStack(spacing: 16) {
+                        if let categoryId = bookmark.categoryId {
+                            HStack(spacing: 6) {
+                                Image(systemName: "folder.fill")
+                                    .font(.caption)
+                                Text("Kategori")
+                                    .font(.caption2)
+                            }
+                            .foregroundStyle(.blue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.1))
+                            .clipShape(Capsule())
+                        }
+                        
+                        HStack(spacing: 6) {
+                            Image(systemName: "calendar")
+                                .font(.caption)
+                            Text(bookmark.formattedDate)
+                                .font(.caption2)
+                        }
+                        .foregroundStyle(.secondary)
+                        
+                        Spacer()
+                    }
+                }
+                .padding(20)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(.systemBackground),
+                            Color(.systemGray6)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 16)
                 
+                // Görsel Bölümü
                 if !allImages.isEmpty {
                     imageSection
                         .padding(.horizontal, 16)
                 }
                 
+                // URL Bölümü - URL'yi kopyalanabilir yap
                 if bookmark.hasURL {
                     urlSection
                         .padding(.horizontal, 16)
                 }
                 
+                // Not Bölümü - Okuma için optimize
                 if bookmark.hasNote {
-                    noteSection
+                    readableNoteSection
                         .padding(.horizontal, 16)
                 }
                 
+                // Etiketler
                 if bookmark.hasTags {
                     tagsSection
                         .padding(.horizontal, 16)
                 }
                 
+                // Metadata
                 metadataSection
                     .padding(.horizontal, 16)
                 
+                // Action Buttons
                 actionButtons
                     .padding(.horizontal, 16)
+                
+                Spacer(minLength: 20)
             }
-            .padding(.top, 8)
+            .padding(.top, 12)
             .padding(.bottom, 20)
         }
         .background(Color(.systemBackground))
@@ -95,34 +180,8 @@ struct BookmarkDetailView: View {
     
     // MARK: - Sections
     
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(bookmark.source.emoji)
-                    .font(.title2)
-                
-                Text(bookmark.source.rawValue)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                if bookmark.isRead {
-                    Label("Okundu", systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                }
-            }
-            
-            Text(bookmark.title)
-                .font(.title2)
-                .fontWeight(.bold)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
+    // Eski headerSection'ı kaldırdık, hero section şimdi body'de
+    
     
     /// Görsel bölümü - yatay scroll galeri
     @ViewBuilder
@@ -206,34 +265,73 @@ struct BookmarkDetailView: View {
     }
     
     private var urlSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Link", systemImage: "link")
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Kaynak", systemImage: "link")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
             if let urlString = bookmark.url, let url = URL(string: urlString) {
+                // Open in browser
                 Link(destination: url) {
-                    HStack {
-                        Text(urlString)
-                            .font(.subheadline)
+                    HStack(spacing: 12) {
+                        Image(systemName: "safari")
                             .foregroundStyle(.blue)
-                            .lineLimit(3)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Tarayıcıda Aç")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            Text(url.host ?? urlString)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
                         
                         Spacer()
                         
-                        Image(systemName: "arrow.up.right.square")
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption2)
                             .foregroundStyle(.blue)
                     }
-                    .padding()
+                    .padding(12)
                     .background(Color.blue.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                
+                // Copy URL button
+                Button(action: {
+                    UIPasteboard.general.string = urlString
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "doc.on.doc")
+                            .foregroundStyle(.green)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("URL'yi Kopyala")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            Text(urlString)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "checkmark")
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                    }
+                    .padding(12)
+                    .background(Color.green.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
         }
     }
     
     private var noteSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Label("Notlar", systemImage: "note.text")
                 .font(.headline)
                 .foregroundStyle(.secondary)
@@ -244,6 +342,55 @@ struct BookmarkDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color(.systemGray6))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+    
+    /// Okuma için optimize edilmiş not bölümü
+    private var readableNoteSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("İçerik", systemImage: "doc.text")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(bookmark.note.split(separator: " ").count) kelime")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            
+            // Okunabilir text bölümü
+            Text(bookmark.note)
+                .font(.system(.body, design: .default))
+                .lineSpacing(6)
+                .tracking(0.3)
+                .foregroundStyle(.primary)
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    Color(.systemBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(.systemGray4), lineWidth: 1)
+                        )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            
+            // Copy to clipboard button
+            Button(action: {
+                UIPasteboard.general.string = bookmark.note
+            }) {
+                HStack {
+                    Image(systemName: "doc.on.doc")
+                        .font(.caption2)
+                    Text("Metni Kopyala")
+                        .font(.caption)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.blue.opacity(0.1))
+                .foregroundStyle(.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
         }
     }
     
@@ -302,48 +449,63 @@ struct BookmarkDetailView: View {
     
     private var actionButtons: some View {
         VStack(spacing: 12) {
-            Button(action: toggleReadStatus) {
-                Label(
-                    bookmark.isRead ? "Okunmadı İşaretle" : "Okundu İşaretle",
-                    systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill"
-                )
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(bookmark.isRead ? Color.orange : Color.green)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 12) {
+                Button(action: toggleReadStatus) {
+                    HStack(spacing: 8) {
+                        Image(systemName: bookmark.isRead ? "circle" : "checkmark.circle.fill")
+                        Text(bookmark.isRead ? "Okunmadı" : "Okundu")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(bookmark.isRead ? Color.orange : Color.green)
+                    .foregroundStyle(.white)
+                    .fontWeight(.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                
+                Button(action: { showingEditSheet = true }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "pencil")
+                        Text("Düzenle")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.purple.opacity(0.9))
+                    .foregroundStyle(.white)
+                    .fontWeight(.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
             }
             
             if bookmark.hasURL, let urlString = bookmark.url, let url = URL(string: urlString) {
                 Link(destination: url) {
-                    Label("Tarayıcıda Aç", systemImage: "safari")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    HStack(spacing: 8) {
+                        Image(systemName: "safari")
+                        Text("Tarayıcıda Aç")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .foregroundStyle(.white)
+                    .fontWeight(.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             
-            Button(action: { showingEditSheet = true }) {
-                Label("Düzenle", systemImage: "pencil")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.purple)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            
             Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                Label("Sil", systemImage: "trash")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                HStack(spacing: 8) {
+                    Image(systemName: "trash")
+                    Text("Sil")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.red.opacity(0.9))
+                .foregroundStyle(.white)
+                .fontWeight(.medium)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
-        .padding(.top)
+        .padding(.top, 12)
     }
     
     @ToolbarContentBuilder
