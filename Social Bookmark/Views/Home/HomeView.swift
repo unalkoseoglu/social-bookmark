@@ -10,56 +10,43 @@ struct HomeView: View {
     @State private var showingAddSheet = false
     @State private var showingSearch = false
     @State private var selectedCategory: Category?
-    @State private var selectedQuickFilter: QuickFilter?
     
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 24) {
-                    // 1. Hızlı İstatistikler
-                    quickStatsSection
-                    
-                    // 2. Hızlı Filtreler (Son eklenenler, Okunmamışlar vs.)
-                    quickFiltersSection
-                    
-                    // 3. Kategoriler Grid
-                    categoriesSection
-                    
-                    // 4. Kaynağa Göre (Twitter, Reddit vs.)
-                    sourcesSection
-                    
-                    // 5. Son Eklenenler
-                    recentBookmarksSection
-                }
-                .padding()
-            }
-            .navigationTitle("Bookmarklar")
-            .background(Color(.systemGroupedBackground))
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
-                        Button {
-                            showingSearch = true
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                        }
-                        
-                        Button {
-                            showingAddSheet = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                        }
-                    }
-                }
+            ZStack {
+                Color(.systemBackground).ignoresSafeArea()
                 
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        Image(systemName: "gearshape")
+                VStack(spacing: 0) {
+                    // Header - Başlık ve Butonlar
+                    headerSection
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground))
+                        .border(width: 1, edges: [.bottom], color: Color(.systemGray5))
+                    
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // İstatistikler
+                            statisticsSection
+                                .padding(.horizontal, 16)
+                            
+                            // Hızlı Erişim Filtreleri
+                            quickAccessSection
+                                .padding(.horizontal, 16)
+                            
+                            // Kategoriler Grid
+                            categoriesGridSection
+                                .padding(.horizontal, 16)
+                            
+                            // Son Eklenenler
+                            recentItemsSection
+                                .padding(.horizontal, 16)
+                            
+                            Spacer(minLength: 20)
+                        }
+                        .padding(.top, 16)
                     }
                 }
             }
@@ -87,251 +74,213 @@ struct HomeView: View {
         }
     }
     
-    // MARK: - Quick Stats Section
+    // MARK: - Header
     
-    private var quickStatsSection: some View {
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Bookmarklar")
+                        .font(.system(size: 28, weight: .bold))
+                    
+                    Text("\(viewModel.totalCount) toplam • \(viewModel.unreadCount) okunmadı")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    Button(action: { showingSearch = true }) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .frame(width: 40, height: 40)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
+                    }
+                    
+                    Button(action: { showingAddSheet = true }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Statistics Section
+    
+    private var statisticsSection: some View {
         HStack(spacing: 12) {
             StatCard(
-                title: "Toplam",
-                value: "\(viewModel.totalCount)",
                 icon: "bookmark.fill",
+                value: "\(viewModel.totalCount)",
+                title: "Toplam",
                 color: .blue
             )
             
             StatCard(
-                title: "Okunmadı",
-                value: "\(viewModel.unreadCount)",
                 icon: "circle.fill",
+                value: "\(viewModel.unreadCount)",
+                title: "Okunmadı",
                 color: .orange
             )
             
             StatCard(
-                title: "Bu Hafta",
-                value: "\(viewModel.thisWeekCount)",
                 icon: "calendar",
+                value: "\(viewModel.thisWeekCount)",
+                title: "Bu Hafta",
                 color: .green
             )
         }
     }
     
-    // MARK: - Quick Filters Section
+    // MARK: - Quick Access Section
     
-    private var quickFiltersSection: some View {
+    private var quickAccessSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Hızlı Erişim", icon: "bolt.fill")
+            HStack {
+                Text("Hızlı Erişim")
+                    .font(.system(size: 16, weight: .semibold))
+                    .tracking(0.3)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(QuickFilter.allCases) { filter in
-                        QuickFilterChip(
-                            filter: filter,
-                            count: viewModel.count(for: filter)
-                        ) {
-                            selectedQuickFilter = filter
-                        }
-                    }
-                }
+            HStack(spacing: 10) {
+                QuickAccessButton(
+                    icon: "circle.fill",
+                    title: "Okunmadı",
+                    count: viewModel.unreadCount,
+                    color: .orange,
+                    action: { }
+                )
+                
+                QuickAccessButton(
+                    icon: "star.fill",
+                    title: "Favoriler",
+                    count: 0,
+                    color: .yellow,
+                    action: { }
+                )
+                
+                QuickAccessButton(
+                    icon: "sun.max.fill",
+                    title: "Bugün",
+                    count: viewModel.todayCount,
+                    color: .blue,
+                    action: { }
+                )
             }
         }
     }
     
-    // MARK: - Categories Section
+    // MARK: - Categories Grid Section
     
-    private var categoriesSection: some View {
+    private var categoriesGridSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                SectionHeader(title: "Kategoriler", icon: "folder.fill")
+                Text("Kategoriler")
+                    .font(.system(size: 16, weight: .semibold))
+                    .tracking(0.3)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                NavigationLink {
-                    CategoriesManagementView(viewModel: viewModel)
-                } label: {
-                    Text("Düzenle")
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
-                }
+                NavigationLink("Düzenle", destination: CategoriesManagementView(viewModel: viewModel))
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
             }
             
             if viewModel.categories.isEmpty {
-                EmptyCategoriesCard {
-                    // Varsayılan kategorileri oluştur
-                    viewModel.createDefaultCategories()
+                Button(action: { viewModel.createDefaultCategories() }) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "folder.badge.plus")
+                            .font(.title2)
+                        Text("Kategorileri Oluştur")
+                            .font(.subheadline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(24)
+                    .background(Color(.systemGray6))
+                    .foregroundStyle(.secondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             } else {
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(viewModel.categories) { category in
-                        CategoryCard(
+                        CategoryCardItem(
                             category: category,
-                            bookmarkCount: viewModel.bookmarkCount(for: category)
-                        ) {
-                            selectedCategory = category
-                        }
-                    }
-                    
-                    // Kategorisiz kartı
-                    UncategorizedCard(
-                        count: viewModel.uncategorizedCount
-                    ) {
-                        selectedQuickFilter = .uncategorized
+                            count: viewModel.bookmarkCount(for: category),
+                            action: { selectedCategory = category }
+                        )
                     }
                 }
             }
         }
     }
     
-    // MARK: - Sources Section
+    // MARK: - Recent Items Section
     
-    private var sourcesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Kaynaklara Göre", icon: "square.grid.2x2.fill")
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 10) {
-                ForEach(viewModel.sourcesWithCounts, id: \.source) { item in
-                    SourceCard(
-                        source: item.source,
-                        count: item.count
-                    ) {
-                        selectedQuickFilter = .source(item.source)
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Recent Bookmarks Section
-    
-    private var recentBookmarksSection: some View {
+    private var recentItemsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                SectionHeader(title: "Son Eklenenler", icon: "clock.fill")
+                Text("Son Eklenenler")
+                    .font(.system(size: 16, weight: .semibold))
+                    .tracking(0.3)
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                NavigationLink {
-                    AllBookmarksView(viewModel: viewModel)
-                } label: {
-                    Text("Tümünü Gör")
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
-                }
+                NavigationLink("Tümünü Gör", destination: AllBookmarksView(viewModel: viewModel))
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
             }
             
             if viewModel.recentBookmarks.isEmpty {
-                EmptyRecentCard()
+                VStack(spacing: 12) {
+                    Image(systemName: "bookmark")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    Text("Henüz bookmark eklenmedi")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(24)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 VStack(spacing: 8) {
                     ForEach(viewModel.recentBookmarks.prefix(5)) { bookmark in
-                        NavigationLink {
-                            BookmarkDetailView(
-                                bookmark: bookmark,
-                                repository: viewModel.bookmarkRepository
-                            )
-                        } label: {
-                            RecentBookmarkRow(bookmark: bookmark)
+                        NavigationLink(destination: BookmarkDetailView(bookmark: bookmark, repository: viewModel.bookmarkRepository)) {
+                            RecentItemRow(bookmark: bookmark)
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding()
-                .background(Color(.systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
             }
         }
     }
-}
+    
+    // MARK: - Supporting Components
 
-// MARK: - Quick Filter Enum
 
-enum QuickFilter: Identifiable, CaseIterable, Hashable {
-    case unread
-    case favorites
-    case today
-    case thisWeek
-    case uncategorized
-    case source(BookmarkSource)
-    
-    var id: String {
-        switch self {
-        case .unread: return "unread"
-        case .favorites: return "favorites"
-        case .today: return "today"
-        case .thisWeek: return "thisWeek"
-        case .uncategorized: return "uncategorized"
-        case .source(let source): return "source_\(source.rawValue)"
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .unread: return "Okunmadı"
-        case .favorites: return "Favoriler"
-        case .today: return "Bugün"
-        case .thisWeek: return "Bu Hafta"
-        case .uncategorized: return "Kategorisiz"
-        case .source(let source): return source.displayName
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .unread: return "circle"
-        case .favorites: return "star.fill"
-        case .today: return "sun.max.fill"
-        case .thisWeek: return "calendar"
-        case .uncategorized: return "folder"
-        case .source(let source): return source.systemIcon
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .unread: return .orange
-        case .favorites: return .yellow
-        case .today: return .blue
-        case .thisWeek: return .green
-        case .uncategorized: return .gray
-        case .source(let source): return source.color
-        }
-    }
-    
-    static var allCases: [QuickFilter] {
-        [.unread, .favorites, .today, .thisWeek]
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: QuickFilter, rhs: QuickFilter) -> Bool {
-        lhs.id == rhs.id
-    }
-}
-
-// MARK: - Supporting Components
-
-struct SectionHeader: View {
-    let title: String
-    let icon: String
-    
-    var body: some View {
-        Label(title, systemImage: icon)
-            .font(.headline)
-            .foregroundStyle(.primary)
-    }
-}
+// MARK: - Stat Card
 
 struct StatCard: View {
-    let title: String
-    let value: String
     let icon: String
+    let value: String
+    let title: String
     let color: Color
     
     var body: some View {
@@ -355,44 +304,11 @@ struct StatCard: View {
     }
 }
 
-struct QuickFilterChip: View {
-    let filter: QuickFilter
-    let count: Int
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: filter.icon)
-                    .foregroundStyle(filter.color)
-                
-                Text(filter.title)
-                    .fontWeight(.medium)
-                
-                if count > 0 {
-                    Text("\(count)")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(filter.color.opacity(0.2))
-                        .clipShape(Capsule())
-                }
-            }
-            .font(.subheadline)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(Color(.systemBackground))
-            .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
-        }
-        .buttonStyle(.plain)
-    }
-}
+// MARK: - Category Card Item
 
-struct CategoryCard: View {
+struct CategoryCardItem: View {
     let category: Category
-    let bookmarkCount: Int
+    let count: Int
     let action: () -> Void
     
     var body: some View {
@@ -408,7 +324,7 @@ struct CategoryCard: View {
                     
                     Spacer()
                     
-                    Text("\(bookmarkCount)")
+                    Text("\(count)")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.primary)
@@ -428,78 +344,45 @@ struct CategoryCard: View {
     }
 }
 
-struct UncategorizedCard: View {
-    let count: Int
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: "folder")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.gray)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
-                    Spacer()
-                    
-                    Text("\(count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                }
-                
-                Text("Kategorisiz")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-            }
-            .padding()
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                    .foregroundStyle(Color.gray.opacity(0.3))
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
+// MARK: - Quick Access Button
 
-struct SourceCard: View {
-    let source: BookmarkSource
+struct QuickAccessButton: View {
+    let icon: String
+    let title: String
     let count: Int
+    let color: Color
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Text(source.emoji)
-                    .font(.title)
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(color)
                 
-                Text("\(count)")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                
-                Text(source.displayName)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                VStack(spacing: 2) {
+                    Text(title)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                    
+                    Text("\(count)")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                }
+                .foregroundStyle(.primary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(Color(.systemBackground))
+            .background(Color(.systemGray6))
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }
 }
 
-struct RecentBookmarkRow: View {
+// MARK: - Recent Item Row
+
+struct RecentItemRow: View {
     let bookmark: Bookmark
     
     var body: some View {
@@ -538,52 +421,7 @@ struct RecentBookmarkRow: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 4)
-    }
-}
-
-struct EmptyCategoriesCard: View {
-    let action: () -> Void
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "folder.badge.plus")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
-            
-            Text("Henüz kategori yok")
-                .font(.headline)
-            
-            Text("Bookmarklarını düzenlemek için kategoriler oluştur")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            
-            Button("Varsayılan Kategorileri Ekle", action: action)
-                .buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(24)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-struct EmptyRecentCard: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "bookmark.slash")
-                .font(.system(size: 32))
-                .foregroundStyle(.secondary)
-            
-            Text("Henüz bookmark eklenmedi")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(32)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(.vertical, 8)
     }
 }
 
