@@ -80,10 +80,10 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Bookmarklar")
+                    Text("Bookmarklar", bundle: .main, comment: "Home view title")
                         .font(.system(size: 28, weight: .bold))
                     
-                    Text("\(viewModel.totalCount) toplam • \(viewModel.unreadCount) okunmadı")
+                    Text("\(viewModel.totalCount) toplam • \(viewModel.unreadCount) okunmadı", bundle: .main, comment: "Stat counts")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -145,7 +145,7 @@ struct HomeView: View {
     private var quickAccessSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Hızlı Erişim")
+                Text("Hızlı Erişim", bundle: .main, comment: "Quick access section title")
                     .font(.system(size: 16, weight: .semibold))
                     .tracking(0.3)
                     .textCase(.uppercase)
@@ -187,7 +187,7 @@ struct HomeView: View {
     private var categoriesGridSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Kategoriler")
+                Text("Kategoriler", bundle: .main, comment: "Categories section title")
                     .font(.system(size: 16, weight: .semibold))
                     .tracking(0.3)
                     .textCase(.uppercase)
@@ -205,7 +205,7 @@ struct HomeView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "folder.badge.plus")
                             .font(.title2)
-                        Text("Kategorileri Oluştur")
+                        Text("Kategorileri Oluştur", bundle: .main, comment: "Create categories button")
                             .font(.subheadline)
                     }
                     .frame(maxWidth: .infinity)
@@ -233,7 +233,7 @@ struct HomeView: View {
     private var recentItemsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Son Eklenenler")
+                Text("Son Eklenenler", bundle: .main, comment: "Recent items section title")
                     .font(.system(size: 16, weight: .semibold))
                     .tracking(0.3)
                     .textCase(.uppercase)
@@ -251,7 +251,7 @@ struct HomeView: View {
                     Image(systemName: "bookmark")
                         .font(.title2)
                         .foregroundStyle(.secondary)
-                    Text("Henüz bookmark eklenmedi")
+                    Text("Henüz bookmark eklenmedi", bundle: .main, comment: "Empty recent bookmarks message")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
