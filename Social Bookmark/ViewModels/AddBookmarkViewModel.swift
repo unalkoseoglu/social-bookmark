@@ -133,6 +133,7 @@ final class AddBookmarkViewModel {
             url: sanitizedURL,
             note: note.trimmingCharacters(in: .whitespaces),
             source: selectedSource,
+            categoryId: selectedCategoryId,
             tags: parsedTags,
             imageData: finalImageData,
             imagesData: finalImagesData,
@@ -182,7 +183,7 @@ final class AddBookmarkViewModel {
         metadataFetchTask?.cancel()
         
         metadataFetchTask = Task {
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms instead of 1s
             
             if !Task.isCancelled {
                 await fetchMetadata()
