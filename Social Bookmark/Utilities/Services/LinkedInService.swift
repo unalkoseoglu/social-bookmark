@@ -1,332 +1,252 @@
 import Foundation
-import Security
 
-// MARK: - Models
-
-struct LinkedInAccessToken: Codable, Equatable {
-    let accessToken: String
-    let refreshToken: String?
-    let expiresAt: Date?
-
-    var isExpired: Bool {
-        guard let expiresAt else { return false }
-        return expiresAt < Date().addingTimeInterval(-60)
+/// LinkedIn post servisi
+/// NOT: LinkedIn API gerektiriyor, bu yüzden web scraping kullanıyoruz
+final class LinkedInService {
+    static let shared = LinkedInService()
+    private init() {}
+    
+    // MARK: - Public Methods
+    
+    func isLinkedInURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("linkedin.com/posts/") ||
+               lowercased.contains("linkedin.com/feed/update/") ||
+               lowercased.contains("lnkd.in/")
     }
-}
-
-struct LinkedInContent: Codable, Equatable {
-    let title: String
-    let summary: String
-    let imageURL: URL?
-    let author: String
-}
-
-enum LinkedInError: Error, LocalizedError {
-    case missingCredentials
-    case authorizationRequired
-    case invalidURL
-    case networkError
-    case failedToDecode
-
-    var errorDescription: String? {
-        switch self {
-        case .missingCredentials:
-            return "LinkedIn credentials are missing."
-        case .authorizationRequired:
-            return "Authorization is required to access LinkedIn content."
-        case .invalidURL:
-            return "Provided LinkedIn URL is invalid."
-        case .networkError:
-            return "A network error occurred while contacting LinkedIn."
-        case .failedToDecode:
-            return "LinkedIn response could not be decoded."
-        }
-    }
-}
-
-// MARK: - Protocols
-
-protocol LinkedInAuthProviding {
-    func cachedToken() -> LinkedInAccessToken?
-    func store(token: LinkedInAccessToken) throws
-    func ensureValidToken() async throws -> LinkedInAccessToken
-}
-
-protocol LinkedInContentProviding {
-    func fetchContent(from url: URL, token: LinkedInAccessToken) async throws -> LinkedInContent
-}
-
-protocol LinkedInHTMLParsing {
-    func parseContent(from url: URL) async throws -> LinkedInContent
-}
-
-// MARK: - Keychain Storage
-
-class LinkedInTokenStore {
-    private let service = "com.socialbookmark.linkedin"
-    private let account = "linkedin_access_token"
-
-    func save(_ token: LinkedInAccessToken) throws {
-        let data = try JSONEncoder().encode(token)
-
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account
-        ]
-
-        SecItemDelete(query as CFDictionary)
-
-        let attributes: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecValueData as String: data
-        ]
-
-        let status = SecItemAdd(attributes as CFDictionary, nil)
-        guard status == errSecSuccess else { throw LinkedInError.networkError }
-    }
-
-    func load() -> LinkedInAccessToken? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-        guard status == errSecSuccess, let data = item as? Data else { return nil }
-
-        return try? JSONDecoder().decode(LinkedInAccessToken.self, from: data)
-    }
-
-    func clear() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account
-        ]
-        SecItemDelete(query as CFDictionary)
-    }
-}
-
-// MARK: - HTML Parser (fallback when OAuth isn't available)
-
-final class LinkedInHTMLParser: LinkedInHTMLParsing {
-    private let metadataService: URLMetadataService
-
-    init(metadataService: URLMetadataService = .shared) {
-        self.metadataService = metadataService
-    }
-
-    func parseContent(from url: URL) async throws -> LinkedInContent {
-        do {
-            // Attempt the richer LinkPresentation-powered fetch first
-            let metadata = try? await metadataService.fetchMetadata(from: url.absoluteString)
-
-            if let metadata {
-                return LinkedInContent(
-                    title: metadata.title ?? "LinkedIn", // fallback title
-                    summary: metadata.description ?? "",
-                    imageURL: metadata.imageURL,
-                    author: url.host ?? "LinkedIn"
-                )
+    
+    func fetchPost(from urlString: String) async throws -> LinkedInPost {
+        print("🔵 LinkedIn: Başlangıç URL: \(urlString)")
+        
+        // 1. Kısa URL'leri expand et
+        var finalURL = urlString
+        if urlString.contains("lnkd.in/") {
+            print("🔵 LinkedIn: Kısa URL tespit edildi, expand ediliyor...")
+            if let expanded = try await expandShortURL(urlString) {
+                finalURL = expanded
+                print("✅ LinkedIn: Expanded URL: \(finalURL)")
             }
-
-            // Fallback: lightweight HTML parsing
-            let fallback = try await metadataService.fetchMetadataFallback(from: url.absoluteString)
-            return LinkedInContent(
-                title: fallback.title ?? "LinkedIn",
-                summary: fallback.description ?? "",
-                imageURL: fallback.imageURL,
-                author: url.host ?? "LinkedIn"
-            )
-        } catch {
-            throw LinkedInError.failedToDecode
+        }
+        
+        guard let url = URL(string: finalURL) else {
+            throw LinkedInError.invalidURL
+        }
+        
+        // 2. HTML içeriğini çek
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 15
+        
+        // LinkedIn web scraping için gerekli header'lar
+        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
+                        forHTTPHeaderField: "User-Agent")
+        request.setValue("text/html,application/xhtml+xml",
+                        forHTTPHeaderField: "Accept")
+        
+        print("🔵 LinkedIn: HTML çekiliyor...")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw LinkedInError.networkError
+        }
+        
+        print("🔵 LinkedIn: HTTP Status: \(httpResponse.statusCode)")
+        
+        guard httpResponse.statusCode == 200 else {
+            throw LinkedInError.httpError(httpResponse.statusCode)
+        }
+        
+        guard let html = String(data: data, encoding: .utf8) else {
+            throw LinkedInError.parseError
+        }
+        
+        print("🔵 LinkedIn: HTML alındı (\(html.count) karakter)")
+        
+        // 3. HTML'den bilgileri çıkar
+        let post = try parseLinkedInHTML(html, originalURL: url)
+        
+        print("✅ LinkedIn: Post oluşturuldu")
+        print("  - Başlık/İçerik: \(post.title.prefix(50))...")
+        print("  - Yazar: \(post.authorName)")
+        
+        return post
+    }
+    
+    // MARK: - HTML Parser
+    
+    private func parseLinkedInHTML(_ html: String, originalURL: URL) throws -> LinkedInPost {
+        print("🔵 LinkedIn: HTML parse ediliyor...")
+        
+        // Open Graph meta tags'lerini çıkar (en güvenilir yöntem)
+        let title = extractOGTag(from: html, property: "og:title") ??
+                   extractTitle(from: html) ??
+                   "LinkedIn Post"
+        
+        let description = extractOGTag(from: html, property: "og:description") ??
+                         extractDescription(from: html) ??
+                         ""
+        
+        let imageURL = extractOGTag(from: html, property: "og:image")
+            .flatMap { URL(string: $0) }
+        
+        // Yazar bilgisini çıkar
+        var authorName = "LinkedIn User"
+        var authorTitle = ""
+        
+        // Pattern 1: "Name · Job Title" formatı
+        if let namePattern = extractPattern(from: html, pattern: #"<title>([^·]+)·([^<]+)</title>"#) {
+            let parts = namePattern.components(separatedBy: "·")
+            if parts.count >= 2 {
+                authorName = parts[0].trimmingCharacters(in: .whitespaces)
+                authorTitle = parts[1].trimmingCharacters(in: .whitespaces)
+            }
+        }
+        
+        // Pattern 2: JSON-LD structured data
+        if authorName == "LinkedIn User",
+           let jsonLD = extractJSONLD(from: html) {
+            authorName = jsonLD["author"] as? String ?? authorName
+        }
+        
+        print("🔵 LinkedIn: Parse tamamlandı")
+        print("  - Başlık: \(title)")
+        print("  - Yazar: \(authorName)")
+        print("  - Görsel: \(imageURL?.absoluteString ?? "yok")")
+        
+        return LinkedInPost(
+            title: cleanText(title),
+            content: cleanText(description),
+            authorName: cleanText(authorName),
+            authorTitle: cleanText(authorTitle),
+            imageURL: imageURL,
+            originalURL: originalURL
+        )
+    }
+    
+    // MARK: - HTML Extraction Helpers
+    
+    private func extractOGTag(from html: String, property: String) -> String? {
+        let pattern = #"<meta[^>]*property=["']\#(property)["'][^>]*content=["']([^"']+)["']"#
+        return extractPattern(from: html, pattern: pattern)
+    }
+    
+    private func extractTitle(from html: String) -> String? {
+        let pattern = #"<title>([^<]+)</title>"#
+        return extractPattern(from: html, pattern: pattern)
+    }
+    
+    private func extractDescription(from html: String) -> String? {
+        let pattern = #"<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']"#
+        return extractPattern(from: html, pattern: pattern)
+    }
+    
+    private func extractPattern(from html: String, pattern: String) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+            return nil
+        }
+        
+        let range = NSRange(html.startIndex..<html.endIndex, in: html)
+        guard let match = regex.firstMatch(in: html, range: range),
+              match.numberOfRanges > 1,
+              let contentRange = Range(match.range(at: 1), in: html) else {
+            return nil
+        }
+        
+        return String(html[contentRange])
+    }
+    
+    private func extractJSONLD(from html: String) -> [String: Any]? {
+        let pattern = #"<script type="application/ld\+json">([^<]+)</script>"#
+        guard let jsonString = extractPattern(from: html, pattern: pattern),
+              let data = jsonString.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        return json
+    }
+    
+    private func cleanText(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&#39;", with: "'")
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "\\n", with: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    // MARK: - URL Helpers
+    
+    private func expandShortURL(_ urlString: String) async throws -> String? {
+        guard let url = URL(string: urlString) else { return nil }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        request.timeoutInterval = 10
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse,
+           let location = httpResponse.url?.absoluteString {
+            return location
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Error Types
+    
+    enum LinkedInError: LocalizedError {
+        case invalidURL
+        case networkError
+        case httpError(Int)
+        case parseError
+        case authRequired
+        
+        var errorDescription: String? {
+            switch self {
+            case .invalidURL:
+                return "Geçersiz LinkedIn URL'i"
+            case .networkError:
+                return "LinkedIn isteği başarısız oldu"
+            case .httpError(let code):
+                return "LinkedIn HTTP hatası (kod: \(code))"
+            case .parseError:
+                return "LinkedIn içeriği çözümlenemedi"
+            case .authRequired:
+                return "LinkedIn girişi gerekli (bazı postlar için)"
+            }
         }
     }
 }
 
-// MARK: - Auth Client
+// MARK: - LinkedInPost Model
 
-final class LinkedInAuthClient: LinkedInAuthProviding {
-    private let config: LinkedInConfig
-    private let session: URLSession
-    private let tokenStore: LinkedInTokenStore
-
-    init(
-        config: LinkedInConfig = .shared,
-        session: URLSession = .shared,
-        tokenStore: LinkedInTokenStore = LinkedInTokenStore()
-    ) {
-        self.config = config
-        self.session = session
-        self.tokenStore = tokenStore
+struct LinkedInPost: Equatable {
+    let title: String
+    let content: String
+    let authorName: String
+    let authorTitle: String
+    let imageURL: URL?
+    let originalURL: URL
+    
+    var hasContent: Bool {
+        !content.isEmpty
     }
-
-    func cachedToken() -> LinkedInAccessToken? {
-        tokenStore.load()
+    
+    var displayText: String {
+        if !content.isEmpty && content != title {
+            return content
+        }
+        return title
     }
-
-    func store(token: LinkedInAccessToken) throws {
-        try tokenStore.save(token)
-    }
-
-    func ensureValidToken() async throws -> LinkedInAccessToken {
-        guard let token = tokenStore.load() else {
-            throw LinkedInError.authorizationRequired
+    
+    var authorDisplay: String {
+        if !authorTitle.isEmpty {
+            return "\(authorName) • \(authorTitle)"
         }
-
-        guard token.isExpired, let refreshToken = token.refreshToken else {
-            return token
-        }
-
-        let refreshed = try await refreshAccessToken(refreshToken: refreshToken)
-        try tokenStore.save(refreshed)
-        return refreshed
-    }
-
-    func exchangeAuthorizationCode(_ code: String) async throws -> LinkedInAccessToken {
-        guard !config.clientID.isEmpty, !config.clientSecret.isEmpty else {
-            throw LinkedInError.missingCredentials
-        }
-
-        guard let url = URL(string: "https://www.linkedin.com/oauth/v2/accessToken") else {
-            throw LinkedInError.invalidURL
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-
-        let body = "grant_type=authorization_code&code=\(code)&redirect_uri=\(config.redirectURI)&client_id=\(config.clientID)&client_secret=\(config.clientSecret)"
-        request.httpBody = body.data(using: .utf8)
-
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw LinkedInError.networkError
-        }
-
-        guard let token = decodeToken(from: data) else {
-            throw LinkedInError.failedToDecode
-        }
-
-        try tokenStore.save(token)
-        return token
-    }
-
-    func refreshAccessToken(refreshToken: String) async throws -> LinkedInAccessToken {
-        guard let url = URL(string: "https://www.linkedin.com/oauth/v2/accessToken") else {
-            throw LinkedInError.invalidURL
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-
-        let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(config.clientID)&client_secret=\(config.clientSecret)"
-        request.httpBody = body.data(using: .utf8)
-
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw LinkedInError.networkError
-        }
-
-        guard let token = decodeToken(from: data) else {
-            throw LinkedInError.failedToDecode
-        }
-
-        try tokenStore.save(token)
-        return token
-    }
-
-    private func decodeToken(from data: Data) -> LinkedInAccessToken? {
-        struct TokenResponse: Codable {
-            let access_token: String
-            let refresh_token: String?
-            let expires_in: Int?
-        }
-
-        guard let decoded = try? JSONDecoder().decode(TokenResponse.self, from: data) else { return nil }
-        let expiry = decoded.expires_in.map { Date().addingTimeInterval(TimeInterval($0)) }
-        return LinkedInAccessToken(accessToken: decoded.access_token, refreshToken: decoded.refresh_token, expiresAt: expiry)
-    }
-}
-
-// MARK: - Content Client
-
-final class LinkedInContentClient: LinkedInContentProviding {
-    private let session: URLSession
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-
-    func fetchContent(from url: URL, token: LinkedInAccessToken) async throws -> LinkedInContent {
-        let encodedURL = url.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? url.absoluteString
-
-        guard let endpoint = URL(string: "https://api.linkedin.com/v2/ugcPosts?q=entityShare&url=\(encodedURL)") else {
-            throw LinkedInError.invalidURL
-        }
-
-        var request = URLRequest(url: endpoint)
-        request.setValue("Bearer \(token.accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw LinkedInError.networkError
-        }
-
-        return try decodeContent(from: data)
-    }
-
-    private func decodeContent(from data: Data) throws -> LinkedInContent {
-        struct Media: Codable {
-            let status: String?
-            let originalUrl: String?
-        }
-
-        struct ShareContent: Codable {
-            let shareCommentary: LocalizedText?
-            let shareMediaCategory: String?
-            let media: [Media]?
-        }
-
-        struct LocalizedText: Codable {
-            let text: String?
-        }
-
-        struct ContentResponse: Codable {
-            let author: String?
-            let lifecycleState: String?
-            let specificContent: SpecificContent?
-        }
-
-        struct SpecificContent: Codable {
-            let shareContent: ShareContent?
-        }
-
-        do {
-            let response = try JSONDecoder().decode(ContentResponse.self, from: data)
-            let title = response.specificContent?.shareContent?.shareCommentary?.text ?? "LinkedIn Post"
-            let summary = response.lifecycleState ?? ""
-            let mediaURLString = response.specificContent?.shareContent?.media?.first?.originalUrl
-            let imageURL = mediaURLString.flatMap { URL(string: $0) }
-            let author = response.author ?? "LinkedIn"
-
-            return LinkedInContent(
-                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-                summary: summary.trimmingCharacters(in: .whitespacesAndNewlines),
-                imageURL: imageURL,
-                author: author
-            )
-        } catch {
-            throw LinkedInError.failedToDecode
-        }
+        return authorName
     }
 }

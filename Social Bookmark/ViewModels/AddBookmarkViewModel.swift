@@ -34,46 +34,55 @@ final class AddBookmarkViewModel {
     private(set) var isLoadingMetadata = false
     private(set) var fetchedMetadata: URLMetadataService.URLMetadata?
     private var metadataFetchTask: Task<Void, Never>?
-
-    // MARK: - Twitter State
-
-    private(set) var fetchedTweet: TwitterService.Tweet?
-    private(set) var fetchedLinkedInContent: LinkedInContent?
-    private(set) var fetchedRedditPost: RedditPost?
     
-    /// Tüm tweet görselleri (çoklu destek) ← YENİ
+    // MARK: - Twitter State
+    
+    private(set) var fetchedTweet: TwitterService.Tweet?
     private(set) var tweetImagesData: [Data] = []
     
-    /// İlk görsel (geriye uyumluluk için)
     var tweetImageData: Data? {
         tweetImagesData.first
     }
     
-    /// Tüm görseller UIImage olarak
     var tweetImages: [UIImage] {
         tweetImagesData.compactMap { UIImage(data: $0) }
+    }
+    
+    // MARK: - Reddit State
+    
+    private(set) var fetchedRedditPost: RedditPost?
+    private(set) var redditImagesData: [Data] = []
+    
+    var redditImages: [UIImage] {
+        redditImagesData.compactMap { UIImage(data: $0) }
+    }
+    
+    // MARK: - LinkedIn State
+    
+    private(set) var fetchedLinkedInContent: LinkedInPost?
+    private(set) var linkedInImageData: Data?
+    
+    var linkedInImage: UIImage? {
+        guard let data = linkedInImageData else { return nil }
+        return UIImage(data: data)
+    }
+    
+    // MARK: - Medium State
+    
+    private(set) var fetchedMediumPost: MediumPost?
+    private(set) var mediumImageData: Data?
+
+    var mediumImage: UIImage? {
+        guard let data = mediumImageData else { return nil }
+        return UIImage(data: data)
     }
     
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol
-    private let linkedinAuthClient: LinkedInAuthProviding
-    private let linkedinContentClient: LinkedInContentProviding
-    private let linkedinHTMLParser: LinkedInHTMLParsing
-    private let redditService: RedditPostProviding
-
-    init(
-        repository: BookmarkRepositoryProtocol,
-        linkedinAuthClient: LinkedInAuthProviding = LinkedInAuthClient(),
-        linkedinContentClient: LinkedInContentProviding = LinkedInContentClient(),
-        linkedinHTMLParser: LinkedInHTMLParsing = LinkedInHTMLParser(),
-        redditService: RedditPostProviding = RedditService()
-    ) {
+    
+    init(repository: BookmarkRepositoryProtocol) {
         self.repository = repository
-        self.linkedinAuthClient = linkedinAuthClient
-        self.linkedinContentClient = linkedinContentClient
-        self.linkedinHTMLParser = linkedinHTMLParser
-        self.redditService = redditService
     }
     
     // MARK: - Public Methods
@@ -85,9 +94,30 @@ final class AddBookmarkViewModel {
         let parsedTags = parseTags(from: tagsInput)
         let sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
         
-        // Görsel verilerini hazırla
-        let finalImageData = tweetImagesData.first ?? imageData  // Geriye uyumluluk
-        let finalImagesData = tweetImagesData.isEmpty ? nil : tweetImagesData  // Çoklu görseller
+        // Görsel verilerini hazırla - Twitter, Reddit, LinkedIn, Medium veya manuel
+        let finalImageData: Data? = {
+            if let first = tweetImagesData.first {
+                return first
+            } else if let first = redditImagesData.first {
+                return first
+            } else if let linkedin = linkedInImageData {
+                return linkedin
+            } else if let medium = mediumImageData {  // ← YENİ
+                return medium
+            } else {
+                return imageData
+            }
+        }()
+        
+        let finalImagesData: [Data]? = {
+            if !tweetImagesData.isEmpty {
+                return tweetImagesData
+            } else if !redditImagesData.isEmpty {
+                return redditImagesData
+            } else {
+                return nil
+            }
+        }()
         
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
@@ -112,18 +142,23 @@ final class AddBookmarkViewModel {
         await MainActor.run {
             isLoadingMetadata = true
             fetchedTweet = nil
-            fetchedLinkedInContent = nil
-            fetchedRedditPost = nil
-            fetchedMetadata = nil
             tweetImagesData = []
+            fetchedRedditPost = nil
+            redditImagesData = []
+            fetchedLinkedInContent = nil
+            linkedInImageData = nil
+            fetchedMediumPost = nil         // ← YENİ
+            mediumImageData = nil            // ← YENİ
         }
-
-        if isLinkedInURL(url) {
-            await fetchLinkedInContent()
-        } else if redditService.isRedditURL(url) {
-            await fetchRedditContent()
-        } else if TwitterService.shared.isTwitterURL(url) {
+        
+        if TwitterService.shared.isTwitterURL(url) {
             await fetchTwitterContent()
+        } else if isRedditURL(url) {
+            await fetchRedditContent()
+        } else if isLinkedInURL(url) {
+            await fetchLinkedInContent()
+        } else if isMediumURL(url) {         // ← YENİ
+            await fetchMediumContent()
         } else {
             await fetchGenericMetadata()
         }
@@ -132,6 +167,7 @@ final class AddBookmarkViewModel {
             isLoadingMetadata = false
         }
     }
+
     
     private func debounceMetadataFetch() {
         metadataFetchTask?.cancel()
@@ -143,77 +179,6 @@ final class AddBookmarkViewModel {
                 await fetchMetadata()
             }
         }
-    }
-
-    // MARK: - LinkedIn Methods
-
-    private func fetchLinkedInContent() async {
-        guard let linkURL = URL(string: url) else { return }
-
-        do {
-            let token = try await linkedinAuthClient.ensureValidToken()
-            let content = try await linkedinContentClient.fetchContent(from: linkURL, token: token)
-
-            await applyLinkedInContent(content)
-        } catch LinkedInError.authorizationRequired {
-            await fetchLinkedInContentViaHTML(linkURL)
-        } catch LinkedInError.missingCredentials {
-            await fetchLinkedInContentViaHTML(linkURL)
-        } catch {
-            print("❌ LinkedIn hatası: \(error.localizedDescription)")
-            await fetchLinkedInContentViaHTML(linkURL)
-        }
-    }
-
-    private func fetchLinkedInContentViaHTML(_ url: URL) async {
-        do {
-            let content = try await linkedinHTMLParser.parseContent(from: url)
-            await applyLinkedInContent(content)
-        } catch {
-            print("❌ LinkedIn HTML parse hatası: \(error.localizedDescription)")
-        }
-    }
-
-    @MainActor
-    private func applyLinkedInContent(_ content: LinkedInContent) {
-        fetchedLinkedInContent = content
-
-        if title.isEmpty {
-            title = content.title
-        }
-
-        if note.isEmpty {
-            note = content.summary
-        }
-
-        selectedSource = .linkedin
-    }
-
-    // MARK: - Reddit Methods
-
-    private func fetchRedditContent() async {
-        do {
-            let post = try await redditService.fetchPost(from: url)
-            await applyRedditPost(post)
-        } catch {
-            print("❌ Reddit hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata()
-        }
-    }
-
-    @MainActor
-    private func applyRedditPost(_ post: RedditPost) {
-        fetchedRedditPost = post
-
-        if title.isEmpty {
-            title = post.title
-        }
-
-        if note.isEmpty {
-            note = post.summary
-        }
-
-        selectedSource = .reddit
     }
     
     func resetForm() {
@@ -227,11 +192,30 @@ final class AddBookmarkViewModel {
         isLoadingMetadata = false
         metadataFetchTask?.cancel()
         fetchedTweet = nil
-        fetchedLinkedInContent = nil
-        fetchedRedditPost = nil
         tweetImagesData = []
+        fetchedRedditPost = nil
+        redditImagesData = []
+        fetchedLinkedInContent = nil
+        linkedInImageData = nil
+        fetchedMediumPost = nil       // ← YENİ
+        mediumImageData = nil          // ← YENİ
     }
-
+    
+    // MARK: - URL Validation Helpers
+    
+    func isRedditURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("reddit.com/r/") || lowercased.contains("redd.it/")
+    }
+    
+    func isLinkedInURL(_ urlString: String) -> Bool {
+        return LinkedInService.shared.isLinkedInURL(urlString)
+    }
+    
+    func isMediumURL(_ urlString: String) -> Bool {
+        return MediumService.shared.isMediumURL(urlString)
+    }
+    
     // MARK: - Twitter Methods
     
     private func fetchTwitterContent() async {
@@ -255,7 +239,6 @@ final class AddBookmarkViewModel {
             print("🐦 Tweet çekildi: @\(tweet.authorUsername)")
             print("🖼️ Toplam görsel sayısı: \(tweet.mediaURLs.count)")
             
-            // TÜM GÖRSELLERİ İNDİR ← YENİ
             if !tweet.mediaURLs.isEmpty {
                 await downloadAllTweetImages(from: tweet.mediaURLs)
             }
@@ -266,11 +249,9 @@ final class AddBookmarkViewModel {
         }
     }
     
-    /// Tüm tweet görsellerini indir ← YENİ
     private func downloadAllTweetImages(from urls: [URL]) async {
         print("⬇️ \(urls.count) görsel indiriliyor...")
         
-        // Paralel indirme için TaskGroup kullan
         await withTaskGroup(of: (Int, Data?).self) { group in
             for (index, url) in urls.enumerated() {
                 group.addTask {
@@ -291,7 +272,6 @@ final class AddBookmarkViewModel {
                 }
             }
             
-            // Sonuçları topla ve sırala
             var results: [(Int, Data)] = []
             for await (index, data) in group {
                 if let data = data {
@@ -299,7 +279,6 @@ final class AddBookmarkViewModel {
                 }
             }
             
-            // Index'e göre sırala (orijinal sırayı koru)
             results.sort { $0.0 < $1.0 }
             let sortedData = results.map { $0.1 }
             
@@ -309,6 +288,193 @@ final class AddBookmarkViewModel {
             }
         }
     }
+    
+    // MARK: - Reddit Methods
+    
+    private func fetchRedditContent() async {
+        do {
+            let post = try await RedditService.shared.fetchPost(from: url)
+            
+            await MainActor.run {
+                fetchedRedditPost = post
+                
+                if title.isEmpty {
+                    title = post.title
+                }
+                
+                if note.isEmpty {
+                    if !post.selfText.isEmpty {
+                        note = post.selfText
+                    } else {
+                        note = "r/\(post.subreddit) - \(post.title)"
+                    }
+                }
+                
+                selectedSource = .reddit
+            }
+            
+            print("🔴 Reddit post çekildi: r/\(post.subreddit)")
+            
+            // Tek görsel varsa indir
+            if let imageURL = post.imageURL {
+                await downloadRedditImage(from: imageURL)
+            }
+            
+        } catch {
+            print("❌ Reddit hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata()
+        }
+    }
+    
+    /// Tek Reddit görseli indir
+    private func downloadRedditImage(from url: URL) async {
+        print("⬇️ Reddit görseli indiriliyor: \(url.lastPathComponent)")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 200,
+               data.count > 1000 {
+                
+                await MainActor.run {
+                    redditImagesData = [data]
+                    print("✅ Reddit görseli indirildi: \(data.count) bytes")
+                }
+            }
+        } catch {
+            print("❌ Reddit görsel hatası: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - LinkedIn Methods
+    
+    private func fetchLinkedInContent() async {
+        do {
+            let post = try await LinkedInService.shared.fetchPost(from: url)
+            
+            await MainActor.run {
+                fetchedLinkedInContent = post
+                
+                if title.isEmpty {
+                    title = post.title
+                }
+                
+                if note.isEmpty {
+                    note = post.displayText
+                }
+                
+                selectedSource = .linkedin
+            }
+            
+            print("🔵 LinkedIn post çekildi: \(post.authorName)")
+            
+            // Görsel varsa indir
+            if let imageURL = post.imageURL {
+                await downloadLinkedInImage(from: imageURL)
+            }
+            
+        } catch {
+            print("❌ LinkedIn hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata()
+        }
+    }
+    
+    /// LinkedIn görseli indir
+    private func downloadLinkedInImage(from url: URL) async {
+        print("⬇️ LinkedIn görseli indiriliyor: \(url.lastPathComponent)")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 200,
+               data.count > 1000 {
+                
+                await MainActor.run {
+                    linkedInImageData = data
+                    print("✅ LinkedIn görseli indirildi: \(data.count) bytes")
+                }
+            }
+        } catch {
+            print("❌ LinkedIn görsel hatası: \(error.localizedDescription)")
+        }
+    }
+    
+    //MARK: - Medium Methods
+    
+    private func fetchMediumContent() async {
+        do {
+            let post = try await MediumService.shared.fetchPost(from: url)
+            
+            await MainActor.run {
+                fetchedMediumPost = post
+                
+                // Başlık
+                if title.isEmpty {
+                    title = post.title
+                }
+                
+                // SUBTITLE'I NOT OLARAK KAYDET ← ÖNEMLİ
+                if note.isEmpty {
+                    // Subtitle varsa kullan (genelde çok iyi bir özet)
+                    if !post.subtitle.isEmpty {
+                        note = post.subtitle
+                        
+                        // Kısmi içerik varsa ekle
+                        if post.hasFullContent {
+                            note += "\n\n" + post.fullContent
+                        }
+                        
+                        // Medium linki ekle
+                        note += "\n\n📗 Medium'da oku: \(url)"
+                    } else if post.hasFullContent {
+                        note = post.fullContent + "\n\n📗 Medium'da oku: \(url)"
+                    } else {
+                        note = "📗 Medium'da oku: \(url)"
+                    }
+                }
+                
+                selectedSource = .medium
+            }
+            
+            print("📗 Medium post kaydedildi:")
+            print("  - Subtitle: \(post.subtitle)")
+            print("  - Kısmi içerik: \(post.fullContent.count) karakter")
+            
+            // Görsel varsa indir
+            if let imageURL = post.imageURL {
+                await downloadMediumImage(from: imageURL)
+            }
+            
+        } catch {
+            print("❌ Medium hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata()
+        }
+    }
+
+    /// Medium görseli indir
+    private func downloadMediumImage(from url: URL) async {
+        print("⬇️ Medium görseli indiriliyor: \(url.lastPathComponent)")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 200,
+               data.count > 1000 {
+                
+                await MainActor.run {
+                    mediumImageData = data
+                    print("✅ Medium görseli indirildi: \(data.count) bytes")
+                }
+            }
+        } catch {
+            print("❌ Medium görsel hatası: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Generic Metadata
     
     private func fetchGenericMetadata() async {
         do {
@@ -379,21 +545,6 @@ final class AddBookmarkViewModel {
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
-    }
-
-    func isLinkedInURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-
-        guard lowercased.contains("linkedin.com") else { return false }
-
-        return lowercased.contains("/posts/") ||
-        lowercased.contains("/feed/update/") ||
-        lowercased.contains("/company/") ||
-        lowercased.contains("/in/")
-    }
-
-    func isRedditURL(_ urlString: String) -> Bool {
-        redditService.isRedditURL(urlString)
     }
     
     private func cleanMetaTitle(_ title: String) -> String {

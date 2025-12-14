@@ -27,7 +27,8 @@ struct AddBookmarkView: View {
         NavigationStack {
             Form {
                 basicInfoSection
-                linkedinPreviewSection
+                mediumPreviewSection       // ← YENİ (en üste, LinkedIn'den önce)
+                linkedInPreviewSection
                 redditPreviewSection
                 tweetPreviewSection
                 detailsSection
@@ -75,21 +76,22 @@ struct AddBookmarkView: View {
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
 
+                // Platform ikonları
                 if viewModel.isLinkedInURL(viewModel.url) {
                     Image(systemName: "link")
                         .foregroundStyle(.cyan)
                         .transition(.scale.combined(with: .opacity))
-                }
-
-                if viewModel.isRedditURL(viewModel.url) {
+                } else if viewModel.isRedditURL(viewModel.url) {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .foregroundStyle(.orange)
                         .transition(.scale.combined(with: .opacity))
-                }
-
-                if TwitterService.shared.isTwitterURL(viewModel.url) {
+                } else if TwitterService.shared.isTwitterURL(viewModel.url) {
                     Image(systemName: "bird.fill")
                         .foregroundStyle(.blue)
+                        .transition(.scale.combined(with: .opacity))
+                }else if viewModel.isMediumURL(viewModel.url) {        // ← YENİ
+                    Image(systemName: "doc.text.fill")
+                        .foregroundStyle(.green)
                         .transition(.scale.combined(with: .opacity))
                 }
                 
@@ -113,67 +115,112 @@ struct AddBookmarkView: View {
                     .font(.caption)
             }
             
+            // Success messages
             if let linkedInContent = viewModel.fetchedLinkedInContent {
-                Label(
-                    "LinkedIn içeriği çekildi",
-                    systemImage: "checkmark.circle.fill"
-                )
-                .foregroundStyle(.cyan)
+                HStack {
+                    Label("LinkedIn içeriği çekildi", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.cyan)
+                    
+                    if viewModel.linkedInImageData != nil {
+                        Text("(1 görsel)")
+                            .foregroundStyle(.cyan)
+                    }
+                }
                 .font(.caption)
-                .accessibilityLabel(linkedInContent.title)
+                
             } else if let redditPost = viewModel.fetchedRedditPost {
-                Label(
-                    "Reddit içeriği çekildi",
-                    systemImage: "checkmark.circle.fill"
-                )
-                .foregroundStyle(.orange)
+                HStack {
+                    Label("Reddit içeriği çekildi", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.orange)
+                    
+                    if !viewModel.redditImagesData.isEmpty {
+                        Text("(\(viewModel.redditImagesData.count) görsel)")
+                            .foregroundStyle(.orange)
+                    }
+                }
                 .font(.caption)
-                .accessibilityLabel(redditPost.title)
+                
+            }else if let mediumPost = viewModel.fetchedMediumPost {    // ← YENİ (en üstte)
+                HStack {
+                    Label("Medium içeriği çekildi", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                    
+                    if viewModel.mediumImageData != nil {
+                        Text("(1 görsel)")
+                            .foregroundStyle(.green)
+                    }
+                }
+                .font(.caption)
+                
             } else if viewModel.fetchedTweet != nil {
                 HStack {
                     Label("Tweet içeriği çekildi", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
 
-                    // Görsel sayısı badge'i ← YENİ
                     if viewModel.tweetImagesData.count > 0 {
                         Text("(\(viewModel.tweetImagesData.count) görsel)")
                             .foregroundStyle(.blue)
                     }
                 }
                 .font(.caption)
-            } else if let metadata = viewModel.fetchedMetadata, metadata.hasTitle {
+                
+            }  else if let metadata = viewModel.fetchedMetadata, metadata.hasTitle {
                 Label("Sayfa bilgileri dolduruldu", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
                     .font(.caption)
             }
         }
     }
-
+    
+    //MARK: - Medium Preview Section
     @ViewBuilder
-    private var linkedinPreviewSection: some View {
-        if let content = viewModel.fetchedLinkedInContent {
+    private var mediumPreviewSection: some View {
+        if let post = viewModel.fetchedMediumPost {
             Section {
-                LinkedInPreviewView(content: content)
-            } header: {
-                Label("LinkedIn Önizleme", systemImage: "link")
-                    .foregroundStyle(.cyan)
+                MediumPreviewView(
+                    post: post,
+                    imageData: viewModel.mediumImageData
+                )
             }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         }
     }
 
+    // MARK: - LinkedIn Preview Section
+    
+    @ViewBuilder
+    private var linkedInPreviewSection: some View {
+        if let content = viewModel.fetchedLinkedInContent {
+            Section {
+                LinkedInPreviewView(
+                    post: content,
+                    imageData: viewModel.linkedInImageData
+                )
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+        }
+    }
+
+    // MARK: - Reddit Preview Section
+    
     @ViewBuilder
     private var redditPreviewSection: some View {
         if let post = viewModel.fetchedRedditPost {
             Section {
-                RedditPreviewView(post: post)
-            } header: {
-                Label("Reddit Önizleme", systemImage: "bubble.left.and.bubble.right.fill")
-                    .foregroundStyle(.orange)
+                RedditPreviewView(
+                    post: post,
+                    imagesData: viewModel.redditImagesData
+                )
             }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         }
     }
-
-    /// Tweet önizleme - çoklu görsel destekli ← GÜNCELLENDİ
+    
+    // MARK: - Tweet Preview Section
+    
     @ViewBuilder
     private var tweetPreviewSection: some View {
         if let tweet = viewModel.fetchedTweet {
@@ -239,11 +286,10 @@ struct AddBookmarkView: View {
                         .lineLimit(8)
                         .fixedSize(horizontal: false, vertical: true)
                     
-                    // ÇOKLU GÖRSEL GALERİ ← YENİ
+                    // Çoklu görsel galerisi
                     if !viewModel.tweetImagesData.isEmpty {
                         tweetImagesGallery
                     } else if tweet.hasMedia {
-                        // Görseller yükleniyor
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.gray.opacity(0.1))
                             .frame(height: 100)
@@ -286,13 +332,12 @@ struct AddBookmarkView: View {
         }
     }
     
-    /// Çoklu görsel galerisi ← YENİ
+    /// Çoklu görsel galerisi
     @ViewBuilder
     private var tweetImagesGallery: some View {
         let images = viewModel.tweetImages
         
         if images.count == 1 {
-            // Tek görsel - tam genişlik
             Image(uiImage: images[0])
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -300,7 +345,6 @@ struct AddBookmarkView: View {
                 .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         } else if images.count == 2 {
-            // 2 görsel - yan yana
             HStack(spacing: 4) {
                 ForEach(0..<2, id: \.self) { index in
                     Image(uiImage: images[index])
@@ -313,7 +357,6 @@ struct AddBookmarkView: View {
                 }
             }
         } else if images.count == 3 {
-            // 3 görsel - 1 büyük + 2 küçük
             HStack(spacing: 4) {
                 Image(uiImage: images[0])
                     .resizable()
@@ -337,7 +380,6 @@ struct AddBookmarkView: View {
                 .frame(maxWidth: .infinity)
             }
         } else if images.count >= 4 {
-            // 4+ görsel - 2x2 grid
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
                     ForEach(0..<2, id: \.self) { index in
@@ -360,7 +402,6 @@ struct AddBookmarkView: View {
                             .clipped()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                             .overlay {
-                                // 4'ten fazla görsel varsa sayı göster
                                 if index == 3 && images.count > 4 {
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(.black.opacity(0.5))

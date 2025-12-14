@@ -1,5 +1,225 @@
 import Foundation
 
+/// Reddit JSON API servisi - Share URL redirect desteği ile
+final class RedditService {
+    static let shared = RedditService()
+    private init() {}
+    
+    // MARK: - Public Methods
+    
+    func isRedditURL(_ urlString: String) -> Bool {
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("reddit.com/r/") ||
+               lowercased.contains("redd.it/") ||
+               lowercased.contains("reddit.com/u/")
+    }
+    
+    func fetchPost(from urlString: String) async throws -> RedditPost {
+        print("🔴 Reddit: Başlangıç URL: \(urlString)")
+        
+        // 1. Share URL (/s/) kontrolü - redirect'i takip et
+        if urlString.contains("/s/") {
+            print("🔴 Reddit: Share URL tespit edildi, redirect takip ediliyor...")
+            
+            guard let finalURL = try await followRedirect(from: urlString) else {
+                print("❌ Reddit: Redirect takip edilemedi")
+                throw RedditError.invalidURL
+            }
+            
+            print("✅ Reddit: Gerçek URL bulundu: \(finalURL)")
+            
+            // Gerçek URL ile devam et
+            return try await fetchPost(from: finalURL)
+        }
+        
+        // 2. URL'i temizle ve JSON formatına çevir
+        var cleanURL = urlString
+            .replacingOccurrences(of: "www.", with: "")
+            .replacingOccurrences(of: "old.", with: "")
+            .replacingOccurrences(of: "new.", with: "")
+        
+        // URL sonundaki slash'ı kaldır
+        if cleanURL.hasSuffix("/") {
+            cleanURL = String(cleanURL.dropLast())
+        }
+        
+        // Query parameters'ları kaldır
+        if let queryIndex = cleanURL.firstIndex(of: "?") {
+            cleanURL = String(cleanURL[..<queryIndex])
+        }
+        
+        // .json ekle
+        if !cleanURL.hasSuffix(".json") {
+            cleanURL += ".json"
+        }
+        
+        print("🔴 Reddit: JSON URL: \(cleanURL)")
+        
+        guard let url = URL(string: cleanURL) else {
+            throw RedditError.invalidURL
+        }
+        
+        // 3. HTTP request
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 15
+        request.setValue("iOS:com.unal.Social-Bookmark:v1.0 (by /u/iOSDev)", forHTTPHeaderField: "User-Agent")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        
+        print("🔴 Reddit: İstek gönderiliyor...")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw RedditError.networkError
+        }
+        
+        print("🔴 Reddit: HTTP Status: \(httpResponse.statusCode)")
+        
+        guard httpResponse.statusCode == 200 else {
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("📄 Reddit: Response: \(String(responseString.prefix(300)))")
+            }
+            throw RedditError.httpError(httpResponse.statusCode)
+        }
+        
+        print("🔴 Reddit: Data alındı (\(data.count) bytes)")
+        
+        // 4. JSON parse
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]],
+              let firstItem = json.first,
+              let dataDict = firstItem["data"] as? [String: Any],
+              let children = dataDict["children"] as? [[String: Any]],
+              let postDict = children.first,
+              let postData = postDict["data"] as? [String: Any] else {
+            
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("📄 Reddit: JSON (ilk 500 karakter): \(String(jsonString.prefix(500)))")
+            }
+            
+            throw RedditError.parseError
+        }
+        
+        print("✅ Reddit: Post data parse edildi")
+        
+        // 5. Post bilgilerini çıkar
+        let title = postData["title"] as? String ?? ""
+        let author = postData["author"] as? String ?? "deleted"
+        let subreddit = postData["subreddit"] as? String ?? ""
+        let selftext = postData["selftext"] as? String ?? ""
+        let score = postData["score"] as? Int ?? 0
+        let numComments = postData["num_comments"] as? Int ?? 0
+        let permalink = postData["permalink"] as? String ?? ""
+        
+        print("🔴 Reddit: Başlık: \(title)")
+        print("🔴 Reddit: Subreddit: r/\(subreddit)")
+        
+        // 6. Görsel URL
+        var imageURL: URL? = nil
+        
+        // URL field
+        if let urlString = postData["url"] as? String,
+           (urlString.contains("i.redd.it") ||
+            urlString.contains("i.imgur.com") ||
+            urlString.hasSuffix(".jpg") ||
+            urlString.hasSuffix(".png") ||
+            urlString.hasSuffix(".gif")) {
+            imageURL = URL(string: urlString)
+            print("✅ Reddit: Görsel (url): \(urlString)")
+        }
+        
+        // Preview images
+        if imageURL == nil,
+           let preview = postData["preview"] as? [String: Any],
+           let images = preview["images"] as? [[String: Any]],
+           let firstImage = images.first,
+           let source = firstImage["source"] as? [String: Any],
+           let urlString = source["url"] as? String {
+            
+            let decoded = urlString
+                .replacingOccurrences(of: "&amp;", with: "&")
+                .replacingOccurrences(of: "&lt;", with: "<")
+                .replacingOccurrences(of: "&gt;", with: ">")
+            
+            imageURL = URL(string: decoded)
+            print("✅ Reddit: Görsel (preview): \(decoded)")
+        }
+        
+        let post = RedditPost(
+            title: title,
+            author: author,
+            subreddit: subreddit,
+            selfText: selftext,
+            imageURL: imageURL,
+            score: score,
+            commentCount: numComments,
+            originalURL: URL(string: "https://reddit.com\(permalink)")!
+        )
+        
+        print("✅ Reddit: Post oluşturuldu")
+        
+        return post
+    }
+    
+    // MARK: - Redirect Follower
+    
+    /// Share URL'lerini gerçek URL'e çözümle
+    private func followRedirect(from urlString: String) async throws -> String? {
+        guard let url = URL(string: urlString) else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD" // Sadece header'ları al
+        request.timeoutInterval = 10
+        request.setValue("iOS:com.unal.Social-Bookmark:v1.0 (by /u/iOSDev)", forHTTPHeaderField: "User-Agent")
+        
+        // Manual redirect takibi için
+        let config = URLSessionConfiguration.default
+        config.httpMaximumConnectionsPerHost = 1
+        let session = URLSession(configuration: config)
+        
+        do {
+            let (_, response) = try await session.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+               let location = httpResponse.url?.absoluteString {
+                print("🔴 Reddit: Redirect location: \(location)")
+                return location
+            }
+            
+            return nil
+        } catch {
+            print("❌ Reddit: Redirect hatası: \(error)")
+            return nil
+        }
+    }
+    
+    // MARK: - Error Types
+    
+    enum RedditError: LocalizedError {
+        case invalidURL
+        case networkError
+        case httpError(Int)
+        case parseError
+        
+        var errorDescription: String? {
+            switch self {
+            case .invalidURL:
+                return "Geçersiz Reddit URL'i"
+            case .networkError:
+                return "Reddit isteği başarısız oldu"
+            case .httpError(let code):
+                return "Reddit HTTP hatası (kod: \(code))"
+            case .parseError:
+                return "Reddit yanıtı çözümlenemedi"
+            }
+        }
+    }
+}
+
+// MARK: - RedditPost Model
+
 struct RedditPost: Equatable {
     let title: String
     let author: String
@@ -17,221 +237,4 @@ struct RedditPost: Equatable {
         let trimmed = selfText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? subtitle : trimmed
     }
-}
-
-enum RedditError: LocalizedError {
-    case invalidURL
-    case notFound
-    case decodingFailed
-    case networkError
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Geçersiz Reddit URL'si"
-        case .notFound:
-            return "Reddit gönderisi bulunamadı"
-        case .decodingFailed:
-            return "Reddit yanıtı çözümlenemedi"
-        case .networkError:
-            return "Reddit isteği başarısız oldu"
-        }
-    }
-}
-
-protocol RedditPostProviding {
-    func fetchPost(from urlString: String) async throws -> RedditPost
-    func isRedditURL(_ urlString: String) -> Bool
-}
-
-final class RedditService: RedditPostProviding {
-    static let shared = RedditService()
-
-    private let session: URLSession
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-
-    func fetchPost(from urlString: String) async throws -> RedditPost {
-        guard let url = URL(string: urlString) else {
-            throw RedditError.invalidURL
-        }
-
-        let resolvedURL = try await resolveCanonicalURL(from: url)
-
-        guard let apiURL = redditJSONURL(from: resolvedURL) else {
-            throw RedditError.invalidURL
-        }
-
-        var request = URLRequest(url: apiURL)
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.timeoutInterval = 12
-
-        do {
-            let (data, response) = try await session.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw RedditError.networkError
-            }
-
-            guard httpResponse.statusCode == 200 else {
-                throw RedditError.notFound
-            }
-
-            let post = try decodePost(from: data, originalURL: url)
-            return post
-        } catch is DecodingError {
-            throw RedditError.decodingFailed
-        } catch {
-            if error is RedditError { throw error }
-            throw RedditError.networkError
-        }
-    }
-
-    func isRedditURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-        return lowercased.contains("reddit.com/") || lowercased.contains("redd.it/")
-    }
-
-    // MARK: - Private Helpers
-
-    private func resolveCanonicalURL(from url: URL) async throws -> URL {
-        let requiresResolution = (url.host?.contains("redd.it") ?? false) || url.path.contains("/s/")
-        guard requiresResolution else { return url }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.timeoutInterval = 8
-
-        do {
-            let (_, response) = try await session.data(for: request)
-            if let redirectedURL = (response as? HTTPURLResponse)?.url ?? response.url {
-                return redirectedURL
-            }
-        } catch {
-            return url
-        }
-
-        return url
-    }
-
-    private func redditJSONURL(from url: URL) -> URL? {
-        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        if components?.scheme == nil {
-            components?.scheme = "https"
-        }
-
-        if let host = components?.host, host.contains("redd.it") {
-            components?.host = "www.reddit.com"
-        }
-
-        let trimmedPath = (components?.path ?? "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        let normalizedPath = "/\(trimmedPath)"
-        components?.path = normalizedPath.hasSuffix(".json") ? normalizedPath : normalizedPath + ".json"
-
-        var queryItems = components?.queryItems ?? []
-        queryItems.append(URLQueryItem(name: "raw_json", value: "1"))
-        components?.queryItems = queryItems
-        components?.fragment = nil
-
-        return components?.url
-    }
-
-    private func decodePost(from data: Data, originalURL: URL) throws -> RedditPost {
-        let decoder = JSONDecoder()
-
-        let postData: RedditPostData
-
-        if let listings = try? decoder.decode([RedditListing].self, from: data),
-           let first = listings.first?.data.children.first?.data {
-            postData = first
-        } else if let listing = try? decoder.decode(RedditListing.self, from: data),
-                  let first = listing.data.children.first?.data {
-            postData = first
-        } else if let listings = try? decoder.decode([RedditListing].self, from: data),
-                  !listings.isEmpty {
-            throw RedditError.notFound
-        } else if let listing = try? decoder.decode(RedditListing.self, from: data),
-                  !listing.data.children.isEmpty {
-            throw RedditError.notFound
-        } else {
-            throw RedditError.decodingFailed
-        }
-
-        let imageURL = extractImageURL(from: postData)
-
-        return RedditPost(
-            title: postData.title,
-            author: postData.author,
-            subreddit: postData.subreddit,
-            selfText: postData.selftext ?? "",
-            imageURL: imageURL,
-            score: postData.ups ?? 0,
-            commentCount: postData.num_comments ?? 0,
-            originalURL: originalURL
-        )
-    }
-
-    private func extractImageURL(from data: RedditPostData) -> URL? {
-        if let previewURL = data.preview?.images?.first?.source.url.replacingOccurrences(of: "&amp;", with: "&"),
-           let url = URL(string: previewURL) {
-            return url
-        }
-
-        if let overridden = data.url_overridden_by_dest,
-           isImageURL(overridden) {
-            return URL(string: overridden)
-        }
-
-        if let thumbnail = data.thumbnail,
-           thumbnail.hasPrefix("http"),
-           let url = URL(string: thumbnail) {
-            return url
-        }
-
-        return nil
-    }
-
-    private func isImageURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-        return lowercased.hasSuffix(".jpg") || lowercased.hasSuffix(".jpeg") || lowercased.hasSuffix(".png") || lowercased.hasSuffix(".gif")
-    }
-}
-
-// MARK: - API Response Models
-
-private struct RedditListing: Codable {
-    let data: RedditListingData
-}
-
-private struct RedditListingData: Codable {
-    let children: [RedditPostContainer]
-}
-
-private struct RedditPostContainer: Codable {
-    let data: RedditPostData
-}
-
-private struct RedditPostData: Codable {
-    let title: String
-    let author: String
-    let subreddit: String
-    let selftext: String?
-    let ups: Int?
-    let num_comments: Int?
-    let url_overridden_by_dest: String?
-    let thumbnail: String?
-    let preview: RedditPreview?
-}
-
-private struct RedditPreview: Codable {
-    let images: [RedditPreviewImage]?
-}
-
-private struct RedditPreviewImage: Codable {
-    let source: RedditPreviewSource
-}
-
-private struct RedditPreviewSource: Codable {
-    let url: String
 }
