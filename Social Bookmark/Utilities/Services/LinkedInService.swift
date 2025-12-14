@@ -83,9 +83,14 @@ final class LinkedInService {
                    extractTitle(from: html) ??
                    "LinkedIn Post"
         
-        let description = extractOGTag(from: html, property: "og:description") ??
+        var description = extractOGTag(from: html, property: "og:description") ??
                          extractDescription(from: html) ??
                          ""
+        
+        // Eğer meta description yoksa, HTML'den post content'ini çıkarmaya çalış
+        if description.isEmpty {
+            description = extractPostContent(from: html)
+        }
         
         let imageURL = extractOGTag(from: html, property: "og:image")
             .flatMap { URL(string: $0) }
@@ -110,7 +115,8 @@ final class LinkedInService {
         }
         
         print("🔵 LinkedIn: Parse tamamlandı")
-        print("  - Başlık: \(title)")
+        print("  - Başlık: \(title.prefix(100))...")
+        print("  - İçerik: \(description.isEmpty ? "boş" : description.prefix(100) + "...")")
         print("  - Yazar: \(authorName)")
         print("  - Görsel: \(imageURL?.absoluteString ?? "yok")")
         
@@ -139,6 +145,43 @@ final class LinkedInService {
     private func extractDescription(from html: String) -> String? {
         let pattern = #"<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']"#
         return extractPattern(from: html, pattern: pattern)
+    }
+    
+    private func extractPostContent(from html: String) -> String {
+        // LinkedIn post content'ini JSON data'dan çıkarmaya çalış
+        // Structual data bulunmuyorsa, text nodes'lardan topla
+        
+        var content = ""
+        
+        // Yöntem 1: JSON-LD Article'dan extract et
+        if let jsonLD = extractJSONLD(from: html),
+           let articleBody = jsonLD["articleBody"] as? String {
+            content = articleBody
+        }
+        
+        // Yöntem 2: Specific paragraf patterns
+        if content.isEmpty {
+            // LinkedIn artık JavaScript ile render ettiği için,
+            // statik HTML'de post body text'ini bulmak zor
+            // Alternatif: hashtag'ler ve mention'ları çıkar
+            let hashtagPattern = #"#\w+"#
+            if let regex = try? NSRegularExpression(pattern: hashtagPattern),
+               let url = URL(string: html) {
+                let range = NSRange(html.startIndex..<html.endIndex, in: html)
+                let matches = regex.matches(in: html, range: range)
+                let hashtags = matches.compactMap { match -> String? in
+                    if let range = Range(match.range, in: html) {
+                        return String(html[range])
+                    }
+                    return nil
+                }
+                if !hashtags.isEmpty {
+                    content = hashtags.joined(separator: " ")
+                }
+            }
+        }
+        
+        return content
     }
     
     private func extractPattern(from html: String, pattern: String) -> String? {
