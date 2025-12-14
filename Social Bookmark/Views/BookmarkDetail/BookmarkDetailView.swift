@@ -22,8 +22,14 @@ struct BookmarkDetailView: View {
     }
     
     // MARK: - Body
+    // header ekle
+    
+    
     
     var body: some View {
+        
+       
+       
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
             
@@ -75,6 +81,7 @@ struct BookmarkDetailView: View {
                 bottomActionBar
             }
         }
+        
         .sheet(isPresented: $showingEditSheet) {
             EditBookmarkView(
                 bookmark: bookmark,
@@ -106,30 +113,46 @@ struct BookmarkDetailView: View {
     
     private var customNavBar: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 12) {
+                // Back Button
                 Button(action: { dismiss() }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("Geri")
-                    }
-                    .foregroundStyle(.blue)
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 36, height: 36)
+                        .contentShape(Circle())
                 }
                 
                 Spacer()
                 
+                // Source Badge
+                HStack(spacing: 6) {
+                    Text(bookmark.source.emoji)
+                        .font(.system(size: 14))
+                    Text(bookmark.source.displayName)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                // Share Button
                 Button(action: { showingShareSheet = true }) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 16))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
+                        .frame(width: 36, height: 36)
+                        .contentShape(Circle())
                 }
                 .disabled(!bookmark.hasURL)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 12)
             
             Divider()
         }
+        .background(Color(.systemBackground))
     }
     
     // MARK: - Cover Image Section
