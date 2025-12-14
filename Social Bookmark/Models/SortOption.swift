@@ -2,11 +2,13 @@ import SwiftUI
 
 // MARK: - Sort Option
 
-enum SortOption: String, CaseIterable, Hashable {
+enum SortOption: String, CaseIterable, Hashable, Identifiable {
     case newest
     case oldest
     case alphabetical
     case source
+    
+    var id: String { self.rawValue }
     
     var title: String {
         switch self {
