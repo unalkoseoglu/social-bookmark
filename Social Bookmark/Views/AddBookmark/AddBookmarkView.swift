@@ -80,6 +80,11 @@ struct AddBookmarkView: View {
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
+                Button(action: pasteFromClipboard) {
+                    Image(systemName: "doc.on.clipboard")
+                        .foregroundStyle(.secondary)
+                }
+                    
 
                 if viewModel.isLinkedInURL(viewModel.url) {
                     Image(systemName: "link")
@@ -406,7 +411,7 @@ struct AddBookmarkView: View {
         Section("Organizasyon") {
             // Kategori seçici
             if viewModel.categories.isEmpty {
-                Text("Kategori yükleniyor...")
+                Text("Kategori yok")
                     .foregroundStyle(.secondary)
             } else {
                 Picker(selection: $viewModel.selectedCategoryId) {
@@ -584,6 +589,12 @@ struct AddBookmarkView: View {
                     isProcessingOCR = false
                 }
             }
+        }
+    }
+    
+    private func pasteFromClipboard() {
+        if let pastedString = UIPasteboard.general.string {
+            viewModel.url = pastedString
         }
     }
     
