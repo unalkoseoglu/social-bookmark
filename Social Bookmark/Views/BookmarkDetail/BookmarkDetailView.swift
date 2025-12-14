@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Bookmark detay ekranı - Tek bookmark'ın tüm bilgilerini gösterir
+/// Bookmark detay ekranı - Kitap okuma uygulaması tarzı tasarım
 struct BookmarkDetailView: View {
     // MARK: - Properties
     
@@ -17,139 +17,63 @@ struct BookmarkDetailView: View {
     
     // MARK: - Computed Properties
     
-    /// Tüm görselleri al (çoklu veya tek)
     private var allImages: [UIImage] {
-        // Bookmark modelindeki allImagesData computed property'sini kullan
         return bookmark.allImagesData.compactMap { UIImage(data: $0) }
     }
     
     // MARK: - Body
     
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24) {
-                // Hero Section - Başlık ve Ana Bilgiler
-                VStack(alignment: .leading, spacing: 16) {
-                    // Source + Read Status
-                    HStack(spacing: 12) {
-                        HStack(spacing: 6) {
-                            Text(bookmark.source.emoji)
-                                .font(.system(size: 18))
-                            Text(bookmark.source.rawValue.capitalized)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Custom Navigation Bar
+                customNavBar
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Cover Image Section
+                        if !allImages.isEmpty {
+                            coverImageSection
+                                .frame(height: 300)
+                                .padding(.bottom, 32)
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(.systemGray5))
-                        .clipShape(Capsule())
                         
-                        Spacer()
-                        
-                        if bookmark.isRead {
-                            HStack(spacing: 4) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.caption)
-                                Text("Okundu")
-                                    .font(.caption2)
+                        VStack(alignment: .leading, spacing: 24) {
+                            // Title + Metadata
+                            titleMetadataSection
+                            
+                            Divider()
+                                .padding(.vertical, 8)
+                            
+                            // Main Content (Note/Description)
+                            if bookmark.hasNote {
+                                contentSection
                             }
-                            .foregroundStyle(.green)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Color.green.opacity(0.1))
-                            .clipShape(Capsule())
-                        }
-                    }
-                    
-                    // Başlık - Büyük ve belirgin
-                    Text(bookmark.title)
-                        .font(.system(size: 28, weight: .bold, design: .default))
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Kategori ve Tarih
-                    HStack(spacing: 16) {
-                        if let categoryId = bookmark.categoryId {
-                            HStack(spacing: 6) {
-                                Image(systemName: "folder.fill")
-                                    .font(.caption)
-                                Text("Kategori")
-                                    .font(.caption2)
+                            
+                            // URL Section
+                            if bookmark.hasURL {
+                                Divider()
+                                    .padding(.vertical, 8)
+                                linkSection
                             }
-                            .foregroundStyle(.blue)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(Capsule())
+                            
+                            // Tags
+                            if bookmark.hasTags {
+                                Divider()
+                                    .padding(.vertical, 8)
+                                tagsSection
+                            }
                         }
-                        
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar")
-                                .font(.caption)
-                            Text(bookmark.formattedDate)
-                                .font(.caption2)
-                        }
-                        .foregroundStyle(.secondary)
-                        
-                        Spacer()
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 24)
                     }
                 }
-                .padding(20)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(.systemBackground),
-                            Color(.systemGray6)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 16)
                 
-                // Görsel Bölümü
-                if !allImages.isEmpty {
-                    imageSection
-                        .padding(.horizontal, 16)
-                }
-                
-                // URL Bölümü - URL'yi kopyalanabilir yap
-                if bookmark.hasURL {
-                    urlSection
-                        .padding(.horizontal, 16)
-                }
-                
-                // Not Bölümü - Okuma için optimize
-                if bookmark.hasNote {
-                    readableNoteSection
-                        .padding(.horizontal, 16)
-                }
-                
-                // Etiketler
-                if bookmark.hasTags {
-                    tagsSection
-                        .padding(.horizontal, 16)
-                }
-                
-                // Metadata
-                metadataSection
-                    .padding(.horizontal, 16)
-                
-                // Action Buttons
-                actionButtons
-                    .padding(.horizontal, 16)
-                
-                Spacer(minLength: 20)
+                // Bottom Action Bar
+                bottomActionBar
             }
-            .padding(.top, 12)
-            .padding(.bottom, 20)
-        }
-        .background(Color(.systemBackground))
-        .navigationTitle("Detaylar")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            toolbarContent
         }
         .sheet(isPresented: $showingEditSheet) {
             EditBookmarkView(
@@ -178,344 +102,267 @@ struct BookmarkDetailView: View {
         }
     }
     
-    // MARK: - Sections
+    // MARK: - Custom Navigation
     
-    // Eski headerSection'ı kaldırdık, hero section şimdi body'de
-    
-    
-    /// Görsel bölümü - yatay scroll galeri
-    @ViewBuilder
-    private var imageSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private var customNavBar: some View {
+        VStack(spacing: 0) {
             HStack {
-                Label("Görsel", systemImage: "photo.fill")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                Button(action: { dismiss() }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Geri")
+                    }
+                    .foregroundStyle(.blue)
+                }
                 
                 Spacer()
                 
-                if allImages.count > 1 {
-                    Text("\(allImages.count) görsel")
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.2))
-                        .clipShape(Capsule())
+                Button(action: { showingShareSheet = true }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 16))
+                        .foregroundStyle(.blue)
                 }
+                .disabled(!bookmark.hasURL)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             
-            // Görsel galerisi - yatay scroll
-            if allImages.count == 1 {
-                // Tek görsel - scroll yok
-                singleImageView(allImages[0], index: 0)
-            } else {
-                // Çoklu görsel - yatay scroll
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(0..<allImages.count, id: \.self) { index in
-                            Image(uiImage: allImages[index])
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 280, height: 200)
-                                .clipped()
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .onTapGesture {
-                                    selectedImageIndex = index
-                                    showingFullScreenImage = true
-                                }
-                                .overlay(alignment: .topTrailing) {
-                                    Text("\(index + 1)/\(allImages.count)")
-                                        .font(.caption2)
-                                        .fontWeight(.medium)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(Capsule())
-                                        .padding(8)
-                                }
-                        }
-                    }
-                }
-                .scrollTargetBehavior(.viewAligned)
-            }
+            Divider()
         }
     }
     
-    /// Tek görsel view
-    private func singleImageView(_ image: UIImage, index: Int) -> some View {
-        Image(uiImage: image)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(maxWidth: .infinity)
-            .frame(maxHeight: 300)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-            .onTapGesture {
-                selectedImageIndex = index
+    // MARK: - Cover Image Section
+    
+    private var coverImageSection: some View {
+        ZStack {
+            Color(.systemGray6)
+            
+            if let image = allImages.first {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            }
+            
+            // Shadow overlay
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.clear,
+                    Color.black.opacity(0.3)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        .onTapGesture {
+            if !allImages.isEmpty {
                 showingFullScreenImage = true
             }
-            .overlay(alignment: .bottomTrailing) {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.caption)
-                    .padding(8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                    .padding(8)
-            }
+        }
     }
     
-    private var urlSection: some View {
+    // MARK: - Title & Metadata Section
+    
+    private var titleMetadataSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Kaynak", systemImage: "link")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+            // Title
+            Text(bookmark.title)
+                .font(.system(size: 24, weight: .bold, design: .default))
+                .lineLimit(nil)
+                .tracking(0.2)
             
-            if let urlString = bookmark.url, let url = URL(string: urlString) {
-                // Open in browser
-                Link(destination: url) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "safari")
-                            .foregroundStyle(.blue)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Tarayıcıda Aç")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Text(url.host ?? urlString)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption2)
-                            .foregroundStyle(.blue)
-                    }
-                    .padding(12)
-                    .background(Color.blue.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            // Metadata Row
+            HStack(spacing: 12) {
+                HStack(spacing: 6) {
+                    Text(bookmark.source.emoji)
+                    Text(bookmark.source.rawValue.capitalized)
+                        .font(.caption)
                 }
+                .foregroundStyle(.secondary)
                 
-                // Copy URL button
-                Button(action: {
-                    UIPasteboard.general.string = urlString
-                }) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundStyle(.green)
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("URL'yi Kopyala")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Text(urlString)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "checkmark")
-                            .font(.caption2)
-                            .foregroundStyle(.green)
-                    }
-                    .padding(12)
-                    .background(Color.green.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Text("•")
+                    .foregroundStyle(.tertiary)
+                
+                Text(bookmark.relativeDate)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                
+                Spacer()
+            }
+            
+            // Read Status Badge
+            if bookmark.isRead {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                    Text("Okundu")
+                        .font(.caption2)
                 }
+                .foregroundStyle(.green)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.green.opacity(0.1))
+                .clipShape(Capsule())
             }
         }
     }
     
-    private var noteSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Notlar", systemImage: "note.text")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            
-            Text(bookmark.note)
-                .font(.body)
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
+    // MARK: - Content Section (Main Text)
     
-    /// Okuma için optimize edilmiş not bölümü
-    private var readableNoteSection: some View {
+    private var contentSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("İçerik", systemImage: "doc.text")
-                    .font(.headline)
+                Text("İçerik")
+                    .font(.system(size: 16, weight: .semibold))
+                    .tracking(0.4)
+                    .textCase(.uppercase)
                     .foregroundStyle(.secondary)
+                
                 Spacer()
+                
                 Text("\(bookmark.note.split(separator: " ").count) kelime")
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
             
-            // Okunabilir text bölümü
             Text(bookmark.note)
                 .font(.system(.body, design: .default))
-                .lineSpacing(6)
-                .tracking(0.3)
+                .lineSpacing(1.6)
+                .tracking(0.2)
                 .foregroundStyle(.primary)
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    Color(.systemBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
-                        )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
+    // MARK: - Link Section
+    
+    private var linkSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Kaynak")
+                .font(.system(size: 16, weight: .semibold))
+                .tracking(0.4)
+                .textCase(.uppercase)
+                .foregroundStyle(.secondary)
             
-            // Copy to clipboard button
-            Button(action: {
-                UIPasteboard.general.string = bookmark.note
-            }) {
-                HStack {
-                    Image(systemName: "doc.on.doc")
-                        .font(.caption2)
-                    Text("Metni Kopyala")
-                        .font(.caption)
+            if let urlString = bookmark.url, let url = URL(string: urlString) {
+                VStack(spacing: 8) {
+                    Link(destination: url) {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(url.host ?? "Link")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text("Tarayıcıda Aç")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.blue)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
+                        }
+                    }
+                    
+                    Button(action: {
+                        UIPasteboard.general.string = urlString
+                    }) {
+                        HStack(spacing: 12) {
+                            Text("URL'yi Kopyala")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(Color.blue.opacity(0.1))
-                .foregroundStyle(.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(12)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }
     
+    // MARK: - Tags Section
+    
     private var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Etiketler", systemImage: "tag.fill")
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Etiketler")
+                .font(.system(size: 16, weight: .semibold))
+                .tracking(0.4)
+                .textCase(.uppercase)
                 .foregroundStyle(.secondary)
             
             FlowLayout(spacing: 8) {
                 ForEach(bookmark.tags, id: \.self) { tag in
                     Text(tag)
-                        .font(.subheadline)
-                        .padding(.horizontal, 12)
+                        .font(.caption)
+                        .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundStyle(.blue)
+                        .background(Color(.systemGray6))
+                        .foregroundStyle(.secondary)
                         .clipShape(Capsule())
                 }
             }
         }
     }
     
-    private var metadataSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Bilgiler", systemImage: "info.circle")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            
-            VStack(spacing: 12) {
-                MetadataRow(
-                    icon: "calendar",
-                    title: "Oluşturulma",
-                    value: bookmark.formattedDate
-                )
-                
-                MetadataRow(
-                    icon: "clock",
-                    title: "Süre",
-                    value: bookmark.relativeDate
-                )
-                
-                if bookmark.hasImage {
-                    MetadataRow(
-                        icon: "photo",
-                        title: "Görsel",
-                        value: "\(bookmark.imageCount) adet"
-                    )
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-    }
+    // MARK: - Bottom Action Bar
     
-    private var actionButtons: some View {
-        VStack(spacing: 12) {
+    private var bottomActionBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
             HStack(spacing: 12) {
                 Button(action: toggleReadStatus) {
-                    HStack(spacing: 8) {
+                    VStack(spacing: 4) {
                         Image(systemName: bookmark.isRead ? "circle" : "checkmark.circle.fill")
+                            .font(.system(size: 18))
                         Text(bookmark.isRead ? "Okunmadı" : "Okundu")
+                            .font(.caption2)
                     }
+                    .foregroundStyle(bookmark.isRead ? .orange : .green)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(bookmark.isRead ? Color.orange : Color.green)
-                    .foregroundStyle(.white)
-                    .fontWeight(.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
+                Divider()
+                    .frame(height: 32)
+                
                 Button(action: { showingEditSheet = true }) {
-                    HStack(spacing: 8) {
+                    VStack(spacing: 4) {
                         Image(systemName: "pencil")
+                            .font(.system(size: 18))
                         Text("Düzenle")
+                            .font(.caption2)
                     }
+                    .foregroundStyle(.blue)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.purple.opacity(0.9))
-                    .foregroundStyle(.white)
-                    .fontWeight(.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-            }
-            
-            if bookmark.hasURL, let urlString = bookmark.url, let url = URL(string: urlString) {
-                Link(destination: url) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "safari")
-                        Text("Tarayıcıda Aç")
+                
+                Divider()
+                    .frame(height: 32)
+                
+                Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                    VStack(spacing: 4) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 18))
+                        Text("Sil")
+                            .font(.caption2)
                     }
+                    .foregroundStyle(.red)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .fontWeight(.medium)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-            
-            Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "trash")
-                    Text("Sil")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(Color.red.opacity(0.9))
-                .foregroundStyle(.white)
-                .fontWeight(.medium)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
         }
-        .padding(.top, 12)
-    }
-    
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button(action: { showingShareSheet = true }) {
-                Image(systemName: "square.and.arrow.up")
-            }
-            .disabled(!bookmark.hasURL)
-        }
+        .background(Color(.systemBackground))
     }
     
     // MARK: - Actions
@@ -531,20 +378,10 @@ struct BookmarkDetailView: View {
         repository.delete(bookmark)
         dismiss()
     }
-    
-    private func formatBytes(_ bytes: Int) -> String {
-        if bytes >= 1_000_000 {
-            return String(format: "%.1f MB", Double(bytes) / 1_000_000)
-        } else if bytes >= 1_000 {
-            return String(format: "%.1f KB", Double(bytes) / 1_000)
-        }
-        return "\(bytes) B"
-    }
 }
 
 // MARK: - Full Screen Image Gallery View
 
-/// Tam ekran görsel galerisi - swipe ile geçiş
 struct FullScreenImageGalleryView: View {
     let images: [UIImage]
     @Binding var selectedIndex: Int
@@ -557,7 +394,6 @@ struct FullScreenImageGalleryView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            // Görsel galerisi (swipe ile geçiş)
             TabView(selection: $selectedIndex) {
                 ForEach(0..<images.count, id: \.self) { index in
                     Image(uiImage: images[index])
@@ -598,10 +434,8 @@ struct FullScreenImageGalleryView: View {
             .tabViewStyle(.page(indexDisplayMode: images.count > 1 ? .always : .never))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             
-            // Üst bar
             VStack {
                 HStack {
-                    // Sayfa göstergesi
                     if images.count > 1 {
                         Text("\(selectedIndex + 1) / \(images.count)")
                             .font(.subheadline)
@@ -614,7 +448,6 @@ struct FullScreenImageGalleryView: View {
                     
                     Spacer()
                     
-                    // Kapat butonu
                     Button {
                         dismiss()
                     } label: {
@@ -628,7 +461,6 @@ struct FullScreenImageGalleryView: View {
                 
                 Spacer()
                 
-                // Zoom bilgisi
                 if scale != 1.0 {
                     Text("\(Int(scale * 100))%")
                         .font(.caption)
@@ -641,7 +473,6 @@ struct FullScreenImageGalleryView: View {
             }
         }
         .onChange(of: selectedIndex) { _, _ in
-            // Sayfa değişince zoom resetle
             withAnimation {
                 scale = 1.0
                 lastScale = 1.0
@@ -651,29 +482,6 @@ struct FullScreenImageGalleryView: View {
 }
 
 // MARK: - Supporting Views
-
-struct MetadataRow: View {
-    let icon: String
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundStyle(.secondary)
-                .frame(width: 20)
-            
-            Text(title)
-                .foregroundStyle(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .fontWeight(.medium)
-        }
-        .font(.subheadline)
-    }
-}
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
