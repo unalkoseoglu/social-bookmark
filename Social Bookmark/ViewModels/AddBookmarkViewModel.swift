@@ -20,6 +20,11 @@ final class AddBookmarkViewModel {
     var selectedSource = BookmarkSource.other
     var tagsInput = ""
     
+    // MARK: - Category & Organization State
+    
+    var selectedCategoryId: UUID?
+    private(set) var categories: [Category] = []
+    
     // MARK: - Validation State
     
     var isValid: Bool {
@@ -80,9 +85,12 @@ final class AddBookmarkViewModel {
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol
+    private let categoryRepository: CategoryRepositoryProtocol
     
-    init(repository: BookmarkRepositoryProtocol) {
+    init(repository: BookmarkRepositoryProtocol, categoryRepository: CategoryRepositoryProtocol) {
         self.repository = repository
+        self.categoryRepository = categoryRepository
+        self.categories = self.categoryRepository.fetchAll()
     }
     
     // MARK: - Public Methods

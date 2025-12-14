@@ -51,7 +51,13 @@ struct BookmarkListView: View {
             }
             .sheet(isPresented: $showingAddSheet) {
                 // Modal sheet - yeni bookmark ekle
-                AddBookmarkView(viewModel: homeViewModel)
+                AddBookmarkView(
+                    viewModel: AddBookmarkViewModel(
+                        repository: homeViewModel.bookmarkRepository,
+                        categoryRepository: homeViewModel.categoryRepository
+                    ),
+                    onSaved: { listViewModel.loadBookmarks() }
+                )
             }
             .refreshable {
                 // Pull-to-refresh

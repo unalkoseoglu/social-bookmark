@@ -1,37 +1,24 @@
 import SwiftUI
 
-/// Yeni bookmark ekleme ekranı
-/// URL girişi, otomatik kaynak tespiti ve kategori seçimi
+/// Yeni bookmark ekleme ekranı (Modal sheet olarak açılır)
 struct AddBookmarkView: View {
     // MARK: - Properties
-    
-    @Bindable var viewModel: HomeViewModel
-    
+
+    @State private var viewModel: AddBookmarkViewModel
+    private let onSaved: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var urlInput = ""
-    @State private var title = ""
-    @State private var note = ""
-    @State private var tagsInput = ""
-    @State private var selectedSource: BookmarkSource = .other
-    @State private var selectedCategoryId: UUID?
-    @State private var isFavorite = false
-    
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @State private var showError = false
-    
-    // Preview states
-    @State private var fetchedTweet: TwitterService.Tweet?
-    @State private var fetchedRedditPost: RedditPost?
-    @State private var tweetImagesData: [Data] = []
-    @State private var redditImageData: Data?
-    
     @FocusState private var focusedField: Field?
     
-    private var isValid: Bool {
-        !urlInput.trimmingCharacters(in: .whitespaces).isEmpty ||
-        !title.trimmingCharacters(in: .whitespaces).isEmpty
+    @State private var showingImagePicker = false
+    @State private var showingImageCrop = false
+    @State private var selectedImage: UIImage?
+    @State private var isProcessingOCR = false
+    
+    // MARK: - Initialization
+    
+    init(viewModel: AddBookmarkViewModel, onSaved: (() -> Void)? = nil) {
+        _viewModel = State(initialValue: viewModel)
+        self.onSaved = onSaved
     }
     
     // MARK: - Body
@@ -39,69 +26,36 @@ struct AddBookmarkView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // URL girişi
-                urlSection
-                
-                // Twitter önizlemesi
-                if let tweet = fetchedTweet {
-                    TweetPreviewView(tweet: tweet, imageData: tweetImagesData.first)
-                }
-                
-                // Reddit önizlemesi
-                if let reddit = fetchedRedditPost {
-                    RedditPreviewView(post: reddit, imagesData: redditImageData.map { [$0] } ?? [])
-                }
-                
-                // Başlık ve not
+                basicInfoSection
+                linkedinPreviewSection
+                redditPreviewSection
+                tweetPreviewSection
                 detailsSection
-                
-                // Kategori ve kaynak
                 organizationSection
-                
-                // Etiketler
                 tagsSection
+                imageSection
                 
-                // Hata mesajı
-                if let error = errorMessage {
-                    Section {
-                        Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
-                    }
+                if !viewModel.validationErrors.isEmpty {
+                    validationErrorsSection
                 }
             }
             .navigationTitle("Yeni Bookmark")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
-                        saveBookmark()
-                    }
-                    .fontWeight(.semibold)
-                    .disabled(!isValid || isLoading)
+                toolbarContent
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePickerView { image in
+                    selectedImage = image
+                    showingImageCrop = true
                 }
             }
-            .onAppear {
-                focusedField = .url
-            }
-            .onChange(of: urlInput) { _, newValue in
-                // URL değişince kaynağı otomatik tespit et
-                let trimmed = newValue.trimmingCharacters(in: .whitespaces)
-                if !trimmed.isEmpty {
-                    selectedSource = BookmarkSource.detect(from: trimmed)
-                    // Metadata çekmeyi denetle (500ms delay)
-                    fetchMetadataWithDelay(trimmed)
-                } else {
-                    // URL temizlenirse preview'ları da temizle
-                    fetchedTweet = nil
-                    fetchedRedditPost = nil
-                    tweetImagesData = []
-                    redditImageData = nil
+            .sheet(isPresented: $showingImageCrop) {
+                if let image = selectedImage {
+                    ImageCropView(image: image) { croppedImage in
+                        selectedImage = croppedImage
+                        performOCR(on: croppedImage)
+                    }
                 }
             }
         }
@@ -109,56 +63,336 @@ struct AddBookmarkView: View {
     
     // MARK: - Sections
     
-    private var urlSection: some View {
-        Section {
+    private var basicInfoSection: some View {
+        Section("Temel Bilgiler") {
+            TextField("Başlık", text: $viewModel.title, axis: .vertical)
+                .lineLimit(2...4)
+                .focused($focusedField, equals: .title)
+            
             HStack {
-                Image(systemName: "link")
-                    .foregroundStyle(.secondary)
-                
-                TextField("URL yapıştır", text: $urlInput)
+                TextField("URL (opsiyonel)", text: $viewModel.url)
                     .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
+                    .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
+
+                if viewModel.isLinkedInURL(viewModel.url) {
+                    Image(systemName: "link")
+                        .foregroundStyle(.cyan)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
+                if viewModel.isRedditURL(viewModel.url) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .foregroundStyle(.orange)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
+                if TwitterService.shared.isTwitterURL(viewModel.url) {
+                    Image(systemName: "bird.fill")
+                        .foregroundStyle(.blue)
+                        .transition(.scale.combined(with: .opacity))
+                }
                 
-                if !urlInput.isEmpty {
-                    Button {
-                        urlInput = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                if viewModel.isLoadingMetadata {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                } else if !viewModel.url.isEmpty && viewModel.isURLValid {
+                    Button(action: {
+                        Task { await viewModel.fetchMetadata() }
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(.blue)
                     }
                 }
+            }
+            .animation(.easeInOut(duration: 0.2), value: viewModel.url)
+            
+            if !viewModel.url.isEmpty && !viewModel.isURLValid {
+                Label("Geçersiz URL formatı", systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.red)
+                    .font(.caption)
             }
             
-            // Yapıştır butonu
-            if urlInput.isEmpty {
-                Button {
-                    if let clipboard = UIPasteboard.general.string {
-                        urlInput = clipboard
+            if let linkedInContent = viewModel.fetchedLinkedInContent {
+                Label(
+                    "LinkedIn içeriği çekildi",
+                    systemImage: "checkmark.circle.fill"
+                )
+                .foregroundStyle(.cyan)
+                .font(.caption)
+                .accessibilityLabel(linkedInContent.title)
+            } else if let redditPost = viewModel.fetchedRedditPost {
+                Label(
+                    "Reddit içeriği çekildi",
+                    systemImage: "checkmark.circle.fill"
+                )
+                .foregroundStyle(.orange)
+                .font(.caption)
+                .accessibilityLabel(redditPost.title)
+            } else if viewModel.fetchedTweet != nil {
+                HStack {
+                    Label("Tweet içeriği çekildi", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+
+                    if viewModel.tweetImagesData.count > 0 {
+                        Text("(\(viewModel.tweetImagesData.count) görsel)")
+                            .foregroundStyle(.blue)
                     }
-                } label: {
-                    Label("Panodan Yapıştır", systemImage: "doc.on.clipboard")
+                }
+                .font(.caption)
+            } else if let metadata = viewModel.fetchedMetadata, metadata.hasTitle {
+                Label("Sayfa bilgileri dolduruldu", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                    .font(.caption)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var linkedinPreviewSection: some View {
+        if let content = viewModel.fetchedLinkedInContent {
+            Section {
+                LinkedInPreviewView(post: content, imageData: viewModel.linkedInImageData)
+            } header: {
+                Label("LinkedIn Önizleme", systemImage: "link")
+                    .foregroundStyle(.cyan)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var redditPreviewSection: some View {
+        if let post = viewModel.fetchedRedditPost {
+            Section {
+                RedditPreviewView(post: post, imagesData: viewModel.redditImagesData)
+            } header: {
+                Label("Reddit Önizleme", systemImage: "bubble.left.and.bubble.right.fill")
+                    .foregroundStyle(.orange)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var tweetPreviewSection: some View {
+        if let tweet = viewModel.fetchedTweet {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    // Başlık
+                    HStack {
+                        Image(systemName: "bird.fill")
+                            .foregroundStyle(.blue)
+                        Text("Tweet Önizleme")
+                            .font(.headline)
+                        Spacer()
+                        
+                        // Görsel sayısı badge
+                        if viewModel.tweetImagesData.count > 1 {
+                            Text("\(viewModel.tweetImagesData.count) görsel")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.blue.opacity(0.2))
+                                .clipShape(Capsule())
+                        }
+                        
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(.green)
+                            .font(.caption)
+                    }
+                    
+                    Divider()
+                    
+                    // Yazar bilgisi
+                    HStack(spacing: 12) {
+                        if let avatarURL = tweet.authorAvatarURL {
+                            AsyncImage(url: avatarURL) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                default:
+                                    avatarPlaceholder(for: tweet)
+                                }
+                            }
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+                        } else {
+                            avatarPlaceholder(for: tweet)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(tweet.authorName)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Text("@\(tweet.authorUsername)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    // Tweet metni
+                    Text(tweet.text)
+                        .font(.body)
+                        .lineLimit(8)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    // ÇOKLU GÖRSEL GALERİ
+                    if !viewModel.tweetImagesData.isEmpty {
+                        tweetImagesGallery
+                    } else if tweet.hasMedia {
+                        // Goruseller yükleyniyor
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.gray.opacity(0.1))
+                            .frame(height: 100)
+                            .overlay {
+                                VStack(spacing: 8) {
+                                    ProgressView()
+                                    Text("\(tweet.mediaURLs.count) görsel yükleniyor...")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                    }
+                    
+                    // İstatistikler
+                    HStack(spacing: 20) {
+                        Label(formatCount(tweet.likeCount), systemImage: "heart.fill")
+                            .foregroundStyle(.red)
+                        Label(formatCount(tweet.retweetCount), systemImage: "arrow.2.squarepath")
+                            .foregroundStyle(.green)
+                        Label(formatCount(tweet.replyCount), systemImage: "bubble.right.fill")
+                            .foregroundStyle(.blue)
+                    }
+                    .font(.caption)
+                    
+                    if let date = tweet.createdAt {
+                        HStack {
+                            Image(systemName: "calendar")
+                            Text(date, style: .relative)
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                    }
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+        }
+    }
+    
+    @ViewBuilder
+    private var tweetImagesGallery: some View {
+        let images = viewModel.tweetImages
+        
+        if images.count == 1 {
+            Image(uiImage: images[0])
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else if images.count == 2 {
+            HStack(spacing: 4) {
+                ForEach(0..<2, id: \.self) { index in
+                    Image(uiImage: images[index])
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 150)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
-        } header: {
-            Text("URL")
-        } footer: {
-            if !urlInput.isEmpty && selectedSource != .other {
-                Label("\(selectedSource.emoji) \(selectedSource.displayName) olarak algılandı", systemImage: "checkmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
+        } else if images.count == 3 {
+            HStack(spacing: 4) {
+                Image(uiImage: images[0])
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                VStack(spacing: 4) {
+                    ForEach(1..<3, id: \.self) { index in
+                        Image(uiImage: images[index])
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 98)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        } else if images.count >= 4 {
+            VStack(spacing: 4) {
+                HStack(spacing: 4) {
+                    ForEach(0..<2, id: \.self) { index in
+                        Image(uiImage: images[index])
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 100)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                HStack(spacing: 4) {
+                    ForEach(2..<min(4, images.count), id: \.self) { index in
+                        Image(uiImage: images[index])
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 100)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .overlay {
+                                if index == 3 && images.count > 4 {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(.black.opacity(0.5))
+                                    Text("+\(images.count - 4)")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                    }
+                }
             }
         }
     }
     
+    private func avatarPlaceholder(for tweet: TwitterService.Tweet) -> some View {
+        Circle()
+            .fill(Color.blue.opacity(0.2))
+            .frame(width: 44, height: 44)
+            .overlay {
+                Text(String(tweet.authorName.prefix(1)).uppercased())
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+            }
+    }
+    
+    private func formatCount(_ count: Int) -> String {
+        if count >= 1_000_000 {
+            return String(format: "%.1fM", Double(count) / 1_000_000)
+        } else if count >= 1_000 {
+            return String(format: "%.1fK", Double(count) / 1_000)
+        }
+        return "\(count)"
+    }
+    
     private var detailsSection: some View {
         Section("Detaylar") {
-            TextField("Başlık", text: $title)
-                .focused($focusedField, equals: .title)
-            
-            TextField("Not (opsiyonel)", text: $note, axis: .vertical)
-                .lineLimit(2...4)
+            TextField("Notlar (opsiyonel)", text: $viewModel.note, axis: .vertical)
+                .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
         }
     }
@@ -166,13 +400,22 @@ struct AddBookmarkView: View {
     private var organizationSection: some View {
         Section("Organizasyon") {
             // Kategori seçici
-            CategoryPickerView(
-                selectedCategoryId: $selectedCategoryId,
-                categories: viewModel.categories
-            )
+            Picker("Kategori", selection: $viewModel.selectedCategoryId) {
+                Text("Kategori Yok").tag(nil as UUID?)
+                Divider()
+                ForEach(viewModel.categories) { category in
+                    HStack {
+                        Image(systemName: category.icon)
+                            .foregroundStyle(category.color)
+                        Text(category.name)
+                    }
+                    .tag(category.id as UUID?)
+                }
+            }
+            .pickerStyle(.menu)
             
             // Kaynak seçici
-            Picker("Kaynak", selection: $selectedSource) {
+            Picker("Kaynak", selection: $viewModel.selectedSource) {
                 ForEach(BookmarkSource.allCases) { source in
                     HStack {
                         Text(source.emoji)
@@ -181,17 +424,13 @@ struct AddBookmarkView: View {
                     .tag(source)
                 }
             }
-            
-            // Favori toggle
-            Toggle(isOn: $isFavorite) {
-                Label("Favorilere Ekle", systemImage: isFavorite ? "star.fill" : "star")
-            }
+            .pickerStyle(.menu)
         }
     }
     
     private var tagsSection: some View {
         Section {
-            TextField("swift, ios, development", text: $tagsInput)
+            TextField("swift, ios, development", text: $viewModel.tagsInput)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: .tags)
@@ -202,218 +441,125 @@ struct AddBookmarkView: View {
         }
     }
     
+    private var imageSection: some View {
+        Section("Fotoğraf") {
+            if let image = selectedImage {
+                VStack(spacing: 12) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    
+                    HStack {
+                        Button(action: { showingImageCrop = true }) {
+                            Label("Düzenle", systemImage: "crop")
+                        }
+                        
+                        Spacer()
+                        
+                        if isProcessingOCR {
+                            ProgressView().progressViewStyle(.circular)
+                            Text("OCR işleniyor...")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(role: .destructive, action: { selectedImage = nil }) {
+                            Label("Kaldır", systemImage: "trash")
+                        }
+                    }
+                    .font(.subheadline)
+                }
+            } else {
+                Button(action: { showingImagePicker = true }) {
+                    Label("Fotoğraf Ekle", systemImage: "photo.badge.plus")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+        }
+    }
+    
+    private var validationErrorsSection: some View {
+        Section {
+            ForEach(viewModel.validationErrors, id: \.self) { error in
+                Label(error, systemImage: "xmark.circle.fill")
+                    .foregroundStyle(.red)
+                    .font(.subheadline)
+            }
+        } header: {
+            Text("Hatalar").foregroundStyle(.red)
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("İptal") { dismiss() }
+        }
+        
+        ToolbarItem(placement: .confirmationAction) {
+            Button("Kaydet") { saveBookmark() }
+                .disabled(!viewModel.isValid)
+                .fontWeight(.semibold)
+        }
+    }
+    
     // MARK: - Actions
     
-    private func fetchMetadataWithDelay(_ urlString: String) {
-        // 500ms sonra metadata çek (typing'i bitmesini bekle)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard urlString == urlInput.trimmingCharacters(in: .whitespaces) else {
-                return  // URL değişmişse iptal et
-            }
-            
-            isLoading = true
-            
-            Task {
-                print("🔍 Metadata fetching başlıyor: \(urlString)")
-                
-                // Twitter
-                if TwitterService.shared.isTwitterURL(urlString) {
-                    print("🐦 Twitter URL tespit edildi")
-                    await fetchTwitterMetadata(urlString)
-                }
-                // Reddit
-                else if RedditService.shared.isRedditURL(urlString) {
-                    print("🔴 Reddit URL tespit edildi")
-                    await fetchRedditMetadata(urlString)
-                }
-                // Genel metadata
-                else {
-                    print("📄 Genel metadata fetching...")
-                    await fetchGenericMetadata(urlString)
-                }
-                
-                await MainActor.run {
-                    isLoading = false
-                }
-            }
-        }
-    }
-    
-    private func fetchTwitterMetadata(_ urlString: String) async {
-        do {
-            let tweet = try await TwitterService.shared.fetchTweet(from: urlString)
-            await MainActor.run {
-                fetchedTweet = tweet
-                if title.isEmpty {
-                    title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
-                }
-                if note.isEmpty {
-                    note = tweet.fullText
-                }
-                print("✅ Tweet çekildi: @\(tweet.authorUsername)")
-            }
-            
-            // Görselleri indir
-            if !tweet.mediaURLs.isEmpty {
-                await downloadTweetImages(from: tweet.mediaURLs)
-            }
-        } catch {
-            print("❌ Twitter hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata(urlString)
-        }
-    }
-    
-    private func downloadTweetImages(from urls: [URL]) async {
-        var images: [Data] = []
-        
-        await withTaskGroup(of: (Int, Data?).self) { group in
-            for (index, url) in urls.prefix(4).enumerated() {
-                group.addTask {
-                    do {
-                        let (data, response) = try await URLSession.shared.data(from: url)
-                        if let httpResponse = response as? HTTPURLResponse,
-                           httpResponse.statusCode == 200,
-                           data.count > 1000 {
-                            return (index, data)
-                        }
-                    } catch {
-                        print("❌ Tweet görsel hatası: \(error.localizedDescription)")
-                    }
-                    return (index, nil)
-                }
-            }
-            
-            var results: [(Int, Data)] = []
-            for await (index, data) in group {
-                if let data = data {
-                    results.append((index, data))
-                }
-            }
-            
-            results.sort { $0.0 < $1.0 }
-            images = results.map { $0.1 }
-        }
-        
-        await MainActor.run {
-            tweetImagesData = images
-            print("✅ \(images.count) tweet görseli indirildi")
-        }
-    }
-    
-    private func fetchRedditMetadata(_ urlString: String) async {
-        do {
-            let post = try await RedditService.shared.fetchPost(from: urlString)
-            await MainActor.run {
-                fetchedRedditPost = post
-                if title.isEmpty {
-                    title = post.title
-                }
-                if note.isEmpty {
-                    note = !post.selfText.isEmpty ? post.selfText : "r/\(post.subreddit)"
-                }
-                print("✅ Reddit post çekildi: r/\(post.subreddit)")
-            }
-            
-            // Görseli indir
-            if let imageURL = post.imageURL {
-                await downloadRedditImage(from: imageURL)
-            }
-        } catch {
-            print("❌ Reddit hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata(urlString)
-        }
-    }
-    
-    private func downloadRedditImage(from url: URL) async {
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            if let httpResponse = response as? HTTPURLResponse,
-               httpResponse.statusCode == 200,
-               data.count > 1000 {
-                await MainActor.run {
-                    redditImageData = data
-                    print("✅ Reddit görseli indirildi: \(data.count) bytes")
-                }
-            }
-        } catch {
-            print("❌ Reddit görsel hatası: \(error.localizedDescription)")
-        }
-    }
-    
-    private func fetchGenericMetadata(_ urlString: String) async {
-        do {
-            let metadata = try await URLMetadataService.shared.fetchMetadata(from: urlString)
-            await MainActor.run {
-                if title.isEmpty, let metaTitle = metadata.title {
-                    title = metaTitle
-                    print("✅ Başlık çekildi: \(metaTitle)")
-                }
-                if note.isEmpty, let metaDescription = metadata.description {
-                    note = metaDescription
-                    print("✅ Açıklama çekildi")
-                }
-            }
-        } catch {
-            print("⚠️ Metadata çekilemedi: \(error.localizedDescription)")
-        }
-    }
-    
     private func saveBookmark() {
-        // Validasyon
-        let trimmedURL = urlInput.trimmingCharacters(in: .whitespaces)
-        let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
+        let manualImageData = selectedImage?.jpegData(compressionQuality: 0.8)
+        let finalImageData = viewModel.tweetImagesData.first ?? manualImageData
         
-        // En az bir bilgi gerekli
-        guard !trimmedURL.isEmpty || !trimmedTitle.isEmpty else {
-            errorMessage = "URL veya başlık gerekli"
-            return
+        if viewModel.saveBookmark(withImage: finalImageData, extractedText: viewModel.note) {
+            onSaved?()
+            dismiss()
         }
-        
-        // URL varsa formatla
-        var finalURL = trimmedURL
-        if !finalURL.isEmpty && !finalURL.hasPrefix("http") {
-            finalURL = "https://\(finalURL)"
-        }
-        
-        // Başlık yoksa URL'den oluştur
-        let finalTitle = trimmedTitle.isEmpty ? (URL(string: finalURL)?.host ?? "Adsız Bookmark") : trimmedTitle
-        
-        // Etiketleri parse et
-        let tags = tagsInput
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
-        
-        // Bookmark oluştur
-        let bookmark = Bookmark(
-            title: finalTitle,
-            url: finalURL,
-            note: note.trimmingCharacters(in: .whitespaces),
-            source: selectedSource,
-            categoryId: selectedCategoryId, tags: tags
-        )
-        
-        // Kaydet
-        viewModel.bookmarkRepository.create(bookmark)
-        viewModel.refresh()
-        
-        // Kapat
-        dismiss()
     }
     
-    // MARK: - Field Enum
+    private func performOCR(on image: UIImage) {
+        isProcessingOCR = true
+        
+        Task {
+            do {
+                let result = try await OCRService.shared.recognizeText(from: image)
+                
+                await MainActor.run {
+                    if viewModel.title.isEmpty {
+                        let lines = result.text.components(separatedBy: "\n")
+                        if let firstLine = lines.first, !firstLine.isEmpty {
+                            viewModel.title = String(firstLine.prefix(100))
+                        }
+                    }
+                    
+                    if viewModel.note.isEmpty {
+                        viewModel.note = result.cleanText
+                    } else {
+                        viewModel.note += "\n\n---\n\n" + result.cleanText
+                    }
+                    
+                    isProcessingOCR = false
+                }
+            } catch {
+                await MainActor.run {
+                    print("❌ OCR Error: \(error.localizedDescription)")
+                    isProcessingOCR = false
+                }
+            }
+        }
+    }
     
     enum Field: Hashable {
-        case url, title, note, tags
+        case title, url, note, tags
     }
 }
 
-// MARK: - Preview
-
 #Preview {
     AddBookmarkView(
-        viewModel: HomeViewModel(
-            bookmarkRepository: PreviewMockRepository.shared,
+        viewModel: AddBookmarkViewModel(
+            repository: PreviewMockRepository.shared,
             categoryRepository: PreviewMockCategoryRepository.shared
         )
     )

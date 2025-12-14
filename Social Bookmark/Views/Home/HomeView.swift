@@ -64,7 +64,13 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddBookmarkView(viewModel: viewModel)
+                AddBookmarkView(
+                    viewModel: AddBookmarkViewModel(
+                        repository: viewModel.bookmarkRepository,
+                        categoryRepository: viewModel.categoryRepository
+                    ),
+                    onSaved: { viewModel.refresh() }
+                )
             }
             .sheet(isPresented: $showingSearch) {
                 SearchView(viewModel: viewModel)
