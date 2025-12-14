@@ -78,6 +78,8 @@ struct AddBookmarkView: View {
                 let trimmed = newValue.trimmingCharacters(in: .whitespaces)
                 if !trimmed.isEmpty {
                     selectedSource = BookmarkSource.detect(from: trimmed)
+                    // Metadata çekmeyi denetle (500ms delay)
+                    fetchMetadataWithDelay(trimmed)
                 }
             }
         }
@@ -179,6 +181,93 @@ struct AddBookmarkView: View {
     }
     
     // MARK: - Actions
+    
+    private func fetchMetadataWithDelay(_ urlString: String) {
+        // 500ms sonra metadata çek (typing'i bitmesini bekle)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            guard urlString == urlInput.trimmingCharacters(in: .whitespaces) else {
+                return  // URL değişmişse iptal et
+            }
+            
+            isLoading = true
+            
+            Task {
+                print("🔍 Metadata fetching başlıyor: \(urlString)")
+                
+                // Twitter
+                if TwitterService.shared.isTwitterURL(urlString) {
+                    print("🐦 Twitter URL tespit edildi")
+                    await fetchTwitterMetadata(urlString)
+                }
+                // Reddit
+                else if RedditService.shared.isRedditURL(urlString) {
+                    print("🔴 Reddit URL tespit edildi")
+                    await fetchRedditMetadata(urlString)
+                }
+                // Genel metadata
+                else {
+                    print("📄 Genel metadata fetching...")
+                    await fetchGenericMetadata(urlString)
+                }
+                
+                await MainActor.run {
+                    isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func fetchTwitterMetadata(_ urlString: String) async {
+        do {
+            let tweet = try await TwitterService.shared.fetchTweet(from: urlString)
+            await MainActor.run {
+                if title.isEmpty {
+                    title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
+                }
+                if note.isEmpty {
+                    note = tweet.fullText
+                }
+                print("✅ Tweet çekildi: @\(tweet.authorUsername)")
+            }
+        } catch {
+            print("❌ Twitter hatası: \(error.localizedDescription)")
+        }
+    }
+    
+    private func fetchRedditMetadata(_ urlString: String) async {
+        do {
+            let post = try await RedditService.shared.fetchPost(from: urlString)
+            await MainActor.run {
+                if title.isEmpty {
+                    title = post.title
+                }
+                if note.isEmpty {
+                    note = !post.selfText.isEmpty ? post.selfText : "r/\(post.subreddit)"
+                }
+                print("✅ Reddit post çekildi: r/\(post.subreddit)")
+            }
+        } catch {
+            print("❌ Reddit hatası: \(error.localizedDescription)")
+        }
+    }
+    
+    private func fetchGenericMetadata(_ urlString: String) async {
+        do {
+            let metadata = try await URLMetadataService.shared.fetchMetadata(from: urlString)
+            await MainActor.run {
+                if title.isEmpty, let metaTitle = metadata.title {
+                    title = metaTitle
+                    print("✅ Başlık çekildi: \(metaTitle)")
+                }
+                if note.isEmpty, let metaDescription = metadata.description {
+                    note = metaDescription
+                    print("✅ Açıklama çekildi")
+                }
+            }
+        } catch {
+            print("⚠️ Metadata çekilemedi: \(error.localizedDescription)")
+        }
+    }
     
     private func saveBookmark() {
         // Validasyon

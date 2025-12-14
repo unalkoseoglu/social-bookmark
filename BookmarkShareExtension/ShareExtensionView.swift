@@ -414,75 +414,170 @@ struct ShareExtensionView: View {
     // MARK: - Actions
     
     private func fetchContent() async {
-        isLoadingMetadata = true
-        selectedSource = BookmarkSource.detect(from: url.absoluteString)
+        await MainActor.run {
+            isLoadingMetadata = true
+            selectedSource = BookmarkSource.detect(from: url.absoluteString)
+        }
+        
+        print("🔍 Metadata fetching başlıyor: \(url.absoluteString)")
+        print("📊 Detected source: \(selectedSource.displayName)")
         
         if TwitterService.shared.isTwitterURL(url.absoluteString) {
+            print("🐦 Twitter URL tespit edildi")
             await fetchTwitterContent()
         } else if RedditService.shared.isRedditURL(url.absoluteString) {
+            print("🔴 Reddit URL tespit edildi")
             await fetchRedditContent()
         } else {
+            print("📄 Genel metadata fetching...")
             await fetchGenericMetadata()
         }
         
-        isLoadingMetadata = false
+        await MainActor.run {
+            isLoadingMetadata = false
+            print("✅ Metadata fetching tamamlandı")
+        }
     }
     
     private func fetchTwitterContent() async {
         do {
+            print("🐦 TwitterService çağrılıyor...")
             let tweet = try await TwitterService.shared.fetchTweet(from: url.absoluteString)
+            
             await MainActor.run {
                 fetchedTweet = tweet
-                if title.isEmpty { title = "@\(tweet.authorUsername): \(tweet.shortSummary)" }
-                if note.isEmpty { note = tweet.fullText }
+                if title.isEmpty {
+                    title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
+                }
+                if note.isEmpty {
+                    note = tweet.fullText
+                }
                 selectedSource = .twitter
+                
+                print("🐦 Tweet başarıyla çekildi:")
+                print("   👤 \(tweet.authorName) (@\(tweet.authorUsername))")
+                print("   📝 \(tweet.text.prefix(100))...")
+                print("   🖼️ \(tweet.mediaURLs.count) görsel")
             }
+            
+            // Görsel indir
             if !tweet.mediaURLs.isEmpty {
+                print("⬇️ \(tweet.mediaURLs.count) görsel indiriliyor...")
                 await downloadTweetImages(from: tweet.mediaURLs)
             }
         } catch {
+            print("❌ Twitter hatası: \(error.localizedDescription)")
             await fetchGenericMetadata()
         }
     }
     
     private func downloadTweetImages(from urls: [URL]) async {
         var images: [Data] = []
-        for url in urls.prefix(4) {
-            if let (data, _) = try? await URLSession.shared.data(from: url) {
-                images.append(data)
+        
+        // Paralel indirme
+        await withTaskGroup(of: (Int, Data?).self) { group in
+            for (index, url) in urls.prefix(4).enumerated() {
+                group.addTask {
+                    print("   ⬇️ [\(index + 1)/\(urls.count)] İndiriliyor: \(url.lastPathComponent)")
+                    do {
+                        let (data, response) = try await URLSession.shared.data(from: url)
+                        if let httpResponse = response as? HTTPURLResponse,
+                           httpResponse.statusCode == 200,
+                           data.count > 1000 {
+                            print("   ✅ [\(index + 1)] İndirildi: \(data.count) bytes")
+                            return (index, data)
+                        }
+                    } catch {
+                        print("   ❌ [\(index + 1)] Hata: \(error.localizedDescription)")
+                    }
+                    return (index, nil)
+                }
             }
+            
+            // Sonuçları topla ve sırala
+            var results: [(Int, Data)] = []
+            for await (index, data) in group {
+                if let data = data {
+                    results.append((index, data))
+                }
+            }
+            
+            results.sort { $0.0 < $1.0 }
+            images = results.map { $0.1 }
         }
+        
         await MainActor.run {
             tweetImagesData = images
+            print("✅ Toplam \(images.count) görsel indirildi")
         }
     }
     
     private func fetchRedditContent() async {
         do {
+            print("🔴 RedditService çağrılıyor...")
             let post = try await RedditService.shared.fetchPost(from: url.absoluteString)
+            
             await MainActor.run {
                 fetchedRedditPost = post
-                if title.isEmpty { title = post.title }
-                if note.isEmpty { note = !post.selfText.isEmpty ? post.selfText : post.subtitle }
+                if title.isEmpty {
+                    title = post.title
+                }
+                if note.isEmpty {
+                    note = !post.selfText.isEmpty ? post.selfText : post.subtitle
+                }
                 selectedSource = .reddit
+                
+                print("🔴 Reddit post başarıyla çekildi:")
+                print("   📌 \(post.title)")
+                print("   📍 r/\(post.subreddit)")
+                print("   👤 u/\(post.author)")
+                print("   ❤️ \(post.score) upvotes • 💬 \(post.commentCount) comments")
             }
+            
             if let imageURL = post.imageURL {
-                if let (data, _) = try? await URLSession.shared.data(from: imageURL) {
-                    await MainActor.run {
-                        redditImageData = data
+                print("⬇️ Reddit görseli indiriliyor...")
+                if let (data, response) = try? await URLSession.shared.data(from: imageURL) {
+                    if let httpResponse = response as? HTTPURLResponse,
+                       httpResponse.statusCode == 200,
+                       data.count > 1000 {
+                        await MainActor.run {
+                            redditImageData = data
+                            print("✅ Reddit görseli indirildi: \(data.count) bytes")
+                        }
                     }
                 }
             }
         } catch {
+            print("❌ Reddit hatası: \(error.localizedDescription)")
             await fetchGenericMetadata()
         }
     }
     
     private func fetchGenericMetadata() async {
-        // Basit fallback
-        await MainActor.run {
-            if title.isEmpty {
-                title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+        print("📄 URLMetadataService çağrılıyor...")
+        
+        // URLMetadataService varsa kullan
+        do {
+            let metadata = try await URLMetadataService.shared.fetchMetadata(from: url.absoluteString)
+            await MainActor.run {
+                if title.isEmpty, let metaTitle = metadata.title {
+                    title = metaTitle
+                    print("✅ Başlık çekildi: \(metaTitle)")
+                }
+                if note.isEmpty, let metaDescription = metadata.description {
+                    note = metaDescription
+                    print("✅ Açıklama çekildi: \(metaDescription.prefix(100))...")
+                }
+            }
+        } catch {
+            print("⚠️ URLMetadataService hatası: \(error.localizedDescription)")
+            
+            // Fallback: URL'den basit bilgi çıkar
+            await MainActor.run {
+                if title.isEmpty {
+                    title = url.lastPathComponent.replacingOccurrences(of: "-", with: " ")
+                    print("ℹ️ Fallback başlık: \(title)")
+                }
             }
         }
     }
