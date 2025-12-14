@@ -20,11 +20,14 @@ struct HomeView: View {
                 
                 VStack(spacing: 0) {
                     // Header - Başlık ve Butonlar
-                    headerSection
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 16)
-                        .background(Color(.systemBackground))
-                        .border(width: 1, edges: [.bottom], color: Color(.systemGray5))
+                    VStack(spacing: 0) {
+                        headerSection
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                        
+                        Divider()
+                    }
+                    .background(Color(.systemBackground))
                     
                     ScrollView {
                         VStack(spacing: 24) {
@@ -64,9 +67,6 @@ struct HomeView: View {
             }
             .sheet(item: $selectedCategory) { category in
                 CategoryDetailView(category: category, viewModel: viewModel)
-            }
-            .sheet(item: $selectedQuickFilter) { filter in
-                QuickFilterDetailView(filter: filter, viewModel: viewModel)
             }
             .refreshable {
                 viewModel.refresh()
@@ -273,158 +273,158 @@ struct HomeView: View {
     }
     
     // MARK: - Supporting Components
-
-
-// MARK: - Stat Card
-
-struct StatCard: View {
-    let icon: String
-    let value: String
-    let title: String
-    let color: Color
     
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(color)
-            
-            Text(value)
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-// MARK: - Category Card Item
-
-struct CategoryCardItem: View {
-    let category: Category
-    let count: Int
-    let action: () -> Void
     
-    var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: category.icon)
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background(category.color)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    
-                    Spacer()
-                    
-                    Text("\(count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.primary)
-                }
+    // MARK: - Stat Card
+    
+    struct StatCard: View {
+        let icon: String
+        let value: String
+        let title: String
+        let color: Color
+        
+        var body: some View {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(color)
                 
-                Text(category.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
+                Text(value)
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .padding()
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
-        .buttonStyle(.plain)
     }
-}
-
-// MARK: - Quick Access Button
-
-struct QuickAccessButton: View {
-    let icon: String
-    let title: String
-    let count: Int
-    let color: Color
-    let action: () -> Void
     
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(color)
-                
-                VStack(spacing: 2) {
-                    Text(title)
-                        .font(.caption2)
-                        .fontWeight(.medium)
+    // MARK: - Category Card Item
+    
+    struct CategoryCardItem: View {
+        let category: Category
+        let count: Int
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: category.icon)
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(category.color)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        
+                        Spacer()
+                        
+                        Text("\(count)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.primary)
+                    }
                     
-                    Text("\(count)")
-                        .font(.headline)
-                        .fontWeight(.bold)
+                    Text(category.name)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
                 }
-                .foregroundStyle(.primary)
+                .padding()
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
-}
-
-// MARK: - Recent Item Row
-
-struct RecentItemRow: View {
-    let bookmark: Bookmark
     
-    var body: some View {
-        HStack(spacing: 12) {
-            Text(bookmark.source.emoji)
-                .font(.title3)
-                .frame(width: 40, height: 40)
-                .background(bookmark.source.color.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(bookmark.title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
+    // MARK: - Quick Access Button
+    
+    struct QuickAccessButton: View {
+        let icon: String
+        let title: String
+        let count: Int
+        let color: Color
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                VStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(color)
+                    
+                    VStack(spacing: 2) {
+                        Text(title)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                        
+                        Text("\(count)")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
                     .foregroundStyle(.primary)
-                
-                HStack(spacing: 6) {
-                    Text(bookmark.source.displayName)
-                    Text("•")
-                    Text(bookmark.relativeDate)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
-            
-            Spacer()
-            
-            if !bookmark.isRead {
-                Circle()
-                    .fill(.orange)
-                    .frame(width: 8, height: 8)
-            }
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, 8)
+    }
+    
+    // MARK: - Recent Item Row
+    
+    struct RecentItemRow: View {
+        let bookmark: Bookmark
+        
+        var body: some View {
+            HStack(spacing: 12) {
+                Text(bookmark.source.emoji)
+                    .font(.title3)
+                    .frame(width: 40, height: 40)
+                    .background(bookmark.source.color.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(bookmark.title)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                        .foregroundStyle(.primary)
+                    
+                    HStack(spacing: 6) {
+                        Text(bookmark.source.displayName)
+                        Text("•")
+                        Text(bookmark.relativeDate)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                if !bookmark.isRead {
+                    Circle()
+                        .fill(.orange)
+                        .frame(width: 8, height: 8)
+                }
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.vertical, 8)
+        }
     }
 }
-
 // MARK: - Preview
 
 #Preview {
