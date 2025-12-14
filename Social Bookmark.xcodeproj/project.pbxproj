@@ -66,12 +66,15 @@
 		C0867F932EEA2B68000C8D7D /* Exceptions for "Social Bookmark" folder in "BookmarkShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Content/MockData.swift,
+				Content/PreviewMockCategoryRepository.swift,
+				Content/PreviewMockRepository.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
+				Models/Category.swift,
 				Repositories/BookmarkRepository.swift,
-				Repositories/PreviewMockCategoryRepository.swift,
+				Repositories/CategoryRepository.swift,
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
+				Repositories/Protocol/CategoryRepositoryProtocol.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
 				Utilities/Services/TwitterService.swift,

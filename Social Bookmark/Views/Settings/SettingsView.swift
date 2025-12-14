@@ -6,6 +6,12 @@ struct SettingsView: View {
     @AppStorage(AppLanguage.storageKey)
     private var selectedLanguageRawValue = AppLanguage.system.rawValue
 
+    @AppStorage("autoDetectSource")
+    private var autoDetectSource = true
+    
+    @AppStorage("showReadingTime")
+    private var showReadingTime = true
+
     private var selectedLanguage: Binding<AppLanguage> {
         Binding {
             AppLanguage(rawValue: selectedLanguageRawValue) ?? .system
@@ -19,6 +25,9 @@ struct SettingsView: View {
     var body: some View {
         Form {
             languageSection
+            bookmarkSettingsSection
+            aboutSection
+            dangerZoneSection
         }
         .navigationTitle("Ayarlar")
         .navigationBarTitleDisplayMode(.inline)
@@ -48,6 +57,52 @@ struct SettingsView: View {
             Text("Dil değişikliği uygulamayı yeniden başlatmadan uygulanır.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+        }
+    }
+    
+    private var bookmarkSettingsSection: some View {
+        Section("Bookmark Ayarları") {
+            Toggle("Otomatik Kaynak Tespiti", isOn: $autoDetectSource)
+            Toggle("Okuma Süresini Göster", isOn: $showReadingTime)
+        }
+    }
+    
+    private var aboutSection: some View {
+        Section("Hakkında") {
+            HStack {
+                Text("Versiyon")
+                Spacer()
+                Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
+                    .foregroundStyle(.secondary)
+            }
+            
+            Link(destination: URL(string: "https://github.com")!) {
+                HStack {
+                    Text("GitHub")
+                    Spacer()
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Link(destination: URL(string: "mailto:support@example.com")!) {
+                HStack {
+                    Text("Destek")
+                    Spacer()
+                    Image(systemName: "envelope")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+    
+    private var dangerZoneSection: some View {
+        Section {
+            Button(role: .destructive) {
+                // Cache temizleme işlemi
+            } label: {
+                Label("Önbelleği Temizle", systemImage: "trash")
+            }
         }
     }
 }

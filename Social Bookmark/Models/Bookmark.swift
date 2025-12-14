@@ -28,6 +28,12 @@ final class Bookmark {
     /// Okundu mu? - Reading tracker için
     var isRead: Bool
     
+    /// Favori mi? - Hızlı erişim için (YENİ)
+    var isFavorite: Bool
+    
+    /// Kategori ID - Klasörleme için (YENİ)
+    var categoryId: UUID?
+    
     /// Etiketler - kategorize etmek için
     var tags: [String]
     
@@ -44,28 +50,32 @@ final class Bookmark {
     
     /// Yeni bookmark oluştururken kullanılır
     init(
-        title: String,
-        url: String? = nil,
-        note: String = "",
-        source: BookmarkSource = .other,
-        isRead: Bool = false,
-        tags: [String] = [],
-        imageData: Data? = nil,
-        imagesData: [Data]? = nil,
-        extractedText: String? = nil
-    ) {
-        self.id = UUID()
-        self.title = title
-        self.url = url
-        self.note = note
-        self.source = source
-        self.createdAt = Date()
-        self.isRead = isRead
-        self.tags = tags
-        self.imageData = imageData
-        self.imagesData = imagesData
-        self.extractedText = extractedText
-    }
+            title: String,
+            url: String? = nil,
+            note: String = "",
+            source: BookmarkSource = .other,
+            isRead: Bool = false,
+            isFavorite: Bool = false,           // ← YENİ
+            categoryId: UUID? = nil,            // ← YENİ
+            tags: [String] = [],
+            imageData: Data? = nil,
+            imagesData: [Data]? = nil,
+            extractedText: String? = nil
+        ) {
+            self.id = UUID()
+            self.title = title
+            self.url = url
+            self.note = note
+            self.source = source
+            self.createdAt = Date()
+            self.isRead = isRead
+            self.isFavorite = isFavorite        // ← YENİ
+            self.categoryId = categoryId        // ← YENİ
+            self.tags = tags
+            self.imageData = imageData
+            self.imagesData = imagesData
+            self.extractedText = extractedText
+        }
 }
 
 // MARK: - Computed Properties

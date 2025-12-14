@@ -495,8 +495,9 @@ struct ShareExtensionView: View {
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
         
-        let finalImageData = tweetImagesData.first ?? redditImageData
-        let finalImagesData = !tweetImagesData.isEmpty ? tweetImagesData : nil
+        // Tek görsel için Data, çoklu için [Data] hazırla
+        let finalImageData: Data? = tweetImagesData.first ?? redditImageData
+        let finalImagesData: [Data]? = !tweetImagesData.isEmpty ? tweetImagesData : nil
         
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),

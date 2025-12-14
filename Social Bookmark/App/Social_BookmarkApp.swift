@@ -10,13 +10,16 @@ struct Social_BookmarkApp: App {
 
     /// Bookmark repository - app genelinde paylaşılan
     let bookmarkRepository: BookmarkRepositoryProtocol
+    
+    /// Category repository - kategori yönetimi
+    let categoryRepository: CategoryRepositoryProtocol
 
-    /// Seçilen uygulama dili
+    /// Seçilen uygulama dili - Mevcut AppLanguage enum'unu kullanıyor
     @AppStorage(AppLanguage.storageKey)
     private var selectedLanguageRawValue = AppLanguage.system.rawValue
 
     /// App Group ID - Extension ile paylaşım için
-    static let appGroupID = "group.com.unal.socialbookmark" // DEĞIŞTIR!
+    static let appGroupID = "group.com.unal.socialbookmark"
     
     // MARK: - Initialization
     
@@ -39,8 +42,9 @@ struct Social_BookmarkApp: App {
                 allowsSave: true
             )
             
+            // Hem Bookmark hem Category modellerini kaydet
             modelContainer = try ModelContainer(
-                for: Bookmark.self,
+                for: Bookmark.self, Category.self,
                 configurations: configuration
             )
         } catch {
@@ -48,9 +52,12 @@ struct Social_BookmarkApp: App {
             fatalError("ModelContainer oluşturulamadı: \(error)")
         }
         
-        // 2. Repository'yi başlat
-        // mainContext: ana thread'de çalışan context
+        // 2. Repository'leri başlat
         bookmarkRepository = BookmarkRepository(
+            modelContext: modelContainer.mainContext
+        )
+        
+        categoryRepository = CategoryRepository(
             modelContext: modelContainer.mainContext
         )
         
@@ -64,9 +71,12 @@ struct Social_BookmarkApp: App {
     
     var body: some Scene {
         WindowGroup {
-            // Ana ekran: Bookmark listesi
-            BookmarkListView(
-                viewModel: BookmarkListViewModel(repository: bookmarkRepository)
+            // Yeni ana ekran: Dashboard style HomeView
+            HomeView(
+                viewModel: HomeViewModel(
+                    bookmarkRepository: bookmarkRepository,
+                    categoryRepository: categoryRepository
+                )
             )
             .environment(\.locale, appLanguage.locale)
         }
@@ -78,44 +88,55 @@ struct Social_BookmarkApp: App {
         AppLanguage(rawValue: selectedLanguageRawValue) ?? .system
     }
     
-    // MARK: - Sample Data (Development)
+    // MARK: - Sample Data (Debug)
     
-    /// İlk açılışta örnek data ekle
+    #if DEBUG
     private func addSampleDataIfNeeded() {
-        let context = modelContainer.mainContext
-        let repository = BookmarkRepository(modelContext: context)
+        // Bookmark var mı kontrol et
+        guard bookmarkRepository.count == 0 else { return }
         
-        // Eğer hiç bookmark yoksa örnek ekle
-        guard repository.count == 0 else { return }
-        
-        let samples = [
+        // Örnek bookmarklar ekle
+        let sampleBookmarks = [
             Bookmark(
-                title: "SwiftUI Documentation",
-                url: "https://developer.apple.com/documentation/swiftui",
-                note: "Official SwiftUI docs - read before starting project",
+                title: "SwiftUI ile Modern iOS Geliştirme",
+                url: "https://developer.apple.com/swiftui",
+                note: "Apple'ın resmi SwiftUI dokümantasyonu",
                 source: .article,
-                tags: ["Swift", "iOS", "Documentation"]
+                tags: ["swift", "ios", "swiftui"],
+                
             ),
             Bookmark(
-                title: "Thread: Async/Await Best Practices",
-                url: "https://twitter.com/johnsundell/status/123456",
-                note: "Great explanation of structured concurrency",
+                title: "iOS 18'deki yenilikler hakkında thread",
+                url: "https://twitter.com/example/status/123456",
+                note: "WWDC 2024 özeti",
                 source: .twitter,
-                tags: ["Swift", "Concurrency"]
+                tags: ["ios", "wwdc"]
             ),
             Bookmark(
-                title: "Building a Bookmark App",
-                url: "https://medium.com/@developer/bookmark-app",
-                note: "Similar project, good UI ideas",
+                title: "SwiftData vs Core Data karşılaştırması",
+                url: "https://reddit.com/r/swift/comments/example",
+                source: .reddit,
+                tags: ["swift", "swiftdata", "coredata"]
+            ),
+            Bookmark(
+                title: "Clean Architecture in Swift",
+                url: "https://medium.com/@example/clean-architecture",
                 source: .medium,
-                tags: ["iOS", "Tutorial"]
+                tags: ["architecture", "swift"]
+            ),
+            Bookmark(
+                title: "GitHub Copilot ile Kod Yazımı",
+                url: "https://github.com/features/copilot",
+                source: .github,
+                tags: ["ai", "coding"]
             )
         ]
         
-        for sample in samples {
-            repository.create(sample)
+        for bookmark in sampleBookmarks {
+            bookmarkRepository.create(bookmark)
         }
         
-        print("✅ Sample data added: \(samples.count) bookmarks")
+        print("✅ \(sampleBookmarks.count) örnek bookmark eklendi")
     }
+    #endif
 }

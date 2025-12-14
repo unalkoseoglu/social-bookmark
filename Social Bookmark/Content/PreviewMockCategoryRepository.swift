@@ -1,7 +1,14 @@
+//
+//  PreviewMockCategoryRepository.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 14.12.2025.
+//
+
+
 import Foundation
 
-// MARK: - Preview Mock Category Repository
-
+/// Preview ve test için mock category repository
 final class PreviewMockCategoryRepository: CategoryRepositoryProtocol {
     static let shared = PreviewMockCategoryRepository()
     
@@ -20,6 +27,7 @@ final class PreviewMockCategoryRepository: CategoryRepositoryProtocol {
     }
     
     func create(_ category: Category) {
+        category.order = categories.count
         categories.append(category)
         print("✅ Mock: Created category - \(category.name)")
     }
@@ -45,5 +53,6 @@ final class PreviewMockCategoryRepository: CategoryRepositoryProtocol {
     func createDefaultsIfNeeded() {
         guard categories.isEmpty else { return }
         categories = Category.createDefaults()
+        print("✅ Mock: Created \(categories.count) default categories")
     }
 }
