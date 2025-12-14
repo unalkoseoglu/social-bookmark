@@ -21,6 +21,12 @@ struct AddBookmarkView: View {
     @State private var errorMessage: String?
     @State private var showError = false
     
+    // Preview states
+    @State private var fetchedTweet: TwitterService.Tweet?
+    @State private var fetchedRedditPost: RedditPost?
+    @State private var tweetImagesData: [Data] = []
+    @State private var redditImageData: Data?
+    
     @FocusState private var focusedField: Field?
     
     private var isValid: Bool {
@@ -35,6 +41,16 @@ struct AddBookmarkView: View {
             Form {
                 // URL girişi
                 urlSection
+                
+                // Twitter önizlemesi
+                if let tweet = fetchedTweet {
+                    TweetPreviewView(tweet: tweet, imageData: tweetImagesData.first)
+                }
+                
+                // Reddit önizlemesi
+                if let reddit = fetchedRedditPost {
+                    RedditPreviewView(post: reddit, imagesData: redditImageData.map { [$0] } ?? [])
+                }
                 
                 // Başlık ve not
                 detailsSection
@@ -80,6 +96,12 @@ struct AddBookmarkView: View {
                     selectedSource = BookmarkSource.detect(from: trimmed)
                     // Metadata çekmeyi denetle (500ms delay)
                     fetchMetadataWithDelay(trimmed)
+                } else {
+                    // URL temizlenirse preview'ları da temizle
+                    fetchedTweet = nil
+                    fetchedRedditPost = nil
+                    tweetImagesData = []
+                    redditImageData = nil
                 }
             }
         }
@@ -221,6 +243,7 @@ struct AddBookmarkView: View {
         do {
             let tweet = try await TwitterService.shared.fetchTweet(from: urlString)
             await MainActor.run {
+                fetchedTweet = tweet
                 if title.isEmpty {
                     title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
                 }
@@ -229,8 +252,51 @@ struct AddBookmarkView: View {
                 }
                 print("✅ Tweet çekildi: @\(tweet.authorUsername)")
             }
+            
+            // Görselleri indir
+            if !tweet.mediaURLs.isEmpty {
+                await downloadTweetImages(from: tweet.mediaURLs)
+            }
         } catch {
             print("❌ Twitter hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata(urlString)
+        }
+    }
+    
+    private func downloadTweetImages(from urls: [URL]) async {
+        var images: [Data] = []
+        
+        await withTaskGroup(of: (Int, Data?).self) { group in
+            for (index, url) in urls.prefix(4).enumerated() {
+                group.addTask {
+                    do {
+                        let (data, response) = try await URLSession.shared.data(from: url)
+                        if let httpResponse = response as? HTTPURLResponse,
+                           httpResponse.statusCode == 200,
+                           data.count > 1000 {
+                            return (index, data)
+                        }
+                    } catch {
+                        print("❌ Tweet görsel hatası: \(error.localizedDescription)")
+                    }
+                    return (index, nil)
+                }
+            }
+            
+            var results: [(Int, Data)] = []
+            for await (index, data) in group {
+                if let data = data {
+                    results.append((index, data))
+                }
+            }
+            
+            results.sort { $0.0 < $1.0 }
+            images = results.map { $0.1 }
+        }
+        
+        await MainActor.run {
+            tweetImagesData = images
+            print("✅ \(images.count) tweet görseli indirildi")
         }
     }
     
@@ -238,6 +304,7 @@ struct AddBookmarkView: View {
         do {
             let post = try await RedditService.shared.fetchPost(from: urlString)
             await MainActor.run {
+                fetchedRedditPost = post
                 if title.isEmpty {
                     title = post.title
                 }
@@ -246,8 +313,30 @@ struct AddBookmarkView: View {
                 }
                 print("✅ Reddit post çekildi: r/\(post.subreddit)")
             }
+            
+            // Görseli indir
+            if let imageURL = post.imageURL {
+                await downloadRedditImage(from: imageURL)
+            }
         } catch {
             print("❌ Reddit hatası: \(error.localizedDescription)")
+            await fetchGenericMetadata(urlString)
+        }
+    }
+    
+    private func downloadRedditImage(from url: URL) async {
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 200,
+               data.count > 1000 {
+                await MainActor.run {
+                    redditImageData = data
+                    print("✅ Reddit görseli indirildi: \(data.count) bytes")
+                }
+            }
+        } catch {
+            print("❌ Reddit görsel hatası: \(error.localizedDescription)")
         }
     }
     
