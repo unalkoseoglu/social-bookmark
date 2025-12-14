@@ -4,16 +4,24 @@ import SwiftUI
 struct BookmarkListView: View {
     // MARK: - Properties
     
-    /// ViewModel - business logic burada
-    @State private var viewModel: BookmarkListViewModel
+    /// Home ViewModel - bookmark ekleme için gerekli
+    @Bindable var homeViewModel: HomeViewModel
+    
+    /// Iç ViewModel - liste filtreleme ve işlemler
+    @State private var listViewModel: BookmarkListViewModel
     
     /// Sheet state - yeni bookmark ekle
     @State private var showingAddSheet = false
     
     // MARK: - Initialization
     
-    init(viewModel: BookmarkListViewModel) {
-        _viewModel = State(initialValue: viewModel)
+    init(homeViewModel: HomeViewModel) {
+        self.homeViewModel = homeViewModel
+        _listViewModel = State(
+            initialValue: BookmarkListViewModel(
+                repository: homeViewModel.bookmarkRepository
+            )
+        )
     }
     
     // MARK: - Body
@@ -21,10 +29,10 @@ struct BookmarkListView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.isLoading {
+                if listViewModel.isLoading {
                     // Yüklenirken spinner göster
                     ProgressView("Yükleniyor...")
-                } else if viewModel.isEmpty {
+                } else if listViewModel.isEmpty {
                     // Liste boşsa placeholder
                     emptyStateView
                 } else {
@@ -35,7 +43,7 @@ struct BookmarkListView: View {
             .navigationTitle("Social Bookmark")
             .navigationBarTitleDisplayMode(.large)
             .searchable(
-                text: $viewModel.searchText,
+                text: $listViewModel.searchText,
                 prompt: "Başlık veya not ara"
             )
             .toolbar {
@@ -43,16 +51,11 @@ struct BookmarkListView: View {
             }
             .sheet(isPresented: $showingAddSheet) {
                 // Modal sheet - yeni bookmark ekle
-                AddBookmarkView(
-                    viewModel: AddBookmarkViewModel(repository: viewModel.repository),
-                    onSaved: {
-                        viewModel.loadBookmarks()
-                    }
-                )
+                AddBookmarkView(viewModel: homeViewModel)
             }
             .refreshable {
                 // Pull-to-refresh
-                viewModel.loadBookmarks()
+                listViewModel.loadBookmarks()
             }
         }
     }
@@ -66,11 +69,11 @@ struct BookmarkListView: View {
             statsSection
             
             // Bookmarklar
-            ForEach(viewModel.bookmarks) { bookmark in
+            ForEach(listViewModel.bookmarks) { bookmark in
                 NavigationLink {
                     BookmarkDetailView(
                         bookmark: bookmark,
-                        repository: viewModel.repository
+                        repository: listViewModel.repository
                     )
                 } label: {
                     BookmarkRow(bookmark: bookmark)
@@ -79,7 +82,7 @@ struct BookmarkListView: View {
                     // Sağdan kaydır: Sil
                     Button(role: .destructive) {
                         withAnimation {
-                            viewModel.deleteBookmark(bookmark)
+                            listViewModel.deleteBookmark(bookmark)
                         }
                     } label: {
                         Label("Sil", systemImage: "trash")
@@ -89,7 +92,7 @@ struct BookmarkListView: View {
                     // Soldan kaydır: Okundu işaretle
                     Button {
                         withAnimation {
-                            viewModel.toggleReadStatus(bookmark)
+                            listViewModel.toggleReadStatus(bookmark)
                         }
                     } label: {
                         Label(
@@ -108,9 +111,9 @@ struct BookmarkListView: View {
     private var statsSection: some View {
         Section {
             HStack {
-                Label("\(viewModel.totalCount) toplam", systemImage: "bookmark.fill")
+                Label("\(listViewModel.totalCount) toplam", systemImage: "bookmark.fill")
                 Spacer()
-                Label("\(viewModel.unreadCount) okunmadı", systemImage: "circle.fill")
+                Label("\(listViewModel.unreadCount) okunmadı", systemImage: "circle.fill")
                     .foregroundStyle(.orange)
             }
             .font(.subheadline)
@@ -165,7 +168,7 @@ struct BookmarkListView: View {
         ToolbarItem(placement: .topBarLeading) {
             Menu {
                 // Kaynak filtresi
-                Picker("Kaynak", selection: $viewModel.selectedSource) {
+                Picker("Kaynak", selection: $listViewModel.selectedSource) {
                     Text("Tümü").tag(nil as BookmarkSource?)
                     Divider()
                     ForEach(BookmarkSource.allCases) { source in
@@ -176,12 +179,12 @@ struct BookmarkListView: View {
                 Divider()
                 
                 // Okunmamış filtresi
-                Toggle("Sadece Okunmamışlar", isOn: $viewModel.showOnlyUnread)
+                Toggle("Sadece Okunmamışlar", isOn: $listViewModel.showOnlyUnread)
                 
                 Divider()
                 
                 // Filtreleri temizle
-                Button(action: viewModel.clearFilters) {
+                Button(action: listViewModel.clearFilters) {
                     Label("Filtreleri Temizle", systemImage: "xmark.circle")
                 }
             } label: {
@@ -195,8 +198,9 @@ struct BookmarkListView: View {
 
 #Preview {
     BookmarkListView(
-        viewModel: BookmarkListViewModel(
-            repository: PreviewMockRepository.shared
+        homeViewModel: HomeViewModel(
+            bookmarkRepository: PreviewMockRepository.shared,
+            categoryRepository: PreviewMockCategoryRepository.shared
         )
     )
 }
