@@ -1,6 +1,7 @@
 import Foundation
 
 /// Medium post servisi - Tam içerik çekme desteği ile
+/// Güncellenmiş: Paywall tespiti ve alternatif içerik kaynakları
 final class MediumService {
     static let shared = MediumService()
     private init() {}
@@ -9,10 +10,24 @@ final class MediumService {
     
     func isMediumURL(_ urlString: String) -> Bool {
         let lowercased = urlString.lowercased()
-        return lowercased.contains("medium.com") ||
-               lowercased.contains("towardsdatascience.com") ||
-               lowercased.contains("betterprogramming.pub") ||
-               lowercased.contains("levelup.gitconnected.com")
+        
+        // Ana Medium domain'leri
+        let mediumDomains = [
+            "medium.com",
+            "towardsdatascience.com",
+            "betterprogramming.pub",
+            "levelup.gitconnected.com",
+            "javascript.plainenglish.io",
+            "blog.devgenius.io",
+            "python.plainenglish.io",
+            "aws.plainenglish.io",
+            "bootcamp.uxdesign.cc",
+            "uxdesign.cc",
+            "ehandbook.com",
+            "codeburst.io"
+        ]
+        
+        return mediumDomains.contains { lowercased.contains($0) }
     }
     
     func fetchPost(from urlString: String) async throws -> MediumPost {
@@ -22,12 +37,17 @@ final class MediumService {
             throw MediumError.invalidURL
         }
         
-        // 1. HTML içeriğini çek
+        // 1. HTML içeriğini çek - Geliştirilmiş headers
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.timeoutInterval = 15
-        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-                        forHTTPHeaderField: "User-Agent")
+        request.timeoutInterval = 20
+        
+        // Medium bot tespitini atlatmak için headers
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+        request.setValue("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", forHTTPHeaderField: "Accept")
+        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+        request.setValue("gzip, deflate, br", forHTTPHeaderField: "Accept-Encoding")
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         
         print("📗 Medium: HTML çekiliyor...")
         
@@ -56,6 +76,7 @@ final class MediumService {
         print("  - Başlık: \(post.title.prefix(50))...")
         print("  - Yazar: \(post.authorName)")
         print("  - İçerik: \(post.fullContent.count) karakter")
+        print("  - Paywall: \(post.isPaywalled ? "Evet" : "Hayır")")
         
         return post
     }
@@ -65,37 +86,63 @@ final class MediumService {
     private func parseMediumHTML(_ html: String, originalURL: URL) throws -> MediumPost {
         print("📗 Medium: HTML parse ediliyor...")
         
+        // Paywall kontrolü
+        let isPaywalled = detectPaywall(in: html)
+        if isPaywalled {
+            print("⚠️ Medium: Paywall tespit edildi")
+        }
+        
         // Open Graph meta tags
         let title = extractOGTag(from: html, property: "og:title") ??
+                   extractMetaTag(from: html, name: "title") ??
                    extractTitle(from: html) ??
                    "Medium Post"
         
-        let subtitle = extractOGTag(from: html, property: "og:description") ?? ""
+        let subtitle = extractOGTag(from: html, property: "og:description") ??
+                      extractMetaTag(from: html, name: "description") ??
+                      ""
         
-        let imageURL = extractOGTag(from: html, property: "og:image")
-            .flatMap { URL(string: $0) }
+        let imageURL = extractImageURL(from: html)
         
-        // TAM İÇERİK ÇIKART ← YENİ (subtitle'ı parametre olarak geç)
-        let fullContent = extractFullContent(from: html, fallbackSubtitle: subtitle)
+        // TAM İÇERİK ÇIKART
+        let fullContent = extractFullContent(from: html, fallbackSubtitle: subtitle, isPaywalled: isPaywalled)
         
         // Yazar bilgisi
         var authorName = "Medium Writer"
         var authorURL: URL?
         
-        // JSON-LD structured data
+        // JSON-LD structured data (en güvenilir)
         if let jsonLD = extractMediumJSONLD(from: html) {
             if let author = jsonLD["author"] as? [String: Any] {
                 authorName = author["name"] as? String ?? authorName
                 if let urlString = author["url"] as? String {
                     authorURL = URL(string: urlString)
                 }
+            } else if let authorString = jsonLD["author"] as? String {
+                authorName = authorString
+            }
+            
+            // Creator field
+            if authorName == "Medium Writer",
+               let creator = jsonLD["creator"] as? [String: Any],
+               let name = creator["name"] as? String {
+                authorName = name
             }
         }
         
         // Fallback: HTML meta tags
         if authorName == "Medium Writer" {
-            if let metaAuthor = extractMetaTag(from: html, property: "author") {
+            if let metaAuthor = extractMetaTag(from: html, name: "author") {
                 authorName = metaAuthor
+            } else if let twitterCreator = extractMetaTag(from: html, name: "twitter:creator") {
+                authorName = twitterCreator.replacingOccurrences(of: "@", with: "")
+            }
+        }
+        
+        // Fallback: URL'den yazar adı
+        if authorName == "Medium Writer" {
+            if let authorFromURL = extractAuthorFromURL(originalURL.absoluteString) {
+                authorName = authorFromURL
             }
         }
         
@@ -124,14 +171,33 @@ final class MediumService {
             readTime: readTime,
             publishedDate: publishedDate,
             claps: claps,
-            originalURL: originalURL
+            originalURL: originalURL,
+            isPaywalled: isPaywalled
         )
     }
     
-    // MARK: - Full Content Extraction ← YENİ
+    // MARK: - Paywall Detection
     
-    /// Medium'un tam içeriğini çıkar
-    private func extractFullContent(from html: String, fallbackSubtitle: String) -> String {
+    private func detectPaywall(in html: String) -> Bool {
+        let paywallIndicators = [
+            "membershipContent",
+            "meteredContent",
+            "locked-content",
+            "premium-content",
+            "member-only",
+            "paywall",
+            "subscribe to continue",
+            "Member-only story",
+            "You've read all your free"
+        ]
+        
+        let lowercasedHTML = html.lowercased()
+        return paywallIndicators.contains { lowercasedHTML.contains($0.lowercased()) }
+    }
+    
+    // MARK: - Full Content Extraction
+    
+    private func extractFullContent(from html: String, fallbackSubtitle: String, isPaywalled: Bool) -> String {
         print("📗 Medium: Tam içerik çıkarılıyor...")
         
         var paragraphs: [String] = []
@@ -146,7 +212,9 @@ final class MediumService {
         let articlePatterns = [
             #"<article[^>]*>(.*?)</article>"#,
             #"<div[^>]*class="[^"]*section-content[^"]*"[^>]*>(.*?)</div>"#,
-            #"<div[^>]*class="[^"]*post-content[^"]*"[^>]*>(.*?)</div>"#
+            #"<div[^>]*class="[^"]*post-content[^"]*"[^>]*>(.*?)</div>"#,
+            #"<div[^>]*class="[^"]*article-content[^"]*"[^>]*>(.*?)</div>"#,
+            #"<section[^>]*data-field="body"[^>]*>(.*?)</section>"#
         ]
         
         for pattern in articlePatterns {
@@ -165,19 +233,35 @@ final class MediumService {
             print("  ✅ Genel arama: \(paragraphs.count) paragraf bulundu")
         }
         
-        // Paragrafları birleştir
-        let content = paragraphs
-            .filter { !$0.isEmpty }
-            .joined(separator: "\n\n")
-        
-        // Çok kısa içerik varsa (muhtemelen paywall), uyarı ver
-        if content.count < 500 {
-            print("  ⚠️ İçerik çok kısa (\(content.count) karakter) - muhtemelen paywall")
-            // fallbackSubtitle kullan ← DÜZELTİLDİ
-            if !fallbackSubtitle.isEmpty {
-                return fallbackSubtitle + "\n\n[İçeriğin tamamını okumak için Medium'da açın]"
+        // Paragrafları filtrele ve birleştir
+        let filteredParagraphs = paragraphs
+            .filter { paragraph in
+                let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
+                // Çok kısa paragrafları ve navigasyon elementlerini atla
+                return trimmed.count > 20 &&
+                       !trimmed.hasPrefix("Sign in") &&
+                       !trimmed.hasPrefix("Get started") &&
+                       !trimmed.hasPrefix("Open in app") &&
+                       !trimmed.contains("Follow") &&
+                       !trimmed.contains("Member-only")
             }
-            return "[İçeriğin tamamını okumak için Medium'da açın]"
+        
+        let content = filteredParagraphs.joined(separator: "\n\n")
+        
+        // Çok kısa içerik varsa (muhtemelen paywall), fallback kullan
+        if content.count < 200 || isPaywalled {
+            print("  ⚠️ İçerik çok kısa (\(content.count) karakter) veya paywall")
+            
+            if !fallbackSubtitle.isEmpty && fallbackSubtitle.count > content.count {
+                if isPaywalled {
+                    return fallbackSubtitle + "\n\n🔒 Bu makale yalnızca Medium üyelerine özel. Tam içeriği okumak için Medium'da açın."
+                }
+                return fallbackSubtitle
+            }
+            
+            if isPaywalled && !content.isEmpty {
+                return content + "\n\n🔒 Bu makale yalnızca Medium üyelerine özel."
+            }
         }
         
         return content
@@ -185,26 +269,31 @@ final class MediumService {
     
     /// JSON embedded data'dan içerik çıkar
     private func extractContentFromJSON(_ html: String) -> String? {
-        // Medium sayfalarında window.__APOLLO_STATE__ veya __PRELOADED_STATE__ var
+        // Medium sayfalarında window.__APOLLO_STATE__ veya benzeri var
         let jsonPatterns = [
-            #"window\.__APOLLO_STATE__\s*=\s*(\{.*?\});"#,
-            #"window\.__PRELOADED_STATE__\s*=\s*(\{.*?\});"#
+            #"window\.__APOLLO_STATE__\s*=\s*(\{.*?\});\s*</script>"#,
+            #"window\.__PRELOADED_STATE__\s*=\s*(\{.*?\});\s*</script>"#,
+            #"<script[^>]*id="__NEXT_DATA__"[^>]*>(\{.*?\})</script>"#
         ]
         
         for pattern in jsonPatterns {
             if let jsonString = extractPattern(from: html, pattern: pattern, options: [.dotMatchesLineSeparators]) {
-                // JSON parse et
-                guard let data = jsonString.data(using: .utf8),
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                guard let data = jsonString.data(using: .utf8) else { continue }
+                
+                do {
+                    guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                        continue
+                    }
+                    
+                    // Paragrafları bul
+                    var paragraphs: [String] = []
+                    findParagraphsInJSON(json, paragraphs: &paragraphs)
+                    
+                    if !paragraphs.isEmpty {
+                        return paragraphs.joined(separator: "\n\n")
+                    }
+                } catch {
                     continue
-                }
-                
-                // Paragrafları bul
-                var paragraphs: [String] = []
-                findParagraphsInJSON(json, paragraphs: &paragraphs)
-                
-                if !paragraphs.isEmpty {
-                    return paragraphs.joined(separator: "\n\n")
                 }
             }
         }
@@ -216,14 +305,19 @@ final class MediumService {
     private func findParagraphsInJSON(_ json: Any, paragraphs: inout [String]) {
         if let dict = json as? [String: Any] {
             // "text" veya "content" key'lerini ara
-            if let text = dict["text"] as? String, text.count > 20 {
+            if let text = dict["text"] as? String, text.count > 50 {
                 paragraphs.append(text)
-            } else if let content = dict["content"] as? String, content.count > 20 {
-                paragraphs.append(content)
             }
             
-            // Nested objekteleri tara
-            for (_, value) in dict {
+            // Paragraph type kontrolü
+            if let type = dict["type"] as? String,
+               type.lowercased().contains("paragraph"),
+               let text = dict["text"] as? String {
+                paragraphs.append(text)
+            }
+            
+            // Recursive arama
+            for value in dict.values {
                 findParagraphsInJSON(value, paragraphs: &paragraphs)
             }
         } else if let array = json as? [Any] {
@@ -237,26 +331,21 @@ final class MediumService {
     private func extractParagraphs(from html: String) -> [String] {
         var paragraphs: [String] = []
         
-        // <p> tag pattern
-        let pPattern = #"<p[^>]*>(.*?)</p>"#
+        // <p> taglerini bul
+        let pattern = #"<p[^>]*>([^<]+(?:<[^/p][^>]*>[^<]*</[^p][^>]*>)*[^<]*)</p>"#
         
-        guard let regex = try? NSRegularExpression(pattern: pPattern, options: [.caseInsensitive, .dotMatchesLineSeparators]) else {
-            return []
-        }
-        
-        let range = NSRange(html.startIndex..<html.endIndex, in: html)
-        let matches = regex.matches(in: html, range: range)
-        
-        for match in matches {
-            if match.numberOfRanges > 1,
-               let contentRange = Range(match.range(at: 1), in: html) {
-                let rawText = String(html[contentRange])
-                let cleanedText = stripHTMLTags(rawText)
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                
-                // Çok kısa paragrafları atla (muhtemelen UI elementleri)
-                if cleanedText.count > 30 {
-                    paragraphs.append(cleanedText)
+        if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators]) {
+            let range = NSRange(html.startIndex..<html.endIndex, in: html)
+            let matches = regex.matches(in: html, range: range)
+            
+            for match in matches {
+                if match.numberOfRanges > 1,
+                   let contentRange = Range(match.range(at: 1), in: html) {
+                    let text = String(html[contentRange])
+                    let cleanedText = stripHTMLTags(text)
+                    if !cleanedText.isEmpty {
+                        paragraphs.append(cleanedText)
+                    }
                 }
             }
         }
@@ -264,37 +353,73 @@ final class MediumService {
         return paragraphs
     }
     
-    /// Tüm paragrafları çek (fallback)
     private func extractAllParagraphs(from html: String) -> [String] {
-        extractParagraphs(from: html)
+        var paragraphs: [String] = []
+        
+        // Basit <p>...</p> arama
+        let simplePattern = #"<p[^>]*>(.*?)</p>"#
+        
+        if let regex = try? NSRegularExpression(pattern: simplePattern, options: [.caseInsensitive, .dotMatchesLineSeparators]) {
+            let range = NSRange(html.startIndex..<html.endIndex, in: html)
+            let matches = regex.matches(in: html, range: range)
+            
+            for match in matches {
+                if match.numberOfRanges > 1,
+                   let contentRange = Range(match.range(at: 1), in: html) {
+                    let text = String(html[contentRange])
+                    let cleanedText = stripHTMLTags(text)
+                    if cleanedText.count > 20 {
+                        paragraphs.append(cleanedText)
+                    }
+                }
+            }
+        }
+        
+        return paragraphs
     }
     
-    /// HTML taglerini kaldır
     private func stripHTMLTags(_ html: String) -> String {
-        var text = html
-        
         // HTML taglerini kaldır
-        text = text.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        var result = html
         
-        // HTML entities'leri temizle
-        text = cleanText(text)
+        // Inline taglerden metni koru
+        let tagPattern = #"<[^>]+>"#
+        if let regex = try? NSRegularExpression(pattern: tagPattern) {
+            let range = NSRange(result.startIndex..<result.endIndex, in: result)
+            result = regex.stringByReplacingMatches(in: result, range: range, withTemplate: "")
+        }
         
-        // Fazla boşlukları temizle
-        text = text.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-        
-        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return cleanText(result)
     }
     
-    // MARK: - Existing Helper Methods
+    // MARK: - Extraction Helpers
     
     private func extractOGTag(from html: String, property: String) -> String? {
-        let pattern = #"<meta[^>]*property=["']\#(property)["'][^>]*content=["']([^"']+)["']"#
-        return extractPattern(from: html, pattern: pattern)
+        let patterns = [
+            #"<meta[^>]*property=["']\#(property)["'][^>]*content=["']([^"']+)["']"#,
+            #"<meta[^>]*content=["']([^"']+)["'][^>]*property=["']\#(property)["']"#
+        ]
+        
+        for pattern in patterns {
+            if let result = extractPattern(from: html, pattern: pattern) {
+                return result
+            }
+        }
+        return nil
     }
     
-    private func extractMetaTag(from html: String, property: String) -> String? {
-        let pattern = #"<meta[^>]*name=["']\#(property)["'][^>]*content=["']([^"']+)["']"#
-        return extractPattern(from: html, pattern: pattern)
+    private func extractMetaTag(from html: String, name: String) -> String? {
+        let patterns = [
+            #"<meta[^>]*name=["']\#(name)["'][^>]*content=["']([^"']+)["']"#,
+            #"<meta[^>]*content=["']([^"']+)["'][^>]*name=["']\#(name)["']"#
+        ]
+        
+        for pattern in patterns {
+            if let result = extractPattern(from: html, pattern: pattern) {
+                return result
+            }
+        }
+        return nil
     }
     
     private func extractTitle(from html: String) -> String? {
@@ -302,11 +427,31 @@ final class MediumService {
         return extractPattern(from: html, pattern: pattern)
     }
     
+    private func extractImageURL(from html: String) -> URL? {
+        let sources = [
+            extractOGTag(from: html, property: "og:image"),
+            extractMetaTag(from: html, name: "twitter:image"),
+            extractPattern(from: html, pattern: #"<img[^>]*class="[^"]*progressiveMedia[^"]*"[^>]*src=["']([^"']+)["']"#)
+        ]
+        
+        for source in sources {
+            if let urlString = source, !urlString.isEmpty {
+                let cleanURL = urlString.replacingOccurrences(of: "&amp;", with: "&")
+                if let url = URL(string: cleanURL) {
+                    return url
+                }
+            }
+        }
+        
+        return nil
+    }
+    
     private func extractReadTime(from html: String) -> Int {
         let patterns = [
             #"(\d+)\s*min\s*read"#,
             #"(\d+)\s*minute\s*read"#,
-            #"readingTime[\"']:\s*(\d+)"#
+            #"readingTime[\"']:\s*(\d+)"#,
+            #"Reading time:\s*(\d+)"#
         ]
         
         for pattern in patterns {
@@ -337,35 +482,87 @@ final class MediumService {
     }
     
     private func extractPublishedDate(from html: String) -> Date? {
-        let pattern = #"datePublished[\"']:\s*["']([^"']+)["']"#
+        let patterns = [
+            #"datePublished[\"']:\s*["']([^"']+)["']"#,
+            #"published_time[\"']\s*content=["']([^"']+)["']"#
+        ]
         
-        if let dateString = extractPattern(from: html, pattern: pattern) {
-            let formatter = ISO8601DateFormatter()
-            return formatter.date(from: dateString)
+        for pattern in patterns {
+            if let dateString = extractPattern(from: html, pattern: pattern) {
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                
+                if let date = formatter.date(from: dateString) {
+                    return date
+                }
+                
+                // Alternatif format
+                formatter.formatOptions = [.withInternetDateTime]
+                if let date = formatter.date(from: dateString) {
+                    return date
+                }
+            }
         }
         
         return nil
     }
     
+    private func extractAuthorFromURL(_ urlString: String) -> String? {
+        // medium.com/@username/article-title formatı
+        let pattern = #"medium\.com/@([^/]+)"#
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: urlString, range: NSRange(urlString.startIndex..., in: urlString)),
+           let range = Range(match.range(at: 1), in: urlString) {
+            let username = String(urlString[range])
+            // Username'i okunabilir hale getir
+            return username
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
+        }
+        return nil
+    }
+    
     private func extractMediumJSONLD(from html: String) -> [String: Any]? {
-        let pattern = #"<script type="application/ld\+json">([^<]+)</script>"#
+        let pattern = #"<script[^>]*type=["']application/ld\+json["'][^>]*>([^<]+)</script>"#
         
-        guard let jsonString = extractPattern(from: html, pattern: pattern, options: [.dotMatchesLineSeparators]),
-              let data = jsonString.data(using: .utf8) else {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators]) else {
             return nil
         }
         
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                return json
+        let range = NSRange(html.startIndex..<html.endIndex, in: html)
+        let matches = regex.matches(in: html, range: range)
+        
+        for match in matches {
+            guard match.numberOfRanges > 1,
+                  let jsonRange = Range(match.range(at: 1), in: html) else {
+                continue
             }
             
-            if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]],
-               let firstItem = jsonArray.first {
-                return firstItem
+            let jsonString = String(html[jsonRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard let data = jsonString.data(using: .utf8) else { continue }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let type = json["@type"] as? String,
+                       ["Article", "BlogPosting", "NewsArticle"].contains(type) {
+                        return json
+                    }
+                }
+                
+                if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                    for item in jsonArray {
+                        if let type = item["@type"] as? String,
+                           ["Article", "BlogPosting", "NewsArticle"].contains(type) {
+                            return item
+                        }
+                    }
+                    if let first = jsonArray.first {
+                        return first
+                    }
+                }
+            } catch {
+                continue
             }
-        } catch {
-            print("📗 Medium: JSON-LD parse hatası: \(error)")
         }
         
         return nil
@@ -377,13 +574,21 @@ final class MediumService {
         }
         
         let range = NSRange(html.startIndex..<html.endIndex, in: html)
-        guard let match = regex.firstMatch(in: html, range: range),
-              match.numberOfRanges > 1,
-              let contentRange = Range(match.range(at: 1), in: html) else {
+        guard let match = regex.firstMatch(in: html, range: range) else {
             return nil
         }
         
-        return String(html[contentRange])
+        // Capture group'ları kontrol et
+        for i in stride(from: match.numberOfRanges - 1, through: 1, by: -1) {
+            if let contentRange = Range(match.range(at: i), in: html) {
+                let result = String(html[contentRange])
+                if !result.isEmpty {
+                    return result
+                }
+            }
+        }
+        
+        return nil
     }
     
     private func cleanText(_ text: String) -> String {
@@ -395,7 +600,11 @@ final class MediumService {
             .replacingOccurrences(of: "&gt;", with: ">")
             .replacingOccurrences(of: "\\n", with: "\n")
             .replacingOccurrences(of: "\\u2026", with: "…")
+            .replacingOccurrences(of: "\\u2019", with: "'")
+            .replacingOccurrences(of: "\\u201c", with: "\"")
+            .replacingOccurrences(of: "\\u201d", with: "\"")
             .replacingOccurrences(of: "&nbsp;", with: " ")
+            .replacingOccurrences(of: "&#x27;", with: "'")
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
@@ -435,6 +644,21 @@ struct MediumPost: Equatable {
     let publishedDate: Date?
     let claps: Int
     let originalURL: URL
+    let isPaywalled: Bool
+    
+    init(title: String, subtitle: String, fullContent: String, authorName: String, authorURL: URL?, imageURL: URL?, readTime: Int, publishedDate: Date?, claps: Int, originalURL: URL, isPaywalled: Bool = false) {
+        self.title = title
+        self.subtitle = subtitle
+        self.fullContent = fullContent
+        self.authorName = authorName
+        self.authorURL = authorURL
+        self.imageURL = imageURL
+        self.readTime = readTime
+        self.publishedDate = publishedDate
+        self.claps = claps
+        self.originalURL = originalURL
+        self.isPaywalled = isPaywalled
+    }
     
     var hasSubtitle: Bool {
         !subtitle.isEmpty
@@ -442,6 +666,10 @@ struct MediumPost: Equatable {
     
     var hasFullContent: Bool {
         fullContent.count > 100
+    }
+    
+    var hasImage: Bool {
+        imageURL != nil
     }
     
     var displayText: String {
@@ -467,7 +695,7 @@ struct MediumPost: Equatable {
     
     var readTimeText: String {
         if readTime > 0 {
-            return "\(readTime) min read"
+            return "\(readTime) dk okuma"
         }
         return ""
     }
@@ -477,6 +705,7 @@ struct MediumPost: Equatable {
         
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
+        formatter.locale = Locale(identifier: "tr_TR")
         return formatter.localizedString(for: date, relativeTo: Date())
     }
     
@@ -487,5 +716,19 @@ struct MediumPost: Equatable {
             return "\(claps)"
         }
         return ""
+    }
+    
+    var statsText: String {
+        var parts: [String] = []
+        if readTime > 0 {
+            parts.append("📖 \(readTime) dk")
+        }
+        if claps > 0 {
+            parts.append("👏 \(formattedClaps)")
+        }
+        if isPaywalled {
+            parts.append("🔒 Üyelere özel")
+        }
+        return parts.joined(separator: " • ")
     }
 }

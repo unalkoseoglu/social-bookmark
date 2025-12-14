@@ -2,6 +2,7 @@ import Foundation
 
 /// Twitter/X içeriklerini çeken servis
 /// FxTwitter API kullanır - ücretsiz ve stabil
+/// FixUpX alternatif olarak kullanılır
 final class TwitterService {
     // MARK: - Singleton
     
@@ -76,25 +77,49 @@ final class TwitterService {
     }
     
     private struct FxMedia: Codable {
-        let all: [FxMediaItem]?  // ← YENİ: all array'i
+        let all: [FxMediaItem]?
         let photos: [FxPhoto]?
         let videos: [FxVideo]?
+        let mosaic: FxMosaic?
     }
     
-    private struct FxMediaItem: Codable {  // ← YENİ
+    private struct FxMediaItem: Codable {
         let type: String?
         let url: String?
         let thumbnail_url: String?
+        let width: Int?
+        let height: Int?
     }
     
     private struct FxPhoto: Codable {
         let url: String?
+        let width: Int?
+        let height: Int?
     }
     
     private struct FxVideo: Codable {
         let url: String?
         let thumbnail_url: String?
+        let width: Int?
+        let height: Int?
     }
+    
+    private struct FxMosaic: Codable {
+        let formats: FxMosaicFormats?
+    }
+    
+    private struct FxMosaicFormats: Codable {
+        let jpeg: String?
+        let webp: String?
+    }
+    
+    // MARK: - API Endpoints (with fallbacks)
+    
+    private let apiEndpoints = [
+        "https://api.fxtwitter.com",
+        "https://api.vxtwitter.com",
+        "https://api.fixupx.com"
+    ]
     
     // MARK: - Public Methods
     
@@ -104,7 +129,27 @@ final class TwitterService {
             throw TwitterError.invalidURL
         }
         
-        let apiURL = "https://api.fxtwitter.com/status/\(tweetId)/en"
+        print("🐦 Twitter: Tweet ID: \(tweetId)")
+        
+        // Her endpoint'i dene
+        var lastError: Error = TwitterError.networkError
+        
+        for endpoint in apiEndpoints {
+            do {
+                let tweet = try await fetchFromEndpoint(endpoint, tweetId: tweetId, originalURL: originalURL)
+                return tweet
+            } catch {
+                print("⚠️ Twitter: \(endpoint) başarısız: \(error.localizedDescription)")
+                lastError = error
+                continue
+            }
+        }
+        
+        throw lastError
+    }
+    
+    private func fetchFromEndpoint(_ endpoint: String, tweetId: String, originalURL: URL) async throws -> Tweet {
+        let apiURL = "\(endpoint)/status/\(tweetId)"
         
         guard let url = URL(string: apiURL) else {
             throw TwitterError.invalidURL
@@ -116,6 +161,7 @@ final class TwitterService {
         request.httpMethod = "GET"
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148", forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -124,6 +170,12 @@ final class TwitterService {
         }
         
         print("📡 HTTP Status: \(httpResponse.statusCode)")
+        
+        // Rate limit kontrolü
+        if httpResponse.statusCode == 429 {
+            print("⚠️ Twitter: Rate limit, sonraki endpoint deneniyor...")
+            throw TwitterError.rateLimited
+        }
         
         guard httpResponse.statusCode == 200 else {
             throw TwitterError.apiError(statusCode: httpResponse.statusCode)
@@ -151,6 +203,7 @@ final class TwitterService {
         print("   - media.all: \(fxTweet.media?.all?.count ?? 0) adet")
         print("   - media.photos: \(fxTweet.media?.photos?.count ?? 0) adet")
         print("   - media.videos: \(fxTweet.media?.videos?.count ?? 0) adet")
+        print("   - media.mosaic: \(fxTweet.media?.mosaic?.formats?.jpeg ?? "yok")")
         
         return convertToTweet(fxTweet, originalURL: originalURL)
     }
@@ -160,7 +213,8 @@ final class TwitterService {
         return lowercased.contains("twitter.com/") ||
                lowercased.contains("x.com/") ||
                lowercased.contains("fxtwitter.com/") ||
-               lowercased.contains("vxtwitter.com/")
+               lowercased.contains("vxtwitter.com/") ||
+               lowercased.contains("fixupx.com/")
     }
     
     // MARK: - Private Methods
@@ -168,7 +222,8 @@ final class TwitterService {
     private func extractTweetId(from urlString: String) -> String? {
         let patterns = [
             #"/status/(\d+)"#,
-            #"/statuses/(\d+)"#
+            #"/statuses/(\d+)"#,
+            #"[?&]id=(\d+)"#
         ]
         
         for pattern in patterns {
@@ -192,8 +247,16 @@ final class TwitterService {
                 if let urlString = item.url ?? item.thumbnail_url,
                    let url = URL(string: urlString) {
                     mediaURLs.append(url)
-                    print("   ✅ Media URL eklendi (all): \(urlString)")
+                    print("   ✅ Media URL eklendi (all): \(urlString.prefix(80))...")
                 }
+            }
+        }
+        
+        // Mosaic (çoklu görsel için tek birleştirilmiş görsel)
+        if mediaURLs.isEmpty, let mosaicURL = fxTweet.media?.mosaic?.formats?.jpeg {
+            if let url = URL(string: mosaicURL) {
+                mediaURLs.append(url)
+                print("   ✅ Mosaic URL eklendi: \(mosaicURL.prefix(80))...")
             }
         }
         
@@ -203,7 +266,7 @@ final class TwitterService {
                 for photo in photos {
                     if let urlString = photo.url, let url = URL(string: urlString) {
                         mediaURLs.append(url)
-                        print("   ✅ Photo URL eklendi: \(urlString)")
+                        print("   ✅ Photo URL eklendi: \(urlString.prefix(80))...")
                     }
                 }
             }
@@ -212,7 +275,7 @@ final class TwitterService {
                 for video in videos {
                     if let urlString = video.thumbnail_url, let url = URL(string: urlString) {
                         mediaURLs.append(url)
-                        print("   ✅ Video thumbnail eklendi: \(urlString)")
+                        print("   ✅ Video thumbnail eklendi: \(urlString.prefix(80))...")
                     }
                 }
             }
@@ -221,17 +284,27 @@ final class TwitterService {
         print("🖼️ Toplam media URL: \(mediaURLs.count)")
         
         // Tarih parse
-        var createdAt: Date? = nil
+        var createdAt: Date?
         if let dateString = fxTweet.created_at {
+            // ISO 8601 formatı
             let formatter = ISO8601DateFormatter()
             formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             createdAt = formatter.date(from: dateString)
             
+            // Alternatif format: "Sat Jun 10 12:34:56 +0000 2023"
             if createdAt == nil {
                 let altFormatter = DateFormatter()
                 altFormatter.dateFormat = "EEE MMM dd HH:mm:ss Z yyyy"
                 altFormatter.locale = Locale(identifier: "en_US_POSIX")
                 createdAt = altFormatter.date(from: dateString)
+            }
+            
+            // Alternatif format 2: RFC 2822
+            if createdAt == nil {
+                let rfc2822Formatter = DateFormatter()
+                rfc2822Formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
+                rfc2822Formatter.locale = Locale(identifier: "en_US_POSIX")
+                createdAt = rfc2822Formatter.date(from: dateString)
             }
         }
         
@@ -270,6 +343,7 @@ enum TwitterError: LocalizedError {
     case apiError(statusCode: Int)
     case tweetNotFound
     case parseError
+    case rateLimited
     
     var errorDescription: String? {
         switch self {
@@ -280,9 +354,11 @@ enum TwitterError: LocalizedError {
         case .apiError(let code):
             return "API hatası (kod: \(code))"
         case .tweetNotFound:
-            return "Tweet bulunamadı"
+            return "Tweet bulunamadı veya silindi"
         case .parseError:
             return "Tweet verisi okunamadı"
+        case .rateLimited:
+            return "Çok fazla istek, lütfen bekleyin"
         }
     }
 }

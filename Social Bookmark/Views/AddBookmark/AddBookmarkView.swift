@@ -44,6 +44,11 @@ struct AddBookmarkView: View {
             .toolbar {
                 toolbarContent
             }
+            .onAppear {
+                if viewModel.categories.isEmpty {
+                    viewModel.loadCategories()
+                }
+            }
             .sheet(isPresented: $showingImagePicker) {
                 ImagePickerView { image in
                     selectedImage = image

@@ -24,6 +24,7 @@ final class AddBookmarkViewModel {
     
     var selectedCategoryId: UUID?
     private(set) var categories: [Category] = []
+    private(set) var isLoadingCategories = true
     
     // MARK: - Validation State
     
@@ -44,6 +45,118 @@ final class AddBookmarkViewModel {
     
     private(set) var fetchedTweet: TwitterService.Tweet?
     private(set) var tweetImagesData: [Data] = []
+    
+    private(set) var serviceError: ServiceError?
+        
+        /// Hata mesajı gösteriliyor mu?
+    var showingServiceError: Bool {
+        get { serviceError != nil }
+        set { if !newValue { serviceError = nil } }
+    }
+    
+    enum ServiceError: LocalizedError, Identifiable {
+        case twitter(TwitterError)
+        case reddit(RedditService.RedditError)
+        case linkedin(LinkedInService.LinkedInError)
+        case medium(MediumService.MediumError)
+        case network(String)
+        case unknown(String)
+        
+        var id: String {
+            switch self {
+            case .twitter: return "twitter"
+            case .reddit: return "reddit"
+            case .linkedin: return "linkedin"
+            case .medium: return "medium"
+            case .network: return "network"
+            case .unknown: return "unknown"
+            }
+        }
+        
+        var errorDescription: String? {
+            switch self {
+            case .twitter(let error):
+                return error.errorDescription
+            case .reddit(let error):
+                return error.errorDescription
+            case .linkedin(let error):
+                return error.errorDescription
+            case .medium(let error):
+                return error.errorDescription
+            case .network(let message):
+                return message
+            case .unknown(let message):
+                return message
+            }
+        }
+        
+        /// Kullanıcı dostu hata mesajı
+        var userMessage: String {
+            switch self {
+            case .twitter(let error):
+                switch error {
+                case .tweetNotFound:
+                    return "🐦 Tweet bulunamadı veya silinmiş olabilir."
+                case .rateLimited:
+                    return "⏳ Twitter'a çok fazla istek gönderildi. Biraz bekleyin."
+                case .networkError:
+                    return "📶 İnternet bağlantınızı kontrol edin."
+                default:
+                    return "❌ Twitter içeriği yüklenemedi: \(error.localizedDescription)"
+                }
+                
+            case .reddit(let error):
+                switch error {
+                case .rateLimited:
+                    return "⏳ Reddit'e çok fazla istek gönderildi. Biraz bekleyin."
+                case .parseError:
+                    return "📄 Reddit içeriği okunamadı. URL'i kontrol edin."
+                default:
+                    return "❌ Reddit içeriği yüklenemedi: \(error.localizedDescription)"
+                }
+                
+            case .linkedin(let error):
+                switch error {
+                case .authRequired:
+                    return "🔒 Bu LinkedIn içeriğini görüntülemek için giriş gerekiyor.\n\nTarayıcıda açarak içeriği görebilirsiniz."
+                case .botDetected:
+                    return "⏳ LinkedIn erişimi geçici olarak kısıtlandı.\n\nBirkaç dakika sonra tekrar deneyin."
+                default:
+                    return "❌ LinkedIn içeriği yüklenemedi: \(error.localizedDescription)"
+                }
+                
+            case .medium(let error):
+                return "❌ Medium içeriği yüklenemedi: \(error.localizedDescription)"
+                
+            case .network(let message):
+                return "📶 Bağlantı hatası: \(message)"
+                
+            case .unknown(let message):
+                return "❌ Hata: \(message)"
+            }
+        }
+        
+        /// Hata için platform rengi
+        var platformColor: Color {
+            switch self {
+            case .twitter: return .blue
+            case .reddit: return .orange
+            case .linkedin: return Color(red: 0, green: 0.47, blue: 0.71)
+            case .medium: return .black
+            case .network, .unknown: return .red
+            }
+        }
+        
+        /// Kısmi veri var mı? (Hata olsa bile bazı veriler çekilmiş olabilir)
+        var hasPartialData: Bool {
+            switch self {
+            case .linkedin(let error):
+                return error == .authRequired || error == .botDetected
+            default:
+                return false
+            }
+        }
+    }
     
     var tweetImageData: Data? {
         tweetImagesData.first
@@ -90,11 +203,18 @@ final class AddBookmarkViewModel {
     init(repository: BookmarkRepositoryProtocol, categoryRepository: CategoryRepositoryProtocol) {
         self.repository = repository
         self.categoryRepository = categoryRepository
-        self.categories = self.categoryRepository.fetchAll()
-        print("📝 AddBookmarkViewModel initialized with \(self.categories.count) categories: \(self.categories.map { $0.name }.joined(separator: ", "))")
+        loadCategories()
     }
     
     // MARK: - Public Methods
+    
+    /// Kategorileri yükle
+    func loadCategories() {
+        isLoadingCategories = true
+        categories = categoryRepository.fetchAll()
+        isLoadingCategories = false
+        print("📝 AddBookmarkViewModel loaded \(self.categories.count) categories: \(self.categories.map { $0.name }.joined(separator: ", "))")
+    }
     
     @discardableResult
     func saveBookmark(withImage imageData: Data? = nil, extractedText: String? = nil) -> Bool {
@@ -178,6 +298,7 @@ final class AddBookmarkViewModel {
         }
     }
 
+    
     
     private func debounceMetadataFetch() {
         metadataFetchTask?.cancel()
@@ -533,8 +654,8 @@ final class AddBookmarkViewModel {
             validationErrors.append("Başlık gerekli")
         }
         
-        if title.count > 200 {
-            validationErrors.append("Başlık çok uzun (max 200 karakter)")
+        if title.count > 400 {
+            validationErrors.append("Başlık çok uzun (max 400 karakter)")
         }
         
         if !url.isEmpty && !isURLValid {
