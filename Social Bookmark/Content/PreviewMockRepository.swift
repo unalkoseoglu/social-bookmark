@@ -113,8 +113,8 @@ final class PreviewMockRepository: BookmarkRepositoryProtocol {
         ]
         
         // Tarihleri çeşitlendir
-        for (index, bookmark) in bookmarks.enumerated() {
-            if let date = calendar.date(byAdding: .day, value: -index, to: now) {
+        for (index, _) in bookmarks.enumerated() {
+            if calendar.date(byAdding: .day, value: -index, to: now) != nil {
                 // Not: @Model sınıfında createdAt readonly olabilir, bu durumda init'te ayarlanmalı
             }
         }

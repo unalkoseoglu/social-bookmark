@@ -17,25 +17,24 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     // MARK: - Properties
     
     private let baseRepository: BookmarkRepositoryProtocol
-    private let syncService: SyncService
     
     /// Sync aktif mi?
     var isSyncEnabled: Bool = true
     
     // MARK: - Initialization
     
-    init(
-        baseRepository: BookmarkRepositoryProtocol,
-        syncService: SyncService = .shared
-    ) {
+    init(baseRepository: BookmarkRepositoryProtocol) {
         self.baseRepository = baseRepository
-        self.syncService = syncService
     }
     
     // MARK: - BookmarkRepositoryProtocol
     
     var count: Int {
         baseRepository.count
+    }
+    
+    var unreadCount: Int {
+        baseRepository.unreadCount
     }
     
     func fetchAll() -> [Bookmark] {
@@ -52,7 +51,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         // Async sync tetikle
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.syncBookmark(bookmark)
+                try? await SyncService.shared.syncBookmark(bookmark)
             }
         }
     }
@@ -63,7 +62,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         // Async sync tetikle
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.syncBookmark(bookmark)
+                try? await SyncService.shared.syncBookmark(bookmark)
             }
         }
     }
@@ -72,7 +71,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         // Önce cloud'dan sil
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.deleteBookmark(bookmark)
+                try? await SyncService.shared.deleteBookmark(bookmark)
             }
         }
         
@@ -84,7 +83,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         if isSyncEnabled {
             Task { @MainActor in
                 for bookmark in bookmarks {
-                    try? await syncService.deleteBookmark(bookmark)
+                    try? await SyncService.shared.deleteBookmark(bookmark)
                 }
             }
         }
@@ -100,20 +99,16 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         baseRepository.filter(by: source)
     }
     
+    func filter(by tag: String) -> [Bookmark] {
+        baseRepository.filter(by: tag)
+    }
+    
     func fetchUnread() -> [Bookmark] {
         baseRepository.fetchUnread()
     }
     
-    func fetchFavorites() -> [Bookmark] {
-        baseRepository.fetchFavorites()
-    }
-    
-    func fetchByCategory(_ categoryId: UUID?) -> [Bookmark] {
-        baseRepository.fetchByCategory(categoryId)
-    }
-    
-    func fetchRecent(limit: Int) -> [Bookmark] {
-        baseRepository.fetchRecent(limit: limit)
+    func fetch(from startDate: Date, to endDate: Date) -> [Bookmark] {
+        baseRepository.fetch(from: startDate, to: endDate)
     }
 }
 
@@ -123,22 +118,21 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     // MARK: - Properties
     
     private let baseRepository: CategoryRepositoryProtocol
-    private let syncService: SyncService
     
     /// Sync aktif mi?
     var isSyncEnabled: Bool = true
     
     // MARK: - Initialization
     
-    init(
-        baseRepository: CategoryRepositoryProtocol,
-        syncService: SyncService = .shared
-    ) {
+    init(baseRepository: CategoryRepositoryProtocol) {
         self.baseRepository = baseRepository
-        self.syncService = syncService
     }
     
     // MARK: - CategoryRepositoryProtocol
+    
+    var count: Int {
+        baseRepository.count
+    }
     
     func fetchAll() -> [Category] {
         baseRepository.fetchAll()
@@ -153,7 +147,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.syncCategory(category)
+                try? await SyncService.shared.syncCategory(category)
             }
         }
     }
@@ -163,7 +157,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.syncCategory(category)
+                try? await SyncService.shared.syncCategory(category)
             }
         }
     }
@@ -171,33 +165,25 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     func delete(_ category: Category) {
         if isSyncEnabled {
             Task { @MainActor in
-                try? await syncService.deleteCategory(category)
+                try? await SyncService.shared.deleteCategory(category)
             }
         }
         
         baseRepository.delete(category)
     }
     
+    func bookmarkCount(for categoryId: UUID) -> Int {
+        baseRepository.bookmarkCount(for: categoryId)
+    }
+    
     func createDefaultsIfNeeded() {
-        let hadDefaults = !baseRepository.fetchAll().isEmpty
+        let hadDefaults = baseRepository.count > 0
         baseRepository.createDefaultsIfNeeded()
         
         // Yeni kategoriler oluşturulduysa sync et
         if !hadDefaults && isSyncEnabled {
             Task { @MainActor in
-                await syncService.syncChanges()
-            }
-        }
-    }
-    
-    func reorder(_ categories: [Category]) {
-        baseRepository.reorder(categories)
-        
-        if isSyncEnabled {
-            Task { @MainActor in
-                for category in categories {
-                    try? await syncService.syncCategory(category)
-                }
+                await SyncService.shared.syncChanges()
             }
         }
     }

@@ -13,8 +13,8 @@
 
 import Foundation
 import UIKit
-import Supabase
 import CryptoKit
+internal import Combine
 
 /// Görsel yükleme servisi
 @MainActor
@@ -47,12 +47,18 @@ final class ImageUploadService: ObservableObject {
     
     private let cache = NSCache<NSString, UIImage>()
     private let fileManager = FileManager.default
-    private lazy var cacheDirectory: URL = {
+    private var _cacheDirectory: URL?
+    
+    private var cacheDirectory: URL {
+        if let dir = _cacheDirectory {
+            return dir
+        }
         let paths = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
         let cacheDir = paths[0].appendingPathComponent("BookmarkImages")
         try? fileManager.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+        _cacheDirectory = cacheDir
         return cacheDir
-    }()
+    }
     
     // MARK: - Initialization
     

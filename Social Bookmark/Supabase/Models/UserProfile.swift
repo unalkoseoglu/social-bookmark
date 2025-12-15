@@ -5,10 +5,7 @@
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
 
-import Auth
 import Foundation
-
-
 
 
 struct UserProfile: Codable {
@@ -33,32 +30,3 @@ struct UserProfile: Codable {
 
 // MARK: - User Extension
 
-extension User {
-    /// Kullanıcı anonim mi?
-    var isAnonymous: Bool {
-        // Anonim kullanıcıların email'i olmaz
-        email == nil && identities?.isEmpty != false
-    }
-    
-    /// Display name
-    var displayName: String {
-        if let fullName = userMetadata["full_name"]?.stringValue, !fullName.isEmpty {
-            return fullName
-        }
-        if let email {
-            return email.components(separatedBy: "@").first ?? email
-        }
-        return "Anonim Kullanıcı"
-    }
-}
-
-// MARK: - AnyJSON Helper
-
-extension AnyJSON {
-    var stringValue: String? {
-        if case .string(let value) = self {
-            return value
-        }
-        return nil
-    }
-}

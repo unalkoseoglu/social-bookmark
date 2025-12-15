@@ -2,6 +2,14 @@
 //  SupabaseConfig.swift
 //  Social Bookmark
 //
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
+//
+//  SupabaseConfig.swift
+//  Social Bookmark
+//
 //  Created by Claude on 15.12.2025.
 //
 

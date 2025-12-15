@@ -12,9 +12,11 @@
 //
 
 import Foundation
+import AuthenticationServices
+import CryptoKit
+import OSLog
+internal import Combine
 import SwiftData
-import Supabase
-import Combine
 
 /// Senkronizasyon servisi
 @MainActor
@@ -33,7 +35,9 @@ final class SyncService: ObservableObject {
     
     // MARK: - Dependencies
     
-    private var client: SupabaseClient { SupabaseManager.shared.client }
+    private var client: SupabaseClient {
+        SupabaseManager.shared.client
+    }
     private var modelContext: ModelContext?
     
     // MARK: - Private Properties
@@ -46,6 +50,11 @@ final class SyncService: ObservableObject {
     
     /// Sync batch boyutu
     private let batchSize = 50
+    
+    /// Device ID
+    private var deviceId: String {
+        UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
+    }
     
     // MARK: - Initialization
     
@@ -107,12 +116,13 @@ final class SyncService: ObservableObject {
         print("🔄 [SYNC] Syncing pending changes...")
         
         do {
-            // Pending bookmark'ları bul ve sync et
-            try await uploadPendingBookmarks()
-            try await uploadPendingCategories()
+            // Tüm local bookmark ve kategorileri sync et
+            try await syncCategories()
+            try await syncBookmarks()
             
             syncState = .idle
             pendingChangesCount = 0
+            lastSyncDate = Date()
             
             print("✅ [SYNC] Changes synced successfully!")
             
@@ -188,9 +198,11 @@ final class SyncService: ObservableObject {
         guard SupabaseManager.shared.isAuthenticated else { return }
         
         // Cloud'dan sil (soft delete)
+        let deletedAt = ISO8601DateFormatter().string(from: Date())
+        
         try await client
             .from("bookmarks")
-            .update(["deleted_at": ISO8601DateFormatter().string(from: Date())])
+            .update(["deleted_at": deletedAt])
             .eq("local_id", value: bookmark.id.uuidString)
             .execute()
         
@@ -202,9 +214,11 @@ final class SyncService: ObservableObject {
         guard SupabaseManager.shared.isAuthenticated else { return }
         
         // Cloud'dan sil (soft delete)
+        let deletedAt = ISO8601DateFormatter().string(from: Date())
+        
         try await client
             .from("categories")
-            .update(["deleted_at": ISO8601DateFormatter().string(from: Date())])
+            .update(["deleted_at": deletedAt])
             .eq("local_id", value: category.id.uuidString)
             .execute()
         
@@ -309,7 +323,10 @@ final class SyncService: ObservableObject {
         
         // 3. Batch upload local → cloud
         for batch in localBookmarks.chunked(into: batchSize) {
-            let payloads = batch.map { createBookmarkPayload($0, userId: userId) }
+            var payloads: [[String: AnyEncodable]] = []
+            for bookmark in batch {
+                payloads.append(createBookmarkPayload(bookmark, userId: userId))
+            }
             
             try await client
                 .from("bookmarks")
@@ -329,65 +346,6 @@ final class SyncService: ObservableObject {
         
         try context.save()
         print("✅ [SYNC] Bookmarks synced")
-    }
-    
-    private func uploadPendingBookmarks() async throws {
-        guard let context = modelContext,
-              let userId = SupabaseManager.shared.userId else { return }
-        
-        // Son sync'ten sonra değişen bookmark'ları bul
-        let lastSync = lastSyncDate ?? .distantPast
-        
-        var descriptor = FetchDescriptor<Bookmark>(
-            predicate: #Predicate { $0.updatedAt > lastSync }
-        )
-        descriptor.fetchLimit = batchSize
-        
-        let pendingBookmarks = try context.fetch(descriptor)
-        
-        if pendingBookmarks.isEmpty {
-            print("ℹ️ [SYNC] No pending bookmarks")
-            return
-        }
-        
-        print("⬆️ [SYNC] Uploading \(pendingBookmarks.count) pending bookmarks...")
-        
-        let payloads = pendingBookmarks.map { createBookmarkPayload($0, userId: userId) }
-        
-        try await client
-            .from("bookmarks")
-            .upsert(payloads, onConflict: "local_id")
-            .execute()
-    }
-    
-    private func uploadPendingCategories() async throws {
-        guard let context = modelContext,
-              let userId = SupabaseManager.shared.userId else { return }
-        
-        let lastSync = lastSyncDate ?? .distantPast
-        
-        var descriptor = FetchDescriptor<Category>(
-            predicate: #Predicate { $0.updatedAt > lastSync }
-        )
-        descriptor.fetchLimit = batchSize
-        
-        let pendingCategories = try context.fetch(descriptor)
-        
-        if pendingCategories.isEmpty {
-            print("ℹ️ [SYNC] No pending categories")
-            return
-        }
-        
-        print("⬆️ [SYNC] Uploading \(pendingCategories.count) pending categories...")
-        
-        for category in pendingCategories {
-            let payload = createCategoryPayload(category, userId: userId)
-            
-            try await client
-                .from("categories")
-                .upsert(payload, onConflict: "local_id")
-                .execute()
-        }
     }
     
     private func downloadCategories() async throws {
@@ -441,13 +399,11 @@ final class SyncService: ObservableObject {
     private func updateSyncStatus() async throws {
         guard let userId = SupabaseManager.shared.userId else { return }
         
-        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
-        
-        let payload: [String: Any] = [
-            "user_id": userId.uuidString,
-            "last_sync_at": ISO8601DateFormatter().string(from: Date()),
-            "device_id": deviceId,
-            "sync_token": UUID().uuidString
+        let payload: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(userId.uuidString),
+            "last_sync_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "device_id": AnyEncodable(deviceId),
+            "sync_token": AnyEncodable(UUID().uuidString)
         ]
         
         try await client
@@ -458,44 +414,41 @@ final class SyncService: ObservableObject {
     
     // MARK: - Payload Creators
     
-    private func createBookmarkPayload(_ bookmark: Bookmark, userId: UUID) -> [String: Any] {
-        var payload: [String: Any] = [
-            "user_id": userId.uuidString,
-            "local_id": bookmark.id.uuidString,
-            "title": bookmark.title,
-            "url": bookmark.url,
-            "source": bookmark.source.rawValue,
-            "is_read": bookmark.isRead,
-            "is_favorite": bookmark.isFavorite,
-            "tags": bookmark.tags,
-            "image_urls": bookmark.imageURLs,
-            "created_at": ISO8601DateFormatter().string(from: bookmark.createdAt),
-            "updated_at": ISO8601DateFormatter().string(from: bookmark.updatedAt),
-            "sync_version": 1
+    private func createBookmarkPayload(_ bookmark: Bookmark, userId: UUID) -> [String: AnyEncodable] {
+        var payload: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(userId.uuidString),
+            "local_id": AnyEncodable(bookmark.id.uuidString),
+            "title": AnyEncodable(bookmark.title),
+            "url": AnyEncodable(bookmark.url ?? ""),
+            "note": AnyEncodable(bookmark.note),
+            "source": AnyEncodable(bookmark.source.rawValue),
+            "is_read": AnyEncodable(bookmark.isRead),
+            "is_favorite": AnyEncodable(bookmark.isFavorite),
+            "tags": AnyEncodable(bookmark.tags),
+            "image_urls": AnyEncodable([String]()), // imageData ayrı yönetiliyor
+            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.createdAt)),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "sync_version": AnyEncodable(1)
         ]
         
-        if let note = bookmark.note {
-            payload["note"] = note
-        }
-        
-        if let category = bookmark.category {
-            payload["category_id"] = category.id.uuidString
+        if let categoryId = bookmark.categoryId {
+            payload["category_id"] = AnyEncodable(categoryId.uuidString)
         }
         
         return payload
     }
     
-    private func createCategoryPayload(_ category: Category, userId: UUID) -> [String: Any] {
+    private func createCategoryPayload(_ category: Category, userId: UUID) -> [String: AnyEncodable] {
         return [
-            "user_id": userId.uuidString,
-            "local_id": category.id.uuidString,
-            "name": category.name,
-            "icon": category.icon,
-            "color": category.colorHex,
-            "order": category.order,
-            "created_at": ISO8601DateFormatter().string(from: category.createdAt),
-            "updated_at": ISO8601DateFormatter().string(from: category.updatedAt),
-            "sync_version": 1
+            "user_id": AnyEncodable(userId.uuidString),
+            "local_id": AnyEncodable(category.id.uuidString),
+            "name": AnyEncodable(category.name),
+            "icon": AnyEncodable(category.icon),
+            "color": AnyEncodable(category.colorHex),
+            "order": AnyEncodable(category.order),
+            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt)),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "sync_version": AnyEncodable(1)
         ]
     }
     
@@ -503,13 +456,19 @@ final class SyncService: ObservableObject {
         let bookmark = Bookmark(
             title: cloud.title,
             url: cloud.url,
-            note: cloud.note,
-            source: BookmarkSource(rawValue: cloud.source) ?? .article,
+            note: cloud.note ?? "",
+            source: BookmarkSource(rawValue: cloud.source) ?? .other,
             tags: cloud.tags ?? []
         )
         bookmark.isRead = cloud.isRead
         bookmark.isFavorite = cloud.isFavorite
-        bookmark.imageURLs = cloud.imageUrls ?? []
+        
+        // categoryId mapping
+        if let categoryIdString = cloud.categoryId,
+           let categoryId = UUID(uuidString: categoryIdString) {
+            bookmark.categoryId = categoryId
+        }
+        
         return bookmark
     }
     
@@ -610,6 +569,8 @@ extension SyncService {
     }
 }
 
+
+
 // MARK: - Cloud Models
 
 /// Supabase'den gelen category yapısı
@@ -645,7 +606,7 @@ struct CloudBookmark: Codable {
     let userId: String
     let localId: String?
     let title: String
-    let url: String
+    let url: String?
     let note: String?
     let source: String
     let isRead: Bool
@@ -678,6 +639,7 @@ struct CloudBookmark: Codable {
     }
 }
 
+
 // MARK: - Array Extension
 
 extension Array {
@@ -688,3 +650,4 @@ extension Array {
         }
     }
 }
+

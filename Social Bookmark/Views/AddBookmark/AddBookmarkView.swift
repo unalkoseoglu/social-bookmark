@@ -80,9 +80,11 @@ struct AddBookmarkView: View {
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
+                
                 Button(action: pasteFromClipboard) {
-                    Image(systemName: "doc.on.clipboard")
-                        .foregroundStyle(.secondary)
+                    Image(systemName: "list.bullet.clipboard.fill")
+                        .font(.title2)
+                        .foregroundStyle(.blue)
                 }
                     
 

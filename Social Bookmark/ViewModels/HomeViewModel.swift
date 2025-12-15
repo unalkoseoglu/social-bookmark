@@ -21,6 +21,16 @@ final class HomeViewModel {
         bookmarkRepository.count
     }
     
+    var popularTags: [String] {
+            let tags = allBookmarks.flatMap { $0.tags }
+            let counts = Dictionary(grouping: tags, by: { $0 }).mapValues(\.count)
+            return counts.sorted { $0.value > $1.value }.map(\.key)
+        }
+    
+    var allBookmarks: [Bookmark] {
+        bookmarkRepository.fetchAll()
+    }
+    
     /// Okunmamış bookmark sayısı
     var unreadCount: Int {
         bookmarkRepository.unreadCount

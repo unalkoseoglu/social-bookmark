@@ -189,7 +189,7 @@ class ShareViewController: UIViewController {
         // 3. String sınıfından yükle
         if provider.canLoadObject(ofClass: String.self) {
             do {
-                if let text = try await loadObject(ofClass: String.self, from: provider) as? String {
+                if let text = try await loadObject(ofClass: String.self, from: provider) {
                     if let url = parseURL(from: text) {
                         print("✅ URL parsed from String object")
                         return url
@@ -209,7 +209,7 @@ class ShareViewController: UIViewController {
         var progressRef: Progress?
         
         return try await withCheckedThrowingContinuation { continuation in
-            let progress = provider.loadObject(ofClass: aClass) { [weak provider] object, error in
+            let progress = provider.loadObject(ofClass: aClass) { object, error in
                 guard !completed else { return }
                 completed = true
                 
@@ -241,7 +241,7 @@ class ShareViewController: UIViewController {
         var completed = false
         
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<NSSecureCoding?, Error>) in
-            _ = provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { [weak provider] item, error in
+            provider.loadItem(forTypeIdentifier: type.identifier, options: nil) { item, error in
                 guard !completed else { return }
                 completed = true
                 

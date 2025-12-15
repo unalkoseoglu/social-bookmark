@@ -2,10 +2,19 @@
 //  SupabaseCategory.swift
 //  Social Bookmark
 //
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
+//
+//  SupabaseCategory.swift
+//  Social Bookmark
+//
 //  Created by Claude on 15.12.2025.
 //
 
 import Foundation
+import UIKit
 
 /// Supabase'deki categories tablosuna karşılık gelen model
 struct SupabaseCategory: Codable, Identifiable, Equatable {

@@ -11,116 +11,175 @@
 import Foundation
 import OSLog
 import Security
+import Auth
+import Foundation
 
-/// Protocol for session storage (enables testing)
-protocol SessionStorageProtocol: Sendable {
-    func store(_ data: Data, forKey key: String) throws
-    func retrieve(forKey key: String) throws -> Data?
-    func delete(forKey key: String) throws
-}
+// MARK: - Keychain Session Storage
 
-/// Secure Keychain-based storage for Supabase session
-final class KeychainSessionStorage: SessionStorageProtocol, @unchecked Sendable {
+/// Supabase session'ını Keychain'de saklayan custom storage
+/// AuthLocalStorage protokolünü implement eder
+final class KeychainSessionStorage: AuthLocalStorage, @unchecked Sendable {
     
-    private let serviceName: String
+    private let service: String
     private let accessGroup: String?
     
-    init(serviceName: String = Bundle.main.bundleIdentifier ?? "com.app.supabase",
-         accessGroup: String? = nil) {
-        self.serviceName = serviceName
-        self.accessGroup = accessGroup
+    init() {
+        // Bundle ID'yi service olarak kullan
+        self.service = Bundle.main.bundleIdentifier ?? "com.unal.socialbookmark"
+        
+        // App Group kullan (Share Extension ile paylaşım için)
+        self.accessGroup = "group.com.unal.socialbookmark"
+        
+        print("🔑 [KEYCHAIN] Initialized")
+        print("   Service: \(service)")
+        print("   Access Group: \(accessGroup ?? "none")")
     }
     
-    func store(_ data: Data, forKey key: String) throws {
-        // Delete existing item first
-        try? delete(forKey: key)
+    func store(key: String, value: Data) throws {
+        let fullKey = "supabase_\(key)"
+        print("💾 [KEYCHAIN] Storing: \(fullKey) (\(value.count) bytes)")
+        
+        // Önce mevcut değeri sil
+        try? remove(key: key)
         
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: serviceName,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: fullKey,
+            kSecValueData as String: value,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
         
-        if let accessGroup = accessGroup {
+        // App Group varsa ekle
+        if let accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
         
         let status = SecItemAdd(query as CFDictionary, nil)
         
-        guard status == errSecSuccess else {
-            Logger.keychain.error("Failed to store item: \(status)")
+        if status == errSecSuccess {
+            print("✅ [KEYCHAIN] Stored successfully: \(fullKey)")
+        } else if status == errSecDuplicateItem {
+            // Duplicate ise update dene
+            print("⚠️ [KEYCHAIN] Duplicate, updating: \(fullKey)")
+            
+            let searchQuery: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: service,
+                kSecAttrAccount as String: fullKey
+            ]
+            
+            let updateQuery: [String: Any] = [
+                kSecValueData as String: value
+            ]
+            
+            let updateStatus = SecItemUpdate(searchQuery as CFDictionary, updateQuery as CFDictionary)
+            if updateStatus != errSecSuccess {
+                print("❌ [KEYCHAIN] Update failed: \(updateStatus)")
+                throw KeychainError.storeFailed(updateStatus)
+            }
+            print("✅ [KEYCHAIN] Updated successfully: \(fullKey)")
+        } else {
+            print("❌ [KEYCHAIN] Store failed: \(status)")
             throw KeychainError.storeFailed(status)
         }
-        
-        Logger.keychain.debug("Stored session data for key: \(key)")
     }
     
-    func retrieve(forKey key: String) throws -> Data? {
+    func retrieve(key: String) throws -> Data? {
+        let fullKey = "supabase_\(key)"
+        print("🔍 [KEYCHAIN] Retrieving: \(fullKey)")
+        
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: serviceName,
-            kSecAttrAccount as String: key,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: fullKey,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
         
-        if let accessGroup = accessGroup {
+        // App Group varsa ekle
+        if let accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
         
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         
-        switch status {
-        case errSecSuccess:
-            Logger.keychain.debug("Retrieved session data for key: \(key)")
-            return result as? Data
-        case errSecItemNotFound:
-            Logger.keychain.debug("No session data found for key: \(key)")
+        if status == errSecSuccess, let data = result as? Data {
+            print("✅ [KEYCHAIN] Retrieved: \(fullKey) (\(data.count) bytes)")
+            return data
+        } else if status == errSecItemNotFound {
+            print("ℹ️ [KEYCHAIN] Not found: \(fullKey)")
             return nil
-        default:
-            Logger.keychain.error("Failed to retrieve item: \(status)")
+        } else {
+            print("❌ [KEYCHAIN] Retrieve failed: \(status)")
             throw KeychainError.retrieveFailed(status)
         }
     }
     
-    func delete(forKey key: String) throws {
+    func remove(key: String) throws {
+        let fullKey = "supabase_\(key)"
+        print("🗑️ [KEYCHAIN] Removing: \(fullKey)")
+        
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: serviceName,
-            kSecAttrAccount as String: key
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: fullKey
         ]
         
-        if let accessGroup = accessGroup {
+        if let accessGroup {
             query[kSecAttrAccessGroup as String] = accessGroup
         }
         
         let status = SecItemDelete(query as CFDictionary)
         
-        guard status == errSecSuccess || status == errSecItemNotFound else {
-            Logger.keychain.error("Failed to delete item: \(status)")
-            throw KeychainError.deleteFailed(status)
+        if status == errSecSuccess || status == errSecItemNotFound {
+            print("✅ [KEYCHAIN] Removed: \(fullKey)")
+        } else {
+            print("❌ [KEYCHAIN] Remove failed: \(status)")
+            throw KeychainError.removeFailed(status)
         }
-        
-        Logger.keychain.debug("Deleted session data for key: \(key)")
     }
-}
-
-enum KeychainError: Error, LocalizedError {
-    case storeFailed(OSStatus)
-    case retrieveFailed(OSStatus)
-    case deleteFailed(OSStatus)
     
-    var errorDescription: String? {
-        switch self {
-        case .storeFailed(let status):
-            return "Failed to store in Keychain (status: \(status))"
-        case .retrieveFailed(let status):
-            return "Failed to retrieve from Keychain (status: \(status))"
-        case .deleteFailed(let status):
-            return "Failed to delete from Keychain (status: \(status))"
+    /// Debug: Keychain'deki tüm ilgili key'leri listele
+    func debugPrintStoredKeys() {
+        print("🔑 [KEYCHAIN DEBUG] Listing stored keys...")
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecReturnAttributes as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll
+        ]
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        
+        if status == errSecSuccess, let items = result as? [[String: Any]] {
+            print("   Found \(items.count) items:")
+            for item in items {
+                if let account = item[kSecAttrAccount as String] as? String {
+                    print("   - \(account)")
+                }
+            }
+        } else if status == errSecItemNotFound {
+            print("   No items found for service: \(service)")
+        } else {
+            print("   Query failed with status: \(status)")
+        }
+    }
+    
+    enum KeychainError: LocalizedError {
+        case storeFailed(OSStatus)
+        case retrieveFailed(OSStatus)
+        case removeFailed(OSStatus)
+        
+        var errorDescription: String? {
+            switch self {
+            case .storeFailed(let status): return "Keychain store failed: \(status)"
+            case .retrieveFailed(let status): return "Keychain retrieve failed: \(status)"
+            case .removeFailed(let status): return "Keychain remove failed: \(status)"
+            }
         }
     }
 }

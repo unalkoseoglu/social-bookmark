@@ -1,138 +1,299 @@
 /*
-   Localizable.strings (English)
-   Social Bookmark
+ Localizable.strings
+ Social Bookmark
+
+ Turkish localization
 */
 
 // MARK: - Common
-"common.cancel" = "Cancel";
-"common.save" = "Save";
-"common.delete" = "Delete";
-"common.edit" = "Edit";
-"common.done" = "Done";
-"common.error" = "Error";
-"common.ok" = "OK";
-"common.copy" = "Copy";
-"common.loading" = "Loading...";
+"common.ok" = "Tamam";
+"common.cancel" = "İptal";
+"common.done" = "Bitti";
+"common.delete" = "Sil";
+"common.edit" = "Düzenle";
+"common.save" = "Kaydet";
+"common.go_back" = "Geri Git";
+"common.error" = "Hata";
+"common.loading" = "Yükleniyor...";
+"common.success" = "Başarılı";
 
-// MARK: - App
-"app.title" = "Social Bookmark";
+// MARK: - Home View
+"home.title" = "Yer İmleri";
+"home.stats_summary %lld %lld" = "%lld toplam • %lld okunmamış";
 
-// MARK: - Bookmark List
-"bookmarkList.searchPrompt" = "Search title or note";
-"bookmarkList.filterAll" = "All";
-"bookmarkList.filterUnreadOnly" = "Unread Only";
-"bookmarkList.clearFilters" = "Clear Filters";
-"bookmarkList.totalCount" = "%d total";
-"bookmarkList.unreadCount" = "%d unread";
-"bookmarkList.markAsRead" = "Mark as Read";
-"bookmarkList.markAsUnread" = "Mark as Unread";
+// Stats
+"home.stat.total" = "Toplam";
+"home.stat.unread" = "Okunmamış";
+"home.stat.this_week" = "Bu Hafta";
 
-// MARK: - Empty State
-"emptyState.title" = "No bookmarks yet";
-"emptyState.message" = "Start saving valuable content you find on the internet";
-"emptyState.addFirstBookmark" = "Add First Bookmark";
+// Sections
+"home.section.quick_access" = "Hızlı Erişim";
+"home.section.categories" = "Kategoriler";
+"home.section.recent" = "Son Eklenenler";
+
+// Filters
+"home.filter.unread" = "Okunmamış";
+"home.filter.favorites" = "Favoriler";
+"home.filter.today" = "Bugün";
+
+// Actions
+"home.action.edit" = "Düzenle";
+"home.action.see_all" = "Tümünü Gör";
+"home.action.create_categories" = "Kategori Oluştur";
+
+// Empty states
+"home.empty.no_bookmarks" = "Henüz yer imi yok";
+
+// MARK: - Filtered Bookmarks View
+"filtered.search_prompt" = "Ara...";
+"filtered.section.bookmarks" = "Yer İmleri";
+"filtered.mark_read" = "Okundu Olarak İşaretle";
+"filtered.unfavorite" = "Favorilerden Kaldır";
+
+// Descriptions
+"filtered.desc.unread" = "Henüz okumadığınız yer imleri";
+"filtered.desc.favorites" = "Favori olarak işaretlediğiniz yer imleri";
+"filtered.desc.today" = "Bugün eklediğiniz yer imleri";
+
+// Empty states
+"filtered.empty.unread.title" = "Hepsi Tamamlandı!";
+"filtered.empty.unread.desc" = "Tüm yer imlerinizi okudunuz. Harika iş!";
+"filtered.empty.favorites.title" = "Favori Yok";
+"filtered.empty.favorites.desc" = "Henüz favori eklemediniz.";
+"filtered.empty.today.title" = "Bugün Bir Şey Yok";
+"filtered.empty.today.desc" = "Bugün herhangi bir yer imi eklemediniz.";
+
+// MARK: - All Bookmarks View
+"all.title" = "Tüm Yer İmleri";
+"all.search_prompt" = "Başlık, notlar veya etiket ara...";
+
+// Sort options
+"all.sort.newest" = "En Yeni";
+"all.sort.oldest" = "En Eski";
+"all.sort.alphabetical" = "Alfabetik";
+"all.sort.source" = "Kaynağa Göre";
+
+// Filters
+"all.filter.title" = "Filtrele";
+"all.filter.all" = "Tümü";
+"all.filter.source" = "Kaynak";
+
+// Stats
+"all.stats.total" = "toplam yer imi";
+"all.stats.unread" = "okunmamış";
+
+// Sections
+"all.section.bookmarks" = "Yer İmleri";
+
+// Menu
+"all.menu.sort" = "Sırala";
+
+// Actions
+"all.action.mark_read" = "Okundu Olarak İşaretle";
+"all.action.mark_unread" = "Okunmadı Olarak İşaretle";
+"all.action.mark_all_read" = "Tümünü Okundu Olarak İşaretle";
+"all.action.clear_filters" = "Filtreleri Temizle";
+
+// Empty states
+"all.empty.title" = "Yer İmi Yok";
+"all.empty.desc" = "Henüz herhangi bir yer imi eklemediniz.";
+"all.empty.no_results" = "Aramanızla eşleşen yer imi yok.";
+
+// MARK: - Search View
+"search.title" = "Ara";
+"search.placeholder" = "Yer imlerini ara...";
+
+// Scopes
+"search.scope.all" = "Tümü";
+"search.scope.title" = "Başlık";
+"search.scope.notes" = "Notlar";
+"search.scope.tags" = "Etiketler";
+
+// Suggestions
+"search.recent" = "Son Aramalar";
+"search.clear" = "Temizle";
+"search.popular_tags" = "Popüler Etiketler";
+"search.browse_by_source" = "Kaynağa Göre Göz At";
+
+// Results
+"search.results_count %lld" = "%lld sonuç bulundu";
+"search.no_results.title" = "Sonuç Yok";
+"search.no_results.desc %@" = "\"%@\" için sonuç bulunamadı.";
+"search.try_again" = "Tekrar Dene";
 
 // MARK: - Add Bookmark
-"addBookmark.title" = "New Bookmark";
-"addBookmark.sectionBasicInfo" = "Basic Info";
-"addBookmark.titlePlaceholder" = "Title";
-"addBookmark.urlPlaceholder" = "URL (optional)";
-"addBookmark.invalidURL" = "Invalid URL format";
-"addBookmark.tweetFetched" = "Tweet content fetched";
-"addBookmark.pageInfoFetched" = "Page info filled";
-"addBookmark.sectionDetails" = "Details";
-"addBookmark.sourcePicker" = "Source";
-"addBookmark.notePlaceholder" = "Notes (optional)";
-"addBookmark.sectionTags" = "Tags";
-"addBookmark.tagsPlaceholder" = "Tags (comma separated)";
-"addBookmark.tagsExample" = "Example: Swift, iOS, Tutorial";
-"addBookmark.sectionPhoto" = "Photo";
-"addBookmark.addPhoto" = "Add Photo";
-"addBookmark.removePhoto" = "Remove";
-"addBookmark.ocrProcessing" = "OCR processing...";
-"addBookmark.sectionErrors" = "Errors";
-"addBookmark.imageCount" = "(%d images)";
-"addBookmark.imagesLoading" = "%d images loading...";
+"addBookmark.title" = "Yeni Yer İmi";
+"addBookmark.section.basic" = "Temel Bilgiler";
+"addBookmark.section.notes" = "Notlar";
+"addBookmark.section.organization" = "Organizasyon";
+"addBookmark.section.tags" = "Etiketler";
+"addBookmark.section.image" = "Görsel";
 
-// MARK: - Tweet Preview
-"tweetPreview.title" = "Tweet Preview";
-"tweetPreview.imageCount" = "%d images";
-"tweetPreview.imageLoading" = "Image loading...";
+"addBookmark.field.title" = "Başlık";
+"addBookmark.field.url" = "URL (isteğe bağlı)";
+"addBookmark.field.notes" = "Notlarınızı buraya ekleyin";
+"addBookmark.field.tags" = "Etiketler (virgülle ayrılmış)";
+"addBookmark.field.source" = "Kaynak";
+"addBookmark.field.category" = "Kategori";
+
+"addBookmark.status.content_fetched" = "İçerik çekildi";
+"addBookmark.status.page_filled" = "Sayfa bilgisi dolduruldu";
 
 // MARK: - Bookmark Detail
-"bookmarkDetail.title" = "Details";
-"bookmarkDetail.read" = "Read";
-"bookmarkDetail.sectionImage" = "Image";
-"bookmarkDetail.imageCount" = "%d images";
-"bookmarkDetail.sectionLink" = "Link";
-"bookmarkDetail.sectionNotes" = "Notes";
-"bookmarkDetail.sectionTags" = "Tags";
-"bookmarkDetail.sectionInfo" = "Info";
-"bookmarkDetail.createdAt" = "Created";
-"bookmarkDetail.duration" = "Duration";
-"bookmarkDetail.imageCountLabel" = "%d items";
-"bookmarkDetail.markAsUnread" = "Mark as Unread";
-"bookmarkDetail.markAsRead" = "Mark as Read";
-"bookmarkDetail.openInBrowser" = "Open in Browser";
-"bookmarkDetail.deleteTitle" = "Delete Bookmark?";
-"bookmarkDetail.deleteMessage" = "This action cannot be undone.";
+"bookmarkDetail.title" = "Detaylar";
+"bookmarkDetail.section.content" = "İçerik";
+"bookmarkDetail.section.info" = "Bilgi";
+"bookmarkDetail.section.actions" = "Eylemler";
 
-// MARK: - Edit Bookmark
-"editBookmark.title" = "Edit";
+"bookmarkDetail.markRead" = "Okundu Olarak İşaretle";
+"bookmarkDetail.markUnread" = "Okunmadı Olarak İşaretle";
+"bookmarkDetail.addFavorite" = "Favorilere Ekle";
+"bookmarkDetail.removeFavorite" = "Favorilerden Kaldır";
+"bookmarkDetail.openInBrowser" = "Tarayıcıda Aç";
+"bookmarkDetail.share" = "Paylaş";
+"bookmarkDetail.delete" = "Sil";
 
-// MARK: - Image Picker
-"imagePicker.title" = "Image Source";
-"imagePicker.addPhoto" = "Add Photo";
-"imagePicker.subtitle" = "Take from camera or select from gallery";
-"imagePicker.takePhoto" = "Take Photo";
-"imagePicker.selectFromGallery" = "Select from Gallery";
+"bookmarkDetail.deleteTitle" = "Yer İmini Sil";
+"bookmarkDetail.deleteMessage" = "Bu işlem geri alınamaz.";
 
-// MARK: - Image Crop
-"imageCrop.title" = "Edit";
-"imageCrop.rotate" = "Rotate";
-"imageCrop.reset" = "Reset";
-"imageCrop.filters" = "Filters";
-"imageCrop.ocr" = "OCR";
-"imageCrop.ocrResult" = "OCR Result";
-"imageCrop.noTextFound" = "No text found";
+// MARK: - Categories
+"categories.title" = "Kategoriler";
+"categories.empty" = "Henüz kategori yok";
+"categories.create" = "Yeni Kategori";
 
-// MARK: - Share Extension
-"shareExtension.title" = "Save Bookmark";
-"shareExtension.sectionSource" = "Source";
-"shareExtension.sectionNotes" = "Notes";
-"shareExtension.notePlaceholder" = "Add your notes here";
+"category.new.title" = "Yeni Kategori";
+"category.edit.title" = "Kategoriyi Düzenle";
+"category.field.name" = "Kategori Adı";
+"category.field.icon" = "Simge";
+"category.field.color" = "Renk";
+"category.preview" = "Önizleme";
+
+"category.delete.title" = "Kategoriyi Sil";
+"category.delete.message" = "Bu kategori silinecek ancak içindeki yer imleri silinmeyecek.";
 
 // MARK: - Bookmark Sources
 "source.twitter" = "Twitter/X";
-"source.medium" = "Medium";
 "source.reddit" = "Reddit";
-"source.blog" = "Blog";
-"source.article" = "Article";
+"source.linkedin" = "LinkedIn";
+"source.medium" = "Medium";
 "source.youtube" = "YouTube";
 "source.github" = "GitHub";
-"source.other" = "Other";
+"source.article" = "Makale";
+"source.blog" = "Blog";
+"source.other" = "Diğer";
+
+// MARK: - Service Errors
+"error.twitter.title" = "Twitter Hatası";
+"error.reddit.title" = "Reddit Hatası";
+"error.linkedin.title" = "LinkedIn Hatası";
+"error.medium.title" = "Medium Hatası";
+"error.network.title" = "Bağlantı Hatası";
+
+"error.linkedin.auth_required" = "Bu içeriği görüntülemek için LinkedIn'de oturum açın.";
+"error.linkedin.bot_detected" = "LinkedIn erişimi geçici olarak kısıtlandı. Daha sonra tekrar deneyin.";
+
+"error.action.open_browser" = "Tarayıcıda Aç";
+
+// MARK: - Settings
+"settings.title" = "Ayarlar";
+"settings.section.general" = "Genel";
+"settings.section.bookmark" = "Yer İmi Ayarları";
+"settings.section.about" = "Hakkında";
+"settings.section.danger" = "Tehlike Bölgesi";
+
+"settings.language" = "Uygulama Dili";
+"settings.autoDetectSource" = "Kaynağı Otomatik Algıla";
+"settings.showReadingTime" = "Okuma Süresini Göster";
+
+"settings.version" = "Sürüm";
+"settings.github" = "GitHub";
+"settings.feedback" = "Geri Bildirim";
+
+"settings.deleteAll" = "Tüm Verileri Sil";
+"settings.deleteAll.title" = "Tüm Verileri Sil";
+"settings.deleteAll.message" = "Tüm yer imleri ve kategoriler silinecek. Bu geri alınamaz!";
+
+// MARK: - Share Extension
+"share.title" = "Yer İmini Kaydet";
+"share.section.source" = "Kaynak";
+"share.section.basic" = "Temel Bilgiler";
+"share.section.notes" = "Notlar";
+"share.section.tags" = "Etiketler";
+
+"share.saving" = "Kaydediliyor...";
+"share.success" = "Kaydedildi!";
 
 // MARK: - Validation Errors
-"validation.titleRequired" = "Title is required";
-"validation.titleTooLong" = "Title too long (max 200 characters)";
-"validation.invalidURL" = "Invalid URL format";
-"validation.noteTooLong" = "Note too long (max 5000 characters)";
+"validation.titleRequired" = "Başlık gerekli";
+"validation.titleTooLong" = "Başlık çok uzun (maksimum 200 karakter)";
+"validation.invalidURL" = "Geçersiz URL formatı";
+"validation.noteTooLong" = "Not çok uzun (maksimum 5000 karakter)";
 
-// MARK: - OCR Errors
-"ocr.invalidImage" = "Invalid image format";
-"ocr.noTextFound" = "No text found in image";
-"ocr.cropFailed" = "Image crop failed";
-"ocr.processingFailed" = "Processing error: %@";
+// MARK: - Image & OCR
+"image.title" = "Görsel";
+"image.addPhoto" = "Fotoğraf Ekle";
+"image.takePhoto" = "Fotoğraf Çek";
+"image.selectFromGallery" = "Galeriden Seç";
+"image.crop" = "Kırp";
+"image.rotate" = "Döndür";
+"image.reset" = "Sıfırla";
 
-// MARK: - URL Metadata Errors
-"urlMetadata.invalidURL" = "Invalid URL format";
-"urlMetadata.invalidResponse" = "Server did not respond";
-"urlMetadata.invalidData" = "Data could not be read";
-"urlMetadata.fetchFailed" = "Metadata fetch failed: %@";
+"ocr.title" = "OCR";
+"ocr.processing" = "Metin çıkarılıyor...";
+"ocr.noText" = "Metin bulunamadı";
+"ocr.result" = "OCR Sonucu";
 
-// MARK: - Twitter Errors
-"twitter.invalidURL" = "Invalid Twitter URL";
-"twitter.networkError" = "Network connection error";
-"twitter.apiError" = "API error (code: %d)";
-"twitter.tweetNotFound" = "Tweet not found";
-"twitter.parseError" = "Tweet data could not be read";
+/* Auth - SignInView */
+"auth.welcome_title" = "Sosyal Yer İmi";
+"auth.welcome_subtitle" = "Sosyal medya içeriğinizi kaydedin, düzenleyin ve her yerden erişin.";
+"auth.or_divider" = "veya";
+"auth.continue_anonymously" = "Hesapsız Devam Et";
+"auth.terms_notice" = "Devam ederek Hizmet Şartlarını ve Gizlilik Politikasını kabul etmiş olursunuz.";
+"auth.error_title" = "Hata";
+"auth.sign_in" = "Oturum Aç";
+
+/* Auth - User States */
+"auth.anonymous_user" = "Anonim Kullanıcı";
+"auth.user" = "Kullanıcı";
+"auth.anonymous_account" = "Anonim Hesap";
+"auth.not_signed_in" = "Oturum Açılmadı";
+"auth.sign_in_to_sync" = "Verilerinizi senkronize etmek için oturum açın";
+
+/* Auth - Errors */
+"auth.error.not_authenticated" = "Oturum açmanız gerekiyor";
+"auth.error.not_anonymous" = "Bu eylem yalnızca anonim hesaplar içindir";
+"auth.error.sign_up_failed" = "Kayıt olma başarısız oldu";
+"auth.error.apple_sign_in_failed" = "Apple ile Oturum Açma başarısız oldu";
+"auth.error.invalid_credentials" = "Geçersiz e-posta veya parola";
+"auth.error.email_not_confirmed" = "Lütfen e-postanızı onaylayın";
+"auth.error.user_already_exists" = "Bu e-posta zaten kayıtlı";
+"auth.error.weak_password" = "Parola en az 6 karakter olmalıdır";
+"auth.error.invalid_email" = "Geçersiz e-posta adresi";
+"auth.error.rate_limit" = "Çok fazla deneme. Lütfen bekleyin";
+"auth.error.user_not_found" = "Kullanıcı bulunamadı";
+"auth.error.network" = "İnternet bağlantısı yok";
+"auth.error.unknown" = "Bilinmeyen bir hata oluştu";
+
+/* Settings - Account */
+"settings.account" = "Hesap";
+"settings.account_info" = "Hesap Bilgileri";
+"settings.account_actions" = "Hesap Eylemleri";
+"settings.danger_zone" = "Tehlike Bölgesi";
+
+"settings.link_account" = "Hesabı Bağla";
+"settings.link_account_description" = "Anonim hesabınızı verilerinizi korumak için Apple'a bağlayın.";
+"settings.link_account_title" = "Hesabı Bağla";
+"settings.link_account_subtitle" = "Apple hesabınızla bağlayarak verilerinizi güvenceye alın ve tüm cihazlarınızda senkronize edin.";
+"settings.link_keeps_data" = "Mevcut tüm verileriniz korunacaktır.";
+
+"settings.sync_status" = "Senkronizasyon Durumu";
+"settings.synced" = "Senkronize Edildi";
+
+"settings.sign_out" = "Oturumu Kapat";
+"settings.sign_out_title" = "Oturumu Kapat";
+"settings.sign_out_message" = "Oturumu kapatmak istediğinizden emin misiniz?";
+
+"settings.delete_account" = "Hesabı Sil";
+"settings.delete_account_title" = "Hesabı Sil";
+"settings.delete_account_message" = "Bu işlem geri alınamaz. Tüm verileriniz silinecektir.";
+"settings.delete_account_warning" = "Hesabınızı silmek tüm yer imlerinizi ve verilerinizi kalıcı olarak kaldıracaktır.";

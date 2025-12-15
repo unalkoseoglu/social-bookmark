@@ -2,6 +2,14 @@
 //  SyncSettingsView.swift
 //  Social Bookmark
 //
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
+//
+//  SyncSettingsView.swift
+//  Social Bookmark
+//
 //  Created by Claude on 15.12.2025.
 //
 //  Ayarlar sayfasında sync durumu ve kontrolleri

@@ -5,6 +5,14 @@
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
 
+
+//
+//  AccountSettingsView.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
 import SwiftUI
 import AuthenticationServices
 

@@ -1,3 +1,11 @@
+//
+//  SupabaseClientFactory.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
 // Core/Supabase/SupabaseClientFactory.swift
 
 import Foundation
@@ -14,21 +22,9 @@ enum SupabaseClientFactory {
             let url = try AppConfig.supabaseURL
             let key = try AppConfig.supabaseAnonKey
             
-            let client = SupabaseClient(
-                supabaseURL: url,
-                supabaseKey: key,
-                options: SupabaseClientOptions(
-                    auth: SupabaseClientOptions.AuthOptions(
-                        storage: SupabaseKeychain(),
-                        autoRefreshToken: true,
-                        detectSessionInUrl: true,
-                        flowType: .pkce
-                    )
-                )
-            )
             
             Logger.supabase.info("Supabase client initialized successfully")
-            return client
+            return SupabaseManager.shared.client
             
         } catch {
             Logger.supabase.fault("Failed to initialize Supabase client: \(error.localizedDescription)")
@@ -37,26 +33,4 @@ enum SupabaseClientFactory {
     }()
 }
 
-/// Custom AuthLocalStorage that uses Keychain for secure session storage
-final class SupabaseKeychain: AuthLocalStorage, @unchecked Sendable {
-    
-    private let storage: KeychainSessionStorage
-    private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
-    
-    init(storage: KeychainSessionStorage = KeychainSessionStorage()) {
-        self.storage = storage
-    }
-    
-    func store(key: String, value: Data) throws {
-        try storage.store(value, forKey: key)
-    }
-    
-    func retrieve(key: String) throws -> Data? {
-        try storage.retrieve(forKey: key)
-    }
-    
-    func remove(key: String) throws {
-        try storage.delete(forKey: key)
-    }
-}
+

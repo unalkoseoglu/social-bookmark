@@ -2,10 +2,19 @@
 //  SupabaseBookmark.swift
 //  Social Bookmark
 //
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
+//
+//  SupabaseBookmark.swift
+//  Social Bookmark
+//
 //  Created by Claude on 15.12.2025.
 //
 
 import Foundation
+import UIKit
 
 /// Supabase'deki bookmarks tablosuna karşılık gelen model
 /// SwiftData Bookmark'tan ayrı tutuyoruz çünkü:
@@ -340,16 +349,15 @@ struct AnyCodable: Codable, Equatable {
 }
 
 /// Encode için type-erased wrapper
+/// Type-erased Encodable wrapper
 struct AnyEncodable: Encodable {
-    private let _encode: (Encoder) throws -> Void
+    private let value: any Encodable
     
     init<T: Encodable>(_ value: T) {
-        _encode = { encoder in
-            try value.encode(to: encoder)
-        }
+        self.value = value
     }
     
     func encode(to encoder: Encoder) throws {
-        try _encode(encoder)
+        try value.encode(to: encoder)
     }
 }

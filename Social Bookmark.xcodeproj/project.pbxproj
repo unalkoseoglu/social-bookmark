@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0035CE92EF065DA005158EF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C0035CE82EF065DA005158EF /* Supabase */; };
+		C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE4282EEF758E00EFC6B2 /* Auth */; };
+		C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42A2EEF758E00EFC6B2 /* PostgREST */; };
+		C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42C2EEF758E00EFC6B2 /* Storage */; };
+		C05DE4472EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */; };
+		C05DE4482EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */; };
+		C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
+		C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
 		C0867F8A2EEA2A73000C8D7D /* BookmarkShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -49,6 +57,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Supabase.xcconfig; sourceTree = "<group>"; };
+		C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		C0867EFB2EE9A86D000C8D7D /* Social Bookmark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Social Bookmark.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F082EE9A86F000C8D7D /* Social BookmarkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,8 +76,17 @@
 		C0867F932EEA2B68000C8D7D /* Exceptions for "Social Bookmark" folder in "BookmarkShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"/Localized: Localizable.strings",
 				Content/PreviewMockCategoryRepository.swift,
 				Content/PreviewMockRepository.swift,
+				Core/AppConfig.swift,
+				Core/Auth/AuthError.swift,
+				Core/Auth/AuthRepositoryProtocol.swift,
+				Core/Auth/AuthService.swift,
+				Core/Auth/SessionStore.swift,
+				"Core/Logging/Logger+Extensions.swift",
+				Core/Supabase/SessionStorageProtocol.swift,
+				Core/Supabase/SupabaseClientFactory.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -76,19 +95,26 @@
 				Repositories/CategoryRepository.swift,
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
 				Repositories/Protocol/CategoryRepositoryProtocol.swift,
+				Repositories/SyncableBookmarkRepository.swift,
+				Supabase/Config/NetworkMonitor.swift,
+				Supabase/Config/SupabaseConfig.swift,
+				Supabase/Models/SupabaseBookmark.swift,
+				Supabase/Models/SupabaseCategory.swift,
+				Supabase/Models/UserProfile.swift,
+				Supabase/Services/ImageUploadService.swift,
+				Supabase/Services/SupabaseServiceError.swift,
+				Supabase/Services/SyncService.swift,
+				Supabase/SupabaseManager.swift,
+				Supabase/SupabaseManagerKey.swift,
+				Utilities/AppLanguage.swift,
+				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
+				Utilities/Services/RedditService.swift,
 				Utilities/Services/TwitterService.swift,
 				Utilities/Services/URLMetadataService.swift,
 			);
 			target = C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */;
-		};
-		C088D37F2EEE086600FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"/Localized: Localizable.strings",
-			);
-			target = C0867EFA2EE9A86D000C8D7D /* Social Bookmark */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -96,7 +122,6 @@
 		C0867EFD2EE9A86D000C8D7D /* Social Bookmark */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C088D37F2EEE086600FFFB66 /* Exceptions for "Social Bookmark" folder in "Social Bookmark" target */,
 				C0867F932EEA2B68000C8D7D /* Exceptions for "Social Bookmark" folder in "BookmarkShareExtension" target */,
 			);
 			path = "Social Bookmark";
@@ -127,6 +152,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0035CE92EF065DA005158EF /* Supabase in Frameworks */,
+				C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */,
+				C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */,
+				C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +183,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C05DE4402EEF79B300EFC6B2 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */,
+				C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		C05DE4662EEF838E00EFC6B2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C0867EF22EE9A86D000C8D7D = {
 			isa = PBXGroup;
 			children = (
@@ -162,6 +207,8 @@
 				C0867F152EE9A86F000C8D7D /* Social BookmarkUITests */,
 				C0867F812EEA2A73000C8D7D /* BookmarkShareExtension */,
 				C0867EFC2EE9A86D000C8D7D /* Products */,
+				C05DE4402EEF79B300EFC6B2 /* Config */,
+				C05DE4662EEF838E00EFC6B2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -198,6 +245,10 @@
 			);
 			name = "Social Bookmark";
 			packageProductDependencies = (
+				C05DE4282EEF758E00EFC6B2 /* Auth */,
+				C05DE42A2EEF758E00EFC6B2 /* PostgREST */,
+				C05DE42C2EEF758E00EFC6B2 /* Storage */,
+				C0035CE82EF065DA005158EF /* Supabase */,
 			);
 			productName = "Social Bookmark";
 			productReference = C0867EFB2EE9A86D000C8D7D /* Social Bookmark.app */;
@@ -307,6 +358,9 @@
 			);
 			mainGroup = C0867EF22EE9A86D000C8D7D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C0867EFC2EE9A86D000C8D7D /* Products */;
 			projectDirPath = "";
@@ -325,6 +379,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C05DE4482EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */,
+				C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +402,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C05DE4472EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */,
+				C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,6 +461,7 @@
 /* Begin XCBuildConfiguration section */
 		C0867F1A2EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -465,6 +524,7 @@
 		};
 		C0867F1B2EE9A86F000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -542,8 +602,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -590,8 +649,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -827,6 +885,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C0035CE82EF065DA005158EF /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		C05DE4282EEF758E00EFC6B2 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C05DE42A2EEF758E00EFC6B2 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		C05DE42C2EEF758E00EFC6B2 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C0867EF32EE9A86D000C8D7D /* Project object */;
 }

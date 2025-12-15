@@ -1,344 +1,437 @@
 import SwiftUI
 
-/// Tüm bookmarkları listeleyen ekran
+/// Tüm bookmarkları listeleyen view
+/// "Tümünü Gör" butonundan açılır
 struct AllBookmarksView: View {
     // MARK: - Properties
     
     @Bindable var viewModel: HomeViewModel
     
     @State private var searchText = ""
-    @State private var sortOption: SortOption = .newest
     @State private var selectedSource: BookmarkSource?
-    @State private var selectedCategory: Category?
-    @State private var showOnlyUnread = false
-    @State private var showOnlyFavorites = false
+    @State private var sortOrder: SortOrder = .newest
+    @State private var showingFilters = false
     
-    private var filteredBookmarks: [Bookmark] {
-        var result = viewModel.bookmarks
+    // MARK: - Sort Order
+    
+    enum SortOrder: String, CaseIterable, Identifiable {
+        case newest = "newest"
+        case oldest = "oldest"
+        case alphabetical = "alphabetical"
+        case source = "source"
         
-        // Arama filtresi
-        if !searchText.isEmpty {
-            let query = searchText.lowercased()
-            result = result.filter {
-                $0.title.lowercased().contains(query) ||
-                $0.note.lowercased().contains(query) ||
-                $0.tags.contains { $0.lowercased().contains(query) }
+        var id: String { rawValue }
+        
+        var title: String {
+            switch self {
+            case .newest: return String(localized: "all.sort.newest")
+            case .oldest: return String(localized: "all.sort.oldest")
+            case .alphabetical: return String(localized: "all.sort.alphabetical")
+            case .source: return String(localized: "all.sort.source")
             }
         }
         
+        var icon: String {
+            switch self {
+            case .newest: return "arrow.down.circle"
+            case .oldest: return "arrow.up.circle"
+            case .alphabetical: return "textformat.abc"
+            case .source: return "square.grid.2x2"
+            }
+        }
+    }
+    
+    // MARK: - Filtered & Sorted Bookmarks
+    
+    private var filteredBookmarks: [Bookmark] {
+        var bookmarks = viewModel.allBookmarks
+        
         // Kaynak filtresi
         if let source = selectedSource {
-            result = result.filter { $0.source == source }
+            bookmarks = bookmarks.filter { $0.source == source }
         }
         
-        // Kategori filtresi
-        if let category = selectedCategory {
-            result = result.filter { $0.categoryId == category.id }
-        }
-        
-        // Okunmadı filtresi
-        if showOnlyUnread {
-            result = result.filter { !$0.isRead }
-        }
-        
-        // Favori filtresi
-        if showOnlyFavorites {
-            result = result.filter { $0.isFavorite }
+        // Arama filtresi
+        if !searchText.isEmpty {
+            bookmarks = bookmarks.filter { bookmark in
+                bookmark.title.localizedCaseInsensitiveContains(searchText) ||
+                bookmark.note.localizedCaseInsensitiveContains(searchText) ||
+                bookmark.tags.contains { $0.localizedCaseInsensitiveContains(searchText) }
+            }
         }
         
         // Sıralama
-        switch sortOption {
+        switch sortOrder {
         case .newest:
-            result.sort { $0.createdAt > $1.createdAt }
+            bookmarks.sort { $0.createdAt > $1.createdAt }
         case .oldest:
-            result.sort { $0.createdAt < $1.createdAt }
+            bookmarks.sort { $0.createdAt < $1.createdAt }
         case .alphabetical:
-            result.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
+            bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
         case .source:
-            result.sort { $0.source.displayName < $1.source.displayName }
+            bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
         }
         
-        return result
+        return bookmarks
     }
     
-    private var hasActiveFilters: Bool {
-        selectedSource != nil || selectedCategory != nil || showOnlyUnread || showOnlyFavorites
+    // Kaynak bazlı gruplama
+    private var groupedBookmarks: [BookmarkSource: [Bookmark]] {
+        Dictionary(grouping: filteredBookmarks, by: { $0.source })
     }
     
     // MARK: - Body
     
     var body: some View {
         Group {
-            if viewModel.bookmarks.isEmpty {
+            if filteredBookmarks.isEmpty {
                 emptyStateView
             } else {
-                bookmarksList
+                bookmarkList
             }
         }
-        .navigationTitle("Tüm Bookmarklar")
+        .navigationTitle(Text("all.title"))
         .navigationBarTitleDisplayMode(.large)
-        .searchable(text: $searchText, prompt: "Başlık, not veya etiket ara...")
+        .searchable(text: $searchText, prompt: Text("all.search_prompt"))
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                filterMenu
-            }
+            toolbarContent
+        }
+        .sheet(isPresented: $showingFilters) {
+            filterSheet
         }
     }
     
-    // MARK: - Views
+    // MARK: - Bookmark List
     
-    private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "bookmark.slash")
-                .font(.system(size: 60))
-                .foregroundStyle(.secondary)
-            
-            Text("Henüz bookmark yok")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Text("İnternette bulduğun değerli içerikleri kaydetmeye başla")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .padding()
-    }
-    
-    private var bookmarksList: some View {
+    private var bookmarkList: some View {
         List {
-            // Aktif filtreler
-            if hasActiveFilters {
-                activeFiltersSection
+            // Stats header
+            Section {
+                statsHeader
             }
             
-            // İstatistik
+            // Source filter chips
             Section {
-                HStack {
-                    Label("\(filteredBookmarks.count) bookmark", systemImage: "bookmark.fill")
-                    
-                    Spacer()
-                    
-                    let unreadCount = filteredBookmarks.filter { !$0.isRead }.count
-                    if unreadCount > 0 {
-                        Label("\(unreadCount) okunmadı", systemImage: "circle.fill")
-                            .foregroundStyle(.orange)
+                sourceFilterChips
+            }
+            
+            // Bookmarks
+            if sortOrder == .source {
+                // Kaynak bazlı gruplu liste
+                ForEach(BookmarkSource.allCases.filter { groupedBookmarks[$0] != nil }, id: \.self) { source in
+                    Section {
+                        ForEach(groupedBookmarks[source] ?? []) { bookmark in
+                            bookmarkRow(bookmark)
+                        }
+                    } header: {
+                        HStack {
+                            Text(source.emoji)
+                            Text(source.displayName)
+                            Spacer()
+                            Text("\(groupedBookmarks[source]?.count ?? 0)")
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            }
-            
-            // Bookmark listesi
-            Section {
-                ForEach(filteredBookmarks) { bookmark in
-                    NavigationLink {
-                        BookmarkDetailView(
-                            bookmark: bookmark,
-                            repository: viewModel.bookmarkRepository
-                        )
-                    } label: {
-                        AllBookmarksRow(
-                            bookmark: bookmark,
-                            category: categoryFor(bookmark)
-                        )
+            } else {
+                // Düz liste
+                Section {
+                    ForEach(filteredBookmarks) { bookmark in
+                        bookmarkRow(bookmark)
                     }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            viewModel.deleteBookmark(bookmark)
-                        } label: {
-                            Label("Sil", systemImage: "trash")
-                        }
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button {
-                            viewModel.toggleReadStatus(bookmark)
-                        } label: {
-                            Label(
-                                bookmark.isRead ? "Okunmadı" : "Okundu",
-                                systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill"
-                            )
-                        }
-                        .tint(bookmark.isRead ? .orange : .green)
-                        
-                        Button {
-                            viewModel.toggleFavorite(bookmark)
-                        } label: {
-                            Label(
-                                bookmark.isFavorite ? "Favoriden Çıkar" : "Favorile",
-                                systemImage: bookmark.isFavorite ? "star.slash" : "star.fill"
-                            )
-                        }
-                        .tint(.yellow)
-                    }
+                } header: {
+                    Text("all.section.bookmarks")
                 }
             }
         }
         .listStyle(.insetGrouped)
     }
     
-    private var activeFiltersSection: some View {
-        Section {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    if let source = selectedSource {
-                        FilterTag(
-                            title: source.displayName,
-                            icon: source.systemIcon,
-                            color: source.color
-                        ) {
-                            selectedSource = nil
-                        }
-                    }
-                    
-                    if let category = selectedCategory {
-                        FilterTag(
-                            title: category.name,
-                            icon: category.icon,
-                            color: category.color
-                        ) {
-                            selectedCategory = nil
-                        }
-                    }
-                    
-                    if showOnlyUnread {
-                        FilterTag(
-                            title: "Okunmadı",
-                            icon: "circle.fill",
-                            color: .orange
-                        ) {
-                            showOnlyUnread = false
-                        }
-                    }
-                    
-                    if showOnlyFavorites {
-                        FilterTag(
-                            title: "Favoriler",
-                            icon: "star.fill",
-                            color: .yellow
-                        ) {
-                            showOnlyFavorites = false
-                        }
-                    }
-                    
+    // MARK: - Stats Header
+    
+    private var statsHeader: some View {
+        HStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(filteredBookmarks.count)")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .contentTransition(.numericText())
+                
+                Text("all.stats.total")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Divider()
+                .frame(height: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(filteredBookmarks.filter { !$0.isRead }.count)")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.orange)
+                    .contentTransition(.numericText())
+                
+                Text("all.stats.unread")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            // Sort indicator
+            Menu {
+                ForEach(SortOrder.allCases) { order in
                     Button {
-                        clearAllFilters()
+                        withAnimation {
+                            sortOrder = order
+                        }
                     } label: {
-                        Text("Temizle")
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                        Label(order.title, systemImage: order.icon)
                     }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: sortOrder.icon)
+                    Text(sortOrder.title)
+                        .font(.caption)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color(.systemGray6))
+                .clipShape(Capsule())
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    // MARK: - Source Filter Chips
+    
+    private var sourceFilterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // All sources
+                FilterChip(
+                    title: String(localized: "all.filter.all"),
+                    icon: "square.grid.2x2",
+                    isSelected: selectedSource == nil
+                ) {
+                    withAnimation {
+                        selectedSource = nil
+                    }
+                }
+                
+                // Individual sources
+                ForEach(BookmarkSource.allCases) { source in
+                    let count = viewModel.allBookmarks.filter { $0.source == source }.count
+                    if count > 0 {
+                        FilterChip(
+                            title: source.displayName,
+                            emoji: source.emoji,
+                            count: count,
+                            isSelected: selectedSource == source
+                        ) {
+                            withAnimation {
+                                selectedSource = selectedSource == source ? nil : source
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+    }
+    
+    // MARK: - Bookmark Row
+    
+    private func bookmarkRow(_ bookmark: Bookmark) -> some View {
+        NavigationLink {
+            BookmarkDetailView(
+                bookmark: bookmark,
+                repository: viewModel.bookmarkRepository
+            )
+        } label: {
+            AllBookmarksRow(bookmark: bookmark)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                deleteBookmark(bookmark)
+            } label: {
+                Label("common.delete", systemImage: "trash")
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                toggleRead(bookmark)
+            } label: {
+                Label(
+                    bookmark.isRead ? "all.action.mark_unread" : "all.action.mark_read",
+                    systemImage: bookmark.isRead ? "circle" : "checkmark.circle"
+                )
+            }
+            .tint(bookmark.isRead ? .orange : .green)
+        }
+    }
+    
+    // MARK: - Empty State
+    
+    private var emptyStateView: some View {
+        ContentUnavailableView {
+            Label("all.empty.title", systemImage: "bookmark")
+        } description: {
+            if searchText.isEmpty && selectedSource == nil {
+                Text("all.empty.desc")
+            } else {
+                Text("all.empty.no_results")
+            }
+        } actions: {
+            if selectedSource != nil || !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                    selectedSource = nil
+                } label: {
+                    Text("all.action.clear_filters")
                 }
             }
         }
     }
     
-    private var filterMenu: some View {
-        Menu {
-            // Sıralama
-            Section("Sıralama") {
-                Picker("Sırala", selection: $sortOption) {
-                    ForEach(SortOption.allCases) { option in
-                        Label(option.title, systemImage: option.icon)
-                            .tag(option)
-                    }
-                }
-            }
-            
-            Divider()
-            
-            // Kaynak filtresi
-            Section("Kaynak") {
-                Button {
-                    selectedSource = nil
-                } label: {
-                    HStack {
-                        Text("Tümü")
-                        if selectedSource == nil {
-                            Image(systemName: "checkmark")
+    // MARK: - Toolbar
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Menu {
+                // Sort options
+                Section("all.menu.sort") {
+                    ForEach(SortOrder.allCases) { order in
+                        Button {
+                            withAnimation {
+                                sortOrder = order
+                            }
+                        } label: {
+                            Label(order.title, systemImage: sortOrder == order ? "checkmark" : order.icon)
                         }
                     }
                 }
                 
-                ForEach(BookmarkSource.allCases) { source in
-                    Button {
-                        selectedSource = source
-                    } label: {
-                        HStack {
-                            Text(source.emoji)
-                            Text(source.displayName)
-                            if selectedSource == source {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
+                Divider()
+                
+                // Mark all as read
+                Button {
+                    markAllAsRead()
+                } label: {
+                    Label("all.action.mark_all_read", systemImage: "checkmark.circle.fill")
                 }
+            } label: {
+                Image(systemName: "ellipsis.circle")
             }
-            
-            // Kategori filtresi
-            if !viewModel.categories.isEmpty {
-                Section("Kategori") {
-                    Button {
-                        selectedCategory = nil
-                    } label: {
-                        HStack {
-                            Text("Tümü")
-                            if selectedCategory == nil {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                    
-                    ForEach(viewModel.categories) { category in
+        }
+    }
+    
+    // MARK: - Filter Sheet
+    
+    private var filterSheet: some View {
+        NavigationStack {
+            List {
+                Section("all.filter.source") {
+                    ForEach(BookmarkSource.allCases) { source in
                         Button {
-                            selectedCategory = category
+                            selectedSource = selectedSource == source ? nil : source
                         } label: {
                             HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundStyle(category.color)
-                                Text(category.name)
-                                if selectedCategory?.id == category.id {
+                                Text(source.emoji)
+                                Text(source.displayName)
+                                Spacer()
+                                if selectedSource == source {
                                     Image(systemName: "checkmark")
+                                        .foregroundStyle(.blue)
                                 }
                             }
                         }
+                        .foregroundStyle(.primary)
                     }
                 }
             }
-            
-            Divider()
-            
-            // Toggle filtreler
-            Toggle("Sadece Okunmamış", isOn: $showOnlyUnread)
-            Toggle("Sadece Favoriler", isOn: $showOnlyFavorites)
-            
-            if hasActiveFilters {
-                Divider()
-                
-                Button(role: .destructive) {
-                    clearAllFilters()
-                } label: {
-                    Label("Filtreleri Temizle", systemImage: "xmark.circle")
+            .navigationTitle(Text("all.filter.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("common.done") {
+                        showingFilters = false
+                    }
                 }
             }
-        } label: {
-            Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+        }
+        .presentationDetents([.medium])
+    }
+    
+    // MARK: - Actions
+    
+    private func deleteBookmark(_ bookmark: Bookmark) {
+        withAnimation {
+            viewModel.bookmarkRepository.delete(bookmark)
+            viewModel.refresh()
         }
     }
     
-    // MARK: - Helpers
-    
-    private func categoryFor(_ bookmark: Bookmark) -> Category? {
-        guard let categoryId = bookmark.categoryId else { return nil }
-        return viewModel.categories.first { $0.id == categoryId }
+    private func toggleRead(_ bookmark: Bookmark) {
+        withAnimation {
+            bookmark.isRead.toggle()
+            viewModel.bookmarkRepository.update(bookmark)
+            viewModel.refresh()
+        }
     }
     
-    private func clearAllFilters() {
-        selectedSource = nil
-        selectedCategory = nil
-        showOnlyUnread = false
-        showOnlyFavorites = false
+    private func markAllAsRead() {
+        for bookmark in filteredBookmarks where !bookmark.isRead {
+            bookmark.isRead = true
+            viewModel.bookmarkRepository.update(bookmark)
+        }
+        viewModel.refresh()
+    }
+}
+
+// MARK: - Filter Chip
+
+struct FilterChip: View {
+    let title: String
+    var icon: String? = nil
+    var emoji: String? = nil
+    var count: Int? = nil
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if let emoji = emoji {
+                    Text(emoji)
+                        .font(.caption)
+                }
+                
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.caption)
+                }
+                
+                Text(title)
+                    .font(.subheadline)
+                
+                if let count = count {
+                    Text("\(count)")
+                        .font(.caption)
+                        .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.blue : Color(.systemGray6))
+            .foregroundStyle(isSelected ? .white : .primary)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -346,7 +439,6 @@ struct AllBookmarksView: View {
 
 struct AllBookmarksRow: View {
     let bookmark: Bookmark
-    let category: Category?
     
     var body: some View {
         HStack(spacing: 12) {
@@ -363,7 +455,7 @@ struct AllBookmarksRow: View {
                     .fontWeight(.medium)
                     .lineLimit(2)
                 
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Text(bookmark.source.displayName)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -373,67 +465,40 @@ struct AllBookmarksRow: View {
                     
                     Text(bookmark.relativeDate)
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                     
-                    if let category = category {
+                    if bookmark.hasTags {
                         Text("•")
                             .foregroundStyle(.tertiary)
                         
-                        HStack(spacing: 2) {
-                            Image(systemName: category.icon)
-                            Text(category.name)
+                        HStack(spacing: 4) {
+                            Image(systemName: "tag.fill")
+                                .font(.caption2)
+                            Text("\(bookmark.tags.count)")
                         }
                         .font(.caption)
-                        .foregroundStyle(category.color)
+                        .foregroundStyle(.blue)
                     }
                 }
             }
             
             Spacer()
             
-            VStack(spacing: 4) {
-                if bookmark.isFavorite {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
-                        .font(.caption)
-                }
-                
+            VStack(alignment: .trailing, spacing: 4) {
                 if !bookmark.isRead {
                     Circle()
                         .fill(.orange)
                         .frame(width: 8, height: 8)
                 }
+                
+                if bookmark.isFavorite {
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.yellow)
+                }
             }
         }
         .padding(.vertical, 4)
-    }
-}
-
-// MARK: - Filter Tag
-
-struct FilterTag: View {
-    let title: String
-    let icon: String
-    let color: Color
-    let onRemove: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-            
-            Text(title)
-            
-            Button(action: onRemove) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .font(.caption)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(color.opacity(0.15))
-        .clipShape(Capsule())
     }
 }
 

@@ -127,7 +127,7 @@ final class OCRService {
         
         /// Akıllı temizleme - gereksiz UI elementlerini filtrele
         private func smartClean(_ text: String) -> String {
-            var lines = text.components(separatedBy: "\n")
+            let lines = text.components(separatedBy: "\n")
             var cleanedLines: [String] = []
             
             for line in lines {
@@ -192,7 +192,7 @@ final class OCRService {
             var merged: [String] = []
             var currentParagraph = ""
             
-            for (index, line) in lines.enumerated() {
+            for (_, line) in lines.enumerated() {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 
                 // İlk satır

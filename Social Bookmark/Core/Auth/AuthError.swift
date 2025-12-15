@@ -1,67 +1,97 @@
-// Core/Auth/AuthError.swift
+//
+//  AuthError.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
 
 import Foundation
 
-/// Typed authentication errors
-enum AuthError: Error, LocalizedError, Equatable {
+/// Auth işlemlerinde oluşabilecek hatalar
+enum AuthError: LocalizedError, Equatable {
     case notAuthenticated
-    case sessionExpired
-    case invalidCredentials
-    case networkError(String)
+    case notAnonymous
+    case signUpFailed
     case appleSignInFailed(String)
-    case linkingFailed(String)
-    case userCancelled
+    case invalidCredentials
+    case emailNotConfirmed
+    case userAlreadyExists
+    case weakPassword
+    case invalidEmail
+    case rateLimited
+    case userNotFound
+    case networkError
     case unknown(String)
+    
+    // MARK: - LocalizedError
     
     var errorDescription: String? {
         switch self {
         case .notAuthenticated:
-            return String(localized: "auth.error.not_authenticated")
-        case .sessionExpired:
-            return String(localized: "auth.error.session_expired")
+            return "Oturum açmanız gerekiyor"
+        case .notAnonymous:
+            return "Bu işlem sadece anonim hesaplar için geçerli"
+        case .signUpFailed:
+            return "Kayıt oluşturulamadı"
+        case .appleSignInFailed(let reason):
+            return "Apple ile giriş başarısız: \(reason)"
         case .invalidCredentials:
-            return String(localized: "auth.error.invalid_credentials")
-        case .networkError(let message):
-            return String(localized: "auth.error.network \(message)")
-        case .appleSignInFailed(let message):
-            return String(localized: "auth.error.apple_sign_in \(message)")
-        case .linkingFailed(let message):
-            return String(localized: "auth.error.linking \(message)")
-        case .userCancelled:
-            return String(localized: "auth.error.user_cancelled")
+            return "Email veya şifre hatalı"
+        case .emailNotConfirmed:
+            return "Lütfen emailinizi onaylayın"
+        case .userAlreadyExists:
+            return "Bu email zaten kayıtlı"
+        case .weakPassword:
+            return "Şifre en az 6 karakter olmalı"
+        case .invalidEmail:
+            return "Geçersiz email adresi"
+        case .rateLimited:
+            return "Çok fazla deneme. Lütfen bekleyin"
+        case .userNotFound:
+            return "Kullanıcı bulunamadı"
+        case .networkError:
+            return "İnternet bağlantısı yok"
         case .unknown(let message):
-            return String(localized: "auth.error.unknown \(message)")
+            return message
         }
     }
     
-    /// User-facing localization key
+    // MARK: - Localization Key
+    
     var localizationKey: String {
         switch self {
-        case .notAuthenticated: return "auth.error.not_authenticated"
-        case .sessionExpired: return "auth.error.session_expired"
-        case .invalidCredentials: return "auth.error.invalid_credentials"
-        case .networkError: return "auth.error.network"
-        case .appleSignInFailed: return "auth.error.apple_sign_in"
-        case .linkingFailed: return "auth.error.linking"
-        case .userCancelled: return "auth.error.user_cancelled"
-        case .unknown: return "auth.error.unknown"
+        case .notAuthenticated:
+            return "auth.error.not_authenticated"
+        case .notAnonymous:
+            return "auth.error.not_anonymous"
+        case .signUpFailed:
+            return "auth.error.sign_up_failed"
+        case .appleSignInFailed:
+            return "auth.error.apple_sign_in_failed"
+        case .invalidCredentials:
+            return "auth.error.invalid_credentials"
+        case .emailNotConfirmed:
+            return "auth.error.email_not_confirmed"
+        case .userAlreadyExists:
+            return "auth.error.user_already_exists"
+        case .weakPassword:
+            return "auth.error.weak_password"
+        case .invalidEmail:
+            return "auth.error.invalid_email"
+        case .rateLimited:
+            return "auth.error.rate_limit"
+        case .userNotFound:
+            return "auth.error.user_not_found"
+        case .networkError:
+            return "auth.error.network"
+        case .unknown:
+            return "auth.error.unknown"
         }
     }
     
+    // MARK: - Equatable
+    
     static func == (lhs: AuthError, rhs: AuthError) -> Bool {
-        switch (lhs, rhs) {
-        case (.notAuthenticated, .notAuthenticated),
-             (.sessionExpired, .sessionExpired),
-             (.invalidCredentials, .invalidCredentials),
-             (.userCancelled, .userCancelled):
-            return true
-        case (.networkError(let l), .networkError(let r)),
-             (.appleSignInFailed(let l), .appleSignInFailed(let r)),
-             (.linkingFailed(let l), .linkingFailed(let r)),
-             (.unknown(let l), .unknown(let r)):
-            return l == r
-        default:
-            return false
-        }
+        lhs.localizationKey == rhs.localizationKey
     }
 }

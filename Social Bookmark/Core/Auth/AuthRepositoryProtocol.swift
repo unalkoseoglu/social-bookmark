@@ -1,9 +1,17 @@
+//
+//  AuthRepositoryProtocol.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
 // Core/Auth/AuthRepository.swift
 
 import Foundation
-import Supabase
-import Auth
 import OSLog
+import Auth
+import Supabase
 
 /// Protocol for authentication operations (enables testing)
 protocol AuthRepositoryProtocol: Sendable {
@@ -37,9 +45,9 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
             let response = try await client.auth.signInAnonymously()
             Logger.auth.info("Anonymous sign in successful, user: \(response.user.id)")
             return response.user
-        } catch let error as AuthError {
+        } catch let error as Auth.AuthError {
             Logger.auth.error("Anonymous sign in failed: \(error.localizedDescription)")
-            throw mapAuthError(error)
+            throw mapSupabaseAuthError(error)
         } catch {
             Logger.auth.error("Anonymous sign in failed: \(error.localizedDescription)")
             throw AuthError.unknown(error.localizedDescription)
@@ -81,10 +89,10 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
             Logger.auth.info("Identity linking initiated")
         } catch let error as AuthError {
             Logger.auth.error("Identity linking failed: \(error.localizedDescription)")
-            throw AuthError.linkingFailed(error.localizedDescription)
+            throw AuthError.appleSignInFailed(error.localizedDescription)
         } catch {
             Logger.auth.error("Identity linking failed: \(error.localizedDescription)")
-            throw AuthError.linkingFailed(error.localizedDescription)
+            throw AuthError.appleSignInFailed(error.localizedDescription)
         }
     }
     
@@ -132,7 +140,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
             return session
         } catch {
             Logger.auth.error("Session refresh failed: \(error.localizedDescription)")
-            throw AuthError.sessionExpired
+            throw AuthError.signUpFailed
         }
     }
     
@@ -154,10 +162,11 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
     // MARK: - Error Mapping
     
-    private func mapAuthError(_ error: Auth.AuthError) -> AuthError {
+    private func mapSupabaseAuthError(_ error: Auth.AuthError) -> AuthError {
+
         // Map Supabase AuthError to our typed AuthError
         switch error {
-        case .sessionNotFound:
+        case .sessionMissing:
             return .notAuthenticated
         default:
             return .unknown(error.localizedDescription)

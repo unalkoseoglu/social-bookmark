@@ -1,116 +1,227 @@
 /*
-   Localizable.strings (English)
-   Social Bookmark
+ Localizable.strings
+ Social Bookmark
+
+ English localization
 */
 
 // MARK: - Common
+"common.ok" = "OK";
 "common.cancel" = "Cancel";
-"common.save" = "Save";
+"common.done" = "Done";
 "common.delete" = "Delete";
 "common.edit" = "Edit";
-"common.done" = "Done";
+"common.save" = "Save";
+"common.go_back" = "Go Back";
 "common.error" = "Error";
-"common.ok" = "OK";
-"common.copy" = "Copy";
 "common.loading" = "Loading...";
+"common.success" = "Success";
 
-// MARK: - App
-"app.title" = "Social Bookmark";
+// MARK: - Home View
+"home.title" = "Bookmarks";
+"home.stats_summary %lld %lld" = "%lld total • %lld unread";
 
-// MARK: - Bookmark List
-"bookmarkList.searchPrompt" = "Search title or note";
-"bookmarkList.filterAll" = "All";
-"bookmarkList.filterUnreadOnly" = "Unread Only";
-"bookmarkList.clearFilters" = "Clear Filters";
-"bookmarkList.totalCount" = "%d total";
-"bookmarkList.unreadCount" = "%d unread";
-"bookmarkList.markAsRead" = "Mark as Read";
-"bookmarkList.markAsUnread" = "Mark as Unread";
+// Stats
+"home.stat.total" = "Total";
+"home.stat.unread" = "Unread";
+"home.stat.this_week" = "This Week";
 
-// MARK: - Empty State
-"emptyState.title" = "No bookmarks yet";
-"emptyState.message" = "Start saving valuable content you find on the internet";
-"emptyState.addFirstBookmark" = "Add First Bookmark";
+// Sections
+"home.section.quick_access" = "Quick Access";
+"home.section.categories" = "Categories";
+"home.section.recent" = "Recently Added";
+
+// Filters
+"home.filter.unread" = "Unread";
+"home.filter.favorites" = "Favorites";
+"home.filter.today" = "Today";
+
+// Actions
+"home.action.edit" = "Edit";
+"home.action.see_all" = "See All";
+"home.action.create_categories" = "Create Categories";
+
+// Empty states
+"home.empty.no_bookmarks" = "No bookmarks yet";
+
+// MARK: - Filtered Bookmarks View
+"filtered.search_prompt" = "Search...";
+"filtered.section.bookmarks" = "Bookmarks";
+"filtered.mark_read" = "Mark as Read";
+"filtered.unfavorite" = "Remove from Favorites";
+
+// Descriptions
+"filtered.desc.unread" = "Bookmarks you haven't read yet";
+"filtered.desc.favorites" = "Bookmarks you marked as favorite";
+"filtered.desc.today" = "Bookmarks you added today";
+
+// Empty states
+"filtered.empty.unread.title" = "All Caught Up!";
+"filtered.empty.unread.desc" = "You've read all your bookmarks. Great job!";
+"filtered.empty.favorites.title" = "No Favorites";
+"filtered.empty.favorites.desc" = "You haven't added any favorites yet.";
+"filtered.empty.today.title" = "Nothing Today";
+"filtered.empty.today.desc" = "You haven't added any bookmarks today.";
+
+// MARK: - All Bookmarks View
+"all.title" = "All Bookmarks";
+"all.search_prompt" = "Search title, notes or tags...";
+
+// Sort options
+"all.sort.newest" = "Newest";
+"all.sort.oldest" = "Oldest";
+"all.sort.alphabetical" = "Alphabetical";
+"all.sort.source" = "By Source";
+
+// Filters
+"all.filter.title" = "Filter";
+"all.filter.all" = "All";
+"all.filter.source" = "Source";
+
+// Stats
+"all.stats.total" = "total bookmarks";
+"all.stats.unread" = "unread";
+
+// Sections
+"all.section.bookmarks" = "Bookmarks";
+
+// Menu
+"all.menu.sort" = "Sort";
+
+// Actions
+"all.action.mark_read" = "Mark as Read";
+"all.action.mark_unread" = "Mark as Unread";
+"all.action.mark_all_read" = "Mark All as Read";
+"all.action.clear_filters" = "Clear Filters";
+
+// Empty states
+"all.empty.title" = "No Bookmarks";
+"all.empty.desc" = "You haven't added any bookmarks yet.";
+"all.empty.no_results" = "No bookmarks match your search.";
+
+// MARK: - Search View
+"search.title" = "Search";
+"search.placeholder" = "Search bookmarks...";
+
+// Scopes
+"search.scope.all" = "All";
+"search.scope.title" = "Title";
+"search.scope.notes" = "Notes";
+"search.scope.tags" = "Tags";
+
+// Suggestions
+"search.recent" = "Recent Searches";
+"search.clear" = "Clear";
+"search.popular_tags" = "Popular Tags";
+"search.browse_by_source" = "Browse by Source";
+
+// Results
+"search.results_count %lld" = "%lld results found";
+"search.no_results.title" = "No Results";
+"search.no_results.desc %@" = "No results found for \"%@\".";
+"search.try_again" = "Try Again";
 
 // MARK: - Add Bookmark
 "addBookmark.title" = "New Bookmark";
-"addBookmark.sectionBasicInfo" = "Basic Info";
-"addBookmark.titlePlaceholder" = "Title";
-"addBookmark.urlPlaceholder" = "URL (optional)";
-"addBookmark.invalidURL" = "Invalid URL format";
-"addBookmark.tweetFetched" = "Tweet content fetched";
-"addBookmark.pageInfoFetched" = "Page info filled";
-"addBookmark.sectionDetails" = "Details";
-"addBookmark.sourcePicker" = "Source";
-"addBookmark.notePlaceholder" = "Notes (optional)";
-"addBookmark.sectionTags" = "Tags";
-"addBookmark.tagsPlaceholder" = "Tags (comma separated)";
-"addBookmark.tagsExample" = "Example: Swift, iOS, Tutorial";
-"addBookmark.sectionPhoto" = "Photo";
-"addBookmark.addPhoto" = "Add Photo";
-"addBookmark.removePhoto" = "Remove";
-"addBookmark.ocrProcessing" = "OCR processing...";
-"addBookmark.sectionErrors" = "Errors";
-"addBookmark.imageCount" = "(%d images)";
-"addBookmark.imagesLoading" = "%d images loading...";
+"addBookmark.section.basic" = "Basic Info";
+"addBookmark.section.notes" = "Notes";
+"addBookmark.section.organization" = "Organization";
+"addBookmark.section.tags" = "Tags";
+"addBookmark.section.image" = "Image";
 
-// MARK: - Tweet Preview
-"tweetPreview.title" = "Tweet Preview";
-"tweetPreview.imageCount" = "%d images";
-"tweetPreview.imageLoading" = "Image loading...";
+"addBookmark.field.title" = "Title";
+"addBookmark.field.url" = "URL (optional)";
+"addBookmark.field.notes" = "Add your notes here";
+"addBookmark.field.tags" = "Tags (comma separated)";
+"addBookmark.field.source" = "Source";
+"addBookmark.field.category" = "Category";
+
+"addBookmark.status.content_fetched" = "Content fetched";
+"addBookmark.status.page_filled" = "Page info filled";
 
 // MARK: - Bookmark Detail
 "bookmarkDetail.title" = "Details";
-"bookmarkDetail.read" = "Read";
-"bookmarkDetail.sectionImage" = "Image";
-"bookmarkDetail.imageCount" = "%d images";
-"bookmarkDetail.sectionLink" = "Link";
-"bookmarkDetail.sectionNotes" = "Notes";
-"bookmarkDetail.sectionTags" = "Tags";
-"bookmarkDetail.sectionInfo" = "Info";
-"bookmarkDetail.createdAt" = "Created";
-"bookmarkDetail.duration" = "Duration";
-"bookmarkDetail.imageCountLabel" = "%d items";
-"bookmarkDetail.markAsUnread" = "Mark as Unread";
-"bookmarkDetail.markAsRead" = "Mark as Read";
+"bookmarkDetail.section.content" = "Content";
+"bookmarkDetail.section.info" = "Information";
+"bookmarkDetail.section.actions" = "Actions";
+
+"bookmarkDetail.markRead" = "Mark as Read";
+"bookmarkDetail.markUnread" = "Mark as Unread";
+"bookmarkDetail.addFavorite" = "Add to Favorites";
+"bookmarkDetail.removeFavorite" = "Remove from Favorites";
 "bookmarkDetail.openInBrowser" = "Open in Browser";
-"bookmarkDetail.deleteTitle" = "Delete Bookmark?";
+"bookmarkDetail.share" = "Share";
+"bookmarkDetail.delete" = "Delete";
+
+"bookmarkDetail.deleteTitle" = "Delete Bookmark";
 "bookmarkDetail.deleteMessage" = "This action cannot be undone.";
 
-// MARK: - Edit Bookmark
-"editBookmark.title" = "Edit";
+// MARK: - Categories
+"categories.title" = "Categories";
+"categories.empty" = "No categories yet";
+"categories.create" = "New Category";
 
-// MARK: - Image Picker
-"imagePicker.title" = "Image Source";
-"imagePicker.addPhoto" = "Add Photo";
-"imagePicker.subtitle" = "Take from camera or select from gallery";
-"imagePicker.takePhoto" = "Take Photo";
-"imagePicker.selectFromGallery" = "Select from Gallery";
+"category.new.title" = "New Category";
+"category.edit.title" = "Edit Category";
+"category.field.name" = "Category Name";
+"category.field.icon" = "Icon";
+"category.field.color" = "Color";
+"category.preview" = "Preview";
 
-// MARK: - Image Crop
-"imageCrop.title" = "Edit";
-"imageCrop.rotate" = "Rotate";
-"imageCrop.reset" = "Reset";
-"imageCrop.filters" = "Filters";
-"imageCrop.ocr" = "OCR";
-"imageCrop.ocrResult" = "OCR Result";
-"imageCrop.noTextFound" = "No text found";
-
-// MARK: - Share Extension
-"shareExtension.title" = "Save Bookmark";
-"shareExtension.sectionSource" = "Source";
-"shareExtension.sectionNotes" = "Notes";
-"shareExtension.notePlaceholder" = "Add your notes here";
+"category.delete.title" = "Delete Category";
+"category.delete.message" = "This category will be deleted but bookmarks inside won't be removed.";
 
 // MARK: - Bookmark Sources
 "source.twitter" = "Twitter/X";
-"source.medium" = "Medium";
 "source.reddit" = "Reddit";
-"source.blog" = "Blog";
-"source.article" = "Article";
+"source.linkedin" = "LinkedIn";
+"source.medium" = "Medium";
 "source.youtube" = "YouTube";
 "source.github" = "GitHub";
+"source.article" = "Article";
+"source.blog" = "Blog";
 "source.other" = "Other";
+
+// MARK: - Service Errors
+"error.twitter.title" = "Twitter Error";
+"error.reddit.title" = "Reddit Error";
+"error.linkedin.title" = "LinkedIn Error";
+"error.medium.title" = "Medium Error";
+"error.network.title" = "Connection Error";
+
+"error.linkedin.auth_required" = "Sign in to LinkedIn to view this content.";
+"error.linkedin.bot_detected" = "LinkedIn access temporarily restricted. Try again later.";
+
+"error.action.open_browser" = "Open in Browser";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.section.general" = "General";
+"settings.section.bookmark" = "Bookmark Settings";
+"settings.section.about" = "About";
+"settings.section.danger" = "Danger Zone";
+
+"settings.language" = "App Language";
+"settings.autoDetectSource" = "Auto-detect Source";
+"settings.showReadingTime" = "Show Reading Time";
+
+"settings.version" = "Version";
+"settings.github" = "GitHub";
+"settings.feedback" = "Feedback";
+
+"settings.deleteAll" = "Delete All Data";
+"settings.deleteAll.title" = "Delete All Data";
+"settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
+
+// MARK: - Share Extension
+"share.title" = "Save Bookmark";
+"share.section.source" = "Source";
+"share.section.basic" = "Basic Info";
+"share.section.notes" = "Notes";
+"share.section.tags" = "Tags";
+
+"share.saving" = "Saving...";
+"share.success" = "Saved!";
 
 // MARK: - Validation Errors
 "validation.titleRequired" = "Title is required";
@@ -118,21 +229,71 @@
 "validation.invalidURL" = "Invalid URL format";
 "validation.noteTooLong" = "Note too long (max 5000 characters)";
 
-// MARK: - OCR Errors
-"ocr.invalidImage" = "Invalid image format";
-"ocr.noTextFound" = "No text found in image";
-"ocr.cropFailed" = "Image crop failed";
-"ocr.processingFailed" = "Processing error: %@";
+// MARK: - Image & OCR
+"image.title" = "Image";
+"image.addPhoto" = "Add Photo";
+"image.takePhoto" = "Take Photo";
+"image.selectFromGallery" = "Select from Gallery";
+"image.crop" = "Crop";
+"image.rotate" = "Rotate";
+"image.reset" = "Reset";
 
-// MARK: - URL Metadata Errors
-"urlMetadata.invalidURL" = "Invalid URL format";
-"urlMetadata.invalidResponse" = "Server did not respond";
-"urlMetadata.invalidData" = "Data could not be read";
-"urlMetadata.fetchFailed" = "Metadata fetch failed: %@";
+"ocr.title" = "OCR";
+"ocr.processing" = "Extracting text...";
+"ocr.noText" = "No text found";
+"ocr.result" = "OCR Result";
 
-// MARK: - Twitter Errors
-"twitter.invalidURL" = "Invalid Twitter URL";
-"twitter.networkError" = "Network connection error";
-"twitter.apiError" = "API error (code: %d)";
-"twitter.tweetNotFound" = "Tweet not found";
-"twitter.parseError" = "Tweet data could not be read";
+/* Auth - SignInView */
+"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
+"auth.or_divider" = "or";
+"auth.continue_anonymously" = "Continue Without Account";
+"auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
+"auth.error_title" = "Error";
+"auth.sign_in" = "Sign In";
+
+/* Auth - User States */
+"auth.anonymous_user" = "Anonymous User";
+"auth.user" = "User";
+"auth.anonymous_account" = "Anonymous Account";
+"auth.not_signed_in" = "Not Signed In";
+"auth.sign_in_to_sync" = "Sign in to sync your data";
+
+/* Auth - Errors */
+"auth.error.not_authenticated" = "You need to sign in";
+"auth.error.not_anonymous" = "This action is only for anonymous accounts";
+"auth.error.sign_up_failed" = "Sign up failed";
+"auth.error.apple_sign_in_failed" = "Apple Sign In failed";
+"auth.error.invalid_credentials" = "Invalid email or password";
+"auth.error.email_not_confirmed" = "Please confirm your email";
+"auth.error.user_already_exists" = "This email is already registered";
+"auth.error.weak_password" = "Password must be at least 6 characters";
+"auth.error.invalid_email" = "Invalid email address";
+"auth.error.rate_limit" = "Too many attempts. Please wait";
+"auth.error.user_not_found" = "User not found";
+"auth.error.network" = "No internet connection";
+"auth.error.unknown" = "An unknown error occurred";
+
+/* Settings - Account */
+"settings.account" = "Account";
+"settings.account_info" = "Account Information";
+"settings.account_actions" = "Account Actions";
+"settings.danger_zone" = "Danger Zone";
+
+"settings.link_account" = "Link Account";
+"settings.link_account_description" = "Link your anonymous account to Apple to protect your data.";
+"settings.link_account_title" = "Link Account";
+"settings.link_account_subtitle" = "Secure your data and sync across all your devices by linking with your Apple account.";
+"settings.link_keeps_data" = "All your existing data will be preserved.";
+
+"settings.sync_status" = "Sync Status";
+"settings.synced" = "Synced";
+
+"settings.sign_out" = "Sign Out";
+"settings.sign_out_title" = "Sign Out";
+"settings.sign_out_message" = "Are you sure you want to sign out?";
+
+"settings.delete_account" = "Delete Account";
+"settings.delete_account_title" = "Delete Account";
+"settings.delete_account_message" = "This action cannot be undone. All your data will be deleted.";
+"settings.delete_account_warning" = "Deleting your account will permanently remove all your bookmarks and data.";

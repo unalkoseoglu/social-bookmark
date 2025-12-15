@@ -1,4 +1,12 @@
 //
+//  SupabaseServiceError.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
+
+//
 //  SupabaseErrors.swift
 //  Social Bookmark
 //
