@@ -1,0 +1,307 @@
+//
+//  SyncSettingsView.swift
+//  Social Bookmark
+//
+//  Created by Claude on 15.12.2025.
+//
+//  Ayarlar sayfasında sync durumu ve kontrolleri
+//
+
+import SwiftUI
+
+/// Sync ayarları ve durumu view'ı
+struct SyncSettingsView: View {
+    
+    @StateObject private var syncService = SyncService.shared
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @EnvironmentObject private var sessionStore: SessionStore
+    
+    @State private var showingSyncConfirmation = false
+    @State private var showingClearCacheConfirmation = false
+    @State private var cacheSize: String = "Hesaplanıyor..."
+    
+    var body: some View {
+        List {
+            // Sync Durumu
+            syncStatusSection
+            
+            // Sync Aksiyonları
+            if sessionStore.isAuthenticated {
+                syncActionsSection
+            }
+            
+            // Cache Yönetimi
+            cacheManagementSection
+            
+            // Bilgi
+            infoSection
+        }
+        .navigationTitle("sync.settings.title")
+        .onAppear {
+            calculateCacheSize()
+        }
+    }
+    
+    // MARK: - Sync Status Section
+    
+    private var syncStatusSection: some View {
+        Section {
+            // Bağlantı durumu
+            HStack {
+                Label {
+                    Text("sync.network_status")
+                } icon: {
+                    Image(systemName: networkMonitor.isConnected ? "wifi" : "wifi.slash")
+                        .foregroundStyle(networkMonitor.isConnected ? .green : .red)
+                }
+                
+                Spacer()
+                
+                Text(networkMonitor.isConnected ? "sync.connected" : "sync.disconnected")
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Sync durumu
+            HStack {
+                Label {
+                    Text("sync.status")
+                } icon: {
+                    syncStatusIcon
+                }
+                
+                Spacer()
+                
+                Text(syncStatusText)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Son sync zamanı
+            if let lastSync = syncService.lastSyncDate {
+                HStack {
+                    Label("sync.last_sync", systemImage: "clock")
+                    
+                    Spacer()
+                    
+                    Text(lastSync, style: .relative)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            // Hata varsa göster
+            if let error = syncService.syncError {
+                HStack {
+                    Label {
+                        Text(error.localizedDescription)
+                            .foregroundStyle(.red)
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+            
+        } header: {
+            Text("sync.status_section")
+        }
+    }
+    
+    // MARK: - Sync Actions Section
+    
+    private var syncActionsSection: some View {
+        Section {
+            // Manuel sync
+            Button {
+                Task {
+                    await syncService.performFullSync()
+                }
+            } label: {
+                HStack {
+                    Label("sync.sync_now", systemImage: "arrow.triangle.2.circlepath")
+                    
+                    Spacer()
+                    
+                    if syncService.syncState == .syncing {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(syncService.syncState == .syncing || !networkMonitor.isConnected)
+            
+            // Cloud'dan indir
+            Button {
+                showingSyncConfirmation = true
+            } label: {
+                Label("sync.download_from_cloud", systemImage: "icloud.and.arrow.down")
+            }
+            .disabled(syncService.syncState == .syncing || !networkMonitor.isConnected)
+            
+        } header: {
+            Text("sync.actions_section")
+        } footer: {
+            Text("sync.actions_footer")
+        }
+        .confirmationDialog(
+            "sync.download_confirmation_title",
+            isPresented: $showingSyncConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("sync.download_confirm", role: .destructive) {
+                Task {
+                    await syncService.downloadFromCloud()
+                }
+            }
+            Button("common.cancel", role: .cancel) { }
+        } message: {
+            Text("sync.download_confirmation_message")
+        }
+    }
+    
+    // MARK: - Cache Management Section
+    
+    private var cacheManagementSection: some View {
+        Section {
+            // Cache boyutu
+            HStack {
+                Label("sync.cache_size", systemImage: "internaldrive")
+                
+                Spacer()
+                
+                Text(cacheSize)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Cache temizle
+            Button(role: .destructive) {
+                showingClearCacheConfirmation = true
+            } label: {
+                Label("sync.clear_cache", systemImage: "trash")
+            }
+            
+        } header: {
+            Text("sync.cache_section")
+        } footer: {
+            Text("sync.cache_footer")
+        }
+        .confirmationDialog(
+            "sync.clear_cache_title",
+            isPresented: $showingClearCacheConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("sync.clear_cache_confirm", role: .destructive) {
+                ImageUploadService.shared.clearCache()
+                calculateCacheSize()
+            }
+            Button("common.cancel", role: .cancel) { }
+        }
+    }
+    
+    // MARK: - Info Section
+    
+    private var infoSection: some View {
+        Section {
+            if sessionStore.isAuthenticated {
+                HStack {
+                    Label("sync.user_id", systemImage: "person.circle")
+                    
+                    Spacer()
+                    
+                    Text(sessionStore.userId?.prefix(8) ?? "-")
+                        .foregroundStyle(.secondary)
+                        .font(.caption.monospaced())
+                }
+            }
+            
+            HStack {
+                Label("sync.auto_sync", systemImage: "repeat")
+                
+                Spacer()
+                
+                Text("sync.every_5_minutes")
+                    .foregroundStyle(.secondary)
+            }
+        } header: {
+            Text("sync.info_section")
+        }
+    }
+    
+    // MARK: - Helpers
+    
+    private var syncStatusIcon: some View {
+        Group {
+            switch syncService.syncState {
+            case .idle:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            case .syncing, .uploading, .downloading:
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .foregroundStyle(.blue)
+            case .offline:
+                Image(systemName: "icloud.slash")
+                    .foregroundStyle(.orange)
+            case .error:
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundStyle(.red)
+            }
+        }
+    }
+    
+    private var syncStatusText: String {
+        switch syncService.syncState {
+        case .idle:
+            return String(localized: "sync.state.idle")
+        case .syncing:
+            return String(localized: "sync.state.syncing")
+        case .uploading:
+            return String(localized: "sync.state.uploading")
+        case .downloading:
+            return String(localized: "sync.state.downloading")
+        case .offline:
+            return String(localized: "sync.state.offline")
+        case .error:
+            return String(localized: "sync.state.error")
+        }
+    }
+    
+    private func calculateCacheSize() {
+        let bytes = ImageUploadService.shared.getCacheSize()
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        cacheSize = formatter.string(fromByteCount: bytes)
+    }
+}
+
+// MARK: - Sync Status Badge (Diğer view'larda kullanmak için)
+
+/// Küçük sync durumu göstergesi
+struct SyncStatusBadge: View {
+    @StateObject private var syncService = SyncService.shared
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            switch syncService.syncState {
+            case .idle:
+                Image(systemName: "checkmark.icloud")
+                    .foregroundStyle(.green)
+            case .syncing, .uploading, .downloading:
+                ProgressView()
+                    .scaleEffect(0.7)
+            case .offline:
+                Image(systemName: "icloud.slash")
+                    .foregroundStyle(.orange)
+            case .error:
+                Image(systemName: "exclamationmark.icloud")
+                    .foregroundStyle(.red)
+            }
+        }
+        .font(.caption)
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        SyncSettingsView()
+            .environmentObject(SessionStore())
+    }
+}
