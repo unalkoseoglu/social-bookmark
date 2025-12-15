@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		C0035CE92EF065DA005158EF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C0035CE82EF065DA005158EF /* Supabase */; };
+		C05B510E2EF06B3E007DF808 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05B510D2EF06B3E007DF808 /* Auth */; };
+		C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05B510F2EF06B3E007DF808 /* PostgREST */; };
+		C05B51122EF06B3E007DF808 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05B51112EF06B3E007DF808 /* Storage */; };
+		C05B51152EF06C49007DF808 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C05B51142EF06C49007DF808 /* Supabase */; };
 		C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE4282EEF758E00EFC6B2 /* Auth */; };
 		C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42A2EEF758E00EFC6B2 /* PostgREST */; };
 		C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42C2EEF758E00EFC6B2 /* Storage */; };
@@ -81,12 +85,8 @@
 				Content/PreviewMockRepository.swift,
 				Core/AppConfig.swift,
 				Core/Auth/AuthError.swift,
-				Core/Auth/AuthRepositoryProtocol.swift,
-				Core/Auth/AuthService.swift,
-				Core/Auth/SessionStore.swift,
 				"Core/Logging/Logger+Extensions.swift",
 				Core/Supabase/SessionStorageProtocol.swift,
-				Core/Supabase/SupabaseClientFactory.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -101,11 +101,8 @@
 				Supabase/Models/SupabaseBookmark.swift,
 				Supabase/Models/SupabaseCategory.swift,
 				Supabase/Models/UserProfile.swift,
-				Supabase/Services/ImageUploadService.swift,
-				Supabase/Services/SupabaseServiceError.swift,
 				Supabase/Services/SyncService.swift,
 				Supabase/SupabaseManager.swift,
-				Supabase/SupabaseManagerKey.swift,
 				Utilities/AppLanguage.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
@@ -177,6 +174,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C05B51152EF06C49007DF808 /* Supabase in Frameworks */,
+				C05B51122EF06B3E007DF808 /* Storage in Frameworks */,
+				C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */,
+				C05B510E2EF06B3E007DF808 /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +318,10 @@
 			);
 			name = BookmarkShareExtension;
 			packageProductDependencies = (
+				C05B510D2EF06B3E007DF808 /* Auth */,
+				C05B510F2EF06B3E007DF808 /* PostgREST */,
+				C05B51112EF06B3E007DF808 /* Storage */,
+				C05B51142EF06C49007DF808 /* Supabase */,
 			);
 			productName = BookmarkShareExtension;
 			productReference = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */;
@@ -899,6 +904,26 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		C0035CE82EF065DA005158EF /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		C05B510D2EF06B3E007DF808 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C05B510F2EF06B3E007DF808 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		C05B51112EF06B3E007DF808 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		C05B51142EF06C49007DF808 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;

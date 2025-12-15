@@ -17,6 +17,8 @@ import CryptoKit
 import OSLog
 internal import Combine
 import SwiftData
+import Supabase
+
 
 /// Senkronizasyon servisi
 @MainActor
@@ -35,9 +37,7 @@ final class SyncService: ObservableObject {
     
     // MARK: - Dependencies
     
-    private var client: SupabaseClient {
-        SupabaseManager.shared.client
-    }
+    private var client: SupabaseClient { SupabaseManager.shared.client }
     private var modelContext: ModelContext?
     
     // MARK: - Private Properties

@@ -1,12 +1,4 @@
-//
-//  AuthRepositoryProtocol.swift
-//  Social Bookmark
-//
-//  Created by Ünal Köseoğlu on 15.12.2025.
-//
 
-
-// Core/Auth/AuthRepository.swift
 
 import Foundation
 import OSLog

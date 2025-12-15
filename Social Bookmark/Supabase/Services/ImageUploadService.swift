@@ -443,6 +443,7 @@ enum ImageUploadError: LocalizedError {
 // MARK: - SwiftUI Image Loader
 
 import SwiftUI
+import Supabase
 
 /// AsyncImage benzeri ama cache destekli
 struct CachedAsyncImage<Content: View, Placeholder: View>: View {
