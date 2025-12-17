@@ -379,8 +379,6 @@ struct FullScreenImageGalleryView: View {
             TabView(selection: $selectedIndex) {
                 ForEach(0..<images.count, id: \.self) { index in
                     Image(uiImage: images[index])
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
                         .scaleEffect(selectedIndex == index ? scale : 1.0)
                         .gesture(
                             MagnificationGesture()
@@ -412,7 +410,7 @@ struct FullScreenImageGalleryView: View {
                         }
                         .tag(index)
                 }
-            }
+            }.frame(width: .infinity)
             .tabViewStyle(.page(indexDisplayMode: images.count > 1 ? .always : .never))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             

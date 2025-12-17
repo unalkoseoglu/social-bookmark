@@ -101,6 +101,7 @@
 				Supabase/Models/SupabaseBookmark.swift,
 				Supabase/Models/SupabaseCategory.swift,
 				Supabase/Models/UserProfile.swift,
+				Supabase/Services/EncryptionService.swift,
 				Supabase/Services/SyncService.swift,
 				Supabase/SupabaseManager.swift,
 				Utilities/AppLanguage.swift,

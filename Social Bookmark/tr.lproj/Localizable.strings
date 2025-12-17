@@ -12,13 +12,13 @@
 "common.delete" = "Sil";
 "common.edit" = "Düzenle";
 "common.save" = "Kaydet";
-"common.go_back" = "Geri Git";
+"common.go_back" = "Geri Dön";
 "common.error" = "Hata";
 "common.loading" = "Yükleniyor...";
 "common.success" = "Başarılı";
 
 // MARK: - Home View
-"home.title" = "Yer İmleri";
+"home.title" = "Yer İşaretleri";
 "home.stats_summary %lld %lld" = "%lld toplam • %lld okunmamış";
 
 // Stats
@@ -42,30 +42,30 @@
 "home.action.create_categories" = "Kategori Oluştur";
 
 // Empty states
-"home.empty.no_bookmarks" = "Henüz yer imi yok";
+"home.empty.no_bookmarks" = "Henüz yer işareti yok";
 
 // MARK: - Filtered Bookmarks View
 "filtered.search_prompt" = "Ara...";
-"filtered.section.bookmarks" = "Yer İmleri";
+"filtered.section.bookmarks" = "Yer İşaretleri";
 "filtered.mark_read" = "Okundu Olarak İşaretle";
-"filtered.unfavorite" = "Favorilerden Kaldır";
+"filtered.unfavorite" = "Favorilerden Çıkar";
 
 // Descriptions
-"filtered.desc.unread" = "Henüz okumadığınız yer imleri";
-"filtered.desc.favorites" = "Favori olarak işaretlediğiniz yer imleri";
-"filtered.desc.today" = "Bugün eklediğiniz yer imleri";
+"filtered.desc.unread" = "Henüz okumadığın yer işaretleri";
+"filtered.desc.favorites" = "Favorilere eklediğin yer işaretleri";
+"filtered.desc.today" = "Bugün eklediğin yer işaretleri";
 
 // Empty states
-"filtered.empty.unread.title" = "Hepsi Tamamlandı!";
-"filtered.empty.unread.desc" = "Tüm yer imlerinizi okudunuz. Harika iş!";
+"filtered.empty.unread.title" = "Her Şey Güncel!";
+"filtered.empty.unread.desc" = "Tüm yer işaretlerini okudun. Harika iş!";
 "filtered.empty.favorites.title" = "Favori Yok";
-"filtered.empty.favorites.desc" = "Henüz favori eklemediniz.";
+"filtered.empty.favorites.desc" = "Henüz favori eklemedin.";
 "filtered.empty.today.title" = "Bugün Bir Şey Yok";
-"filtered.empty.today.desc" = "Bugün herhangi bir yer imi eklemediniz.";
+"filtered.empty.today.desc" = "Bugün hiç yer işareti eklemedin.";
 
 // MARK: - All Bookmarks View
-"all.title" = "Tüm Yer İmleri";
-"all.search_prompt" = "Başlık, notlar veya etiket ara...";
+"all.title" = "Tüm Yer İşaretleri";
+"all.search_prompt" = "Başlık, not veya etiket ara...";
 
 // Sort options
 "all.sort.newest" = "En Yeni";
@@ -79,29 +79,29 @@
 "all.filter.source" = "Kaynak";
 
 // Stats
-"all.stats.total" = "toplam yer imi";
+"all.stats.total" = "toplam yer işareti";
 "all.stats.unread" = "okunmamış";
 
 // Sections
-"all.section.bookmarks" = "Yer İmleri";
+"all.section.bookmarks" = "Yer İşaretleri";
 
 // Menu
 "all.menu.sort" = "Sırala";
 
 // Actions
 "all.action.mark_read" = "Okundu Olarak İşaretle";
-"all.action.mark_unread" = "Okunmadı Olarak İşaretle";
-"all.action.mark_all_read" = "Tümünü Okundu Olarak İşaretle";
+"all.action.mark_unread" = "Okunmamış Olarak İşaretle";
+"all.action.mark_all_read" = "Tümünü Okundu İşaretle";
 "all.action.clear_filters" = "Filtreleri Temizle";
 
 // Empty states
-"all.empty.title" = "Yer İmi Yok";
-"all.empty.desc" = "Henüz herhangi bir yer imi eklemediniz.";
-"all.empty.no_results" = "Aramanızla eşleşen yer imi yok.";
+"all.empty.title" = "Yer İşareti Yok";
+"all.empty.desc" = "Henüz hiç yer işareti eklemedin.";
+"all.empty.no_results" = "Aramanızla eşleşen yer işareti yok.";
 
 // MARK: - Search View
-"search.title" = "Ara";
-"search.placeholder" = "Yer imlerini ara...";
+"search.title" = "Arama";
+"search.placeholder" = "Yer işaretlerinde ara...";
 
 // Scopes
 "search.scope.all" = "Tümü";
@@ -122,38 +122,38 @@
 "search.try_again" = "Tekrar Dene";
 
 // MARK: - Add Bookmark
-"addBookmark.title" = "Yeni Yer İmi";
+"addBookmark.title" = "Yeni Yer İşareti";
 "addBookmark.section.basic" = "Temel Bilgiler";
 "addBookmark.section.notes" = "Notlar";
-"addBookmark.section.organization" = "Organizasyon";
+"addBookmark.section.organization" = "Düzenleme";
 "addBookmark.section.tags" = "Etiketler";
-"addBookmark.section.image" = "Görsel";
+"addBookmark.section.image" = "Resim";
 
 "addBookmark.field.title" = "Başlık";
 "addBookmark.field.url" = "URL (isteğe bağlı)";
-"addBookmark.field.notes" = "Notlarınızı buraya ekleyin";
-"addBookmark.field.tags" = "Etiketler (virgülle ayrılmış)";
+"addBookmark.field.notes" = "Notlarını buraya ekle";
+"addBookmark.field.tags" = "Etiketler (virgülle ayır)";
 "addBookmark.field.source" = "Kaynak";
 "addBookmark.field.category" = "Kategori";
 
-"addBookmark.status.content_fetched" = "İçerik çekildi";
+"addBookmark.status.content_fetched" = "İçerik getirildi";
 "addBookmark.status.page_filled" = "Sayfa bilgisi dolduruldu";
 
 // MARK: - Bookmark Detail
 "bookmarkDetail.title" = "Detaylar";
 "bookmarkDetail.section.content" = "İçerik";
 "bookmarkDetail.section.info" = "Bilgi";
-"bookmarkDetail.section.actions" = "Eylemler";
+"bookmarkDetail.section.actions" = "İşlemler";
 
 "bookmarkDetail.markRead" = "Okundu Olarak İşaretle";
-"bookmarkDetail.markUnread" = "Okunmadı Olarak İşaretle";
+"bookmarkDetail.markUnread" = "Okunmamış Olarak İşaretle";
 "bookmarkDetail.addFavorite" = "Favorilere Ekle";
-"bookmarkDetail.removeFavorite" = "Favorilerden Kaldır";
+"bookmarkDetail.removeFavorite" = "Favorilerden Çıkar";
 "bookmarkDetail.openInBrowser" = "Tarayıcıda Aç";
 "bookmarkDetail.share" = "Paylaş";
 "bookmarkDetail.delete" = "Sil";
 
-"bookmarkDetail.deleteTitle" = "Yer İmini Sil";
+"bookmarkDetail.deleteTitle" = "Yer İşaretini Sil";
 "bookmarkDetail.deleteMessage" = "Bu işlem geri alınamaz.";
 
 // MARK: - Categories
@@ -169,7 +169,7 @@
 "category.preview" = "Önizleme";
 
 "category.delete.title" = "Kategoriyi Sil";
-"category.delete.message" = "Bu kategori silinecek ancak içindeki yer imleri silinmeyecek.";
+"category.delete.message" = "Bu kategori silinecek ancak içindeki yer işaretleri kaldırılmayacak.";
 
 // MARK: - Bookmark Sources
 "source.twitter" = "Twitter/X";
@@ -189,32 +189,13 @@
 "error.medium.title" = "Medium Hatası";
 "error.network.title" = "Bağlantı Hatası";
 
-"error.linkedin.auth_required" = "Bu içeriği görüntülemek için LinkedIn'de oturum açın.";
+"error.linkedin.auth_required" = "Bu içeriği görüntülemek için LinkedIn'e giriş yapın.";
 "error.linkedin.bot_detected" = "LinkedIn erişimi geçici olarak kısıtlandı. Daha sonra tekrar deneyin.";
 
 "error.action.open_browser" = "Tarayıcıda Aç";
 
-// MARK: - Settings
-"settings.title" = "Ayarlar";
-"settings.section.general" = "Genel";
-"settings.section.bookmark" = "Yer İmi Ayarları";
-"settings.section.about" = "Hakkında";
-"settings.section.danger" = "Tehlike Bölgesi";
-
-"settings.language" = "Uygulama Dili";
-"settings.autoDetectSource" = "Kaynağı Otomatik Algıla";
-"settings.showReadingTime" = "Okuma Süresini Göster";
-
-"settings.version" = "Sürüm";
-"settings.github" = "GitHub";
-"settings.feedback" = "Geri Bildirim";
-
-"settings.deleteAll" = "Tüm Verileri Sil";
-"settings.deleteAll.title" = "Tüm Verileri Sil";
-"settings.deleteAll.message" = "Tüm yer imleri ve kategoriler silinecek. Bu geri alınamaz!";
-
 // MARK: - Share Extension
-"share.title" = "Yer İmini Kaydet";
+"share.title" = "Yer İşaretini Kaydet";
 "share.section.source" = "Kaynak";
 "share.section.basic" = "Temel Bilgiler";
 "share.section.notes" = "Notlar";
@@ -225,12 +206,12 @@
 
 // MARK: - Validation Errors
 "validation.titleRequired" = "Başlık gerekli";
-"validation.titleTooLong" = "Başlık çok uzun (maksimum 200 karakter)";
+"validation.titleTooLong" = "Başlık çok uzun (maks 200 karakter)";
 "validation.invalidURL" = "Geçersiz URL formatı";
-"validation.noteTooLong" = "Not çok uzun (maksimum 5000 karakter)";
+"validation.noteTooLong" = "Not çok uzun (maks 5000 karakter)";
 
 // MARK: - Image & OCR
-"image.title" = "Görsel";
+"image.title" = "Resim";
 "image.addPhoto" = "Fotoğraf Ekle";
 "image.takePhoto" = "Fotoğraf Çek";
 "image.selectFromGallery" = "Galeriden Seç";
@@ -244,56 +225,105 @@
 "ocr.result" = "OCR Sonucu";
 
 /* Auth - SignInView */
-"auth.welcome_title" = "Sosyal Yer İmi";
-"auth.welcome_subtitle" = "Sosyal medya içeriğinizi kaydedin, düzenleyin ve her yerden erişin.";
+"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_subtitle" = "Sosyal medya içeriklerini kaydet, düzenle ve her yerden eriş.";
 "auth.or_divider" = "veya";
 "auth.continue_anonymously" = "Hesapsız Devam Et";
-"auth.terms_notice" = "Devam ederek Hizmet Şartlarını ve Gizlilik Politikasını kabul etmiş olursunuz.";
+"auth.terms_notice" = "Devam ederek Hizmet Şartları ve Gizlilik Politikasını kabul etmiş olursunuz.";
 "auth.error_title" = "Hata";
-"auth.sign_in" = "Oturum Aç";
+"auth.sign_in" = "Giriş Yap";
 
 /* Auth - User States */
 "auth.anonymous_user" = "Anonim Kullanıcı";
 "auth.user" = "Kullanıcı";
 "auth.anonymous_account" = "Anonim Hesap";
-"auth.not_signed_in" = "Oturum Açılmadı";
-"auth.sign_in_to_sync" = "Verilerinizi senkronize etmek için oturum açın";
+"auth.not_signed_in" = "Giriş Yapılmadı";
+"auth.sign_in_to_sync" = "Verilerini eşitlemek için giriş yap";
 
 /* Auth - Errors */
-"auth.error.not_authenticated" = "Oturum açmanız gerekiyor";
-"auth.error.not_anonymous" = "Bu eylem yalnızca anonim hesaplar içindir";
-"auth.error.sign_up_failed" = "Kayıt olma başarısız oldu";
-"auth.error.apple_sign_in_failed" = "Apple ile Oturum Açma başarısız oldu";
-"auth.error.invalid_credentials" = "Geçersiz e-posta veya parola";
-"auth.error.email_not_confirmed" = "Lütfen e-postanızı onaylayın";
+"auth.error.not_authenticated" = "Giriş yapmanız gerekiyor";
+"auth.error.not_anonymous" = "Bu işlem sadece anonim hesaplar içindir";
+"auth.error.sign_up_failed" = "Kayıt başarısız";
+"auth.error.apple_sign_in_failed" = "Apple ile Giriş başarısız";
+"auth.error.invalid_credentials" = "Geçersiz e-posta veya şifre";
+"auth.error.email_not_confirmed" = "Lütfen e-postanı onayla";
 "auth.error.user_already_exists" = "Bu e-posta zaten kayıtlı";
-"auth.error.weak_password" = "Parola en az 6 karakter olmalıdır";
+"auth.error.weak_password" = "Şifre en az 6 karakter olmalı";
 "auth.error.invalid_email" = "Geçersiz e-posta adresi";
-"auth.error.rate_limit" = "Çok fazla deneme. Lütfen bekleyin";
+"auth.error.rate_limit" = "Çok fazla deneme yapıldı. Lütfen bekle";
 "auth.error.user_not_found" = "Kullanıcı bulunamadı";
 "auth.error.network" = "İnternet bağlantısı yok";
 "auth.error.unknown" = "Bilinmeyen bir hata oluştu";
 
-/* Settings - Account */
+// MARK: - Settings & Account
+"settings.title" = "Ayarlar";
+"settings.section.general" = "Genel";
+"settings.section.bookmark" = "Yer İşareti Ayarları";
+"settings.section.about" = "Hakkında";
+"settings.section.danger" = "Tehlikeli Bölge";
+"settings.appearance" = "Görünüm";
+"settings.language" = "Uygulama Dili";
+"settings.autoDetectSource" = "Kaynağı Otomatik Algıla";
+"settings.showReadingTime" = "Okuma Süresini Göster";
+
 "settings.account" = "Hesap";
 "settings.account_info" = "Hesap Bilgileri";
-"settings.account_actions" = "Hesap Eylemleri";
-"settings.danger_zone" = "Tehlike Bölgesi";
-
+"settings.account_actions" = "Hesap İşlemleri";
 "settings.link_account" = "Hesabı Bağla";
-"settings.link_account_description" = "Anonim hesabınızı verilerinizi korumak için Apple'a bağlayın.";
+"settings.link_account_description" = "Verilerini korumak için anonim hesabını Apple'a bağla.";
 "settings.link_account_title" = "Hesabı Bağla";
-"settings.link_account_subtitle" = "Apple hesabınızla bağlayarak verilerinizi güvenceye alın ve tüm cihazlarınızda senkronize edin.";
-"settings.link_keeps_data" = "Mevcut tüm verileriniz korunacaktır.";
+"settings.link_account_subtitle" = "Verilerini güvenceye almak ve tüm cihazlarında eşitlemek için Apple hesabını bağla.";
+"settings.link_keeps_data" = "Mevcut tüm verilerin korunacaktır.";
 
-"settings.sync_status" = "Senkronizasyon Durumu";
-"settings.synced" = "Senkronize Edildi";
-
-"settings.sign_out" = "Oturumu Kapat";
-"settings.sign_out_title" = "Oturumu Kapat";
-"settings.sign_out_message" = "Oturumu kapatmak istediğinizden emin misiniz?";
+"settings.sign_out" = "Çıkış Yap";
+"settings.sign_out_title" = "Çıkış Yap";
+"settings.sign_out_message" = "Çıkış yapmak istediğine emin misin?";
 
 "settings.delete_account" = "Hesabı Sil";
 "settings.delete_account_title" = "Hesabı Sil";
-"settings.delete_account_message" = "Bu işlem geri alınamaz. Tüm verileriniz silinecektir.";
-"settings.delete_account_warning" = "Hesabınızı silmek tüm yer imlerinizi ve verilerinizi kalıcı olarak kaldıracaktır.";
+"settings.delete_account_message" = "Bu işlem geri alınamaz. Tüm verilerin silinecek.";
+"settings.delete_account_warning" = "Hesabını silmek, tüm yer işaretlerini ve verilerini kalıcı olarak kaldıracaktır.";
+
+// MARK: - Synchronization
+"settings.sync_section" = "Senkronizasyon";
+"settings.sync" = "Eşitleme Durumu";
+"settings.sync_status" = "Eşitleme Durumu";
+"settings.synced" = "Eşitlendi";
+"sync.settings.title" = "Eşitleme Ayarları";
+"sync.status_section" = "Eşitleme Durumu";
+"sync.network_status" = "Ağ Durumu";
+"sync.connected" = "Bağlı";
+"sync.status" = "Durum";
+"sync.state.error" = "Eşitleme Hatası";
+"sync.sync_now" = "Şimdi Eşitle";
+"sync.download_from_cloud" = "Buluttan İndir";
+"sync.actions_footer" = "Verilerinizi manuel olarak senkronize edebilirsiniz.";
+
+"sync.cache_section" = "Önbellek";
+"sync.cache_size" = "Önbellek Boyutu";
+"sync.clear_cache" = "Önbelleği Temizle";
+"sync.cache_footer" = "Önbelleği temizlemek cihazınızda yer açar.";
+
+"sync.info_section" = "Hesap Bilgileri";
+"sync.user_id" = "Kullanıcı Kimliği";
+"sync.auto_sync" = "Otomatik Eşitleme";
+"sync.every_5_minutes" = "Her 5 dakikada bir";
+
+// MARK: - About & Info
+"settings.version" = "Sürüm";
+"settings.build" = "Yapı Numarası";
+"settings.source_code" = "Kaynak Kodu";
+"settings.contact" = "İletişime Geç";
+"settings.github" = "GitHub";
+"settings.feedback" = "Geri Bildirim";
+
+// MARK: - Danger Zone (Data)
+"settings.deleteAll" = "Tüm Verileri Sil";
+"settings.deleteAll.title" = "Tüm Verileri Sil";
+"settings.deleteAll.message" = "Tüm yer işaretleri ve kategoriler silinecek. Bu işlem geri alınamaz!";
+
+// MARK: - Eklenen Yeni Anahtarlar (Onay Kutusu ve Eksikler)
+"sync.download_confirmation_title" = "Buluttan İndirilsin mi?";
+"sync.download_confirmation_message" = "Yerel verileriniz buluttaki verilerle değiştirilecek. Bu işlem geri alınamaz.";
+"sync.download_confirm" = "İndir ve Değiştir";
+

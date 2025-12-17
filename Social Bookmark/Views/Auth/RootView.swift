@@ -4,13 +4,12 @@
 //
 //  Created by Claude on 15.12.2025.
 //
-//  ⚠️ GÜNCELLEME: Session persistence sorunu düzeltildi
-//  - ensureAuthenticated() kullanılıyor
-//  - Mevcut session varsa yeni giriş yapılmıyor
+//  Supabase entegrasyonu - Sync ve Auth
 //
 
 import SwiftUI
 import SwiftData
+import Supabase
 
 // MARK: - App Initialization Extension
 
@@ -27,13 +26,12 @@ extension Social_BookmarkApp {
             print("✅ Supabase config valid")
         case .invalid(let issues):
             print("⚠️ Supabase config issues: \(issues)")
-            // Config eksikse crash etme, offline çalışabilir
         }
         
         // 2. SyncService'i configure et
         SyncService.shared.configure(modelContext: modelContainer.mainContext)
         
-        // 3. Auth başlat - ✅ ensureAuthenticated kullan
+        // 3. Auth başlat
         Task { @MainActor in
             await ensureUserAuthenticated()
         }
@@ -42,29 +40,32 @@ extension Social_BookmarkApp {
         setupNetworkObserver()
     }
     
-    /// ✅ Kullanıcının authenticate olduğundan emin ol
-    /// Mevcut session varsa kullanır, yoksa anonim giriş yapar
+    /// Kullanıcının authenticate olduğundan emin ol
     @MainActor
     private func ensureUserAuthenticated() async {
-        // İnternet yoksa çık
         guard NetworkMonitor.shared.isConnected else {
             print("⚠️ [APP] No internet, skipping authentication")
             return
         }
         
         do {
-            // ✅ ensureAuthenticated mevcut session'ı kontrol eder
-            // Eğer varsa yeni giriş yapmaz!
             let user = try await AuthService.shared.ensureAuthenticated()
-        
+            print("✅ [APP] User authenticated: \(user.id)")
             
-            // Debug bilgisi (async)
-            await SupabaseManager.shared.printSessionDebugInfo()
+            // İlk sync'i başlat
+            await performInitialSync()
             
         } catch {
             print("⚠️ [APP] Authentication failed: \(error.localizedDescription)")
-            // Hata olursa offline çalış, kritik değil
         }
+    }
+    
+    /// İlk sync'i yap
+    @MainActor
+    private func performInitialSync() async {
+        print("🔄 [APP] Starting initial sync...")
+        SyncService.shared.startAutoSync()
+        await SyncService.shared.performFullSync()
     }
     
     /// Network durumu değişikliklerini dinle
@@ -74,11 +75,9 @@ extension Social_BookmarkApp {
             object: nil,
             queue: .main
         ) { _ in
-            print("📡 [APP] Network connected - checking auth...")
+            print("📡 [APP] Network connected - syncing...")
             Task { @MainActor in
-                // Bağlantı geldiğinde auth kontrol et
                 await self.ensureUserAuthenticated()
-                // TODO: SyncManager.shared.syncPendingChanges()
             }
         }
     }
@@ -86,35 +85,23 @@ extension Social_BookmarkApp {
 
 // MARK: - Root View with Supabase
 
-/// Ana view'ı Supabase ile wrap et
-/// body içinde HomeView yerine bunu kullan
 struct RootView: View {
     @StateObject private var sessionStore = SessionStore()
     @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var syncService = SyncService.shared
     
-    // ViewModel'ler
     let homeViewModel: HomeViewModel
-    
-    /// İlk açılışta SignIn gösterilsin mi?
-    /// true = her zaman SignIn göster (kullanıcı seçsin)
-    /// false = otomatik anonim giriş yap
     var requireExplicitSignIn: Bool = false
     
     var body: some View {
         Group {
             if sessionStore.isLoading {
-                // Yükleniyor
                 loadingView
             } else if !sessionStore.isAuthenticated && requireExplicitSignIn {
-                // Giriş gerekli
                 SignInView()
                     .environmentObject(sessionStore)
             } else {
-                // Ana uygulama
-                HomeView(viewModel: homeViewModel)
-                    .environmentObject(sessionStore)
-                    .withSupabase()
-                    .offlineBanner()
+                mainAppView
             }
         }
         .task {
@@ -122,7 +109,40 @@ struct RootView: View {
         }
     }
     
-    // MARK: - Loading View
+    private var mainAppView: some View {
+        NavigationStack {
+            HomeView(viewModel: homeViewModel)
+                .environmentObject(sessionStore)
+                
+        }
+        .offlineBanner()
+    }
+    
+    private var syncStatusButton: some View {
+        Button {
+            Task {
+                await syncService.performFullSync()
+            }
+        } label: {
+            Group {
+                switch syncService.syncState {
+                case .idle:
+                    Image(systemName: "checkmark.icloud")
+                        .foregroundStyle(.green)
+                case .syncing, .uploading, .downloading:
+                    ProgressView()
+                        .scaleEffect(0.8)
+                case .offline:
+                    Image(systemName: "icloud.slash")
+                        .foregroundStyle(.orange)
+                case .error:
+                    Image(systemName: "exclamationmark.icloud")
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .disabled(syncService.syncState == .syncing)
+    }
     
     private var loadingView: some View {
         ZStack {
@@ -137,39 +157,33 @@ struct RootView: View {
                 ProgressView()
                     .scaleEffect(1.2)
                 
-                Text("common.loading")
+                Text("Yükleniyor...")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
     }
     
-    // MARK: - Private Methods
-    
     private func initializeAuth() async {
-        // Session'ı initialize et
         await sessionStore.initialize()
         
-        // Eğer explicit sign-in gerekmiyorsa ve kullanıcı yoksa, anonim giriş yap
         if !requireExplicitSignIn && !sessionStore.isAuthenticated && networkMonitor.isConnected {
             await sessionStore.ensureAuthenticated()
         }
         
-        // Authenticated ise auto-sync başlat
         if sessionStore.isAuthenticated {
             SyncService.shared.startAutoSync()
         }
     }
 }
 
-// MARK: - Preview Provider
+
+// MARK: - Preview
 
 #if DEBUG
 struct RootView_Previews: PreviewProvider {
     static var previews: some View {
         Text("RootView Preview")
-            .withSupabase()
-            .offlineBanner()
     }
 }
 #endif

@@ -194,25 +194,6 @@
 
 "error.action.open_browser" = "Open in Browser";
 
-// MARK: - Settings
-"settings.title" = "Settings";
-"settings.section.general" = "General";
-"settings.section.bookmark" = "Bookmark Settings";
-"settings.section.about" = "About";
-"settings.section.danger" = "Danger Zone";
-
-"settings.language" = "App Language";
-"settings.autoDetectSource" = "Auto-detect Source";
-"settings.showReadingTime" = "Show Reading Time";
-
-"settings.version" = "Version";
-"settings.github" = "GitHub";
-"settings.feedback" = "Feedback";
-
-"settings.deleteAll" = "Delete All Data";
-"settings.deleteAll.title" = "Delete All Data";
-"settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
-
 // MARK: - Share Extension
 "share.title" = "Save Bookmark";
 "share.section.source" = "Source";
@@ -274,20 +255,25 @@
 "auth.error.network" = "No internet connection";
 "auth.error.unknown" = "An unknown error occurred";
 
-/* Settings - Account */
+// MARK: - Settings & Account
+"settings.title" = "Settings";
+"settings.section.general" = "General";
+"settings.section.bookmark" = "Bookmark Settings";
+"settings.section.about" = "About";
+"settings.section.danger" = "Danger Zone";
+"settings.appearance" = "Appearance";
+"settings.language" = "App Language";
+"settings.autoDetectSource" = "Auto-detect Source";
+"settings.showReadingTime" = "Show Reading Time";
+
 "settings.account" = "Account";
 "settings.account_info" = "Account Information";
 "settings.account_actions" = "Account Actions";
-"settings.danger_zone" = "Danger Zone";
-
 "settings.link_account" = "Link Account";
 "settings.link_account_description" = "Link your anonymous account to Apple to protect your data.";
 "settings.link_account_title" = "Link Account";
 "settings.link_account_subtitle" = "Secure your data and sync across all your devices by linking with your Apple account.";
 "settings.link_keeps_data" = "All your existing data will be preserved.";
-
-"settings.sync_status" = "Sync Status";
-"settings.synced" = "Synced";
 
 "settings.sign_out" = "Sign Out";
 "settings.sign_out_title" = "Sign Out";
@@ -297,3 +283,46 @@
 "settings.delete_account_title" = "Delete Account";
 "settings.delete_account_message" = "This action cannot be undone. All your data will be deleted.";
 "settings.delete_account_warning" = "Deleting your account will permanently remove all your bookmarks and data.";
+
+// MARK: - Synchronization
+"settings.sync_section" = "Synchronization";
+"settings.sync" = "Sync Status";
+"settings.sync_status" = "Sync Status";
+"settings.synced" = "Synced";
+"sync.settings.title" = "Sync Settings";
+"sync.status_section" = "Sync Status";
+"sync.network_status" = "Network Status";
+"sync.connected" = "Connected";
+"sync.status" = "Status";
+"sync.state.error" = "Sync Error";
+"sync.sync_now" = "Sync Now";
+"sync.download_from_cloud" = "Download from Cloud";
+"sync.actions_footer" = "You can manually synchronize your data.";
+
+"sync.cache_section" = "Cache";
+"sync.cache_size" = "Cache Size";
+"sync.clear_cache" = "Clear Cache";
+"sync.cache_footer" = "Clearing the cache frees up space on your device.";
+
+"sync.info_section" = "Account Information";
+"sync.user_id" = "User ID";
+"sync.auto_sync" = "Auto Sync";
+"sync.every_5_minutes" = "Every 5 minutes";
+
+// MARK: - About & Info
+"settings.version" = "Version";
+"settings.build" = "Build";
+"settings.source_code" = "Source Code";
+"settings.contact" = "Contact Us";
+"settings.github" = "GitHub";
+"settings.feedback" = "Feedback";
+
+// MARK: - Danger Zone (Data)
+"settings.deleteAll" = "Delete All Data";
+"settings.deleteAll.title" = "Delete All Data";
+"settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
+
+// MARK: - New Added Keys (Confirmation Box and Missings)
+"sync.download_confirmation_title" = "Download from Cloud?";
+"sync.download_confirmation_message" = "Your local data will be replaced with the data from the cloud. This action cannot be undone.";
+"sync.download_confirm" = "Download and Replace";

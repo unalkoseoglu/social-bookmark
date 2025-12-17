@@ -7,18 +7,14 @@
 //  Bookmark ve Category senkronizasyonu
 //  - Upload (local → cloud)
 //  - Download (cloud → local)
-//  - Conflict resolution (last-write-wins)
-//  - Offline queue
+//  - Duplicate prevention
 //
 
 import Foundation
-import AuthenticationServices
-import CryptoKit
-import OSLog
-internal import Combine
 import SwiftData
 import Supabase
-
+internal import Combine
+import UIKit
 
 /// Senkronizasyon servisi
 @MainActor
@@ -42,16 +38,9 @@ final class SyncService: ObservableObject {
     
     // MARK: - Private Properties
     
-    private var syncTask: Task<Void, Never>?
     private var autoSyncTimer: Timer?
     private let autoSyncInterval: TimeInterval = 300 // 5 dakika
     
-    // MARK: - Configuration
-    
-    /// Sync batch boyutu
-    private let batchSize = 50
-    
-    /// Device ID
     private var deviceId: String {
         UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
     }
@@ -60,10 +49,8 @@ final class SyncService: ObservableObject {
     
     private init() {
         print("🔄 [SYNC] SyncService initialized")
-        setupNotificationObservers()
     }
     
-    /// ModelContext'i ayarla (App başlangıcında çağrılmalı)
     func configure(modelContext: ModelContext) {
         self.modelContext = modelContext
         print("🔄 [SYNC] ModelContext configured")
@@ -92,160 +79,132 @@ final class SyncService: ObservableObject {
             // 3. Başarılı
             lastSyncDate = Date()
             syncState = .idle
-            pendingChangesCount = 0
             
-            // Sync status güncelle
-            try await updateSyncStatus()
-            
-            print("✅ [SYNC] Full sync completed successfully!")
-            
+            print("✅ [SYNC] Full sync completed!")
             NotificationCenter.default.post(name: .syncDidComplete, object: nil)
             
         } catch {
-            handleSyncError(error)
+            print("❌ [SYNC] Error: \(error.localizedDescription)")
+            syncError = SyncError.syncFailed(error.localizedDescription)
+            syncState = .error
         }
     }
     
-    /// Sadece değişiklikleri sync et (incremental)
+    /// Değişiklikleri sync et (incremental)
     func syncChanges() async {
-        guard canSync() else { return }
-        
-        syncState = .syncing
-        syncError = nil
-        
-        print("🔄 [SYNC] Syncing pending changes...")
-        
-        do {
-            // Tüm local bookmark ve kategorileri sync et
-            try await syncCategories()
-            try await syncBookmarks()
-            
-            syncState = .idle
-            pendingChangesCount = 0
-            lastSyncDate = Date()
-            
-            print("✅ [SYNC] Changes synced successfully!")
-            
-        } catch {
-            handleSyncError(error)
-        }
+        await performFullSync()
     }
     
-    /// Cloud'dan local'e indir (ilk kurulum veya yeni cihaz)
-    func downloadFromCloud() async {
-        guard canSync() else { return }
-        
-        syncState = .downloading
-        syncError = nil
-        
-        print("⬇️ [SYNC] Downloading from cloud...")
-        
-        do {
-            // 1. Kategorileri indir
-            try await downloadCategories()
-            
-            // 2. Bookmark'ları indir
-            try await downloadBookmarks()
-            
-            lastSyncDate = Date()
-            syncState = .idle
-            
-            print("✅ [SYNC] Download completed!")
-            
-        } catch {
-            handleSyncError(error)
-        }
-    }
-    
-    /// Tek bir bookmark'ı sync et
+    /// Tek bookmark sync et
     func syncBookmark(_ bookmark: Bookmark) async throws {
         guard let userId = SupabaseManager.shared.userId else {
             throw SyncError.notAuthenticated
         }
         
-        print("🔄 [SYNC] Syncing single bookmark: \(bookmark.title)")
+        // Cloud'da var mı kontrol et
+        let existing: [CloudBookmark] = try await client
+            .from("bookmarks")
+            .select("id, local_id")
+            .eq("user_id", value: userId.uuidString)
+            .eq("local_id", value: bookmark.id.uuidString)
+            .execute()
+            .value
         
         let payload = createBookmarkPayload(bookmark, userId: userId)
         
-        try await client
-            .from("bookmarks")
-            .upsert(payload, onConflict: "local_id")
-            .execute()
-        
-        print("✅ [SYNC] Bookmark synced: \(bookmark.title)")
+        if existing.isEmpty {
+            // Yeni - INSERT
+            try await client.from("bookmarks").insert(payload).execute()
+            print("✅ [SYNC] Inserted bookmark: \(bookmark.title)")
+        } else {
+            // Mevcut - UPDATE
+            try await client
+                .from("bookmarks")
+                .update(payload)
+                .eq("user_id", value: userId.uuidString)
+                .eq("local_id", value: bookmark.id.uuidString)
+                .execute()
+            print("✅ [SYNC] Updated bookmark: \(bookmark.title)")
+        }
     }
     
-    /// Tek bir kategoriyi sync et
+    /// Tek kategori sync et
     func syncCategory(_ category: Category) async throws {
         guard let userId = SupabaseManager.shared.userId else {
             throw SyncError.notAuthenticated
         }
         
-        print("🔄 [SYNC] Syncing single category: \(category.name)")
+        // Cloud'da var mı kontrol et
+        let existing: [CloudCategory] = try await client
+            .from("categories")
+            .select("id, local_id")
+            .eq("user_id", value: userId.uuidString)
+            .eq("local_id", value: category.id.uuidString)
+            .execute()
+            .value
         
         let payload = createCategoryPayload(category, userId: userId)
         
-        try await client
-            .from("categories")
-            .upsert(payload, onConflict: "local_id")
-            .execute()
-        
-        print("✅ [SYNC] Category synced: \(category.name)")
+        if existing.isEmpty {
+            try await client.from("categories").insert(payload).execute()
+            print("✅ [SYNC] Inserted category: \(category.name)")
+        } else {
+            try await client
+                .from("categories")
+                .update(payload)
+                .eq("user_id", value: userId.uuidString)
+                .eq("local_id", value: category.id.uuidString)
+                .execute()
+            print("✅ [SYNC] Updated category: \(category.name)")
+        }
     }
     
-    /// Bookmark sil (cloud'dan da)
+    /// Bookmark sil
     func deleteBookmark(_ bookmark: Bookmark) async throws {
-        guard SupabaseManager.shared.isAuthenticated else { return }
-        
-        // Cloud'dan sil (soft delete)
-        let deletedAt = ISO8601DateFormatter().string(from: Date())
+        guard let userId = SupabaseManager.shared.userId else { return }
         
         try await client
             .from("bookmarks")
-            .update(["deleted_at": deletedAt])
+            .delete()
+            .eq("user_id", value: userId.uuidString)
             .eq("local_id", value: bookmark.id.uuidString)
             .execute()
         
-        print("🗑️ [SYNC] Bookmark deleted from cloud: \(bookmark.title)")
+        print("🗑️ [SYNC] Deleted bookmark from cloud")
     }
     
-    /// Kategori sil (cloud'dan da)
+    /// Kategori sil
     func deleteCategory(_ category: Category) async throws {
-        guard SupabaseManager.shared.isAuthenticated else { return }
-        
-        // Cloud'dan sil (soft delete)
-        let deletedAt = ISO8601DateFormatter().string(from: Date())
+        guard let userId = SupabaseManager.shared.userId else { return }
         
         try await client
             .from("categories")
-            .update(["deleted_at": deletedAt])
+            .delete()
+            .eq("user_id", value: userId.uuidString)
             .eq("local_id", value: category.id.uuidString)
             .execute()
         
-        print("🗑️ [SYNC] Category deleted from cloud: \(category.name)")
+        print("🗑️ [SYNC] Deleted category from cloud")
     }
     
     /// Auto-sync başlat
     func startAutoSync() {
-        guard autoSyncTimer == nil else { return }
-        
+        stopAutoSync()
         autoSyncTimer = Timer.scheduledTimer(withTimeInterval: autoSyncInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in
-                await self?.syncChanges()
+                await self?.performFullSync()
             }
         }
-        
-        print("🔄 [SYNC] Auto-sync started (interval: \(autoSyncInterval)s)")
+        print("🔄 [SYNC] Auto-sync started")
     }
     
     /// Auto-sync durdur
     func stopAutoSync() {
         autoSyncTimer?.invalidate()
         autoSyncTimer = nil
-        print("🔄 [SYNC] Auto-sync stopped")
     }
     
-    // MARK: - Private Methods - Sync Logic
+    // MARK: - Private Sync Methods
     
     private func syncCategories() async throws {
         guard let context = modelContext,
@@ -256,46 +215,51 @@ final class SyncService: ObservableObject {
         print("📁 [SYNC] Syncing categories...")
         
         // 1. Local kategorileri al
-        let descriptor = FetchDescriptor<Category>()
-        let localCategories = try context.fetch(descriptor)
+        let localCategories = try context.fetch(FetchDescriptor<Category>())
         
-        // 2. Cloud kategorileri al
+        // 2. Cloud'daki TÜM kayıtları al
         let cloudCategories: [CloudCategory] = try await client
             .from("categories")
             .select()
             .eq("user_id", value: userId.uuidString)
-            .is("deleted_at", value: nil)
             .execute()
             .value
         
-        print("   Local: \(localCategories.count), Cloud: \(cloudCategories.count)")
-        
-        // 3. Upload local → cloud
-        for category in localCategories {
-            let payload = createCategoryPayload(category, userId: userId)
-            
-            try await client
-                .from("categories")
-                .upsert(payload, onConflict: "local_id")
-                .execute()
-        }
-        
-        // 4. Download cloud → local (yeni olanlar)
-        for cloudCategory in cloudCategories {
-            let exists = localCategories.contains { $0.id.uuidString == cloudCategory.localId }
-            
-            if !exists {
-                let newCategory = Category(
-                    name: cloudCategory.name,
-                    icon: cloudCategory.icon ?? "folder",
-                    colorHex: cloudCategory.color ?? "#007AFF"
-                )
-                context.insert(newCategory)
+        // 3. Cloud'da olan local_id'leri set olarak tut
+        var cloudLocalIdSet = Set<String>()
+        for cloud in cloudCategories {
+            if let localId = cloud.localId, !localId.isEmpty {
+                cloudLocalIdSet.insert(localId)
+                print("   ☁️ Cloud has: \(localId)")
             }
         }
         
-        try context.save()
-        print("✅ [SYNC] Categories synced")
+        print("   Local: \(localCategories.count), Cloud: \(cloudLocalIdSet.count)")
+        
+        // 4. SADECE cloud'da olmayan kategorileri yükle
+        var uploadCount = 0
+        for category in localCategories {
+            let localIdString = category.id.uuidString
+            print("   🔍 Checking local: \(localIdString) - \(category.name)")
+            
+            if cloudLocalIdSet.contains(localIdString) {
+                print("      ⏭️ Already in cloud, skipping")
+                continue
+            }
+            
+            // Cloud'da yok, INSERT
+            print("      📤 Not in cloud, uploading...")
+            let payload = createCategoryPayload(category, userId: userId)
+            try await client.from("categories").insert(payload).execute()
+            uploadCount += 1
+            print("      ✅ Uploaded: \(category.name)")
+        }
+        
+        if uploadCount == 0 {
+            print("   ✓ All categories already in cloud")
+        } else {
+            print("   📤 Uploaded \(uploadCount) new categories")
+        }
     }
     
     private func syncBookmarks() async throws {
@@ -307,181 +271,63 @@ final class SyncService: ObservableObject {
         print("🔖 [SYNC] Syncing bookmarks...")
         
         // 1. Local bookmark'ları al
-        let descriptor = FetchDescriptor<Bookmark>()
-        let localBookmarks = try context.fetch(descriptor)
+        let localBookmarks = try context.fetch(FetchDescriptor<Bookmark>())
         
-        // 2. Cloud bookmark'ları al
+        // 2. Cloud'daki TÜM local_id'leri al
         let cloudBookmarks: [CloudBookmark] = try await client
             .from("bookmarks")
             .select()
             .eq("user_id", value: userId.uuidString)
-            .is("deleted_at", value: nil)
             .execute()
             .value
         
-        print("   Local: \(localBookmarks.count), Cloud: \(cloudBookmarks.count)")
-        
-        // 3. Batch upload local → cloud
-        for batch in localBookmarks.chunked(into: batchSize) {
-            var payloads: [[String: AnyEncodable]] = []
-            for bookmark in batch {
-                payloads.append(createBookmarkPayload(bookmark, userId: userId))
-            }
-            
-            try await client
-                .from("bookmarks")
-                .upsert(payloads, onConflict: "local_id")
-                .execute()
-        }
-        
-        // 4. Download cloud → local (yeni olanlar)
-        for cloudBookmark in cloudBookmarks {
-            let exists = localBookmarks.contains { $0.id.uuidString == cloudBookmark.localId }
-            
-            if !exists {
-                let newBookmark = createLocalBookmark(from: cloudBookmark)
-                context.insert(newBookmark)
+        // 3. Cloud'da olan local_id'leri set olarak tut
+        var cloudLocalIdSet = Set<String>()
+        for cloud in cloudBookmarks {
+            if let localId = cloud.localId, !localId.isEmpty {
+                cloudLocalIdSet.insert(localId)
             }
         }
         
-        try context.save()
-        print("✅ [SYNC] Bookmarks synced")
-    }
-    
-    private func downloadCategories() async throws {
-        guard let context = modelContext,
-              let userId = SupabaseManager.shared.userId else { return }
+        print("   Local: \(localBookmarks.count), Cloud: \(cloudLocalIdSet.count)")
         
-        let cloudCategories: [CloudCategory] = try await client
-            .from("categories")
-            .select()
-            .eq("user_id", value: userId.uuidString)
-            .is("deleted_at", value: nil)
-            .execute()
-            .value
-        
-        print("⬇️ [SYNC] Downloaded \(cloudCategories.count) categories")
-        
-        for cloudCategory in cloudCategories {
-            let category = Category(
-                name: cloudCategory.name,
-                icon: cloudCategory.icon ?? "folder",
-                colorHex: cloudCategory.color ?? "#007AFF"
-            )
-            context.insert(category)
+        // 4. SADECE cloud'da olmayan bookmark'ları yükle
+        var uploadCount = 0
+        for bookmark in localBookmarks {
+            let localIdString = bookmark.id.uuidString
+            
+            if !cloudLocalIdSet.contains(localIdString) {
+                // Cloud'da yok, INSERT
+                let payload = createBookmarkPayload(bookmark, userId: userId)
+                try await client.from("bookmarks").insert(payload).execute()
+                uploadCount += 1
+                print("   📤 Uploaded: \(bookmark.title)")
+            }
         }
         
-        try context.save()
-    }
-    
-    private func downloadBookmarks() async throws {
-        guard let context = modelContext,
-              let userId = SupabaseManager.shared.userId else { return }
-        
-        let cloudBookmarks: [CloudBookmark] = try await client
-            .from("bookmarks")
-            .select()
-            .eq("user_id", value: userId.uuidString)
-            .is("deleted_at", value: nil)
-            .execute()
-            .value
-        
-        print("⬇️ [SYNC] Downloaded \(cloudBookmarks.count) bookmarks")
-        
-        for cloudBookmark in cloudBookmarks {
-            let bookmark = createLocalBookmark(from: cloudBookmark)
-            context.insert(bookmark)
+        if uploadCount == 0 {
+            print("   ✓ All bookmarks already in cloud")
+        } else {
+            print("   📤 Uploaded \(uploadCount) new bookmarks")
         }
-        
-        try context.save()
-    }
-    
-    private func updateSyncStatus() async throws {
-        guard let userId = SupabaseManager.shared.userId else { return }
-        
-        let payload: [String: AnyEncodable] = [
-            "user_id": AnyEncodable(userId.uuidString),
-            "last_sync_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
-            "device_id": AnyEncodable(deviceId),
-            "sync_token": AnyEncodable(UUID().uuidString)
-        ]
-        
-        try await client
-            .from("sync_status")
-            .upsert(payload, onConflict: "user_id")
-            .execute()
-    }
-    
-    // MARK: - Payload Creators
-    
-    private func createBookmarkPayload(_ bookmark: Bookmark, userId: UUID) -> [String: AnyEncodable] {
-        var payload: [String: AnyEncodable] = [
-            "user_id": AnyEncodable(userId.uuidString),
-            "local_id": AnyEncodable(bookmark.id.uuidString),
-            "title": AnyEncodable(bookmark.title),
-            "url": AnyEncodable(bookmark.url ?? ""),
-            "note": AnyEncodable(bookmark.note),
-            "source": AnyEncodable(bookmark.source.rawValue),
-            "is_read": AnyEncodable(bookmark.isRead),
-            "is_favorite": AnyEncodable(bookmark.isFavorite),
-            "tags": AnyEncodable(bookmark.tags),
-            "image_urls": AnyEncodable([String]()), // imageData ayrı yönetiliyor
-            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
-            "sync_version": AnyEncodable(1)
-        ]
-        
-        if let categoryId = bookmark.categoryId {
-            payload["category_id"] = AnyEncodable(categoryId.uuidString)
-        }
-        
-        return payload
-    }
-    
-    private func createCategoryPayload(_ category: Category, userId: UUID) -> [String: AnyEncodable] {
-        return [
-            "user_id": AnyEncodable(userId.uuidString),
-            "local_id": AnyEncodable(category.id.uuidString),
-            "name": AnyEncodable(category.name),
-            "icon": AnyEncodable(category.icon),
-            "color": AnyEncodable(category.colorHex),
-            "order": AnyEncodable(category.order),
-            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
-            "sync_version": AnyEncodable(1)
-        ]
-    }
-    
-    private func createLocalBookmark(from cloud: CloudBookmark) -> Bookmark {
-        let bookmark = Bookmark(
-            title: cloud.title,
-            url: cloud.url,
-            note: cloud.note ?? "",
-            source: BookmarkSource(rawValue: cloud.source) ?? .other,
-            tags: cloud.tags ?? []
-        )
-        bookmark.isRead = cloud.isRead
-        bookmark.isFavorite = cloud.isFavorite
-        
-        // categoryId mapping
-        if let categoryIdString = cloud.categoryId,
-           let categoryId = UUID(uuidString: categoryIdString) {
-            bookmark.categoryId = categoryId
-        }
-        
-        return bookmark
     }
     
     // MARK: - Helpers
     
     private func canSync() -> Bool {
+        guard modelContext != nil else {
+            print("⚠️ [SYNC] ModelContext not configured")
+            return false
+        }
+        
         guard SupabaseManager.shared.isAuthenticated else {
-            print("⚠️ [SYNC] Cannot sync - not authenticated")
+            print("⚠️ [SYNC] Not authenticated")
+            syncState = .offline
             return false
         }
         
         guard NetworkMonitor.shared.isConnected else {
-            print("⚠️ [SYNC] Cannot sync - no network")
+            print("⚠️ [SYNC] No network connection")
             syncState = .offline
             return false
         }
@@ -491,116 +337,126 @@ final class SyncService: ObservableObject {
             return false
         }
         
-        guard modelContext != nil else {
-            print("⚠️ [SYNC] ModelContext not configured")
-            return false
-        }
-        
         return true
     }
     
-    private func handleSyncError(_ error: Error) {
-        print("❌ [SYNC] Error: \(error.localizedDescription)")
+    // MARK: - Payload Creators
+    
+    private func createBookmarkPayload(_ bookmark: Bookmark, userId: UUID) -> [String: AnyEncodable] {
+        var payload: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(userId.uuidString),
+            "local_id": AnyEncodable(bookmark.id.uuidString),
+            "source": AnyEncodable(bookmark.source.rawValue),
+            "is_read": AnyEncodable(bookmark.isRead),
+            "is_favorite": AnyEncodable(bookmark.isFavorite),
+            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.createdAt)),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "sync_version": AnyEncodable(1),
+            "is_encrypted": AnyEncodable(true)
+        ]
         
-        if let syncError = error as? SyncError {
-            self.syncError = syncError
-        } else {
-            self.syncError = .unknown(error.localizedDescription)
+        // 🔐 Hassas alanları şifrele
+        do {
+            let encryption = EncryptionService.shared
+            
+            payload["title"] = AnyEncodable(try encryption.encrypt(bookmark.title).ciphertext)
+            
+            if let url = bookmark.url, !url.isEmpty {
+                payload["url"] = AnyEncodable(try encryption.encrypt(url).ciphertext)
+            } else {
+                payload["url"] = AnyEncodable("")
+            }
+            
+            if !bookmark.note.isEmpty {
+                payload["note"] = AnyEncodable(try encryption.encrypt(bookmark.note).ciphertext)
+            } else {
+                payload["note"] = AnyEncodable("")
+            }
+            
+            if !bookmark.tags.isEmpty {
+                let encryptedTags = try bookmark.tags.map { try encryption.encrypt($0).ciphertext }
+                payload["tags"] = AnyEncodable(encryptedTags)
+            } else {
+                payload["tags"] = AnyEncodable([String]())
+            }
+            
+            payload["image_urls"] = AnyEncodable([String]())
+            
+        } catch {
+            print("❌ [SYNC] Encryption failed: \(error)")
+            payload["title"] = AnyEncodable("[Encryption Error]")
+            payload["url"] = AnyEncodable("")
+            payload["note"] = AnyEncodable("")
+            payload["tags"] = AnyEncodable([String]())
+            payload["image_urls"] = AnyEncodable([String]())
+            payload["is_encrypted"] = AnyEncodable(false)
         }
         
-        syncState = .error
-        NotificationCenter.default.post(name: .syncDidFail, object: error)
+        if let categoryId = bookmark.categoryId {
+            payload["category_id"] = AnyEncodable(categoryId.uuidString)
+        }
+        
+        return payload
     }
     
-    private func setupNotificationObservers() {
-        // Network bağlandığında sync
-        NotificationCenter.default.addObserver(
-            forName: .networkDidConnect,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                await self?.syncChanges()
-            }
+    private func createCategoryPayload(_ category: Category, userId: UUID) -> [String: AnyEncodable] {
+        var payload: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(userId.uuidString),
+            "local_id": AnyEncodable(category.id.uuidString),
+            "icon": AnyEncodable(category.icon),
+            "color": AnyEncodable(category.colorHex),
+            "order": AnyEncodable(category.order),
+            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt)),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "sync_version": AnyEncodable(1),
+            "is_encrypted": AnyEncodable(true)
+        ]
+        
+        do {
+            payload["name"] = AnyEncodable(try EncryptionService.shared.encrypt(category.name).ciphertext)
+        } catch {
+            print("❌ [SYNC] Category encryption failed: \(error)")
+            payload["name"] = AnyEncodable("[Encryption Error]")
+            payload["is_encrypted"] = AnyEncodable(false)
         }
         
-        // User sign in olduğunda full sync
-        NotificationCenter.default.addObserver(
-            forName: .userDidSignIn,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                await self?.performFullSync()
-            }
-        }
+        return payload
     }
 }
 
 // MARK: - Types
 
-extension SyncService {
+enum SyncState: Equatable {
+    case idle
+    case syncing
+    case uploading
+    case downloading
+    case offline
+    case error
+}
+
+enum SyncError: LocalizedError {
+    case notAuthenticated
+    case networkError
+    case syncFailed(String)
+    case conflict
     
-    enum SyncState: Equatable {
-        case idle
-        case syncing
-        case downloading
-        case uploading
-        case offline
-        case error
-    }
-    
-    enum SyncError: LocalizedError {
-        case notAuthenticated
-        case networkError
-        case serverError(String)
-        case conflictError
-        case unknown(String)
-        
-        var errorDescription: String? {
-            switch self {
-            case .notAuthenticated: return "Giriş yapmanız gerekiyor"
-            case .networkError: return "İnternet bağlantısı yok"
-            case .serverError(let msg): return "Sunucu hatası: \(msg)"
-            case .conflictError: return "Çakışma tespit edildi"
-            case .unknown(let msg): return msg
-            }
+    var errorDescription: String? {
+        switch self {
+        case .notAuthenticated:
+            return "Oturum açılmamış"
+        case .networkError:
+            return "Ağ bağlantısı yok"
+        case .syncFailed(let message):
+            return message
+        case .conflict:
+            return "Veri çakışması"
         }
     }
 }
 
-
-
 // MARK: - Cloud Models
 
-/// Supabase'den gelen category yapısı
-struct CloudCategory: Codable {
-    let id: String
-    let userId: String
-    let localId: String?
-    let name: String
-    let icon: String?
-    let color: String?
-    let order: Int?
-    let createdAt: String
-    let updatedAt: String
-    let deletedAt: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case userId = "user_id"
-        case localId = "local_id"
-        case name
-        case icon
-        case color
-        case order
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case deletedAt = "deleted_at"
-    }
-}
-
-/// Supabase'den gelen bookmark yapısı
 struct CloudBookmark: Codable {
     let id: String
     let userId: String
@@ -614,40 +470,62 @@ struct CloudBookmark: Codable {
     let categoryId: String?
     let tags: [String]?
     let imageUrls: [String]?
-    let extractedText: String?
+    let isEncrypted: Bool?
     let createdAt: String
     let updatedAt: String
-    let deletedAt: String?
     
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
         case localId = "local_id"
-        case title
-        case url
-        case note
-        case source
+        case title, url, note, source
         case isRead = "is_read"
         case isFavorite = "is_favorite"
         case categoryId = "category_id"
         case tags
         case imageUrls = "image_urls"
-        case extractedText = "extracted_text"
+        case isEncrypted = "is_encrypted"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
-        case deletedAt = "deleted_at"
     }
 }
+
+struct CloudCategory: Codable {
+    let id: String
+    let userId: String
+    let localId: String?
+    let name: String
+    let icon: String?
+    let color: String?
+    let order: Int?
+    let isEncrypted: Bool?
+    let createdAt: String
+    let updatedAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case localId = "local_id"
+        case name, icon, color, order
+        case isEncrypted = "is_encrypted"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+    
+    @MainActor func decryptedName() -> String {
+        guard isEncrypted == true else { return name }
+        return (try? EncryptionService.shared.decryptOptional(name)) ?? name
+    }
+}
+
 
 
 // MARK: - Array Extension
 
 extension Array {
-    /// Array'i belirli boyutlarda parçalara böl
     func chunked(into size: Int) -> [[Element]] {
         stride(from: 0, to: count, by: size).map {
             Array(self[$0..<Swift.min($0 + size, count)])
         }
     }
 }
-

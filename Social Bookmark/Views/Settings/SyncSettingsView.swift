@@ -155,7 +155,7 @@ struct SyncSettingsView: View {
         ) {
             Button("sync.download_confirm", role: .destructive) {
                 Task {
-                    await syncService.downloadFromCloud()
+                    await syncService.performFullSync()
                 }
             }
             Button("common.cancel", role: .cancel) { }

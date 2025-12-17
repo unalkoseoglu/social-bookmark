@@ -11,6 +11,8 @@ struct HomeView: View {
     @State private var showingSearch = false
     @State private var selectedCategory: Category?
     @State private var selectedFilter: QuickFilter?
+    @StateObject private var sessionStore = SessionStore()
+    
     
     // MARK: - Body
     
@@ -119,7 +121,7 @@ struct HomeView: View {
                 }
                 
                 NavigationLink {
-                    SettingsView()
+                    SettingsView().environmentObject(sessionStore)
                 } label: {
                     
                     Image(systemName: "gearshape.fill")
