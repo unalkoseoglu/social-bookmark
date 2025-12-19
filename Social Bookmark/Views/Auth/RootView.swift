@@ -86,6 +86,8 @@ extension Social_BookmarkApp {
 // MARK: - Root View with Supabase
 
 struct RootView: View {
+    // MARK: - Properties
+    
     @StateObject private var sessionStore = SessionStore()
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var syncService = SyncService.shared
@@ -93,15 +95,22 @@ struct RootView: View {
     let homeViewModel: HomeViewModel
     var requireExplicitSignIn: Bool = false
     
+    // MARK: - Body
+    
     var body: some View {
         Group {
             if sessionStore.isLoading {
                 loadingView
             } else if !sessionStore.isAuthenticated && requireExplicitSignIn {
-                SignInView()
-                    .environmentObject(sessionStore)
+                NavigationStack {
+                    SignInView()
+                        .environmentObject(sessionStore)
+                }
             } else {
-                mainAppView
+                // Ana uygulama - NavigationStack YOK, her tab kendi yönetiyor
+                AdaptiveMainTabView(viewModel: homeViewModel)
+                    .environmentObject(sessionStore)
+                    .offlineBanner()
             }
         }
         .task {
@@ -109,14 +118,29 @@ struct RootView: View {
         }
     }
     
-    private var mainAppView: some View {
-        NavigationStack {
-            HomeView(viewModel: homeViewModel)
-                .environmentObject(sessionStore)
+    // MARK: - Loading View
+    
+    private var loadingView: some View {
+        ZStack {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                Image(systemName: "bookmark.fill")
+                    .font(.system(size: 50))
+                    .foregroundStyle(.blue)
                 
+                ProgressView()
+                    .scaleEffect(1.2)
+                
+                Text("Yükleniyor...")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
         }
-        .offlineBanner()
     }
+    
+    // MARK: - Sync Status Button
     
     private var syncStatusButton: some View {
         Button {
@@ -144,25 +168,7 @@ struct RootView: View {
         .disabled(syncService.syncState == .syncing)
     }
     
-    private var loadingView: some View {
-        ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 16) {
-                Image(systemName: "bookmark.fill")
-                    .font(.system(size: 50))
-                    .foregroundStyle(.blue)
-                
-                ProgressView()
-                    .scaleEffect(1.2)
-                
-                Text("Yükleniyor...")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
+    // MARK: - Auth Initialization
     
     private func initializeAuth() async {
         await sessionStore.initialize()
@@ -177,13 +183,17 @@ struct RootView: View {
     }
 }
 
-
 // MARK: - Preview
 
 #if DEBUG
 struct RootView_Previews: PreviewProvider {
     static var previews: some View {
-        Text("RootView Preview")
+        RootView(
+            homeViewModel: HomeViewModel(
+                bookmarkRepository: PreviewMockRepository.shared,
+                categoryRepository: PreviewMockCategoryRepository.shared
+            )
+        )
     }
 }
 #endif

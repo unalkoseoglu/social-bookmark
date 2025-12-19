@@ -1,16 +1,16 @@
 import SwiftUI
 
 /// Bookmark arama ekranı
-/// Header'daki arama butonundan açılır
+/// Native iOS searchable modifier ile çalışır
 struct SearchView: View {
     // MARK: - Properties
     
     @Bindable var viewModel: HomeViewModel
+    @Binding var selectedTab: AppTab
+    @Binding var searchText: String
     
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText = ""
     @State private var selectedScope: SearchScope = .all
-    @FocusState private var isSearchFocused: Bool
     
     // MARK: - Search Scope
     
@@ -65,72 +65,26 @@ struct SearchView: View {
     // MARK: - Body
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Search bar
-                searchBar
-                
-                // Scope picker
-                scopePicker
-                
-                // Content
-                if searchText.isEmpty {
-                    suggestionsView
-                } else if searchResults.isEmpty {
-                    noResultsView
-                } else {
-                    resultsListView
-                }
-            }
-            .navigationTitle(Text("search.title"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.cancel") {
-                        dismiss()
-                    }
-                }
-            }
-            .onAppear {
-                isSearchFocused = true
+        VStack(spacing: 0) {
+            // Scope picker
+            scopePicker
+            
+            // Content
+            if searchText.isEmpty {
+                suggestionsView
+            } else if searchResults.isEmpty {
+                noResultsView
+            } else {
+                resultsListView
             }
         }
-    }
-    
-    // MARK: - Search Bar
-    
-    private var searchBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                
-                TextField(String(localized: "search.placeholder"), text: $searchText)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .focused($isSearchFocused)
-                    .submitLabel(.search)
-                    .onSubmit {
-                        if !searchText.isEmpty {
-                            addToRecentSearches(searchText)
-                        }
-                    }
-                
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                    }
-                }
+        .navigationTitle(String(localized: "search.title"))
+        .navigationBarTitleDisplayMode(.inline)
+        .onSubmit(of: .search) {
+            if !searchText.isEmpty {
+                addToRecentSearches(searchText)
             }
-            .padding(12)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
     }
     
     // MARK: - Scope Picker
@@ -284,7 +238,7 @@ struct SearchView: View {
                 NavigationLink {
                     BookmarkDetailView(
                         bookmark: bookmark,
-                        repository: viewModel.bookmarkRepository
+                        viewModel: viewModel
                     )
                 } label: {
                     SearchResultRow(
@@ -415,72 +369,17 @@ struct SearchResultRow: View {
     }
 }
 
-// MARK: - Flow Layout (for tags)
-
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = FlowResult(
-            in: proposal.replacingUnspecifiedDimensions().width,
-            subviews: subviews,
-            spacing: spacing
-        )
-        return result.size
-    }
-    
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = FlowResult(
-            in: bounds.width,
-            subviews: subviews,
-            spacing: spacing
-        )
-        for (index, subview) in subviews.enumerated() {
-            subview.place(
-                at: CGPoint(
-                    x: bounds.minX + result.positions[index].x,
-                    y: bounds.minY + result.positions[index].y
-                ),
-                proposal: .unspecified
-            )
-        }
-    }
-    
-    struct FlowResult {
-        var size: CGSize = .zero
-        var positions: [CGPoint] = []
-        
-        init(in width: CGFloat, subviews: Subviews, spacing: CGFloat) {
-            var x: CGFloat = 0
-            var y: CGFloat = 0
-            var lineHeight: CGFloat = 0
-            
-            for subview in subviews {
-                let size = subview.sizeThatFits(.unspecified)
-                
-                if x + size.width > width && x > 0 {
-                    x = 0
-                    y += lineHeight + spacing
-                    lineHeight = 0
-                }
-                
-                positions.append(CGPoint(x: x, y: y))
-                lineHeight = max(lineHeight, size.height)
-                x += size.width + spacing
-            }
-            
-            self.size = CGSize(width: width, height: y + lineHeight)
-        }
-    }
-}
-
 // MARK: - Preview
 
 #Preview {
-    SearchView(
-        viewModel: HomeViewModel(
-            bookmarkRepository: PreviewMockRepository.shared,
-            categoryRepository: PreviewMockCategoryRepository.shared
+    NavigationStack {
+        SearchView(
+            viewModel: HomeViewModel(
+                bookmarkRepository: PreviewMockRepository.shared,
+                categoryRepository: PreviewMockCategoryRepository.shared
+            ), selectedTab: .constant(.home),
+            searchText: .constant("")
         )
-    )
+        .searchable(text: .constant(""), placement: .navigationBarDrawer(displayMode: .always))
+    }
 }

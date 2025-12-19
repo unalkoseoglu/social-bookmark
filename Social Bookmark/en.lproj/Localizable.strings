@@ -1,8 +1,7 @@
-/*
- Localizable.strings
- Social Bookmark
+/* Localizable.strings
+  Social Bookmark
 
- English localization
+  Cleaned & Organized Version
 */
 
 // MARK: - Common
@@ -16,46 +15,128 @@
 "common.error" = "Error";
 "common.loading" = "Loading...";
 "common.success" = "Success";
+"common.all" = "All";
+"common.today" = "Today";
+"common.this_week" = "This Week";
+"common.favorites" = "Favorites";
+"common.uncategorized" = "Uncategorized";
+
+// MARK: - Auth
+"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
+"auth.or_divider" = "or";
+"auth.continue_anonymously" = "Continue Without Account";
+"auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
+"auth.error_title" = "Error";
+"auth.sign_in" = "Sign In";
+
+/* Auth - User States */
+"auth.anonymous_user" = "Anonymous User";
+"auth.user" = "User";
+"auth.anonymous_account" = "Anonymous Account";
+"auth.not_signed_in" = "Not Signed In";
+"auth.sign_in_to_sync" = "Sign in to sync your data";
+
+/* Auth - Errors */
+"auth.error.not_authenticated" = "You need to sign in";
+"auth.error.not_anonymous" = "This action is only for anonymous accounts";
+"auth.error.sign_up_failed" = "Sign up failed";
+"auth.error.apple_sign_in_failed" = "Apple Sign In failed";
+"auth.error.invalid_credentials" = "Invalid email or password";
+"auth.error.email_not_confirmed" = "Please confirm your email";
+"auth.error.user_already_exists" = "This email is already registered";
+"auth.error.weak_password" = "Password must be at least 6 characters";
+"auth.error.invalid_email" = "Invalid email address";
+"auth.error.rate_limit" = "Too many attempts. Please wait";
+"auth.error.user_not_found" = "User not found";
+"auth.error.network" = "No internet connection";
+"auth.error.unknown" = "An unknown error occurred";
+
+// MARK: - Greetings
+"greeting.morning" = "Good morning";
+"greeting.afternoon" = "Good afternoon";
+"greeting.evening" = "Good evening";
+"greeting.night" = "Good night";
+"greeting.welcome" = "Welcome";
+
+// MARK: - Tab Bar
+"tab.home" = "Home";
+"tab.library" = "Library";
+"tab.add" = "Add";
+"tab.search" = "Search";
 
 // MARK: - Home View
 "home.title" = "Bookmarks";
 "home.stats_summary %lld %lld" = "%lld total • %lld unread";
 
-// Stats
+/* Home - Stats */
 "home.stat.total" = "Total";
 "home.stat.unread" = "Unread";
 "home.stat.this_week" = "This Week";
 
-// Sections
+/* Home - Sections */
 "home.section.quick_access" = "Quick Access";
 "home.section.categories" = "Categories";
 "home.section.recent" = "Recently Added";
 
-// Filters
+/* Home - Filters */
 "home.filter.unread" = "Unread";
 "home.filter.favorites" = "Favorites";
 "home.filter.today" = "Today";
 
-// Actions
+/* Home - Actions */
 "home.action.edit" = "Edit";
+"home.action.see_all" = "See All";
 "home.action.see_all" = "See All";
 "home.action.create_categories" = "Create Categories";
 
-// Empty states
+/* Home - Empty states */
 "home.empty.no_bookmarks" = "No bookmarks yet";
+"home.empty.no_bookmarks_desc" = "Add content using the share button";
 
-// MARK: - Filtered Bookmarks View
+// MARK: - Library View
+"library.title" = "Library";
+"library.segment.all" = "All";
+"library.segment.categories" = "Categories";
+"library.segment.sources" = "Sources";
+"library.empty.title" = "No bookmarks yet";
+"library.empty.subtitle" = "Save content from social media";
+"library.categories.empty.title" = "No categories";
+"library.categories.empty.subtitle" = "Create categories to organize your bookmarks";
+
+// MARK: - Filtered/All Bookmarks View
+"all.title" = "All Bookmarks";
+"all.search_prompt" = "Search title, notes or tags...";
 "filtered.search_prompt" = "Search...";
 "filtered.section.bookmarks" = "Bookmarks";
+
+/* Sort & Filter */
+"all.sort.newest" = "Newest";
+"all.sort.oldest" = "Oldest";
+"all.sort.alphabetical" = "Alphabetical";
+"all.sort.source" = "By Source";
+"all.filter.title" = "Filter";
+"all.filter.all" = "All";
+"all.filter.source" = "Source";
+"all.menu.sort" = "Sort";
+
+/* Actions */
+"all.action.mark_read" = "Mark as Read";
+"all.action.mark_unread" = "Mark as Unread";
+"all.action.mark_all_read" = "Mark All as Read";
+"all.action.clear_filters" = "Clear Filters";
 "filtered.mark_read" = "Mark as Read";
 "filtered.unfavorite" = "Remove from Favorites";
 
-// Descriptions
+/* Descriptions */
 "filtered.desc.unread" = "Bookmarks you haven't read yet";
 "filtered.desc.favorites" = "Bookmarks you marked as favorite";
 "filtered.desc.today" = "Bookmarks you added today";
 
-// Empty states
+/* Empty States */
+"all.empty.title" = "No Bookmarks";
+"all.empty.desc" = "You haven't added any bookmarks yet.";
+"all.empty.no_results" = "No bookmarks match your search.";
 "filtered.empty.unread.title" = "All Caught Up!";
 "filtered.empty.unread.desc" = "You've read all your bookmarks. Great job!";
 "filtered.empty.favorites.title" = "No Favorites";
@@ -63,65 +144,29 @@
 "filtered.empty.today.title" = "Nothing Today";
 "filtered.empty.today.desc" = "You haven't added any bookmarks today.";
 
-// MARK: - All Bookmarks View
-"all.title" = "All Bookmarks";
-"all.search_prompt" = "Search title, notes or tags...";
-
-// Sort options
-"all.sort.newest" = "Newest";
-"all.sort.oldest" = "Oldest";
-"all.sort.alphabetical" = "Alphabetical";
-"all.sort.source" = "By Source";
-
-// Filters
-"all.filter.title" = "Filter";
-"all.filter.all" = "All";
-"all.filter.source" = "Source";
-
-// Stats
-"all.stats.total" = "total bookmarks";
-"all.stats.unread" = "unread";
-
-// Sections
-"all.section.bookmarks" = "Bookmarks";
-
-// Menu
-"all.menu.sort" = "Sort";
-
-// Actions
-"all.action.mark_read" = "Mark as Read";
-"all.action.mark_unread" = "Mark as Unread";
-"all.action.mark_all_read" = "Mark All as Read";
-"all.action.clear_filters" = "Clear Filters";
-
-// Empty states
-"all.empty.title" = "No Bookmarks";
-"all.empty.desc" = "You haven't added any bookmarks yet.";
-"all.empty.no_results" = "No bookmarks match your search.";
-
 // MARK: - Search View
 "search.title" = "Search";
 "search.placeholder" = "Search bookmarks...";
 
-// Scopes
+/* Search Scopes */
 "search.scope.all" = "All";
 "search.scope.title" = "Title";
 "search.scope.notes" = "Notes";
 "search.scope.tags" = "Tags";
 
-// Suggestions
+/* Search Suggestions & Results */
 "search.recent" = "Recent Searches";
 "search.clear" = "Clear";
 "search.popular_tags" = "Popular Tags";
 "search.browse_by_source" = "Browse by Source";
-
-// Results
+"search.suggestions" = "Suggestions";
 "search.results_count %lld" = "%lld results found";
 "search.no_results.title" = "No Results";
 "search.no_results.desc %@" = "No results found for \"%@\".";
 "search.try_again" = "Try Again";
+"search.empty" = "No results found";
 
-// MARK: - Add Bookmark
+// MARK: - Bookmark Add / Edit
 "addBookmark.title" = "New Bookmark";
 "addBookmark.section.basic" = "Basic Info";
 "addBookmark.section.notes" = "Notes";
@@ -172,7 +217,7 @@
 "category.delete.message" = "This category will be deleted but bookmarks inside won't be removed.";
 
 // MARK: - Bookmark Sources
-"source.twitter" = "Twitter/X";
+"source.twitter" = "X";
 "source.reddit" = "Reddit";
 "source.linkedin" = "LinkedIn";
 "source.medium" = "Medium";
@@ -183,7 +228,7 @@
 "source.other" = "Other";
 
 // MARK: - Service Errors
-"error.twitter.title" = "Twitter Error";
+"error.twitter.title" = "X Error";
 "error.reddit.title" = "Reddit Error";
 "error.linkedin.title" = "LinkedIn Error";
 "error.medium.title" = "Medium Error";
@@ -191,7 +236,6 @@
 
 "error.linkedin.auth_required" = "Sign in to LinkedIn to view this content.";
 "error.linkedin.bot_detected" = "LinkedIn access temporarily restricted. Try again later.";
-
 "error.action.open_browser" = "Open in Browser";
 
 // MARK: - Share Extension
@@ -200,7 +244,6 @@
 "share.section.basic" = "Basic Info";
 "share.section.notes" = "Notes";
 "share.section.tags" = "Tags";
-
 "share.saving" = "Saving...";
 "share.success" = "Saved!";
 
@@ -224,37 +267,6 @@
 "ocr.noText" = "No text found";
 "ocr.result" = "OCR Result";
 
-/* Auth - SignInView */
-"auth.welcome_title" = "Social Bookmark";
-"auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
-"auth.or_divider" = "or";
-"auth.continue_anonymously" = "Continue Without Account";
-"auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
-"auth.error_title" = "Error";
-"auth.sign_in" = "Sign In";
-
-/* Auth - User States */
-"auth.anonymous_user" = "Anonymous User";
-"auth.user" = "User";
-"auth.anonymous_account" = "Anonymous Account";
-"auth.not_signed_in" = "Not Signed In";
-"auth.sign_in_to_sync" = "Sign in to sync your data";
-
-/* Auth - Errors */
-"auth.error.not_authenticated" = "You need to sign in";
-"auth.error.not_anonymous" = "This action is only for anonymous accounts";
-"auth.error.sign_up_failed" = "Sign up failed";
-"auth.error.apple_sign_in_failed" = "Apple Sign In failed";
-"auth.error.invalid_credentials" = "Invalid email or password";
-"auth.error.email_not_confirmed" = "Please confirm your email";
-"auth.error.user_already_exists" = "This email is already registered";
-"auth.error.weak_password" = "Password must be at least 6 characters";
-"auth.error.invalid_email" = "Invalid email address";
-"auth.error.rate_limit" = "Too many attempts. Please wait";
-"auth.error.user_not_found" = "User not found";
-"auth.error.network" = "No internet connection";
-"auth.error.unknown" = "An unknown error occurred";
-
 // MARK: - Settings & Account
 "settings.title" = "Settings";
 "settings.section.general" = "General";
@@ -266,6 +278,7 @@
 "settings.autoDetectSource" = "Auto-detect Source";
 "settings.showReadingTime" = "Show Reading Time";
 
+/* Account Actions */
 "settings.account" = "Account";
 "settings.account_info" = "Account Information";
 "settings.account_actions" = "Account Actions";
@@ -298,12 +311,17 @@
 "sync.sync_now" = "Sync Now";
 "sync.download_from_cloud" = "Download from Cloud";
 "sync.actions_footer" = "You can manually synchronize your data.";
+"sync.download_confirmation_title" = "Download from Cloud?";
+"sync.download_confirmation_message" = "Your local data will be replaced with the data from the cloud. This action cannot be undone.";
+"sync.download_confirm" = "Download and Replace";
 
+/* Cache */
 "sync.cache_section" = "Cache";
 "sync.cache_size" = "Cache Size";
 "sync.clear_cache" = "Clear Cache";
 "sync.cache_footer" = "Clearing the cache frees up space on your device.";
 
+/* Sync Info */
 "sync.info_section" = "Account Information";
 "sync.user_id" = "User ID";
 "sync.auto_sync" = "Auto Sync";
@@ -317,12 +335,13 @@
 "settings.github" = "GitHub";
 "settings.feedback" = "Feedback";
 
-// MARK: - Danger Zone (Data)
+// MARK: - Danger Zone (Data Cleanup)
 "settings.deleteAll" = "Delete All Data";
 "settings.deleteAll.title" = "Delete All Data";
 "settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
 
-// MARK: - New Added Keys (Confirmation Box and Missings)
-"sync.download_confirmation_title" = "Download from Cloud?";
-"sync.download_confirmation_message" = "Your local data will be replaced with the data from the cloud. This action cannot be undone.";
-"sync.download_confirm" = "Download and Replace";
+// MARK: - Widgets
+"widget.reading_progress" = "Reading Progress";
+"widget.quick_stats" = "Quick Stats";
+"widget.popular_tags" = "Popular Tags";
+"widget.read_count %lld %lld" = "%lld/%lld read";

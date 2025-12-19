@@ -9,6 +9,7 @@ struct ShareExtensionView: View {
     
     let url: URL
     let repository: BookmarkRepositoryProtocol
+    let categoryRepository: CategoryRepositoryProtocol
     let onSave: () -> Void
     let onCancel: () -> Void
     
@@ -19,6 +20,7 @@ struct ShareExtensionView: View {
     @State private var selectedSource: BookmarkSource = .other
     @State private var tagsInput: String = ""
     @State private var selectedCategoryId: UUID?
+    @State private var categories: [Category] = []
     
     // Loading & Error States
     @State private var isLoadingMetadata = false
@@ -72,6 +74,10 @@ struct ShareExtensionView: View {
         fetchedLinkedInPost != nil || fetchedMediumPost != nil
     }
     
+    private var selectedCategory: Category? {
+        categories.first { $0.id == selectedCategoryId }
+    }
+    
     // MARK: - Body
     
     var body: some View {
@@ -105,6 +111,9 @@ struct ShareExtensionView: View {
                 // Basic Info
                 basicInfoSection
                 
+                // Category Selection
+                categorySection
+                
                 // Notes
                 detailsSection
                 
@@ -115,8 +124,17 @@ struct ShareExtensionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .disabled(isSaving)
-            .task { await fetchContent() }
+            .task {
+                loadCategories()
+                await fetchContent()
+            }
         }
+    }
+    
+    // MARK: - Load Categories
+    
+    private func loadCategories() {
+        categories = categoryRepository.fetchAll()
     }
     
     // MARK: - URL Section
@@ -650,6 +668,56 @@ struct ShareExtensionView: View {
                     }
                 }
                 .font(.caption)
+            }
+        }
+    }
+    
+    // MARK: - Category Section
+    
+    private var categorySection: some View {
+        Section {
+            if categories.isEmpty {
+                HStack(spacing: 12) {
+                    Image(systemName: "folder")
+                        .foregroundStyle(.secondary)
+                        .frame(width: 24)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Kategori yok")
+                            .font(.subheadline)
+                        Text("Ana uygulamadan kategori oluşturabilirsiniz")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } else {
+                Picker("Kategori", selection: $selectedCategoryId) {
+                    // None option
+                    Label("Kategorisiz", systemImage: "tray")
+                        .tag(nil as UUID?)
+                    
+                    Divider()
+                    
+                    // Categories
+                    ForEach(categories) { category in
+                        Label {
+                            Text(category.name)
+                        } icon: {
+                            Image(systemName: category.icon)
+                                .foregroundStyle(category.color)
+                        }
+                        .tag(category.id as UUID?)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        } header: {
+            Text("Kategori")
+        } footer: {
+            if let category = selectedCategory {
+                Label(category.name, systemImage: category.icon)
+                    .font(.caption)
+                    .foregroundStyle(category.color)
             }
         }
     }

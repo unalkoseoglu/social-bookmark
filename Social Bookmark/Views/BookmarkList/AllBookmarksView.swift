@@ -91,7 +91,7 @@ struct AllBookmarksView: View {
             }
         }
         .navigationTitle(Text("all.title"))
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: Text("all.search_prompt"))
         .toolbar {
             toolbarContent
@@ -249,7 +249,7 @@ struct AllBookmarksView: View {
         NavigationLink {
             BookmarkDetailView(
                 bookmark: bookmark,
-                repository: viewModel.bookmarkRepository
+                viewModel: viewModel
             )
         } label: {
             AllBookmarksRow(bookmark: bookmark)

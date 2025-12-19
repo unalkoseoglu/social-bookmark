@@ -41,7 +41,7 @@ struct BookmarkListView: View {
                 }
             }
             .navigationTitle("Social Bookmark")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(
                 text: $listViewModel.searchText,
                 prompt: "Başlık veya not ara"
@@ -79,7 +79,7 @@ struct BookmarkListView: View {
                 NavigationLink {
                     BookmarkDetailView(
                         bookmark: bookmark,
-                        repository: listViewModel.repository
+                        viewModel: homeViewModel
                     )
                 } label: {
                     BookmarkRow(bookmark: bookmark)

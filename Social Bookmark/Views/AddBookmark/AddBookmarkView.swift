@@ -5,6 +5,7 @@ struct AddBookmarkView: View {
     // MARK: - Properties
 
     @State private var viewModel: AddBookmarkViewModel
+    @Binding var selectedTab: AppTab
     private let onSaved: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
@@ -19,6 +20,7 @@ struct AddBookmarkView: View {
     init(viewModel: AddBookmarkViewModel, onSaved: (() -> Void)? = nil) {
         _viewModel = State(initialValue: viewModel)
         self.onSaved = onSaved
+        _selectedTab = .constant(.add)
     }
     
     // MARK: - Body
@@ -39,9 +41,23 @@ struct AddBookmarkView: View {
                     validationErrorsSection
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture {
+                hideKeyboard()
+            }
             .navigationTitle("Yeni Bookmark")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("Bitti") {
+                            hideKeyboard()
+                        }
+                        .fontWeight(.semibold)
+                    }
+                }
+                
                 toolbarContent
             }
             .onAppear {
@@ -64,6 +80,13 @@ struct AddBookmarkView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Hide Keyboard
+    
+    private func hideKeyboard() {
+        focusedField = nil
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
     // MARK: - Sections
@@ -404,8 +427,11 @@ struct AddBookmarkView: View {
     private var detailsSection: some View {
         Section("Detaylar") {
             TextField("Notlar (opsiyonel)", text: $viewModel.note, axis: .vertical)
+                .autocapitalization(.none)
+                .autocorrectionDisabled()
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
+                        
         }
     }
     
@@ -539,8 +565,15 @@ struct AddBookmarkView: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
-            Button("İptal") { dismiss() }
+        // Back button - Ana Sayfa'ya döner
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                onSaved?()
+            } label: {
+                    Image(systemName: "chevron.left")
+                        .fontWeight(.semibold)
+                .font(.body)
+            }
         }
         
         ToolbarItem(placement: .confirmationAction) {
@@ -610,6 +643,6 @@ struct AddBookmarkView: View {
         viewModel: AddBookmarkViewModel(
             repository: PreviewMockRepository.shared,
             categoryRepository: PreviewMockCategoryRepository.shared
-        )
+        ),
     )
 }

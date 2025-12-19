@@ -5,9 +5,11 @@ struct BookmarkDetailView: View {
     // MARK: - Properties
     
     let bookmark: Bookmark
-    let repository: BookmarkRepositoryProtocol
     
     @Environment(\.dismiss) private var dismiss
+
+    
+    @Bindable var viewModel: HomeViewModel
     
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
@@ -22,9 +24,6 @@ struct BookmarkDetailView: View {
     }
     
     // MARK: - Body
-    // header ekle
-    
-    
     
     var body: some View {
         ZStack {
@@ -36,8 +35,7 @@ struct BookmarkDetailView: View {
                         // Cover Image Section
                         if !allImages.isEmpty {
                             coverImageSection
-                                .frame(height: 300)
-                                .padding(.bottom, 32)
+                                .padding(.bottom, 24)
                         }
                         
                         VStack(alignment: .leading, spacing: 24) {
@@ -75,11 +73,10 @@ struct BookmarkDetailView: View {
                 bottomActionBar
             }
         }
-        
         .sheet(isPresented: $showingEditSheet) {
             EditBookmarkView(
                 bookmark: bookmark,
-                repository: repository
+                repository: viewModel.bookmarkRepository, categoryRepository: viewModel.categoryRepository
             )
         }
         .alert("Bookmark Silinsin mi?", isPresented: $showingDeleteAlert) {
@@ -117,26 +114,64 @@ struct BookmarkDetailView: View {
     // MARK: - Cover Image Section
     
     private var coverImageSection: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color(.systemGray6)
             
-            if let image = allImages.first {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
+            if allImages.count == 1 {
+                // Tek görsel
+                if let image = allImages.first {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 280)
+                        .clipped()
+                }
+            } else {
+                // Birden fazla görsel - Slider
+                TabView(selection: $selectedImageIndex) {
+                    ForEach(0..<allImages.count, id: \.self) { index in
+                        Image(uiImage: allImages[index])
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 280)
+                            .clipped()
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
             
-            // Shadow overlay
+            // Shadow overlay for better readability
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.clear,
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(0.4)
                 ]),
-                startPoint: .top,
+                startPoint: .center,
                 endPoint: .bottom
             )
+            .allowsHitTesting(false)
+            
+            // Custom Page Indicator (birden fazla görsel varsa)
+            if allImages.count > 1 {
+                HStack(spacing: 6) {
+                    ForEach(0..<allImages.count, id: \.self) { index in
+                        Circle()
+                            .fill(selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
+                            .frame(width: selectedImageIndex == index ? 8 : 6, height: selectedImageIndex == index ? 8 : 6)
+                            .animation(.easeInOut(duration: 0.2), value: selectedImageIndex)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .padding(.bottom, 12)
+            }
         }
+        .frame(height: 280)
+        .clipped()
         .onTapGesture {
             if !allImages.isEmpty {
                 showingFullScreenImage = true
@@ -352,11 +387,13 @@ struct BookmarkDetailView: View {
     private func toggleReadStatus() {
         withAnimation {
             bookmark.isRead.toggle()
+            let repository = viewModel.bookmarkRepository
             repository.update(bookmark)
         }
     }
     
     private func deleteBookmark() {
+        var repository = viewModel.bookmarkRepository
         repository.delete(bookmark)
         dismiss()
     }
@@ -379,6 +416,8 @@ struct FullScreenImageGalleryView: View {
             TabView(selection: $selectedIndex) {
                 ForEach(0..<images.count, id: \.self) { index in
                     Image(uiImage: images[index])
+                        .resizable()
+                        .scaledToFit()
                         .scaleEffect(selectedIndex == index ? scale : 1.0)
                         .gesture(
                             MagnificationGesture()
@@ -410,7 +449,7 @@ struct FullScreenImageGalleryView: View {
                         }
                         .tag(index)
                 }
-            }.frame(width: .infinity)
+            }
             .tabViewStyle(.page(indexDisplayMode: images.count > 1 ? .always : .never))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             
@@ -463,8 +502,6 @@ struct FullScreenImageGalleryView: View {
 
 // MARK: - Supporting Views
 
-
-
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     
@@ -475,17 +512,3 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-#Preview {
-    NavigationStack {
-        BookmarkDetailView(
-            bookmark: Bookmark(
-                title: "SwiftUI Best Practices",
-                url: "https://developer.apple.com/documentation/swiftui",
-                note: "Great article covering advanced patterns.",
-                source: .twitter,
-                tags: ["Swift", "iOS"]
-            ),
-            repository: PreviewMockRepository.shared
-        )
-    }
-}

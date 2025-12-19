@@ -36,6 +36,8 @@ struct SettingsView: View {
                 aboutSection
             }
             .navigationTitle("settings.title")
+            .toolbarTitleDisplayMode(.inline)
+
         }
     }
     
@@ -60,22 +62,9 @@ struct SettingsView: View {
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.white)
                         }
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(sessionStore.displayName)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            
-                            if sessionStore.isAnonymous {
-                                Text("auth.anonymous_account")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
-                            } else if let email = sessionStore.userEmail {
-                                Text(email)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+                        Text(sessionStore.displayName)
+                            .font(.title3)
+                            .fontWeight(.medium)
                         
                         Spacer()
                         

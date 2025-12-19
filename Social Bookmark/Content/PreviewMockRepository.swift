@@ -14,10 +14,7 @@ final class PreviewMockRepository: BookmarkRepositoryProtocol {
     
     private var bookmarks: [Bookmark] = []
     
-    private init() {
-        // Örnek veriler ekle
-        setupSampleData()
-    }
+    
     
     func fetchAll() -> [Bookmark] {
         bookmarks.sorted { $0.createdAt > $1.createdAt }
@@ -79,44 +76,4 @@ final class PreviewMockRepository: BookmarkRepositoryProtocol {
         bookmarks.filter { !$0.isRead }.count
     }
     
-    // MARK: - Sample Data
-    
-    private func setupSampleData() {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        bookmarks = [
-            Bookmark(
-                title: "SwiftUI ile Modern iOS Geliştirme",
-                url: "https://developer.apple.com/swiftui",
-                note: "Apple'ın resmi SwiftUI dokümantasyonu",
-                source: .article,
-                isRead: true,
-                isFavorite: true,
-                tags: ["swift", "ios", "swiftui"],
-               
-            ),
-           
-           
-            Bookmark(
-                title: "Kariyer tavsiyeleri - Developer roadmap",
-                url: "https://linkedin.com/posts/example",
-                source: .linkedin,
-                tags: ["career", "advice"]
-            ),
-            Bookmark(
-                title: "WWDC 2024 Keynote",
-                url: "https://youtube.com/watch?v=example",
-                source: .youtube,
-                tags: ["wwdc", "apple"]
-            )
-        ]
-        
-        // Tarihleri çeşitlendir
-        for (index, _) in bookmarks.enumerated() {
-            if calendar.date(byAdding: .day, value: -index, to: now) != nil {
-                // Not: @Model sınıfında createdAt readonly olabilir, bu durumda init'te ayarlanmalı
-            }
-        }
-    }
 }

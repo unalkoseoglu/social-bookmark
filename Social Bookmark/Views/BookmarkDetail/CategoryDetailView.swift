@@ -34,7 +34,7 @@ struct CategoryDetailView: View {
                 }
             }
             .navigationTitle(category.name)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "Ara...")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -104,8 +104,7 @@ struct CategoryDetailView: View {
                 ForEach(filteredBookmarks) { bookmark in
                     NavigationLink {
                         BookmarkDetailView(
-                            bookmark: bookmark,
-                            repository: viewModel.bookmarkRepository
+                            bookmark: bookmark,viewModel: viewModel,
                         )
                     } label: {
                         CategoryBookmarkRow(bookmark: bookmark)

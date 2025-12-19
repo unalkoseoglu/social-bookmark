@@ -111,6 +111,7 @@
 				Utilities/Services/RedditService.swift,
 				Utilities/Services/TwitterService.swift,
 				Utilities/Services/URLMetadataService.swift,
+				ViewModels/AddBookmarkViewModel.swift,
 			);
 			target = C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */;
 		};

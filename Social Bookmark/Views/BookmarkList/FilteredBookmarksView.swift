@@ -45,7 +45,7 @@ struct FilteredBookmarksView: View {
                 }
             }
             .navigationTitle(filter.title)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: Text("filtered.search_prompt"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -88,7 +88,7 @@ struct FilteredBookmarksView: View {
                     NavigationLink {
                         BookmarkDetailView(
                             bookmark: bookmark,
-                            repository: viewModel.bookmarkRepository
+                            viewModel: viewModel
                         )
                     } label: {
                         FilteredBookmarkRow(bookmark: bookmark, filter: filter)

@@ -34,7 +34,7 @@ class ShareViewController: UIViewController {
         
         // SwiftData container oluştur
         guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.unal.socialbookmark" // DEĞIŞTIR!
+            forSecurityApplicationGroupIdentifier: "group.com.unal.socialbookmark"
         ) else {
             print("❌ App Group container bulunamadı")
             close()
@@ -49,19 +49,25 @@ class ShareViewController: UIViewController {
                 allowsSave: true
             )
             
+            // Bookmark ve Category modellerini ekle
             let container = try ModelContainer(
-                for: Bookmark.self,
+                for: Bookmark.self, Category.self,
                 configurations: configuration
             )
             
             print("✅ ModelContainer created successfully")
             
-            let repository = BookmarkRepository(modelContext: container.mainContext)
+            // Repository'leri oluştur
+            let bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
+            let categoryRepository = CategoryRepository(modelContext: container.mainContext)
+            
+            print("📂 Categories loaded: \(categoryRepository.fetchAll().count)")
             
             // SwiftUI view oluştur
             let swiftUIView = ShareExtensionView(
                 url: url,
-                repository: repository,
+                repository: bookmarkRepository,
+                categoryRepository: categoryRepository,
                 onSave: { [weak self] in
                     print("💾 Bookmark saved from Share Extension")
                     self?.close()
