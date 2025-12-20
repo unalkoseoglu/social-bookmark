@@ -1,3 +1,10 @@
+//
+//  AppLanguage.swift
+//  Social Bookmark
+//
+//  Uygulama dil seçenekleri
+//
+
 import SwiftUI
 
 /// Uygulama dil seçenekleri
@@ -10,15 +17,28 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// Dil için kullanıcıya gösterilecek başlık
+    /// Dil için kullanıcıya gösterilecek başlık (localized değil - sabit)
+    /// Bu şekilde dil seçenekleri her zaman doğru dilde görünür
+    var displayName: String {
+        switch self {
+        case .system:
+            return "🌐 System"
+        case .turkish:
+            return "🇹🇷 Türkçe"
+        case .english:
+            return "🇬🇧 English"
+        }
+    }
+    
+    /// Dil için kullanıcıya gösterilecek başlık (LocalizedStringKey)
     var titleKey: LocalizedStringKey {
         switch self {
         case .system:
-            return "Sistem (Varsayılan)"
+            return "settings.language.system"
         case .turkish:
-            return "Türkçe"
+            return "settings.language.turkish"
         case .english:
-            return "İngilizce"
+            return "settings.language.english"
         }
     }
 
@@ -26,11 +46,11 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     var descriptionKey: LocalizedStringKey {
         switch self {
         case .system:
-            return "Cihaz dilini kullanır"
+            return "settings.language.system_desc"
         case .turkish:
-            return "Arayüzü Türkçe kullan"
+            return "settings.language.turkish_desc"
         case .english:
-            return "Use the app in English"
+            return "settings.language.english_desc"
         }
     }
 
@@ -44,6 +64,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             return Locale(identifier: "tr")
         case .english:
             return Locale(identifier: "en")
+        }
+    }
+    
+    /// Dil kodu
+    var languageCode: String? {
+        switch self {
+        case .system:
+            return nil
+        case .turkish:
+            return "tr"
+        case .english:
+            return "en"
         }
     }
 }

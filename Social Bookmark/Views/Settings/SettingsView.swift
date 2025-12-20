@@ -12,13 +12,12 @@ import SwiftUI
 struct SettingsView: View {
     
     @EnvironmentObject private var sessionStore: SessionStore
+    @ObservedObject private var languageManager = LanguageManager.shared
     @StateObject private var syncService = SyncService.shared
     @StateObject private var networkMonitor = NetworkMonitor.shared
     
-    @AppStorage(AppLanguage.storageKey)
-    private var selectedLanguageRawValue = AppLanguage.system.rawValue
-    
-    @State private var showingLanguagePicker = false
+    @State private var showingRestartAlert = false
+    @State private var pendingLanguage: AppLanguage?
     
     var body: some View {
         NavigationStack {
@@ -35,10 +34,26 @@ struct SettingsView: View {
                 // Uygulama hakkında
                 aboutSection
             }
-            .navigationTitle("settings.title")
+            .navigationTitle(languageManager.localized("settings.title"))
             .toolbarTitleDisplayMode(.inline)
-
+            .alert(languageManager.localized("settings.language_change_title"), isPresented: $showingRestartAlert) {
+                Button(languageManager.localized("settings.restart_now")) {
+                    if let language = pendingLanguage {
+                        languageManager.currentLanguage = language
+                        languageManager.restartApp()
+                    }
+                }
+                Button(languageManager.localized("settings.restart_later"), role: .cancel) {
+                    if let language = pendingLanguage {
+                        languageManager.currentLanguage = language
+                    }
+                    pendingLanguage = nil
+                }
+            } message: {
+                Text(languageManager.localized("settings.language_change_message"))
+            }
         }
+        .id(languageManager.refreshID)
     }
     
     // MARK: - Account Section
@@ -51,38 +66,36 @@ struct SettingsView: View {
                         .environmentObject(sessionStore)
                 } label: {
                     HStack(spacing: 12) {
-                        // Avatar
                         ZStack {
-                           
-                            if  sessionStore.isAnonymous {
-                                Image(systemName: "person.crop.circle.badge.exclamationmark.fill").font(.largeTitle).foregroundStyle(.orange)
-                            }else{
-                                Image(systemName: "person.crop.circle.fill").font(.largeTitle).foregroundStyle(.gray)
+                            if sessionStore.isAnonymous {
+                                Image(systemName: "person.crop.circle.badge.exclamationmark.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.orange)
+                            } else {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.gray)
                             }
-                                
-                           
-                                
                         }
+                        
                         Text(sessionStore.nameForDisplay)
                             .font(.body)
                             .fontWeight(.medium)
-                      
                         
                         Spacer()
                         
-                        // Sync durumu badge
                         SyncStatusBadge()
                     }
                 }
             } else {
                 NavigationLink {
                     SignInView()
-                }label: {
-                    Label("auth.sign_in", systemImage: "person.crop.circle")
+                } label: {
+                    Label(languageManager.localized("auth.sign_in"), systemImage: "person.crop.circle")
                 }
             }
         } header: {
-            Text("settings.account")
+            Text(languageManager.localized("settings.account"))
         }
     }
     
@@ -95,11 +108,10 @@ struct SettingsView: View {
                     .environmentObject(sessionStore)
             } label: {
                 HStack {
-                    Label("settings.sync", systemImage: "arrow.triangle.2.circlepath")
+                    Label(languageManager.localized("settings.sync"), systemImage: "arrow.triangle.2.circlepath")
                     
                     Spacer()
                     
-                    // Durum göstergesi
                     HStack(spacing: 4) {
                         if syncService.syncState == .syncing {
                             ProgressView()
@@ -113,7 +125,6 @@ struct SettingsView: View {
                 }
             }
             
-            // Hızlı sync butonu
             if sessionStore.isAuthenticated && networkMonitor.isConnected {
                 Button {
                     Task {
@@ -121,7 +132,7 @@ struct SettingsView: View {
                     }
                 } label: {
                     HStack {
-                        Label("sync.sync_now", systemImage: "arrow.clockwise")
+                        Label(languageManager.localized("sync.sync_now"), systemImage: "arrow.clockwise")
                         
                         Spacer()
                         
@@ -133,7 +144,7 @@ struct SettingsView: View {
                 .disabled(syncService.syncState == .syncing)
             }
         } header: {
-            Text("settings.sync_section")
+            Text(languageManager.localized("settings.sync_section"))
         } footer: {
             if let lastSync = syncService.lastSyncDate {
                 Text("sync.last_sync_footer \(lastSync, style: .relative)")
@@ -145,25 +156,33 @@ struct SettingsView: View {
     
     private var appearanceSection: some View {
         Section {
-            // Dil seçimi - mevcut AppLanguage yapısına uygun
-            Picker("settings.language", selection: selectedLanguage) {
-                ForEach(AppLanguage.allCases) { language in
-                    Text(language.titleKey)
-                        .tag(language)
+            // Dil seçimi - Picker yerine manuel liste
+            ForEach(AppLanguage.allCases) { language in
+                Button {
+                    if language != languageManager.currentLanguage {
+                        pendingLanguage = language
+                        showingRestartAlert = true
+                    }
+                } label: {
+                    HStack {
+                        Text(language.displayName)
+                            .foregroundStyle(.primary)
+                        
+                        Spacer()
+                        
+                        if language == languageManager.currentLanguage {
+                            Image(systemName: "checkmark")
+                                .foregroundStyle(.blue)
+                                .fontWeight(.semibold)
+                        }
+                    }
                 }
             }
             
         } header: {
-            Text("settings.appearance")
-        }
-    }
-    
-    /// Binding for AppLanguage
-    private var selectedLanguage: Binding<AppLanguage> {
-        Binding {
-            AppLanguage(rawValue: selectedLanguageRawValue) ?? .system
-        } set: { newValue in
-            selectedLanguageRawValue = newValue.rawValue
+            Text(languageManager.localized("settings.language"))
+        } footer: {
+            Text(languageManager.localized("settings.language_footer"))
         }
     }
     
@@ -172,28 +191,28 @@ struct SettingsView: View {
     private var aboutSection: some View {
         Section {
             HStack {
-                Text("settings.version")
+                Text(languageManager.localized("settings.version"))
                 Spacer()
                 Text(appVersion)
                     .foregroundStyle(.secondary)
             }
             
             HStack {
-                Text("settings.build")
+                Text(languageManager.localized("settings.build"))
                 Spacer()
                 Text(buildNumber)
                     .foregroundStyle(.secondary)
             }
             
             Link(destination: URL(string: "https://github.com")!) {
-                Label("settings.source_code", systemImage: "chevron.left.forwardslash.chevron.right")
+                Label(languageManager.localized("settings.source_code"), systemImage: "chevron.left.forwardslash.chevron.right")
             }
             
             Link(destination: URL(string: "mailto:support@example.com")!) {
-                Label("settings.contact", systemImage: "envelope")
+                Label(languageManager.localized("settings.contact"), systemImage: "envelope")
             }
         } header: {
-            Text("settings.about")
+            Text(languageManager.localized("settings.about"))
         }
     }
     
@@ -201,10 +220,10 @@ struct SettingsView: View {
     
     private var syncStatusText: String {
         switch syncService.syncState {
-        case .idle: return String(localized: "settings.synced")
-        case .syncing: return String(localized: "sync.state.syncing")
-        case .offline: return String(localized: "sync.state.offline")
-        case .error: return String(localized: "sync.state.error")
+        case .idle: return languageManager.localized("settings.synced")
+        case .syncing: return languageManager.localized("sync.state.syncing")
+        case .offline: return languageManager.localized("sync.state.offline")
+        case .error: return languageManager.localized("sync.state.error")
         default: return ""
         }
     }

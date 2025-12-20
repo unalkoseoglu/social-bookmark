@@ -126,7 +126,7 @@ struct OfflineBannerModifier: ViewModifier {
             if !networkMonitor.isConnected {
                 HStack {
                     Image(systemName: "wifi.slash")
-                    Text("Çevrimdışı")
+                    Text("common.offline")
                     Spacer()
                     Text("Değişiklikler kaydedilecek")
                         .font(.caption)
@@ -193,7 +193,7 @@ struct AuthErrorAlertModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .alert("Hata", isPresented: $showAlert) {
-                Button("Tamam", role: .cancel) {
+                Button("common.ok", role: .cancel) {
                     authService.errorMessage = nil
                 }
             } message: {

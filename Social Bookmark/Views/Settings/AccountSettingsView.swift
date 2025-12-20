@@ -249,11 +249,17 @@ struct AccountSettingsView: View {
                 Spacer()
                 
                 // Apple Sign In Button
-                SignInWithAppleButton(.continue) { request in
-                    request.requestedScopes = [.email, .fullName]
-                    request.nonce = currentHashedNonce
+                SignInWithAppleButton(.signIn) { request in
+                    AuthService.shared.configureAppleRequest(request)
                 } onCompletion: { result in
-                    handleLinkApple(result)
+                    switch result {
+                    case .success(let auth):
+                        if let cred = auth.credential as? ASAuthorizationAppleIDCredential {
+                            handleLinkApple(result)
+                        }
+                    case .failure(let error):
+                        print(error)
+                    }
                 }
                 .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
                 .frame(height: 50)

@@ -92,6 +92,7 @@
 		C05B51442EF60259007DF808 /* Exceptions for "Social Bookmark" folder in "BookmarkActionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"/Localized: Localizable.strings",
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -99,6 +100,7 @@
 				Repositories/CategoryRepository.swift,
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
 				Repositories/Protocol/CategoryRepositoryProtocol.swift,
+				Supabase/Services/SupabaseServiceError.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
@@ -147,6 +149,8 @@
 				Supabase/Models/SupabaseCategory.swift,
 				Supabase/Models/UserProfile.swift,
 				Supabase/Services/EncryptionService.swift,
+				Supabase/Services/ImageUploadService.swift,
+				Supabase/Services/SupabaseServiceError.swift,
 				Supabase/Services/SyncService.swift,
 				Supabase/SupabaseManager.swift,
 				Utilities/AppLanguage.swift,

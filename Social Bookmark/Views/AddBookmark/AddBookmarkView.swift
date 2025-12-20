@@ -45,13 +45,13 @@ struct AddBookmarkView: View {
             .onTapGesture {
                 hideKeyboard()
             }
-            .navigationTitle("Yeni Bookmark")
+            .navigationTitle(String(localized: "addBookmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .keyboard) {
                     HStack {
                         Spacer()
-                        Button("Bitti") {
+                        Button(String(localized: "common.done")) {
                             hideKeyboard()
                         }
                         .fontWeight(.semibold)
@@ -92,24 +92,25 @@ struct AddBookmarkView: View {
     // MARK: - Sections
     
     private var basicInfoSection: some View {
-        Section("Temel Bilgiler") {
-            TextField("Başlık", text: $viewModel.title, axis: .vertical)
+        Section(String(localized: "addBookmark.section.basic")) {
+            TextField(String(localized: "addBookmark.field.title"), text: $viewModel.title, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
             HStack {
-                TextField("URL (opsiyonel)", text: $viewModel.url)
+                TextField(String(localized: "addBookmark.field.url"), text: $viewModel.url)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
                 
-                Button(action: pasteFromClipboard) {
+                Button{
+                    pasteFromClipboard()
+                } label: {
                     Image(systemName: "list.bullet.clipboard.fill")
                         .font(.title2)
                         .foregroundStyle(.blue)
-                }
-                    
+                }.padding(4)
 
                 if viewModel.isLinkedInURL(viewModel.url) {
                     Image(systemName: "link")
@@ -144,14 +145,14 @@ struct AddBookmarkView: View {
             .animation(.easeInOut(duration: 0.2), value: viewModel.url)
             
             if !viewModel.url.isEmpty && !viewModel.isURLValid {
-                Label("Geçersiz URL formatı", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "addBookmark.error.invalid_url"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
                     .font(.caption)
             }
             
             if let linkedInContent = viewModel.fetchedLinkedInContent {
                 Label(
-                    "LinkedIn içeriği çekildi",
+                    String(localized: "addBookmark.status.linkedin_fetched"),
                     systemImage: "checkmark.circle.fill"
                 )
                 .foregroundStyle(.cyan)
@@ -159,7 +160,7 @@ struct AddBookmarkView: View {
                 .accessibilityLabel(linkedInContent.title)
             } else if let redditPost = viewModel.fetchedRedditPost {
                 Label(
-                    "Reddit içeriği çekildi",
+                    String(localized: "addBookmark.status.reddit_fetched"),
                     systemImage: "checkmark.circle.fill"
                 )
                 .foregroundStyle(.orange)
@@ -167,17 +168,17 @@ struct AddBookmarkView: View {
                 .accessibilityLabel(redditPost.title)
             } else if viewModel.fetchedTweet != nil {
                 HStack {
-                    Label("Tweet içeriği çekildi", systemImage: "checkmark.circle.fill")
+                    Label(String(localized: "addBookmark.status.tweet_fetched"), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
 
                     if viewModel.tweetImagesData.count > 0 {
-                        Text("(\(viewModel.tweetImagesData.count) görsel)")
+                        Text(String(localized: "addBookmark.status.images_count \(viewModel.tweetImagesData.count)"))
                             .foregroundStyle(.blue)
                     }
                 }
                 .font(.caption)
             } else if let metadata = viewModel.fetchedMetadata, metadata.hasTitle {
-                Label("Sayfa bilgileri dolduruldu", systemImage: "checkmark.circle.fill")
+                Label(String(localized: "addBookmark.status.page_filled"), systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
                     .font(.caption)
             }
@@ -190,7 +191,7 @@ struct AddBookmarkView: View {
             Section {
                 LinkedInPreviewView(post: content, imageData: viewModel.linkedInImageData)
             } header: {
-                Label("LinkedIn Önizleme", systemImage: "link")
+                Label(String(localized: "addBookmark.preview.linkedin"), systemImage: "link")
                     .foregroundStyle(.cyan)
             }
         }
@@ -202,7 +203,7 @@ struct AddBookmarkView: View {
             Section {
                 RedditPreviewView(post: post, imagesData: viewModel.redditImagesData)
             } header: {
-                Label("Reddit Önizleme", systemImage: "bubble.left.and.bubble.right.fill")
+                Label(String(localized: "addBookmark.preview.reddit"), systemImage: "bubble.left.and.bubble.right.fill")
                     .foregroundStyle(.orange)
             }
         }
@@ -217,13 +218,13 @@ struct AddBookmarkView: View {
                     HStack {
                         Image(systemName: "bird.fill")
                             .foregroundStyle(.blue)
-                        Text("Tweet Önizleme")
+                        Text(String(localized: "addBookmark.preview.tweet"))
                             .font(.headline)
                         Spacer()
                         
                         // Görsel sayısı badge
                         if viewModel.tweetImagesData.count > 1 {
-                            Text("\(viewModel.tweetImagesData.count) görsel")
+                            Text(String(localized: "addBookmark.preview.images \(viewModel.tweetImagesData.count)"))
                                 .font(.caption)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -277,14 +278,14 @@ struct AddBookmarkView: View {
                     if !viewModel.tweetImagesData.isEmpty {
                         tweetImagesGallery
                     } else if tweet.hasMedia {
-                        // Goruseller yükleyniyor
+                        // Görseller yükleniyor
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.gray.opacity(0.1))
                             .frame(height: 100)
                             .overlay {
                                 VStack(spacing: 8) {
                                     ProgressView()
-                                    Text("\(tweet.mediaURLs.count) görsel yükleniyor...")
+                                    Text(String(localized: "addBookmark.loading.images \(tweet.mediaURLs.count)"))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -425,25 +426,24 @@ struct AddBookmarkView: View {
     }
     
     private var detailsSection: some View {
-        Section("Detaylar") {
-            TextField("Notlar (opsiyonel)", text: $viewModel.note, axis: .vertical)
+        Section(String(localized: "addBookmark.section.notes")) {
+            TextField(String(localized: "addBookmark.field.notes"), text: $viewModel.note, axis: .vertical)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
-                        
         }
     }
     
     private var organizationSection: some View {
-        Section("Organizasyon") {
+        Section(String(localized: "addBookmark.section.organization")) {
             // Kategori seçici
             if viewModel.categories.isEmpty {
-                Text("Kategori yok")
+                Text(String(localized: "addBookmark.no_category"))
                     .foregroundStyle(.secondary)
             } else {
                 Picker(selection: $viewModel.selectedCategoryId) {
-                    Text("Kategori Yok")
+                    Text(String(localized: "addBookmark.no_category"))
                         .tag(nil as UUID?)
                     
                     ForEach(viewModel.categories) { category in
@@ -456,7 +456,7 @@ struct AddBookmarkView: View {
                     }
                 } label: {
                     HStack {
-                        Text("Kategori")
+                        Text(String(localized: "addBookmark.field.category"))
                         Spacer()
                         if let categoryId = viewModel.selectedCategoryId,
                            let category = viewModel.categories.first(where: { $0.id == categoryId }) {
@@ -467,7 +467,7 @@ struct AddBookmarkView: View {
                                     .foregroundStyle(.secondary)
                             }
                         } else {
-                            Text("Seç")
+                            Text(String(localized: "addBookmark.select"))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -485,7 +485,7 @@ struct AddBookmarkView: View {
                 }
             } label: {
                 HStack {
-                    Text("Kaynak")
+                    Text(String(localized: "addBookmark.field.source"))
                     Spacer()
                     HStack(spacing: 4) {
                         Text(viewModel.selectedSource.emoji)
@@ -499,19 +499,19 @@ struct AddBookmarkView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField("swift, ios, development", text: $viewModel.tagsInput)
+            TextField(String(localized: "addBookmark.tags.placeholder"), text: $viewModel.tagsInput)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: .tags)
         } header: {
-            Text("Etiketler")
+            Text(String(localized: "addBookmark.section.tags"))
         } footer: {
-            Text("Virgülle ayırarak birden fazla etiket ekleyebilirsin")
+            Text(String(localized: "addBookmark.tags.hint"))
         }
     }
     
     private var imageSection: some View {
-        Section("Fotoğraf") {
+        Section(String(localized: "addBookmark.section.image")) {
             if let image = selectedImage {
                 VStack(spacing: 12) {
                     Image(uiImage: image)
@@ -522,14 +522,14 @@ struct AddBookmarkView: View {
                     
                     HStack {
                         Button(action: { showingImageCrop = true }) {
-                            Label("Düzenle", systemImage: "crop")
+                            Label(String(localized: "addBookmark.image.edit"), systemImage: "crop")
                         }
                         
                         Spacer()
                         
                         if isProcessingOCR {
                             ProgressView().progressViewStyle(.circular)
-                            Text("OCR işleniyor...")
+                            Text(String(localized: "addBookmark.ocr.processing"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -537,14 +537,14 @@ struct AddBookmarkView: View {
                         Spacer()
                         
                         Button(role: .destructive, action: { selectedImage = nil }) {
-                            Label("Kaldır", systemImage: "trash")
+                            Label(String(localized: "addBookmark.image.remove"), systemImage: "trash")
                         }
                     }
                     .font(.subheadline)
                 }
             } else {
                 Button(action: { showingImagePicker = true }) {
-                    Label("Fotoğraf Ekle", systemImage: "photo.badge.plus")
+                    Label(String(localized: "addBookmark.image.add"), systemImage: "photo.badge.plus")
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -559,7 +559,7 @@ struct AddBookmarkView: View {
                     .font(.subheadline)
             }
         } header: {
-            Text("Hatalar").foregroundStyle(.red)
+            Text(String(localized: "addBookmark.errors")).foregroundStyle(.red)
         }
     }
     
@@ -570,14 +570,14 @@ struct AddBookmarkView: View {
             Button {
                 onSaved?()
             } label: {
-                    Image(systemName: "chevron.left")
-                        .fontWeight(.semibold)
-                .font(.body)
+                Image(systemName: "chevron.left")
+                    .fontWeight(.semibold)
+                    .font(.body)
             }
         }
         
         ToolbarItem(placement: .confirmationAction) {
-            Button("Kaydet") { saveBookmark() }
+            Button(String(localized: "common.save")) { saveBookmark() }
                 .disabled(!viewModel.isValid)
                 .fontWeight(.semibold)
         }
@@ -643,6 +643,6 @@ struct AddBookmarkView: View {
         viewModel: AddBookmarkViewModel(
             repository: PreviewMockRepository.shared,
             categoryRepository: PreviewMockCategoryRepository.shared
-        ),
+        )
     )
 }

@@ -11,7 +11,7 @@ struct TweetPreviewView: View {
             HStack {
                 Image(systemName: "bird.fill")
                     .foregroundStyle(.blue)
-                Text("Tweet Önizleme")
+                Text("tweet.preview.title")
                     .font(.headline)
                 Spacer()
                 Image(systemName: "checkmark.seal.fill")
@@ -48,56 +48,30 @@ struct TweetPreviewView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(tweet.authorName)
                         .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .fontWeight(.bold)
                     Text("@\(tweet.authorUsername)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
-                Spacer()
             }
             
             // Tweet metni
             Text(tweet.text)
                 .font(.body)
-                .lineLimit(8)
-                .fixedSize(horizontal: false, vertical: true)
             
-            // ✅ GÖRSEL - DÜZELTİLDİ
-            if let imageData = imageData {
-                if let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity)
-                        .frame(maxHeight: 250)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .onAppear {
-                            print("✅ TweetPreviewView: Görsel gösteriliyor (\(imageData.count) bytes)")
-                        }
-                } else {
-                    // Data var ama UIImage oluşturulamadı
-                    Text("⚠️ Görsel yüklenemedi")
-                        .foregroundStyle(.orange)
-                        .font(.caption)
-                }
-            } else if tweet.hasMedia {
-                // Görsel yükleniyor placeholder
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 120)
-                    .overlay {
-                        VStack(spacing: 8) {
-                            ProgressView()
-                            Text("Görsel yükleniyor...")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+            // Görsel
+            if let data = imageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 200)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
             // İstatistikler
-            HStack(spacing: 20) {
+            HStack(spacing: 16) {
                 Label("\(formatCount(tweet.likeCount))", systemImage: "heart.fill")
                     .foregroundStyle(.red)
                 Label("\(formatCount(tweet.retweetCount))", systemImage: "arrow.2.squarepath")

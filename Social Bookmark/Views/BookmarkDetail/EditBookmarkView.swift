@@ -1,22 +1,22 @@
 import SwiftUI
 import PhotosUI
 
-/// Mevcut bookmark'ı düzenleme ekranı
-/// AddBookmarkView'a çok benzer ama mevcut değerleri doldurur
+/// Mevcut yer işaretini düzenleme ekranı
+/// AddBookmarkView'a benzer şekilde çalışır ve mevcut verileri doldurur
 struct EditBookmarkView: View {
     // MARK: - Properties
     
-    /// Düzenlenecek bookmark
+    /// Düzenlenecek yer işareti
     let bookmark: Bookmark
     
-    /// Repository'ler
+    /// Veri depoları (Repository)
     let repository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
     
-    /// Sheet'i kapatmak için
+    /// Görünümü kapatmak için çevre değişkeni
     @Environment(\.dismiss) private var dismiss
     
-    /// Form alanları - bookmark'tan başlangıç değerleri alır
+    /// Form alanları - başlangıç değerleri mevcut yer işaretinden alınır
     @State private var title: String
     @State private var url: String
     @State private var note: String
@@ -25,7 +25,7 @@ struct EditBookmarkView: View {
     @State private var selectedCategoryId: UUID?
     @State private var categories: [Category] = []
     
-    // Image States
+    // Görsel Durumları
     @State private var existingImagesData: [Data]
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
     @State private var newImagesData: [Data] = []
@@ -34,7 +34,7 @@ struct EditBookmarkView: View {
     @State private var selectedImageIndex: Int?
     @State private var showingFullScreenImage = false
     
-    /// Klavye focus
+    /// Klavye odağı kontrolü
     @FocusState private var focusedField: Field?
     
     // MARK: - Computed Properties
@@ -43,18 +43,18 @@ struct EditBookmarkView: View {
         categories.first { $0.id == selectedCategoryId }
     }
     
-    /// Tüm resimler (mevcut + yeni)
+    /// Tüm görseller (mevcut + yeni eklenenler)
     private var allImages: [ImageItem] {
         var items: [ImageItem] = []
         
-        // Mevcut resimler
+        // Mevcut kayıtlı resimler
         for (index, data) in existingImagesData.enumerated() {
             if let image = UIImage(data: data) {
                 items.append(ImageItem(id: "existing_\(index)", image: image, isExisting: true, dataIndex: index))
             }
         }
         
-        // Yeni eklenen resimler
+        // Yeni seçilen resimler
         for (index, data) in newImagesData.enumerated() {
             if let image = UIImage(data: data) {
                 items.append(ImageItem(id: "new_\(index)", image: image, isExisting: false, dataIndex: index))
@@ -79,7 +79,7 @@ struct EditBookmarkView: View {
         self.repository = repository
         self.categoryRepository = categoryRepository
         
-        // Başlangıç değerlerini bookmark'tan al
+        // Başlangıç değerlerini atama
         _title = State(initialValue: bookmark.title)
         _url = State(initialValue: bookmark.url ?? "")
         _note = State(initialValue: bookmark.note)
@@ -87,7 +87,7 @@ struct EditBookmarkView: View {
         _tagsInput = State(initialValue: bookmark.tags.joined(separator: ", "))
         _selectedCategoryId = State(initialValue: bookmark.categoryId)
         
-        // Mevcut resimleri al
+        // Görsel verilerini yükle
         if let imagesData = bookmark.imagesData, !imagesData.isEmpty {
             _existingImagesData = State(initialValue: imagesData)
         } else if let imageData = bookmark.imageData {
@@ -105,7 +105,7 @@ struct EditBookmarkView: View {
                 // Temel bilgiler
                 basicInfoSection
                 
-                // Resimler
+                // Görseller
                 imagesSection
                 
                 // Kategori seçimi
@@ -163,7 +163,7 @@ struct EditBookmarkView: View {
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
-            TextField("URL (opsiyonel)", text: $url)
+            TextField("URL (isteğe bağlı)", text: $url)
                 .keyboardType(.URL)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
@@ -213,7 +213,7 @@ struct EditBookmarkView: View {
                     }
                 }
             } else {
-                // Mevcut resimler
+                // Görsel Listesi
                 VStack(alignment: .leading, spacing: 12) {
                     // Resim grid'i
                     imageGrid
@@ -242,12 +242,12 @@ struct EditBookmarkView: View {
                 .padding(.vertical, 4)
             }
             
-            // Loading indicator
+            // Yükleme göstergesi
             if isLoadingImages {
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
-                    Text("Resimler yükleniyor...")
+                    Text("Resimler işleniyor...")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -299,7 +299,7 @@ struct EditBookmarkView: View {
             }
             .padding(6)
             
-            // Yeni eklenen badge
+            // Yeni eklenen rozeti
             if !item.isExisting {
                 VStack {
                     Spacer()
@@ -329,22 +329,22 @@ struct EditBookmarkView: View {
                         .frame(width: 24)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Kategori yok")
+                        Text("Kategori tanımlanmamış")
                             .font(.subheadline)
-                        Text("Ana sayfadan kategori oluşturabilirsiniz")
+                        Text("Ana ekrandan yeni bir kategori oluşturabilirsiniz")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
             } else {
                 Picker("Kategori", selection: $selectedCategoryId) {
-                    // None option
+                    // Hiçbiri seçeneği
                     Label("Kategorisiz", systemImage: "tray")
                         .tag(nil as UUID?)
                     
                     Divider()
                     
-                    // Categories
+                    // Mevcut kategoriler
                     ForEach(categories) { category in
                         Label {
                             Text(category.name)
@@ -381,7 +381,7 @@ struct EditBookmarkView: View {
             }
             .pickerStyle(.menu)
             
-            TextField("Notlar (opsiyonel)", text: $note, axis: .vertical)
+            TextField("Notlar (isteğe bağlı)", text: $note, axis: .vertical)
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
         }
@@ -389,12 +389,12 @@ struct EditBookmarkView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField("Etiketler (virgülle ayır)", text: $tagsInput)
+            TextField("Etiketler (virgülle ayırın)", text: $tagsInput)
                 .focused($focusedField, equals: .tags)
         } header: {
             Text("Etiketler")
         } footer: {
-            Text("Örnek: Swift, iOS, Tutorial")
+            Text("Örnek: Swift, iOS, Eğitim")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -463,7 +463,7 @@ struct EditBookmarkView: View {
             )
         }
         
-        // Resize
+        // Yeniden Boyutlandır
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         let resizedImage = renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))
@@ -498,7 +498,7 @@ struct EditBookmarkView: View {
     // MARK: - Actions
     
     private func saveChanges() {
-        // Bookmark'ı güncelle
+        // Bookmark verilerini güncelle
         bookmark.title = title.trimmingCharacters(in: .whitespaces)
         bookmark.url = url.isEmpty ? nil : URLValidator.sanitize(url)
         bookmark.note = note.trimmingCharacters(in: .whitespaces)
@@ -517,10 +517,10 @@ struct EditBookmarkView: View {
             bookmark.imagesData = allImagesData.count > 1 ? allImagesData : nil
         }
         
-        // Repository'ye kaydet
+        // Veritabanını güncelle
         repository.update(bookmark)
         
-        // Sheet'i kapat
+        // Görünümü kapat
         dismiss()
     }
     
@@ -589,7 +589,7 @@ struct FullScreenImageViewer: View {
             }
             .tabViewStyle(.page(indexDisplayMode: images.count > 1 ? .automatic : .never))
             
-            // Close button
+            // Kapatma butonu
             VStack {
                 HStack {
                     Spacer()
@@ -606,7 +606,7 @@ struct FullScreenImageViewer: View {
                 
                 Spacer()
                 
-                // Image counter
+                // Resim sayacı
                 if images.count > 1 {
                     Text("\(currentIndex + 1) / \(images.count)")
                         .font(.caption)
@@ -627,9 +627,9 @@ struct FullScreenImageViewer: View {
 #Preview {
     EditBookmarkView(
         bookmark: Bookmark(
-            title: "SwiftUI Documentation",
+            title: "SwiftUI Dokümantasyonu",
             url: "https://developer.apple.com/swiftui",
-            note: "Official docs",
+            note: "Resmi belgeler",
             source: .article,
             tags: ["Swift", "iOS"]
         ),

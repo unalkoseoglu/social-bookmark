@@ -31,41 +31,8 @@ extension Social_BookmarkApp {
         // 2. SyncService'i configure et
         SyncService.shared.configure(modelContext: modelContainer.mainContext)
         
-        // 3. Auth başlat
-        Task { @MainActor in
-            await ensureUserAuthenticated()
-        }
-        
-        // 4. Network değişikliklerini dinle
+        // 3. Network değişikliklerini dinle
         setupNetworkObserver()
-    }
-    
-    /// Kullanıcının authenticate olduğundan emin ol
-    @MainActor
-    private func ensureUserAuthenticated() async {
-        guard NetworkMonitor.shared.isConnected else {
-            print("⚠️ [APP] No internet, skipping authentication")
-            return
-        }
-        
-        do {
-            let user = try await AuthService.shared.ensureAuthenticated()
-            print("✅ [APP] User authenticated: \(user.id)")
-            
-            // İlk sync'i başlat
-            await performInitialSync()
-            
-        } catch {
-            print("⚠️ [APP] Authentication failed: \(error.localizedDescription)")
-        }
-    }
-    
-    /// İlk sync'i yap
-    @MainActor
-    private func performInitialSync() async {
-        print("🔄 [APP] Starting initial sync...")
-        SyncService.shared.startAutoSync()
-        await SyncService.shared.performFullSync()
     }
     
     /// Network durumu değişikliklerini dinle
@@ -75,10 +42,7 @@ extension Social_BookmarkApp {
             object: nil,
             queue: .main
         ) { _ in
-            print("📡 [APP] Network connected - syncing...")
-            Task { @MainActor in
-                await self.ensureUserAuthenticated()
-            }
+            print("📡 [APP] Network connected - will sync on next app active")
         }
     }
 }
@@ -92,8 +56,13 @@ struct RootView: View {
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var syncService = SyncService.shared
     
+    @Environment(\.scenePhase) private var scenePhase
+    
     let homeViewModel: HomeViewModel
     var requireExplicitSignIn: Bool = false
+    
+    /// İlk açılışta sync yapıldı mı?
+    @State private var hasPerformedInitialSync = false
     
     // MARK: - Body
     
@@ -116,6 +85,9 @@ struct RootView: View {
         .task {
             await initializeAuth()
         }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
+        }
     }
     
     // MARK: - Loading View
@@ -133,7 +105,7 @@ struct RootView: View {
                 ProgressView()
                     .scaleEffect(1.2)
                 
-                Text("Yükleniyor...")
+                Text(String(localized: "common.loading"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -177,8 +149,81 @@ struct RootView: View {
             await sessionStore.ensureAuthenticated()
         }
         
-        if sessionStore.isAuthenticated {
-            SyncService.shared.startAutoSync()
+        // İlk açılışta sync yap
+        if sessionStore.isAuthenticated && !hasPerformedInitialSync {
+            await performInitialSync()
+        }
+    }
+    
+    // MARK: - Scene Phase Handling
+    
+    private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        switch newPhase {
+        case .active:
+            // Uygulama aktif olduğunda (açılış veya arka plandan dönüş)
+            print("📱 [APP] Scene became active")
+            
+            if sessionStore.isAuthenticated && networkMonitor.isConnected {
+                Task {
+                    await performSyncOnAppActive()
+                }
+            }
+            
+        case .inactive:
+            print("📱 [APP] Scene became inactive")
+            
+        case .background:
+            // Arka plana geçerken son değişiklikleri kaydet
+            print("📱 [APP] Scene went to background")
+            
+        @unknown default:
+            break
+        }
+    }
+    
+    // MARK: - Sync Methods
+    
+    /// İlk açılışta tam sync
+    private func performInitialSync() async {
+        guard !hasPerformedInitialSync else { return }
+        
+        print("🔄 [APP] Performing initial sync...")
+        hasPerformedInitialSync = true
+        
+        // Auto-sync'i başlat
+        SyncService.shared.startAutoSync()
+        
+        // Tam sync yap (önce download, sonra upload)
+        await syncService.performFullSync()
+        
+        // ViewModel'i yenile
+        homeViewModel.refresh()
+    }
+    
+    /// Uygulama aktif olduğunda sync
+    private func performSyncOnAppActive() async {
+        // Zaten sync yapılıyorsa atla
+        guard syncService.syncState != .syncing else {
+            print("⏭️ [APP] Sync already in progress, skipping")
+            return
+        }
+        
+        // Son sync'ten bu yana 1 dakika geçtiyse sync yap
+        if let lastSync = syncService.lastSyncDate {
+            let timeSinceLastSync = Date().timeIntervalSince(lastSync)
+            
+            if timeSinceLastSync < 60 {
+                print("⏭️ [APP] Last sync was \(Int(timeSinceLastSync))s ago, skipping")
+                return
+            }
+        }
+        
+        print("🔄 [APP] Syncing on app active...")
+        await syncService.performFullSync()
+        
+        // ViewModel'i yenile
+        await MainActor.run {
+            homeViewModel.refresh()
         }
     }
 }

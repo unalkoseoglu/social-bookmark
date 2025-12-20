@@ -7,11 +7,12 @@ struct HomeView: View {
     
     @Bindable var viewModel: HomeViewModel
     @EnvironmentObject private var sessionStore: SessionStore
-    
+    @ObservedObject private var languageManager = LanguageManager.shared
     @State private var selectedCategory: Category?
     @State private var selectedFilter: QuickFilter?
     @State private var showingAddCategory = false
     
+    // MARK: - Time-based Greeting
     // MARK: - Time-based Greeting
     
     private var greeting: String {
@@ -19,20 +20,20 @@ struct HomeView: View {
         
         switch hour {
         case 5..<12:
-            return String(localized: "greeting.morning") // "Günaydın"
+            return String(localized: "greeting.morning")
         case 12..<18:
-            return String(localized: "greeting.afternoon") // "Tünaydın"
+            return String(localized: "greeting.afternoon")
         case 18..<22:
-            return String(localized: "greeting.evening") // "İyi akşamlar"
+            return String(localized: "greeting.evening")
         default:
-            return String(localized: "greeting.night") // "İyi geceler"
+            return String(localized: "greeting.night")
         }
     }
     
     private var formattedDate: String {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
-        formatter.dateFormat = "d MMMM, EEEE" // "28 Aralık, Perşembe"
+        formatter.dateFormat = "d MMMM, EEEE"
         return formatter.string(from: Date())
     }
     
@@ -75,6 +76,7 @@ struct HomeView: View {
         .refreshable {
             viewModel.refresh()
         }
+        .id(languageManager.refreshID)
     }
     
     // MARK: - Header Section
@@ -93,18 +95,13 @@ struct HomeView: View {
             
             Spacer()
             
-            
-         
-            
-
-                NavigationLink {
-                    SettingsView().environmentObject(sessionStore)
-                } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 30))
-                        .foregroundStyle(.secondary)
-                }
-            
+            NavigationLink {
+                SettingsView().environmentObject(sessionStore)
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 30))
+                    .foregroundStyle(.secondary)
+            }
         }
     }
     
@@ -124,7 +121,7 @@ struct HomeView: View {
                     NavigationLink {
                         CategoriesManagementView(viewModel: viewModel)
                     } label: {
-                        Text("Düzenle")
+                        Text(String(localized: "home.action.edit"))
                             .font(.subheadline)
                             .foregroundStyle(.blue)
                     }
@@ -174,11 +171,11 @@ struct HomeView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Kategori Ekle")
+                    Text(String(localized: "home.empty.add_category"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                     
-                    Text("Bookmarklarını düzenlemek için kategoriler oluştur")
+                    Text(String(localized: "home.empty.add_category_desc"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.leading)
@@ -203,7 +200,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 HomeSectionHeader(
-                    title: String(localized: "home.title"),
+                    title: String(localized: "home.section.recent"),
                     icon: "bookmark.fill"
                 )
                 
@@ -213,7 +210,7 @@ struct HomeView: View {
                     NavigationLink {
                         AllBookmarksView(viewModel: viewModel)
                     } label: {
-                        Text(String(localized: "library.segment.all"))
+                        Text(String(localized: "home.action.see_all"))
                             .font(.subheadline)
                             .foregroundStyle(.blue)
                     }
@@ -233,7 +230,7 @@ struct HomeView: View {
                                 viewModel: viewModel
                             )
                         } label: {
-                            EnhancedBookmarkRow(bookmark: bookmark)
+                            EnhancedBookmarkRow(bookmark: bookmark).padding(14)
                         }
                         .buttonStyle(.plain)
                         
@@ -257,11 +254,11 @@ struct HomeView: View {
                 .foregroundStyle(.secondary)
             
             VStack(spacing: 4) {
-                Text("Henüz bookmark eklenmedi")
+                Text(String(localized: "home.empty.no_bookmarks"))
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                Text("Paylaş butonuyla içerik ekleyin")
+                Text(String(localized: "home.empty.no_bookmarks_desc"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -294,7 +291,7 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .fixedSize(horizontal: false, vertical: true) // Eşit yükseklik için
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 16)
             
             // Popular Tags Widget
@@ -370,100 +367,7 @@ struct CompactCategoryCard: View {
     }
 }
 
-// MARK: - Enhanced Bookmark Row (Daha büyük, 3-4 satır içerik)
 
-struct EnhancedBookmarkRow: View {
-    let bookmark: Bookmark
-    
-    private var contentPreview: String {
-        if !bookmark.note.isEmpty {
-            return bookmark.note
-        } else if let extractedText = bookmark.extractedText, !extractedText.isEmpty {
-            return extractedText
-        } else if let url = bookmark.url {
-            return url
-        }
-        return "İçerik yok"
-    }
-    
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            // Thumbnail or Source Icon
-            Group {
-                if let imageData = bookmark.imageData,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    ZStack {
-                        bookmark.source.color.opacity(0.15)
-                        Text(bookmark.source.emoji)
-                            .font(.title2)
-                    }
-                }
-            }
-            .frame(width: 64, height: 64)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            // Content
-            VStack(alignment: .leading, spacing: 6) {
-                // Title
-                Text(bookmark.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
-                    .foregroundStyle(.primary)
-                
-                // Content Preview (3-4 satır)
-                Text(contentPreview)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(6)
-                    .multilineTextAlignment(.leading)
-                
-                // Meta Info
-                HStack( alignment: .center, spacing: 8) {
-                    // Source Badge
-                    HStack(spacing: 4) {
-                        Text(bookmark.source.emoji)
-                            .font(.caption2)
-                        Text(bookmark.source.displayName)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Text("•")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    
-                    Text(bookmark.relativeDate)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    
-                    Spacer()
-                }
-            }
-            
-            // Status Indicators
-            VStack(alignment: .center, spacing: 6) {
-                if !bookmark.isRead {
-                    Circle()
-                        .fill(.orange)
-                        .frame(width: 10, height: 10)
-                } else {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                }
-                
-            }
-            .padding(.top, 4)
-        }
-        .padding(14)
-        .contentShape(Rectangle())
-    }
-}
 
 // MARK: - Reading Progress Widget
 
@@ -485,7 +389,7 @@ struct ReadingProgressWidget: View {
             HStack {
                 Image(systemName: "book.fill")
                     .foregroundStyle(.blue)
-                Text("Okuma İlerlemesi")
+                Text(String(localized: "widget.reading_progress"))
                     .font(.caption)
                     .fontWeight(.semibold)
             }
@@ -519,7 +423,7 @@ struct ReadingProgressWidget: View {
             
             Spacer()
             
-            Text("\(readCount)/\(totalCount) okundu")
+            Text(String(localized: "widget.read_count \(readCount) \(totalCount)"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
@@ -543,7 +447,7 @@ struct QuickStatsWidget: View {
             HStack {
                 Image(systemName: "chart.bar.fill")
                     .foregroundStyle(.purple)
-                Text("Hızlı İstatistikler")
+                Text(String(localized: "widget.quick_stats"))
                     .font(.caption)
                     .fontWeight(.semibold)
             }
@@ -553,7 +457,7 @@ struct QuickStatsWidget: View {
             VStack(spacing: 10) {
                 quickStatRow(
                     icon: "sun.max.fill",
-                    title: "Bugün",
+                    title: String(localized: "common.today"),
                     count: todayCount,
                     color: .orange
                 ) {
@@ -562,7 +466,7 @@ struct QuickStatsWidget: View {
                 
                 quickStatRow(
                     icon: "calendar",
-                    title: "Bu Hafta",
+                    title: String(localized: "common.this_week"),
                     count: weekCount,
                     color: .green
                 ) {
@@ -571,7 +475,7 @@ struct QuickStatsWidget: View {
                 
                 quickStatRow(
                     icon: "star.fill",
-                    title: "Favoriler",
+                    title: String(localized: "common.favorites"),
                     count: favoritesCount,
                     color: .yellow
                 ) {
@@ -628,7 +532,7 @@ struct PopularTagsWidget: View {
             HStack {
                 Image(systemName: "tag.fill")
                     .foregroundStyle(.green)
-                Text("Popüler Etiketler")
+                Text(String(localized: "widget.popular_tags"))
                     .font(.caption)
                     .fontWeight(.semibold)
                 
@@ -677,11 +581,11 @@ struct TaggedBookmarksView: View {
                         viewModel: viewModel
                     )
                 } label: {
-                    BookmarkListRow(bookmark: bookmark)
+                    EnhancedBookmarkRow(bookmark: bookmark).padding(14)
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .navigationTitle("#\(tag)")
         .navigationBarTitleDisplayMode(.large)
     }

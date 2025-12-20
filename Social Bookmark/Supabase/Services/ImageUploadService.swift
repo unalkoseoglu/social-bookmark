@@ -12,9 +12,12 @@
 //
 
 import Foundation
+import Supabase
 import UIKit
 import CryptoKit
 internal import Combine
+import SwiftUI
+
 
 /// Görsel yükleme servisi
 @MainActor
@@ -442,8 +445,6 @@ enum ImageUploadError: LocalizedError {
 
 // MARK: - SwiftUI Image Loader
 
-import SwiftUI
-import Supabase
 
 /// AsyncImage benzeri ama cache destekli
 struct CachedAsyncImage<Content: View, Placeholder: View>: View {

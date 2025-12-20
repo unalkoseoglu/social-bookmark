@@ -55,11 +55,11 @@ struct ImageCropView: View {
                 bottomToolbar
             }
             .background(Color.black)
-            .navigationTitle("Düzenle")
+            .navigationTitle(Text("common.edit"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") { dismiss() }
+                    Button("common.cancel") { dismiss() }
                         .foregroundStyle(.white)
                 }
                 
@@ -68,7 +68,7 @@ struct ImageCropView: View {
                         if isProcessing {
                             ProgressView()
                         } else {
-                            Text("Kaydet")
+                            Text("common.save")
                                 .fontWeight(.semibold)
                         }
                     }
@@ -76,13 +76,13 @@ struct ImageCropView: View {
                     .disabled(isProcessing)
                 }
             }
-            .alert("OCR Sonucu", isPresented: $showingOCRResult) {
-                Button("Tamam", role: .cancel) {}
-                Button("Kopyala") {
+            .alert(Text("ocr.result"), isPresented: $showingOCRResult) {
+                Button("common.ok", role: .cancel) {}
+                Button("common.copy") {
                     UIPasteboard.general.string = ocrText
                 }
             } message: {
-                Text(ocrText.isEmpty ? "Metin bulunamadı" : ocrText)
+                Text(ocrText.isEmpty ? String(localized: "ocr.noText") : ocrText)
             }
         }
         .preferredColorScheme(.dark)
@@ -218,7 +218,7 @@ struct ImageCropView: View {
         HStack(spacing: 0) {
             ToolButton(
                 icon: "rotate.right",
-                title: "Döndür",
+                title: String(localized: "image.rotate"),
                 isActive: false
             ) {
                 withAnimation(.spring(response: 0.3)) {
@@ -233,7 +233,7 @@ struct ImageCropView: View {
             
             ToolButton(
                 icon: "arrow.counterclockwise",
-                title: "Sıfırla",
+                title: String(localized: "image.reset"),
                 isActive: false
             ) {
                 resetImage()
@@ -245,7 +245,7 @@ struct ImageCropView: View {
             
             ToolButton(
                 icon: "slider.horizontal.3",
-                title: "Filtreler",
+                title: String(localized: "all.filter.title"),
                 isActive: showingFilters
             ) {
                 withAnimation(.spring(response: 0.3)) {
@@ -259,7 +259,7 @@ struct ImageCropView: View {
             
             ToolButton(
                 icon: "doc.text.viewfinder",
-                title: "OCR",
+                title: String(localized: "ocr.title"),
                 isActive: false
             ) {
                 performOCR()
@@ -315,7 +315,8 @@ struct ImageCropView: View {
                 }
             } catch {
                 await MainActor.run {
-                    ocrText = "Hata: \(error.localizedDescription)"
+                    let errorPrefix = String(localized: "common.error")
+                    ocrText = "\(errorPrefix): \(error.localizedDescription)"
                     showingOCRResult = true
                     isProcessing = false
                 }
@@ -363,7 +364,6 @@ struct ImageCropView: View {
         return UIGraphicsGetImageFromCurrentImageContext() ?? image
     }
 }
-
 // MARK: - Tool Button
 
 struct ToolButton: View {

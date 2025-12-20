@@ -357,7 +357,7 @@ final class SessionStore: ObservableObject {
         // Geçici displayName (UserProfile yüklenene kadar)
         if displayName == nil {
             if let email = user.email {
-                displayName = email.components(separatedBy: "@").first
+                displayName = email
             } else {
                 displayName = RandomNameGenerator.generate(from: user.id)
             }

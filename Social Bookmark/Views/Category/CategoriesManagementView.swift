@@ -19,6 +19,9 @@ struct CategoriesManagementView: View {
     @State private var editingCategory: Category?
     @State private var showingDeleteAlert = false
     @State private var categoryToDelete: Category?
+    @State private var useCustomColor = false
+    @State private var customColor: Color = .blue
+
     
     // MARK: - Body
     
@@ -27,10 +30,10 @@ struct CategoriesManagementView: View {
             // Bilgi kartı
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Kategoriler", systemImage: "folder.fill")
+                    Label("categories.management.info_title", systemImage: "folder.fill")
                         .font(.headline)
                     
-                    Text("Bookmarklarını düzenlemek için kategoriler oluştur. Sürükleyerek sıralayabilirsin.")
+                    Text("categories.management.info_desc")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -54,13 +57,13 @@ struct CategoriesManagementView: View {
                                 categoryToDelete = category
                                 showingDeleteAlert = true
                             } label: {
-                                Label("Sil", systemImage: "trash")
+                                Label("common.delete", systemImage: "trash")
                             }
                             
                             Button {
                                 editingCategory = category
                             } label: {
-                                Label("Düzenle", systemImage: "pencil")
+                                Label("common.edit", systemImage: "pencil")
                             }
                             .tint(.blue)
                         }
@@ -69,7 +72,7 @@ struct CategoriesManagementView: View {
                 }
             } header: {
                 HStack {
-                    Text("Kategoriler (\(viewModel.categories.count))")
+                    Text("categories.management.count \(viewModel.categories.count)")
                     Spacer()
                     EditButton()
                         .font(.caption)
@@ -82,12 +85,12 @@ struct CategoriesManagementView: View {
                     Button {
                         viewModel.createDefaultCategories()
                     } label: {
-                        Label("Varsayılan Kategorileri Ekle", systemImage: "plus.circle.fill")
+                        Label("library.action.create_default_categories", systemImage: "plus.circle.fill")
                     }
                 }
             }
         }
-        .navigationTitle("Kategoriler")
+        .navigationTitle("categories.title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -105,23 +108,28 @@ struct CategoriesManagementView: View {
         }
         .sheet(item: $editingCategory) { category in
             EditCategoryView(category: category) { updatedCategory in
-                viewModel.updateCategory(updatedCategory)
+                Task{
+                  await  viewModel.updateCategory(updatedCategory)
+                }
+               
             }
         }
-        .alert("Kategoriyi Sil", isPresented: $showingDeleteAlert) {
-            Button("İptal", role: .cancel) {}
-            Button("Sil", role: .destructive) {
+        .alert("category.delete.title", isPresented: $showingDeleteAlert) {
+            Button("common.cancel", role: .cancel) {}
+            Button("common.delete", role: .destructive) {
                 if let category = categoryToDelete {
-                    viewModel.deleteCategory(category)
+                    Task{
+                      await  viewModel.deleteCategory(category)
+                    }
                 }
             }
         } message: {
             if let category = categoryToDelete {
                 let count = viewModel.bookmarkCount(for: category)
                 if count > 0 {
-                    Text("'\(category.name)' kategorisinde \(count) bookmark var. Bu bookmarklar kategorisiz kalacak.")
+                    Text("categories.management.delete_with_bookmarks \(count) \(category.name)")
                 } else {
-                    Text("'\(category.name)' kategorisini silmek istediğine emin misin?")
+                    Text("categories.management.delete_confirmation \(category.name)")
                 }
             }
         }
@@ -135,7 +143,7 @@ struct CategoriesManagementView: View {
                 .font(.system(size: 32))
                 .foregroundStyle(.secondary)
             
-            Text("Henüz kategori yok")
+            Text("categories.empty")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -152,7 +160,9 @@ struct CategoriesManagementView: View {
         // Sıralamayı güncelle
         for (index, category) in categories.enumerated() {
             category.order = index
-            viewModel.updateCategory(category)
+            Task{
+              await  viewModel.updateCategory(category)
+            }
         }
         
         viewModel.refresh()
@@ -182,7 +192,7 @@ struct CategoryManagementRow: View {
                     .font(.body)
                     .fontWeight(.medium)
                 
-                Text("\(bookmarkCount) bookmark")
+                Text("categories.management.bookmark_count \(bookmarkCount)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -221,22 +231,22 @@ struct AddCategoryView: View {
         NavigationStack {
             Form {
                 // İsim
-                Section("Kategori Adı") {
-                    TextField("Örn: İş, Okuma Listesi, Araştırma", text: $name)
+                Section("category.field.name") {
+                    TextField("category.field.name_placeholder", text: $name)
                 }
                 
                 // İkon seçimi
-                Section("İkon") {
+                Section("category.field.icon") {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
                 // Renk seçimi
-                Section("Renk") {
+                Section("category.field.color") {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
                 // Önizleme
-                Section("Önizleme") {
+                Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
                             .font(.title3)
@@ -246,11 +256,11 @@ struct AddCategoryView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(name.isEmpty ? "Kategori Adı" : name)
+                            Text(name.isEmpty ? String(localized: "category.field.name") : name)
                                 .font(.body)
                                 .fontWeight(.medium)
                             
-                            Text("0 bookmark")
+                            Text("categories.management.bookmark_count \(2)")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -258,17 +268,17 @@ struct AddCategoryView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .navigationTitle("Yeni Kategori")
+            .navigationTitle("category.new.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button("common.cancel") {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button("common.save") {
                         saveCategory()
                     }
                     .fontWeight(.semibold)
@@ -317,22 +327,22 @@ struct EditCategoryView: View {
         NavigationStack {
             Form {
                 // İsim
-                Section("Kategori Adı") {
-                    TextField("Kategori adı", text: $name)
+                Section("category.field.name") {
+                    TextField("category.field.name", text: $name)
                 }
                 
                 // İkon seçimi
-                Section("İkon") {
+                Section("category.field.icon") {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
                 // Renk seçimi
-                Section("Renk") {
+                Section("category.field.color") {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
                 // Önizleme
-                Section("Önizleme") {
+                Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
                             .font(.title3)
@@ -342,11 +352,11 @@ struct EditCategoryView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(name.isEmpty ? "Kategori Adı" : name)
+                            Text(name.isEmpty ? "category.field.name" : name)
                                 .font(.body)
                                 .fontWeight(.medium)
                             
-                            Text("Düzenleniyor")
+                            Text("categories.management.editing_status")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -354,17 +364,17 @@ struct EditCategoryView: View {
                     .padding(.vertical, 4)
                 }
             }
-            .navigationTitle("Kategori Düzenle")
+            .navigationTitle("category.edit.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button("common.cancel") {
                         dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button("common.save") {
                         saveChanges()
                     }
                     .fontWeight(.semibold)
@@ -382,89 +392,167 @@ struct EditCategoryView: View {
         dismiss()
     }
 }
+// IconPickerGrid ve ColorPickerGrid yapıları statik metin içermediği için (sadece sistem ikonları ve renkler) oldukları gibi bırakılmıştır.
 
 // MARK: - Icon Picker Grid
+struct CategoryDesign {
+    static let icons: [String] = [
+        // Temel & Klasör
+        "folder.fill", "folder.badge.plus", "folder.badge.gear", "archivebox.fill", "tray.full.fill",
+        // İş & Eğitim
+        "briefcase.fill", "building.2.fill", "chart.bar.fill", "graduationcap.fill", "pencil.and.outline",
+        "doc.text.fill", "signature", "calendar", "book.fill", "books.vertical.fill", "newspaper.fill",
+        // Teknoloji
+        "laptopcomputer", "desktopcomputer", "iphone", "ipad", "applewatch", "terminal.fill", "cpu",
+        // Sosyal & İletişim
+        "person.2.fill", "bubble.left.and.bubble.right.fill", "network", "envelope.fill", "phone.fill",
+        // Medya & Eğlence
+        "play.circle.fill", "music.note", "gamecontroller.fill", "camera.fill", "tv.fill", "headphones",
+        // Yaşam & Hobi
+        "star.fill", "heart.fill", "bookmark.fill", "lightbulb.fill", "leaf.fill", "cart.fill",
+        "airplane", "house.fill", "car.fill", "bicycle", "tram.fill", "map.fill",
+        // Sağlık & Spor
+        "cross.case.fill", "pills.fill", "figure.run", "dumbbell.fill", "fork.knife", "cup.and.saucer.fill",
+        // Finans & Araçlar
+        "creditcard.fill", "banknote.fill", "hammer.fill", "wrench.and.screwdriver.fill", "bolt.fill", "key.fill"
+    ]
+    
+    static let colors: [Color] = [
+        .blue, .purple, .pink, .red, .orange, .yellow,
+        .green, .mint, .teal, .cyan, .indigo, .brown,
+        .gray, .black, .accentColor,
+       
+    ]
+}
+
+// MARK: - Modern Icon Picker Grid
 
 struct IconPickerGrid: View {
     @Binding var selectedIcon: String
     
-    private let icons = [
-        // Klasörler
-        "folder.fill", "folder.badge.plus", "folder.badge.gear",
-        // İş
-        "briefcase.fill", "building.2.fill", "chart.bar.fill",
-        // Okuma
-        "book.fill", "books.vertical.fill", "newspaper.fill",
-        // Teknoloji
-        "laptopcomputer", "desktopcomputer", "iphone",
-        // Sosyal
-        "person.2.fill", "bubble.left.and.bubble.right.fill", "network",
-        // Eğlence
-        "play.circle.fill", "music.note", "gamecontroller.fill",
-        // Diğer
-        "star.fill", "heart.fill", "bookmark.fill",
-        "lightbulb.fill", "graduationcap.fill", "leaf.fill",
-        "cart.fill", "airplane", "house.fill"
-    ]
-    
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
-            ForEach(icons, id: \.self) { icon in
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 15) {
+            ForEach(CategoryDesign.icons, id: \.self) { icon in
                 Button {
-                    selectedIcon = icon
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        selectedIcon = icon
+                    }
                 } label: {
                     Image(systemName: icon)
                         .font(.title3)
-                        .frame(width: 44, height: 44)
-                        .background(selectedIcon == icon ? Color.blue.opacity(0.2) : Color(.systemGray6))
-                        .foregroundStyle(selectedIcon == icon ? .blue : .primary)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .frame(width: 46, height: 46)
+                        .background(selectedIcon == icon ? Color.blue.opacity(0.15) : Color(.systemGray6))
+                        .foregroundStyle(selectedIcon == icon ? .blue : .secondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(selectedIcon == icon ? Color.blue : .clear, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(selectedIcon == icon ? Color.blue : Color.clear, lineWidth: 2)
                         )
+                        .scaleEffect(selectedIcon == icon ? 1.1 : 1.0)
                 }
                 .buttonStyle(.plain)
             }
         }
+        .padding(.vertical, 10)
     }
 }
 
-// MARK: - Color Picker Grid
+// MARK: - Modern Color Picker Grid
 
 struct ColorPickerGrid: View {
     @Binding var selectedColor: Color
-    
-    private let colors: [Color] = [
-        .blue, .purple, .pink, .red, .orange, .yellow,
-        .green, .mint, .teal, .cyan, .indigo, .brown
-    ]
+    @State private var showCustomColorPicker = false
+
     
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
-            ForEach(colors, id: \.self) { color in
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 18) {
+            ForEach(CategoryDesign.colors, id: \.self) { color in
                 Button {
-                    selectedColor = color
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        selectedColor = color
+                    }
                 } label: {
-                    Circle()
-                        .fill(color)
-                        .frame(width: 36, height: 36)
-                        .overlay(
+                    ZStack {
+                        if color == CategoryDesign.colors.last{
+                            ColorPicker("category.color.picker", selection: $selectedColor, supportsOpacity: false)
+                                .labelsHidden().controlSize(.extraLarge).scaleEffect(1.2)
+                        }else{
                             Circle()
-                                .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 0)
-                        )
-                        .overlay(
-                            Circle()
-                                .stroke(color, lineWidth: selectedColor == color ? 2 : 0)
-                                .scaleEffect(1.3)
-                        )
+                                .fill(color)
+                                .frame(width: 34, height: 34)
+                                .shadow(color: color.opacity(0.3), radius: 4, x: 0, y: 2)
+                            
+                            if selectedColor == color {
+                                Circle()
+                                    .stroke(Color.primary, lineWidth: 2)
+                                    .frame(width: 44, height: 44)
+                                
+                                Image(systemName: "checkmark")
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(isDarkColor(color) ? .white : .black)
+                                
+                            }
+                        }
+                        
+                        
+                    }
+                    
                 }
                 .buttonStyle(.plain)
+            }
+            
+        }
+        .padding(.vertical, 10)
+    }
+    
+    // Kontrast kontrolü (Koyu renklerde checkmark beyaz, açıklarda siyah olsun)
+    private func isDarkColor(_ color: Color) -> Bool {
+        // Basit bir yaklaşım, daha kompleks lüminans kontrolü de yapılabilir
+        return color == .black || color == .indigo || color == .blue || color == .brown
+    }
+}
+
+// MARK: - Preview
+
+struct CustomColorPickerSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedColor: Color
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+
+                ColorPicker(
+                    "Renk Seç",
+                    selection: $selectedColor,
+                    supportsOpacity: false
+                )
+                .labelsHidden()
+                .padding()
+
+                // Önizleme
+                Circle()
+                    .fill(selectedColor)
+                    .frame(width: 64, height: 64)
+                    .overlay(
+                        Circle().stroke(Color.white, lineWidth: 2)
+                    )
+
+                Spacer()
+            }
+            .navigationTitle("Özel Renk")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Bitti") {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
             }
         }
     }
 }
-
 
 
 // MARK: - Preview

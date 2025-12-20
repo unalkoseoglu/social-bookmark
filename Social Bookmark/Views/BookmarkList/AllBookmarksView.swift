@@ -252,7 +252,7 @@ struct AllBookmarksView: View {
                 viewModel: viewModel
             )
         } label: {
-            AllBookmarksRow(bookmark: bookmark)
+            EnhancedBookmarkRow(bookmark: bookmark)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {

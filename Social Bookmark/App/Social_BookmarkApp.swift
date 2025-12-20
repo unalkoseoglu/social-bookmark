@@ -1,3 +1,10 @@
+//
+//  Social_BookmarkApp.swift
+//  Social Bookmark
+//
+//  Created by Ünal Köseoğlu on 15.12.2025.
+//
+
 import SwiftUI
 import SwiftData
 
@@ -13,10 +20,6 @@ struct Social_BookmarkApp: App {
     
     /// Category repository - kategori yönetimi
     let categoryRepository: CategoryRepositoryProtocol
-
-    /// Seçilen uygulama dili - Mevcut AppLanguage enum'unu kullanıyor
-    @AppStorage(AppLanguage.storageKey)
-    private var selectedLanguageRawValue = AppLanguage.system.rawValue
 
     /// App Group ID - Extension ile paylaşım için
     static let appGroupID = "group.com.unal.socialbookmark"
@@ -44,7 +47,7 @@ struct Social_BookmarkApp: App {
             fatalError("ModelContainer oluşturulamadı: \(error)")
         }
 
-        // 1) Önce repository’ler
+        // 1) Önce repository'ler
         bookmarkRepository = BookmarkRepository(modelContext: modelContainer.mainContext)
         categoryRepository = CategoryRepository(modelContext: modelContainer.mainContext)
 
@@ -56,21 +59,14 @@ struct Social_BookmarkApp: App {
     
     var body: some Scene {
         WindowGroup {
-                   // ✨ RootView ile wrap et
-                   RootView(
-                       homeViewModel: HomeViewModel(
-                           bookmarkRepository: bookmarkRepository,
-                           categoryRepository: categoryRepository
-                       )
-                   )
-                   .environment(\.locale, appLanguage.locale)
-               }
-               .modelContainer(modelContainer)
+            RootView(
+                homeViewModel: HomeViewModel(
+                    bookmarkRepository: bookmarkRepository,
+                    categoryRepository: categoryRepository
+                )
+            )
+            .environment(\.locale, LanguageManager.shared.currentLanguage.locale)
+        }
+        .modelContainer(modelContainer)
     }
-
-    private var appLanguage: AppLanguage {
-        AppLanguage(rawValue: selectedLanguageRawValue) ?? .system
-    }
-    
-    
 }

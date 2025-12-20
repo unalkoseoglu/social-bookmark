@@ -10,177 +10,106 @@ struct MediumPreviewView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Başlık
             HStack {
-                        Image(systemName: "doc.text.fill")
-                            .foregroundStyle(.green)
-                        Text("Medium Preview")  // "Önizleme" vurgusu
-                            .font(.headline)
-                        Spacer()
-                        
-                        // PAYWALL BADGE ← YENİ
-                        if !post.hasFullContent {
-                            HStack(spacing: 4) {
-                                Image(systemName: "lock.fill")
-                                Text("Önizleme")
-                            }
-                            .font(.caption2)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.orange.opacity(0.2))
-                            .foregroundStyle(.orange)
-                            .clipShape(Capsule())
-                        }
-                        
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundStyle(.green)
-                            .font(.caption)
+                Image(systemName: "doc.text.fill")
+                    .foregroundStyle(.green)
+                Text("medium.preview.title")
+                    .font(.headline)
+                Spacer()
+                
+                // PAYWALL BADGE
+                if !post.hasFullContent {
+                    HStack(spacing: 4) {
+                        Image(systemName: "lock.fill")
+                        Text("medium.preview.badge")
                     }
+                    .font(.caption2)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.orange.opacity(0.2))
+                    .foregroundStyle(.orange)
+                    .clipShape(Capsule())
+                }
+                
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.green)
+                    .font(.caption)
+            }
             
             Divider()
             
-            // Görsel (varsa)
-            if let imageData = imageData,
-               let uiImage = UIImage(data: imageData) {
+            // Görsel
+            if let data = imageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 200)
+                    .frame(height: 180)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-            } else if post.imageURL != nil {
-                // Görsel yükleniyor
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 200)
-                    .overlay {
-                        VStack(spacing: 8) {
-                            ProgressView()
-                            Text("Görsel yükleniyor...")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+            } else if let imageURL = post.imageURL {
+                AsyncImage(url: imageURL) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                }
             }
             
-            // Başlık
-            Text(post.title)
-                .font(.title3)
-                .fontWeight(.bold)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            // Subtitle (EN ÖNEMLİ KISIM)
-                    if post.hasSubtitle {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(post.subtitle)
-                                .font(.body)
-                                .foregroundStyle(.primary)  // Vurgu
-                                .lineLimit(nil)
-                                .fixedSize(horizontal: false, vertical: true)
-                            
-                            // Kısmi içerik varsa göster
-                            if post.hasFullContent {
-                                Text(post.fullContent)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(isExpanded ? nil : 3)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                
-                                if post.fullContent.count > 200 {
-                                    Button(action: { isExpanded.toggle() }) {
-                                        Text(isExpanded ? "Daha az" : "Daha fazla")
-                                            .font(.caption)
-                                            .foregroundStyle(.green)
-                                    }
-                                }
-                            }}
-                        }
-                            Divider()
-                            
-                            // "Medium'da Aç" butonu ← YENİ
-                                    Link(destination: post.originalURL) {
-                                        HStack {
-                                            Image(systemName: "arrow.up.right.square.fill")
-                                            Text("Medium'da Tam Makaleyi Oku")
-                                                .fontWeight(.medium)
-                                        }
-                                        .font(.subheadline)
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(Color.green)
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    }
-            
-            Divider()
-                            
-                            
-            
-            // Yazar bilgisi
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(Color.green.opacity(0.2))
-                    .frame(width: 32, height: 32)
-                    .overlay {
-                        Text(String(post.authorName.prefix(1)).uppercased())
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.green)
-                    }
+            // Metin İçeriği
+            VStack(alignment: .leading, spacing: 4) {
+                Text(post.title)
+                    .font(.headline)
+                    .lineLimit(2)
                 
+                if !post.subtitle.isEmpty {
+                    Text(post.subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(isExpanded ? nil : 3)
+                }
+            }
+            
+            // Alt Bilgiler
+            HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(post.authorName)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .font(.caption)
+                        .fontWeight(.bold)
                     
-                    HStack(spacing: 12) {
-                        // Okuma süresi
-                        if !post.readTimeText.isEmpty {
-                            HStack(spacing: 4) {
-                                Image(systemName: "clock")
-                                Text(post.readTimeText)
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        if post.readTime > 0 {
+                            Text("medium.read_time \(post.readTime)")
                         }
                         
-                        // Tarih
-                        if let relativeDate = post.relativeDate {
-                            HStack(spacing: 4) {
-                                Image(systemName: "calendar")
-                                Text(relativeDate)
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        if let date = post.publishedDate {
+                            Text("•")
+                            Text(date, style: .date)
                         }
                     }
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
-            }
-            
-            // İstatistikler (varsa)
-            if !post.formattedClaps.isEmpty {
-                HStack(spacing: 16) {
+                
+                if post.claps > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: "hands.clap.fill")
-                            .foregroundStyle(.green)
-                        Text(post.formattedClaps)
-                            .fontWeight(.medium)
+                        Text("\(post.claps)")
                     }
-                    .font(.caption)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(.systemGray6))
+                    .clipShape(Capsule())
                 }
             }
-            
-            // Medium badge
-            HStack {
-                Image(systemName: "doc.text.fill")
-                    .foregroundStyle(.green)
-                Text("Medium")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .font(.caption)
         }
         .padding()
         .background(Color(.secondarySystemBackground))

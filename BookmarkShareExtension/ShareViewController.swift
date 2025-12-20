@@ -1,3 +1,10 @@
+//
+//  ShareViewController.swift
+//  BookmarkShareExtension
+//
+//  Optimize edilmiş versiyon - Daha hızlı başlatma
+//
+
 import UIKit
 import SwiftUI
 import SwiftData
@@ -31,7 +38,7 @@ class ShareViewController: UIViewController {
     
     private let appGroupId = "group.com.unal.socialbookmark"
     private let inboxKey = "share_inbox_payloads"
-    private let loadingTimeoutSeconds: TimeInterval = 10.0
+    private let loadingTimeoutSeconds: TimeInterval = 15.0
     private let imageDirectory = "SharedImages"
     
     // MARK: - Properties
@@ -41,39 +48,22 @@ class ShareViewController: UIViewController {
     private var collectedTexts: [String] = []
     private var collectedImageFileNames: [String] = []
     
+    /// Lazy ModelContainer - sadece ihtiyaç olduğunda oluşturulur
+    private lazy var modelContainer: ModelContainer? = {
+        createModelContainer()
+    }()
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Task {
-            do {
-                let payload = try await collectPayload()
-                persistToAppGroup(payload: payload)
-                
-                // URL varsa SwiftUI view'ı göster, yoksa direkt kapat
-                if let firstURL = payload.urls.first, let url = URL(string: firstURL) {
-                    await MainActor.run {
-                        setupSwiftUIView(with: url, payload: payload)
-                    }
-                } else if !payload.texts.isEmpty || !payload.imageFileNames.isEmpty {
-                    // Text veya image varsa da işle
-                    await MainActor.run {
-                        // URL yoksa placeholder URL ile aç veya direkt kaydet
-                        if let text = payload.texts.first, let url = parseURL(from: text) {
-                            setupSwiftUIView(with: url, payload: payload)
-                        } else {
-                            // Sadece text/image var, direkt kapat ve kaydet
-                            close()
-                        }
-                    }
-                } else {
-                    await MainActor.run { close() }
-                }
-            } catch {
-                print("❌ Share Extension error: \(error.localizedDescription)")
-                await MainActor.run { close() }
-            }
+        // Hemen loading göster
+        showLoadingView()
+        
+        // Arka planda işlemleri yap
+        Task(priority: .userInitiated) {
+            await processExtensionInput()
         }
         
         // Global timeout
@@ -84,93 +74,143 @@ class ShareViewController: UIViewController {
         }
     }
     
+    // MARK: - Loading View
+    
+    private func showLoadingView() {
+        view.backgroundColor = .systemBackground
+        
+        let loadingView = UIActivityIndicatorView(style: .large)
+        loadingView.translatesAutoresizingMaskIntoConstraints = false
+        loadingView.startAnimating()
+        
+        let label = UILabel()
+        label.text = "Yükleniyor..."
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(loadingView)
+        view.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.topAnchor.constraint(equalTo: loadingView.bottomAnchor, constant: 12)
+        ])
+    }
+    
+    // MARK: - Process Input
+    
+    private func processExtensionInput() async {
+        do {
+            let payload = try await collectPayload()
+            
+            // URL varsa SwiftUI view'ı göster
+            if let firstURL = payload.urls.first, let url = URL(string: firstURL) {
+                await MainActor.run {
+                    setupSwiftUIView(with: url, payload: payload)
+                }
+            } else if let text = payload.texts.first, let url = parseURL(from: text) {
+                await MainActor.run {
+                    setupSwiftUIView(with: url, payload: payload)
+                }
+            } else {
+                // URL yok, App Group'a kaydet ve kapat
+                persistToAppGroup(payload: payload)
+                await MainActor.run { close() }
+            }
+        } catch {
+            print("❌ Share Extension error: \(error.localizedDescription)")
+            await MainActor.run { close() }
+        }
+    }
+    
+    // MARK: - Model Container (Lazy)
+    
+    private func createModelContainer() -> ModelContainer? {
+        guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
+            print("❌ App Group container bulunamadı")
+            return nil
+        }
+        
+        let storeURL = containerURL.appendingPathComponent("bookmark.sqlite")
+        
+        do {
+            let configuration = ModelConfiguration(url: storeURL, allowsSave: true)
+            let container = try ModelContainer(for: Bookmark.self, Category.self, configurations: configuration)
+            print("✅ ModelContainer created")
+            return container
+        } catch {
+            print("❌ ModelContainer error: \(error)")
+            return nil
+        }
+    }
+    
     // MARK: - Collect Payload
     
     private func collectPayload() async throws -> SharedInboxPayload {
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-              let itemProviders = extensionItem.attachments,
-              !itemProviders.isEmpty else {
-            throw ShareError.noItems
+              let attachments = extensionItem.attachments else {
+            throw NSError(domain: "ShareExtension", code: 1, userInfo: [NSLocalizedDescriptionKey: "No attachments"])
         }
         
-        print("📱 Share Extension: \(itemProviders.count) item provider(s) found")
+        print("📱 Share Extension: \(attachments.count) attachment(s) found")
         
-        // Tüm provider'ları paralel olarak işle
+        // Paralel olarak tüm attachment'ları işle
         await withTaskGroup(of: Void.self) { group in
-            for provider in itemProviders {
+            for provider in attachments {
                 group.addTask { [weak self] in
-                    await self?.processItemProvider(provider)
+                    await self?.processAttachment(provider)
                 }
             }
         }
         
-        // Payload oluştur
-        let payload = SharedInboxPayload(
+        return SharedInboxPayload(
             urls: Array(collectedURLs),
             texts: collectedTexts,
             imageFileNames: collectedImageFileNames
         )
-        
-        print("✅ Payload collected: \(payload.urls.count) URLs, \(payload.texts.count) texts, \(payload.imageFileNames.count) images")
-        
-        return payload
     }
     
-    // MARK: - Process Item Provider
-    
-    private func processItemProvider(_ provider: NSItemProvider) async {
-        // 1. URL
+    private func processAttachment(_ provider: NSItemProvider) async {
+        // URL kontrolü
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = await loadURL(from: provider) {
-                let urlString = url.absoluteString
-                if !urlString.isEmpty {
-                    collectedURLs.insert(urlString)
-                    print("✅ URL collected: \(urlString)")
-                }
+                collectedURLs.insert(url.absoluteString)
+                print("   ✅ URL: \(url.absoluteString)")
             }
         }
         
-        // 2. Plain Text
+        // Plain text kontrolü
         if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-            if let text = await loadPlainText(from: provider) {
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty {
-                    // Text içinde URL varsa onu da ekle
-                    if let extractedURL = parseURL(from: trimmed) {
-                        collectedURLs.insert(extractedURL.absoluteString)
-                    }
-                    // Text'i de ekle (duplicate değilse)
-                    if !collectedTexts.contains(trimmed) {
-                        collectedTexts.append(trimmed)
-                        print("✅ Text collected: \(trimmed.prefix(50))...")
-                    }
+            if let text = await loadText(from: provider) {
+                // URL içeriyor mu kontrol et
+                if let extractedURL = parseURL(from: text) {
+                    collectedURLs.insert(extractedURL.absoluteString)
+                    print("   ✅ URL from text: \(extractedURL.absoluteString)")
+                } else {
+                    collectedTexts.append(text)
+                    print("   ✅ Text: \(text.prefix(50))...")
                 }
             }
         }
         
-        // 3. Image
+        // Image kontrolü
         if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             if let fileName = await loadAndSaveImage(from: provider) {
                 collectedImageFileNames.append(fileName)
-                print("✅ Image saved: \(fileName)")
+                print("   ✅ Image saved: \(fileName)")
             }
         }
     }
     
-    // MARK: - Load URL
+    // MARK: - Load Helpers
     
     private func loadURL(from provider: NSItemProvider) async -> URL? {
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             provider.loadItem(forTypeIdentifier: UTType.url.identifier, options: nil) { item, error in
-                if let error = error {
-                    print("⚠️ URL load error: \(error.localizedDescription)")
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
                 if let url = item as? URL {
-                    continuation.resume(returning: url)
-                } else if let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
                     continuation.resume(returning: url)
                 } else {
                     continuation.resume(returning: nil)
@@ -179,17 +219,9 @@ class ShareViewController: UIViewController {
         }
     }
     
-    // MARK: - Load Plain Text
-    
-    private func loadPlainText(from provider: NSItemProvider) async -> String? {
-        return await withCheckedContinuation { continuation in
+    private func loadText(from provider: NSItemProvider) async -> String? {
+        await withCheckedContinuation { continuation in
             provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, error in
-                if let error = error {
-                    print("⚠️ Text load error: \(error.localizedDescription)")
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
                 if let text = item as? String {
                     continuation.resume(returning: text)
                 } else if let data = item as? Data, let text = String(data: data, encoding: .utf8) {
@@ -201,48 +233,28 @@ class ShareViewController: UIViewController {
         }
     }
     
-    // MARK: - Load and Save Image
-    
     private func loadAndSaveImage(from provider: NSItemProvider) async -> String? {
-        // Önce file representation dene (daha stabil)
-        if let fileName = await loadImageViaFileRepresentation(from: provider) {
-            return fileName
-        }
-        
-        // Fallback: UIImage olarak yükle
-        return await loadImageViaUIImage(from: provider)
-    }
-    
-    private func loadImageViaFileRepresentation(from provider: NSItemProvider) async -> String? {
-        return await withCheckedContinuation { continuation in
-            provider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] url, error in
-                guard let self = self, let url = url, error == nil else {
+        await withCheckedContinuation { continuation in
+            provider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] item, error in
+                guard let self = self else {
                     continuation.resume(returning: nil)
                     return
                 }
                 
-                do {
-                    let data = try Data(contentsOf: url)
-                    let fileName = self.saveImageData(data, originalExtension: url.pathExtension)
-                    continuation.resume(returning: fileName)
-                } catch {
-                    print("⚠️ Image file read error: \(error.localizedDescription)")
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
-    }
-    
-    private func loadImageViaUIImage(from provider: NSItemProvider) async -> String? {
-        return await withCheckedContinuation { continuation in
-            provider.loadObject(ofClass: UIImage.self) { [weak self] item, error in
-                guard let self = self, let image = item as? UIImage, error == nil else {
-                    continuation.resume(returning: nil)
-                    return
+                var imageData: Data?
+                var originalExtension = "jpg"
+                
+                if let url = item as? URL {
+                    imageData = try? Data(contentsOf: url)
+                    originalExtension = url.pathExtension
+                } else if let image = item as? UIImage {
+                    imageData = image.jpegData(compressionQuality: 0.8)
+                } else if let data = item as? Data {
+                    imageData = data
                 }
                 
-                if let data = image.jpegData(compressionQuality: 0.8) {
-                    let fileName = self.saveImageData(data, originalExtension: "jpg")
+                if let data = imageData {
+                    let fileName = self.saveImageToAppGroup(data: data, originalExtension: originalExtension)
                     continuation.resume(returning: fileName)
                 } else {
                     continuation.resume(returning: nil)
@@ -251,28 +263,18 @@ class ShareViewController: UIViewController {
         }
     }
     
-    private func saveImageData(_ data: Data, originalExtension: String) -> String? {
+    private func saveImageToAppGroup(data: Data, originalExtension: String) -> String? {
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
-            print("❌ App Group container not found")
             return nil
         }
         
         let imagesDir = containerURL.appendingPathComponent(imageDirectory)
+        try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
         
-        // Klasörü oluştur
-        do {
-            try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
-        } catch {
-            print("❌ Failed to create images directory: \(error.localizedDescription)")
-            return nil
-        }
-        
-        // Dosya adı oluştur
         let ext = originalExtension.isEmpty ? "jpg" : originalExtension.lowercased()
         let fileName = "\(UUID().uuidString).\(ext)"
         let fileURL = imagesDir.appendingPathComponent(fileName)
         
-        // Kaydet
         do {
             try data.write(to: fileURL)
             return fileName
@@ -296,27 +298,17 @@ class ShareViewController: UIViewController {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        // Mevcut payloads'ı oku
         var payloads: [SharedInboxPayload] = []
         if let existingData = defaults.data(forKey: inboxKey) {
-            do {
-                payloads = try decoder.decode([SharedInboxPayload].self, from: existingData)
-            } catch {
-                print("⚠️ Failed to decode existing payloads: \(error.localizedDescription)")
-            }
+            payloads = (try? decoder.decode([SharedInboxPayload].self, from: existingData)) ?? []
         }
         
-        // Yeni payload'ı ekle
         payloads.append(payload)
         
-        // Kaydet
-        do {
-            let data = try encoder.encode(payloads)
+        if let data = try? encoder.encode(payloads) {
             defaults.set(data, forKey: inboxKey)
             defaults.synchronize()
             print("✅ Payload persisted to App Group (\(payloads.count) total)")
-        } catch {
-            print("❌ Failed to persist payload: \(error.localizedDescription)")
         }
     }
     
@@ -325,60 +317,71 @@ class ShareViewController: UIViewController {
     private func setupSwiftUIView(with url: URL, payload: SharedInboxPayload? = nil) {
         print("🔧 Setting up SwiftUI view...")
         
-        guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
-            print("❌ App Group container bulunamadı")
-            close()
+        // Loading view'ı temizle
+        view.subviews.forEach { $0.removeFromSuperview() }
+        
+        guard let container = modelContainer else {
+            print("❌ ModelContainer not available")
+            // Fallback: App Group'a kaydet ve ana uygulamaya yönlendir
+            if let payload = payload {
+                persistToAppGroup(payload: payload)
+            }
+            showFallbackAlert(url: url)
             return
         }
         
-        let storeURL = containerURL.appendingPathComponent("bookmark.sqlite")
+        let bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
+        let categoryRepository = CategoryRepository(modelContext: container.mainContext)
         
-        do {
-            let configuration = ModelConfiguration(url: storeURL, allowsSave: true)
-            let container = try ModelContainer(for: Bookmark.self, Category.self, configurations: configuration)
-            
-            print("✅ ModelContainer created successfully")
-            
-            let bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
-            let categoryRepository = CategoryRepository(modelContext: container.mainContext)
-            
-            print("📂 Categories loaded: \(categoryRepository.fetchAll().count)")
-            
-            let swiftUIView = ShareExtensionView(
-                url: url,
-                repository: bookmarkRepository,
-                categoryRepository: categoryRepository,
-                onSave: { [weak self] in
-                    print("💾 Bookmark saved from Share Extension")
-                    self?.close()
-                },
-                onCancel: { [weak self] in
-                    print("❌ Share Extension cancelled")
-                    self?.close()
-                }
-            )
-            .modelContainer(container)
-            
-            let hosting = UIHostingController(rootView: swiftUIView)
-            self.hostingController = hosting
-            
-            addChild(hosting)
-            view.addSubview(hosting.view)
-            hosting.view.translatesAutoresizingMaskIntoConstraints = false
-            
-            NSLayoutConstraint.activate([
-                hosting.view.topAnchor.constraint(equalTo: view.topAnchor),
-                hosting.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                hosting.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                hosting.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-            ])
-            
-            hosting.didMove(toParent: self)
-            print("✅ SwiftUI view setup complete")
-        } catch {
-            print("❌ Extension container error: \(error)")
-            close()
-        }
+        print("📂 Categories loaded: \(categoryRepository.fetchAll().count)")
+        
+        let swiftUIView = ShareExtensionView(
+            url: url,
+            repository: bookmarkRepository,
+            categoryRepository: categoryRepository,
+            onSave: { [weak self] in
+                print("💾 Bookmark saved from Share Extension")
+                self?.close()
+            },
+            onCancel: { [weak self] in
+                print("❌ Share Extension cancelled")
+                self?.close()
+            }
+        )
+        .modelContainer(container)
+        
+        let hosting = UIHostingController(rootView: swiftUIView)
+        self.hostingController = hosting
+        
+        addChild(hosting)
+        view.addSubview(hosting.view)
+        hosting.view.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            hosting.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hosting.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hosting.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hosting.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        hosting.didMove(toParent: self)
+        print("✅ SwiftUI view setup complete")
+    }
+    
+    // MARK: - Fallback Alert
+    
+    private func showFallbackAlert(url: URL) {
+        let alert = UIAlertController(
+            title: "Bağlantı Kaydedildi",
+            message: "Bu bağlantı ana uygulamada işlenecek.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Tamam", style: .default) { [weak self] _ in
+            self?.close()
+        })
+        
+        present(alert, animated: true)
     }
     
     // MARK: - Helpers
@@ -387,31 +390,14 @@ class ShareViewController: UIViewController {
         guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
             return nil
         }
+        
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
-        guard let match = detector.firstMatch(in: text, options: [], range: range),
-              let urlRange = Range(match.range, in: text) else {
-            return nil
-        }
-        return URL(string: String(text[urlRange]))
+        let matches = detector.matches(in: text, options: [], range: range)
+        
+        return matches.first?.url
     }
     
     private func close() {
         extensionContext?.completeRequest(returningItems: nil, completionHandler: nil)
-    }
-    
-    // MARK: - Error Types
-    
-    private enum ShareError: LocalizedError {
-        case noItems
-        case timeout
-        case unknown(String)
-        
-        var errorDescription: String? {
-            switch self {
-            case .noItems: return "No items to share"
-            case .timeout: return "Loading timeout"
-            case .unknown(let msg): return msg
-            }
-        }
     }
 }

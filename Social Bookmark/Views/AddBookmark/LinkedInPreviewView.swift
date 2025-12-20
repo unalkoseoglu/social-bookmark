@@ -13,7 +13,7 @@ struct LinkedInPreviewView: View {
             HStack {
                 Image(systemName: "briefcase.fill")
                     .foregroundStyle(.cyan)
-                Text("LinkedIn Önizleme")
+                Text("linkedin.preview.title")
                     .font(.headline)
                 Spacer()
                 
@@ -40,93 +40,96 @@ struct LinkedInPreviewView: View {
                     Text(errorMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(10)
                 .background(Color.orange.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             
             // Yazar bilgisi
-            VStack(alignment: .leading, spacing: 4) {
-                Text(post.authorName)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+            HStack(spacing: 12) {
+                // Profil Görseli Yer tutucu (LinkedIn API kısıtlıdır)
+                Circle()
+                    .fill(Color.cyan.opacity(0.2))
+                    .frame(width: 44, height: 44)
+                    .overlay {
+                        Text(String(post.authorName.prefix(1)).uppercased())
+                            .font(.headline)
+                            .foregroundStyle(.cyan)
+                    }
                 
-                if !post.authorTitle.isEmpty {
-                    Text(post.authorTitle)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(post.authorName)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .fontWeight(.bold)
+                    
+                    if !post.authorTitle.isEmpty {
+                        Text(post.authorTitle)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             }
             
-            // İçerik
-            if post.hasContent && !post.content.contains("⚠️") {
-                Text(post.displayText)
-                    .font(.body)
-                    .lineLimit(8)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            // Post içeriği
+            Text(post.content)
+                .font(.subheadline)
+                .lineLimit(post.isPartial ? 4 : 10)
+                .fixedSize(horizontal: false, vertical: true)
             
             // Görsel
-            if let imageData = imageData,
-               let uiImage = UIImage(data: imageData) {
+            if let data = imageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
-                    .frame(maxHeight: 200)
+                    .frame(height: 180)
+                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-            } else if post.imageURL != nil && !post.isPartial {
-                // Görsel yükleniyor (sadece kısmi veri değilse)
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(height: 120)
-                    .overlay {
-                        VStack(spacing: 8) {
-                            ProgressView()
-                            Text("Görsel yükleniyor...")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+            } else if let imageURL = post.imageURL {
+                AsyncImage(url: imageURL) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    default:
+                        EmptyView()
                     }
+                }
             }
             
-            // Alt bilgi ve aksiyonlar
-            HStack {
-                Image(systemName: "link.circle.fill")
-                    .foregroundStyle(.cyan)
-                Text("LinkedIn")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                // Tarayıcıda aç butonu
-                if let onOpenInBrowser {
-                    Button {
-                        onOpenInBrowser()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "safari")
-                            Text("Tarayıcıda Aç")
-                        }
-                        .font(.caption)
+            // Tarayıcıda aç butonu (Hata durumunda çıkar)
+            if post.isPartial {
+                Button {
+                    onOpenInBrowser?()
+                } label: {
+                    HStack {
+                        Text("error.action.open_browser")
+                        Image(systemName: "arrow.up.right")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(Color.cyan)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
+                .padding(.top, 4)
             }
         }
         .padding()
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(post.isPartial ? Color.orange.opacity(0.3) : Color.clear, lineWidth: 1)
-        )
     }
 }
-
 // MARK: - Preview
 
 #Preview("Normal Post") {

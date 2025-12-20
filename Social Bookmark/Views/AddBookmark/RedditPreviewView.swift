@@ -14,13 +14,13 @@ struct RedditPreviewView: View {
             HStack {
                 Image(systemName: "circle.fill")
                     .foregroundStyle(.orange)
-                Text("Reddit Önizleme")
+                Text("reddit.preview.title")
                     .font(.headline)
                 Spacer()
                 
                 // Görsel sayısı badge
                 if imagesData.count > 1 {
-                    Text("\(imagesData.count) görsel")
+                    Text("reddit.images_count \(imagesData.count)")
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -105,7 +105,7 @@ struct RedditPreviewView: View {
             HStack(spacing: 16) {
                 Label(formatCount(post.score), systemImage: "arrow.up")
                     .foregroundStyle(.orange)
-                Label("\(formatCount(post.commentCount)) yorum", systemImage: "bubble.right")
+                Label("reddit.comments_count \(formatCount(post.commentCount))", systemImage: "bubble.right")
                     .foregroundStyle(.blue)
             }
             .font(.caption)
@@ -217,55 +217,4 @@ struct RedditPreviewView: View {
         }
         return "\(count)"
     }
-}
-
-// MARK: - Preview
-
-#Preview("Text Post") {
-    RedditPreviewView(
-        post: RedditPost(
-            title: "I built a SwiftUI bookmark manager!",
-            author: "swiftdev",
-            subreddit: "iOSProgramming",
-            selfText: "Here's how I structured the data models and handled asynchronous fetching. It uses SwiftData for persistence and supports multiple platforms.",
-            imageURL: nil,
-            score: 4200,
-            commentCount: 182,
-            originalURL: URL(string: "https://reddit.com/r/iOSProgramming/comments/abc123")!
-        )
-    )
-    .padding()
-}
-
-#Preview("Image Post") {
-    RedditPreviewView(
-        post: RedditPost(
-            title: "Beautiful sunset over the Golden Gate Bridge",
-            author: "photographer",
-            subreddit: "pics",
-            selfText: "",
-            imageURL: URL(string: "https://i.redd.it/example.jpg"),
-            score: 12500,
-            commentCount: 342,
-            originalURL: URL(string: "https://reddit.com/r/pics/comments/def456")!
-        )
-    )
-    .padding()
-}
-
-#Preview("Gallery Post - With Images") {
-    RedditPreviewView(
-        post: RedditPost(
-            title: "My photography collection from Iceland trip",
-            author: "traveler",
-            subreddit: "itookapicture",
-            selfText: "Spent 2 weeks exploring Iceland. Here are my favorite shots.",
-            imageURL: URL(string: "https://i.redd.it/img1.jpg"),
-            score: 8900,
-            commentCount: 256,
-            originalURL: URL(string: "https://reddit.com/r/itookapicture/comments/ghi789")!
-        ),
-        imagesData: [] // Normalde ViewModel'den gelir
-    )
-    .padding()
 }

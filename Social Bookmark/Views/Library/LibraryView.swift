@@ -38,7 +38,7 @@ struct LibraryView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Segment Picker
-            Picker("Segment", selection: $selectedSegment) {
+            Picker(String(localized: "addBookmark.select"), selection: $selectedSegment) {
                 ForEach(LibrarySegment.allCases, id: \.self) { segment in
                     Text(segment.title).tag(segment)
                 }
@@ -65,9 +65,9 @@ struct LibraryView: View {
                 Button {
                     selectedTab = .home
                 } label: {
-                        Image(systemName: "chevron.left")
-                            .fontWeight(.semibold)
-                    .font(.body)
+                    Image(systemName: "chevron.left")
+                        .fontWeight(.semibold)
+                        .font(.body)
                 }
             }
             
@@ -111,21 +111,27 @@ struct LibraryView: View {
                                 viewModel: viewModel
                             )
                         } label: {
-                            BookmarkListRow(bookmark: bookmark)
+                            EnhancedBookmarkRow(bookmark: bookmark).padding()
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                viewModel.deleteBookmark(bookmark)
+                                
+                                Task {
+                                 await   viewModel.deleteBookmark(bookmark)
+                                }
                             } label: {
-                                Label("Sil", systemImage: "trash")
+                                Label(String(localized: "common.delete"), systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                viewModel.toggleReadStatus(bookmark)
+                                Task{
+                                  await  viewModel.toggleReadStatus(bookmark)
+                                }
+                               
                             } label: {
                                 Label(
-                                    bookmark.isRead ? "Okunmadı" : "Okundu",
+                                    bookmark.isRead ? String(localized: "bookmarkDetail.markUnread") : String(localized: "bookmarkDetail.markRead"),
                                     systemImage: bookmark.isRead ? "circle" : "checkmark.circle"
                                 )
                             }
@@ -153,7 +159,7 @@ struct LibraryView: View {
                     Button {
                         viewModel.createDefaultCategories()
                     } label: {
-                        Label("Varsayılan Kategorileri Oluştur", systemImage: "folder.badge.plus")
+                        Label(String(localized: "library.action.create_default_categories"), systemImage: "folder.badge.plus")
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -172,7 +178,7 @@ struct LibraryView: View {
                         // Kategorisiz
                         if viewModel.uncategorizedCount > 0 {
                             UncategorizedCard(count: viewModel.uncategorizedCount) {
-                                // TODO: Kategorisiz bookmarkları göster
+                                // TODO: Kategorisiz bookmarkları gösteren bir filtreleme eklenebilir
                             }
                         }
                     }
@@ -213,7 +219,6 @@ struct BookmarkListRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Thumbnail or Source Icon
             if let imageData = bookmark.imageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
@@ -228,7 +233,6 @@ struct BookmarkListRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             
-            // Content
             VStack(alignment: .leading, spacing: 4) {
                 Text(bookmark.title)
                     .font(.subheadline)
@@ -246,7 +250,6 @@ struct BookmarkListRow: View {
             
             Spacer()
             
-            // Status Indicators
             VStack(spacing: 4) {
                 if bookmark.isFavorite {
                     Image(systemName: "star.fill")
@@ -329,7 +332,7 @@ struct UncategorizedCard: View {
                         .contentTransition(.numericText())
                 }
                 
-                Text("Kategorisiz")
+                Text(String(localized: "common.uncategorized"))
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)

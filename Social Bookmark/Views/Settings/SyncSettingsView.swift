@@ -4,14 +4,6 @@
 //
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
-
-
-//
-//  SyncSettingsView.swift
-//  Social Bookmark
-//
-//  Created by Claude on 15.12.2025.
-//
 //  Ayarlar sayfasında sync durumu ve kontrolleri
 //
 
@@ -44,7 +36,7 @@ struct SyncSettingsView: View {
             // Bilgi
             infoSection
         }
-        .navigationTitle("sync.settings.title")
+        .navigationTitle(String(localized: "sync.settings.title"))
         .onAppear {
             calculateCacheSize()
         }
@@ -57,7 +49,7 @@ struct SyncSettingsView: View {
             // Bağlantı durumu
             HStack {
                 Label {
-                    Text("sync.network_status")
+                    Text(String(localized: "sync.network_status"))
                 } icon: {
                     Image(systemName: networkMonitor.isConnected ? "wifi" : "wifi.slash")
                         .foregroundStyle(networkMonitor.isConnected ? .green : .red)
@@ -65,14 +57,14 @@ struct SyncSettingsView: View {
                 
                 Spacer()
                 
-                Text(networkMonitor.isConnected ? "sync.connected" : "sync.disconnected")
+                Text(networkMonitor.isConnected ? String(localized: "sync.connected") : String(localized: "sync.disconnected"))
                     .foregroundStyle(.secondary)
             }
             
             // Sync durumu
             HStack {
                 Label {
-                    Text("sync.status")
+                    Text(String(localized: "sync.status"))
                 } icon: {
                     syncStatusIcon
                 }
@@ -86,7 +78,7 @@ struct SyncSettingsView: View {
             // Son sync zamanı
             if let lastSync = syncService.lastSyncDate {
                 HStack {
-                    Label("sync.last_sync", systemImage: "clock")
+                    Label(String(localized: "sync.last_sync"), systemImage: "clock")
                     
                     Spacer()
                     
@@ -109,7 +101,7 @@ struct SyncSettingsView: View {
             }
             
         } header: {
-            Text("sync.status_section")
+            Text(String(localized: "sync.status_section"))
         }
     }
     
@@ -124,7 +116,7 @@ struct SyncSettingsView: View {
                 }
             } label: {
                 HStack {
-                    Label("sync.sync_now", systemImage: "arrow.triangle.2.circlepath")
+                    Label(String(localized: "sync.sync_now"), systemImage: "arrow.triangle.2.circlepath")
                     
                     Spacer()
                     
@@ -139,28 +131,24 @@ struct SyncSettingsView: View {
             Button {
                 showingSyncConfirmation = true
             } label: {
-                Label("sync.download_from_cloud", systemImage: "icloud.and.arrow.down")
+                Label(String(localized: "sync.download_from_cloud"), systemImage: "icloud.and.arrow.down")
             }
             .disabled(syncService.syncState == .syncing || !networkMonitor.isConnected)
             
         } header: {
-            Text("sync.actions_section")
+            Text(String(localized: "sync.actions_section"))
         } footer: {
-            Text("sync.actions_footer")
+            Text(String(localized: "sync.actions_footer"))
         }
-        .confirmationDialog(
-            "sync.download_confirmation_title",
-            isPresented: $showingSyncConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("sync.download_confirm", role: .destructive) {
+        .alert(String(localized: "sync.download_confirmation_title"), isPresented: $showingSyncConfirmation) {
+            Button(String(localized: "sync.download_confirm"), role: .destructive) {
                 Task {
-                    await syncService.performFullSync()
+                    try? await syncService.downloadFromCloud()
                 }
             }
-            Button("common.cancel", role: .cancel) { }
+            Button(String(localized: "common.cancel"), role: .cancel) { }
         } message: {
-            Text("sync.download_confirmation_message")
+            Text(String(localized: "sync.download_confirmation_message"))
         }
     }
     
@@ -170,7 +158,7 @@ struct SyncSettingsView: View {
         Section {
             // Cache boyutu
             HStack {
-                Label("sync.cache_size", systemImage: "internaldrive")
+                Label(String(localized: "sync.cache_size"), systemImage: "internaldrive")
                 
                 Spacer()
                 
@@ -182,24 +170,22 @@ struct SyncSettingsView: View {
             Button(role: .destructive) {
                 showingClearCacheConfirmation = true
             } label: {
-                Label("sync.clear_cache", systemImage: "trash")
+                Label(String(localized: "sync.clear_cache"), systemImage: "trash")
             }
             
         } header: {
-            Text("sync.cache_section")
+            Text(String(localized: "sync.cache_section"))
         } footer: {
-            Text("sync.cache_footer")
+            Text(String(localized: "sync.cache_footer"))
         }
-        .confirmationDialog(
-            "sync.clear_cache_title",
-            isPresented: $showingClearCacheConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("sync.clear_cache_confirm", role: .destructive) {
+        .alert(String(localized: "sync.clear_cache_title"), isPresented: $showingClearCacheConfirmation) {
+            Button(String(localized: "sync.clear_cache"), role: .destructive) {
                 ImageUploadService.shared.clearCache()
                 calculateCacheSize()
             }
-            Button("common.cancel", role: .cancel) { }
+            Button(String(localized: "common.cancel"), role: .cancel) { }
+        } message: {
+            Text(String(localized: "sync.clear_cache_message"))
         }
     }
     
@@ -209,7 +195,7 @@ struct SyncSettingsView: View {
         Section {
             if sessionStore.isAuthenticated {
                 HStack {
-                    Label("sync.user_id", systemImage: "person.circle")
+                    Label(String(localized: "sync.user_id"), systemImage: "person.circle")
                     
                     Spacer()
                     
@@ -220,18 +206,18 @@ struct SyncSettingsView: View {
             }
             
             HStack {
-                Label("sync.auto_sync", systemImage: "repeat")
+                Label(String(localized: "sync.auto_sync"), systemImage: "repeat")
                 
                 Spacer()
                 
-                Text("sync.every_5_minutes")
+                Text(String(localized: "sync.every_5_minutes"))
                     .foregroundStyle(.secondary)
             }
         } header: {
-            Text("sync.info_section")
+            Text(String(localized: "settings.account_info"))
         }
     }
-    
+
     // MARK: - Helpers
     
     private var syncStatusIcon: some View {

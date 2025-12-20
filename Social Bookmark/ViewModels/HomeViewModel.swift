@@ -13,6 +13,7 @@ final class HomeViewModel {
     
     let bookmarkRepository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
+    let syncService: SyncService
     
     // MARK: - Computed Properties
     
@@ -81,6 +82,7 @@ final class HomeViewModel {
     init(bookmarkRepository: BookmarkRepositoryProtocol, categoryRepository: CategoryRepositoryProtocol) {
         self.bookmarkRepository = bookmarkRepository
         self.categoryRepository = categoryRepository
+        self.syncService = SyncService.shared
         
         loadData()
     }
@@ -116,11 +118,16 @@ final class HomeViewModel {
     }
     
     /// Kategori sil
-    func deleteCategory(_ category: Category) {
+    func deleteCategory(_ category: Category) async {
         // Önce bu kategorideki bookmarkların categoryId'sini nil yap
         for bookmark in bookmarks(for: category) {
             bookmark.categoryId = nil
             bookmarkRepository.update(bookmark)
+        }
+        do {
+            try await SyncService.shared.deleteCategory(category)
+        } catch {
+            print("❌ [SYNC] Delete failed: \(error)")
         }
         
         categoryRepository.delete(category)
@@ -128,26 +135,46 @@ final class HomeViewModel {
     }
     
     /// Kategori güncelle
-    func updateCategory(_ category: Category) {
+    func updateCategory(_ category: Category) async {
         categoryRepository.update(category)
+        do {
+            try await SyncService.shared.syncCategory(category)
+        } catch {
+            print("❌ [SYNC] Delete failed: \(error)")
+        }
         loadCategories()
     }
     
     /// Bookmark sil
-    func deleteBookmark(_ bookmark: Bookmark) {
+    func deleteBookmark(_ bookmark: Bookmark) async {
         bookmarkRepository.delete(bookmark)
+            do {
+                try await SyncService.shared.deleteBookmark(bookmark)
+            } catch {
+                print("❌ [SYNC] Delete failed: \(error)")
+            }
         loadBookmarks()
     }
     
     /// Bookmark okundu/okunmadı toggle
-    func toggleReadStatus(_ bookmark: Bookmark) {
+    func toggleReadStatus(_ bookmark: Bookmark) async {
         bookmark.isRead.toggle()
+        do {
+            try await SyncService.shared.syncBookmark(bookmark)
+        } catch {
+            print("❌ [SYNC] Delete failed: \(error)")
+        }
         bookmarkRepository.update(bookmark)
     }
     
     /// Bookmark favori toggle
-    func toggleFavorite(_ bookmark: Bookmark) {
+    func toggleFavorite(_ bookmark: Bookmark) async {
         bookmark.isFavorite.toggle()
+        do {
+            try await SyncService.shared.syncBookmark(bookmark)
+        } catch {
+            print("❌ [SYNC] Delete failed: \(error)")
+        }
         bookmarkRepository.update(bookmark)
     }
     

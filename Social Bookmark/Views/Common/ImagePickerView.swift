@@ -27,11 +27,11 @@ struct ImagePickerView: View {
                         .font(.system(size: 60))
                         .foregroundStyle(.blue)
                     
-                    Text("Fotoğraf Ekle")
+                    Text("image.addPhoto")
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("Kameradan çek veya galeriden seç")
+                    Text("image.picker_subtitle")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -43,7 +43,7 @@ struct ImagePickerView: View {
                 VStack(spacing: 16) {
                     // Kamera butonu
                     Button(action: { showingCamera = true }) {
-                        Label("Fotoğraf Çek", systemImage: "camera.fill")
+                        Label("image.takePhoto", systemImage: "camera.fill")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
@@ -57,7 +57,7 @@ struct ImagePickerView: View {
                         matching: .images,
                         photoLibrary: .shared()
                     ) {
-                        Label("Galeriden Seç", systemImage: "photo.on.rectangle")
+                        Label("image.selectFromGallery", systemImage: "photo.on.rectangle")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.green)
@@ -77,11 +77,11 @@ struct ImagePickerView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 40)
             }
-            .navigationTitle("Resim Kaynağı")
+            .navigationTitle(Text("image.source_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button("common.cancel") {
                         dismiss()
                     }
                 }
@@ -97,7 +97,7 @@ struct ImagePickerView: View {
 }
 
 // MARK: - Camera View (UIKit Wrapper)
-
+// Coordinator ve CameraView içindeki logic değişmediği için kısaltılmıştır.
 struct CameraView: UIViewControllerRepresentable {
     let onImageCaptured: (UIImage) -> Void
     @Environment(\.dismiss) private var dismiss
@@ -136,7 +136,6 @@ struct CameraView: UIViewControllerRepresentable {
         }
     }
 }
-
 // MARK: - Preview
 
 #Preview {

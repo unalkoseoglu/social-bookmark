@@ -17,7 +17,8 @@ struct CategoryPickerView: View {
             showingPicker = true
         } label: {
             HStack {
-                Text("Kategori")
+                // "Kategori" -> "category_picker.title"
+                Text("category_picker.title")
                     .foregroundStyle(.primary)
                 
                 Spacer()
@@ -30,7 +31,8 @@ struct CategoryPickerView: View {
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    Text("Seçilmedi")
+                    // "Seçilmedi" -> "category_picker.none"
+                    Text("category_picker.none")
                         .foregroundStyle(.secondary)
                 }
                 
@@ -51,25 +53,23 @@ struct CategoryPickerView: View {
 // MARK: - Category Selection Sheet
 
 struct CategorySelectionSheet: View {
+    @Environment(\.dismiss) private var dismiss
     @Binding var selectedCategoryId: UUID?
     let categories: [Category]
-    
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationStack {
             List {
-                // Kategorisiz seçeneği
+                // Kategori yok seçeneği
                 Button {
                     selectedCategoryId = nil
                     dismiss()
                 } label: {
                     HStack {
-                        Image(systemName: "folder")
+                        Image(systemName: "circle.slash")
                             .foregroundStyle(.secondary)
-                            .frame(width: 30)
-                        
-                        Text("Kategorisiz")
+                        Text("category_picker.none")
+                            .foregroundStyle(.primary)
                         
                         Spacer()
                         
@@ -79,39 +79,35 @@ struct CategorySelectionSheet: View {
                         }
                     }
                 }
-                .foregroundStyle(.primary)
                 
-                // Kategoriler
-                Section("Kategoriler") {
-                    ForEach(categories) { category in
-                        Button {
-                            selectedCategoryId = category.id
-                            dismiss()
-                        } label: {
-                            HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundStyle(category.color)
-                                    .frame(width: 30)
-                                
-                                Text(category.name)
-                                
-                                Spacer()
-                                
-                                if selectedCategoryId == category.id {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
-                                }
+                // Kategoriler listesi
+                ForEach(categories) { category in
+                    Button {
+                        selectedCategoryId = category.id
+                        dismiss()
+                    } label: {
+                        HStack {
+                            Image(systemName: category.icon)
+                                .foregroundStyle(category.color)
+                            Text(category.name)
+                                .foregroundStyle(.primary)
+                            
+                            Spacer()
+                            
+                            if selectedCategoryId == category.id {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.blue)
                             }
                         }
-                        .foregroundStyle(.primary)
                     }
                 }
             }
-            .navigationTitle("Kategori Seç")
+            // "Kategoriler" -> "category_picker.selection_title"
+            .navigationTitle("category_picker.selection_title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kapat") {
+                    Button("common.done") {
                         dismiss()
                     }
                 }
@@ -120,6 +116,9 @@ struct CategorySelectionSheet: View {
         .presentationDetents([.medium, .large])
     }
 }
+
+// CategoryChip yapısı genellikle model verisi (category.name) ve ikon kullandığı için
+// statik metin içermemektedir, bu yüzden kod yapısı korunmuştur.
 
 // MARK: - Compact Category Picker (Inline)
 

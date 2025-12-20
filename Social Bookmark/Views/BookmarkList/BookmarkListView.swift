@@ -31,7 +31,7 @@ struct BookmarkListView: View {
             Group {
                 if listViewModel.isLoading {
                     // Yüklenirken spinner göster
-                    ProgressView("Yükleniyor...")
+                    ProgressView("common.loading")
                 } else if listViewModel.isEmpty {
                     // Liste boşsa placeholder
                     emptyStateView
@@ -40,11 +40,11 @@ struct BookmarkListView: View {
                     bookmarkList
                 }
             }
-            .navigationTitle("Social Bookmark")
+            .navigationTitle("auth.welcome_title")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(
                 text: $listViewModel.searchText,
-                prompt: "Başlık veya not ara"
+                prompt: Text("all.search_prompt")
             )
             .toolbar {
                 toolbarContent
@@ -82,7 +82,7 @@ struct BookmarkListView: View {
                         viewModel: homeViewModel
                     )
                 } label: {
-                    BookmarkRow(bookmark: bookmark)
+                    EnhancedBookmarkRow(bookmark: bookmark)
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     // Sağdan kaydır: Sil
@@ -91,7 +91,7 @@ struct BookmarkListView: View {
                             listViewModel.deleteBookmark(bookmark)
                         }
                     } label: {
-                        Label("Sil", systemImage: "trash")
+                        Label("common.delete", systemImage: "trash")
                     }
                 }
                 .swipeActions(edge: .leading) {
@@ -102,7 +102,7 @@ struct BookmarkListView: View {
                         }
                     } label: {
                         Label(
-                            bookmark.isRead ? "Okunmadı" : "Okundu",
+                            bookmark.isRead ? "all.action.mark_unread" : "all.action.mark_read",
                             systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill"
                         )
                     }
@@ -117,9 +117,9 @@ struct BookmarkListView: View {
     private var statsSection: some View {
         Section {
             HStack {
-                Label("\(listViewModel.totalCount) toplam", systemImage: "bookmark.fill")
+                Label("home.stat.total_count \(listViewModel.totalCount)", systemImage: "bookmark.fill")
                 Spacer()
-                Label("\(listViewModel.unreadCount) okunmadı", systemImage: "circle.fill")
+                Label("home.stat.unread_count \(listViewModel.unreadCount)", systemImage: "circle.fill")
                     .foregroundStyle(.orange)
             }
             .font(.subheadline)
@@ -134,18 +134,18 @@ struct BookmarkListView: View {
                 .font(.system(size: 60))
                 .foregroundStyle(.secondary)
             
-            Text("Henüz bookmark yok")
+            Text("home.empty.no_bookmarks")
                 .font(.title2)
                 .fontWeight(.semibold)
             
-            Text("İnternette bulduğun değerli içerikleri kaydetmeye başla")
+            Text("home.empty.no_bookmarks_desc")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
             Button(action: { showingAddSheet = true }) {
-                Label("İlk Bookmark'ı Ekle", systemImage: "plus.circle.fill")
+                Label("home.action.add_first", systemImage: "plus.circle.fill")
                     .font(.headline)
             }
             .buttonStyle(.borderedProminent)
@@ -174,8 +174,8 @@ struct BookmarkListView: View {
         ToolbarItem(placement: .topBarLeading) {
             Menu {
                 // Kaynak filtresi
-                Picker("Kaynak", selection: $listViewModel.selectedSource) {
-                    Text("Tümü").tag(nil as BookmarkSource?)
+                Picker("all.filter.source", selection: $listViewModel.selectedSource) {
+                    Text("common.all").tag(nil as BookmarkSource?)
                     Divider()
                     ForEach(BookmarkSource.allCases) { source in
                         Text(source.displayName).tag(source as BookmarkSource?)
@@ -185,13 +185,13 @@ struct BookmarkListView: View {
                 Divider()
                 
                 // Okunmamış filtresi
-                Toggle("Sadece Okunmamışlar", isOn: $listViewModel.showOnlyUnread)
+                Toggle("all.filter.only_unread", isOn: $listViewModel.showOnlyUnread)
                 
                 Divider()
                 
                 // Filtreleri temizle
                 Button(action: listViewModel.clearFilters) {
-                    Label("Filtreleri Temizle", systemImage: "xmark.circle")
+                    Label("all.action.clear_filters", systemImage: "xmark.circle")
                 }
             } label: {
                 Image(systemName: "line.3.horizontal.decrease.circle")

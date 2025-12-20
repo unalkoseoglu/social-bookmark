@@ -35,10 +35,10 @@ struct CategoryDetailView: View {
             }
             .navigationTitle(category.name)
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Ara...")
+            .searchable(text: $searchText, prompt: Text("categoryDetail.search_prompt"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kapat") {
+                    Button("common.done") {
                         dismiss()
                     }
                 }
@@ -55,82 +55,32 @@ struct CategoryDetailView: View {
         VStack(spacing: 20) {
             Image(systemName: category.icon)
                 .font(.system(size: 60))
-                .foregroundStyle(category.color)
+                .foregroundStyle(category.color.opacity(0.5))
             
-            Text("Bu kategoride henüz bookmark yok")
-                .font(.title3)
-                .fontWeight(.medium)
-            
-            Text("Bookmark eklerken veya düzenlerken bu kategoriyi seçebilirsin")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            VStack(spacing: 8) {
+                Text("categoryDetail.empty_title")
+                    .font(.headline)
+                Text("categoryDetail.empty_desc")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 40)
         }
-        .padding()
     }
     
     private var bookmarksList: some View {
         List {
-            // Header
-            Section {
-                HStack(spacing: 16) {
-                    Image(systemName: category.icon)
-                        .font(.largeTitle)
-                        .foregroundStyle(.white)
-                        .frame(width: 60, height: 60)
-                        .background(category.color)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(bookmarks.count) bookmark")
-                            .font(.headline)
-                        
-                        let unread = bookmarks.filter { !$0.isRead }.count
-                        if unread > 0 {
-                            Text("\(unread) okunmadı")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-            }
-            
-            // Bookmarklar
-            Section {
-                ForEach(filteredBookmarks) { bookmark in
-                    NavigationLink {
-                        BookmarkDetailView(
-                            bookmark: bookmark,viewModel: viewModel,
-                        )
-                    } label: {
-                        CategoryBookmarkRow(bookmark: bookmark)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) {
-                            removeFromCategory(bookmark)
-                        } label: {
-                            Label("Kaldır", systemImage: "folder.badge.minus")
-                        }
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button {
-                            toggleRead(bookmark)
-                        } label: {
-                            Label(
-                                bookmark.isRead ? "Okunmadı" : "Okundu",
-                                systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill"
-                            )
-                        }
-                        .tint(bookmark.isRead ? .orange : .green)
-                    }
+            ForEach(filteredBookmarks) { bookmark in
+                NavigationLink {
+                    BookmarkDetailView(bookmark: bookmark, viewModel: viewModel)
+                } label: {
+                    CategoryBookmarkRow(bookmark: bookmark)
                 }
             }
+            .onDelete(perform: deleteBookmarks)
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
     }
     
     // MARK: - Actions
@@ -139,16 +89,15 @@ struct CategoryDetailView: View {
         bookmarks = viewModel.bookmarks(for: category)
     }
     
-    private func removeFromCategory(_ bookmark: Bookmark) {
-        bookmark.categoryId = nil
-        viewModel.bookmarkRepository.update(bookmark)
+    private func deleteBookmarks(at offsets: IndexSet) {
+        for index in offsets {
+            let bookmark = filteredBookmarks[index]
+            Task {
+                   await viewModel.deleteBookmark(bookmark)
+            }
+               }
+            
         loadBookmarks()
-        viewModel.refresh()
-    }
-    
-    private func toggleRead(_ bookmark: Bookmark) {
-        bookmark.isRead.toggle()
-        viewModel.bookmarkRepository.update(bookmark)
     }
 }
 
@@ -159,8 +108,8 @@ struct CategoryBookmarkRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Kaynak emoji
-            Text(bookmark.source.emoji)
+            Image(systemName: bookmark.source.systemIcon)
+                .foregroundStyle(bookmark.source.color)
                 .font(.title3)
                 .frame(width: 40, height: 40)
                 .background(bookmark.source.color.opacity(0.15))

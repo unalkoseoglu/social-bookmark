@@ -79,13 +79,15 @@ struct BookmarkDetailView: View {
                 repository: viewModel.bookmarkRepository, categoryRepository: viewModel.categoryRepository
             )
         }
-        .alert("Bookmark Silinsin mi?", isPresented: $showingDeleteAlert) {
-            Button("İptal", role: .cancel) {}
-            Button("Sil", role: .destructive) {
-                deleteBookmark()
+        .alert("bookmarkDetail.delete_title", isPresented: $showingDeleteAlert) {
+            Button("common.cancel", role: .cancel) {}
+            Button("common.delete", role: .destructive)  {
+                Task {
+                       await deleteBookmark()
+                   }
             }
         } message: {
-            Text("Bu işlem geri alınamaz.")
+            Text("bookmarkDetail.delete_confirmation")
         }
         .sheet(isPresented: $showingShareSheet) {
             if let url = bookmark.url {
@@ -213,7 +215,7 @@ struct BookmarkDetailView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption2)
-                    Text("Okundu")
+                    Text("bookmarkDetail.status.read")
                         .font(.caption2)
                 }
                 .foregroundStyle(.green)
@@ -230,7 +232,7 @@ struct BookmarkDetailView: View {
     private var contentSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("İçerik")
+                Text("bookmarkDetail.section.content")
                     .font(.system(size: 16, weight: .semibold))
                     .tracking(0.4)
                     .textCase(.uppercase)
@@ -238,7 +240,7 @@ struct BookmarkDetailView: View {
                 
                 Spacer()
                 
-                Text("\(bookmark.note.split(separator: " ").count) kelime")
+                Text("bookmarkDetail.word_count \(bookmark.note.split(separator: " ").count)")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -255,7 +257,7 @@ struct BookmarkDetailView: View {
     
     private var linkSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Kaynak")
+            Text("bookmarkDetail.section.source")
                 .font(.system(size: 16, weight: .semibold))
                 .tracking(0.4)
                 .textCase(.uppercase)
@@ -269,7 +271,7 @@ struct BookmarkDetailView: View {
                                 Text(url.host ?? "Link")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                Text("Tarayıcıda Aç")
+                                Text("bookmarkDetail.openInBrowser")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundStyle(.blue)
@@ -287,7 +289,7 @@ struct BookmarkDetailView: View {
                         UIPasteboard.general.string = urlString
                     }) {
                         HStack(spacing: 12) {
-                            Text("URL'yi Kopyala")
+                            Text("bookmarkDetail.copyUrl")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             
@@ -310,7 +312,7 @@ struct BookmarkDetailView: View {
     
     private var tagsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Etiketler")
+            Text("bookmarkDetail.section.tags")
                 .font(.system(size: 16, weight: .semibold))
                 .tracking(0.4)
                 .textCase(.uppercase)
@@ -341,7 +343,7 @@ struct BookmarkDetailView: View {
                     VStack(spacing: 4) {
                         Image(systemName: bookmark.isRead ? "circle" : "checkmark.circle.fill")
                             .font(.system(size: 18))
-                        Text(bookmark.isRead ? "Okunmadı" : "Okundu")
+                        Text(bookmark.isRead ? "bookmarkDetail.markUnread" : "bookmarkDetail.markRead")
                             .font(.caption2)
                     }
                     .foregroundStyle(bookmark.isRead ? .orange : .green)
@@ -355,7 +357,7 @@ struct BookmarkDetailView: View {
                     VStack(spacing: 4) {
                         Image(systemName: "pencil")
                             .font(.system(size: 18))
-                        Text("Düzenle")
+                        Text("common.edit")
                             .font(.caption2)
                     }
                     .foregroundStyle(.blue)
@@ -369,7 +371,7 @@ struct BookmarkDetailView: View {
                     VStack(spacing: 4) {
                         Image(systemName: "trash")
                             .font(.system(size: 18))
-                        Text("Sil")
+                        Text("common.delete")
                             .font(.caption2)
                     }
                     .foregroundStyle(.red)
@@ -392,9 +394,8 @@ struct BookmarkDetailView: View {
         }
     }
     
-    private func deleteBookmark() {
-        var repository = viewModel.bookmarkRepository
-        repository.delete(bookmark)
+    private func deleteBookmark() async {
+      await  viewModel.deleteBookmark(bookmark)
         dismiss()
     }
 }
@@ -511,4 +512,3 @@ struct ShareSheet: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
-
