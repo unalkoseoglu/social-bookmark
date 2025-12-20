@@ -36,6 +36,7 @@
 "auth.anonymous_account" = "Anonymous Account";
 "auth.not_signed_in" = "Not Signed In";
 "auth.sign_in_to_sync" = "Sign in to sync your data";
+"auth.tap_to_secure" = "Tap to secure";
 
 /* Auth - Errors */
 "auth.error.not_authenticated" = "You need to sign in";
@@ -284,9 +285,21 @@
 "settings.account_actions" = "Account Actions";
 "settings.link_account" = "Link Account";
 "settings.link_account_description" = "Link your anonymous account to Apple to protect your data.";
-"settings.link_account_title" = "Link Account";
-"settings.link_account_subtitle" = "Secure your data and sync across all your devices by linking with your Apple account.";
-"settings.link_keeps_data" = "All your existing data will be preserved.";
+"settings.link_account_title" = "Link Your Account";
+"settings.link_account_subtitle" = "Sign in with Apple to secure your bookmarks and sync across all your devices.";
+"settings.link_keeps_data" = "Your existing bookmarks and categories will be preserved.";
+
+/* Anonymous Account Warning */
+"settings.anonymous_warning_title" = "Your Account is Not Secure";
+"settings.anonymous_warning_message" = "You may lose your data if you delete the app or switch devices.";
+"settings.secure_your_account" = "Secure Your Account";
+"settings.link_with_apple" = "Link with Apple";
+"settings.link_account_footer" = "Link with your Apple account to secure your data and sync across all your devices.";
+
+/* Link Account Benefits */
+"settings.benefit_secure" = "Your data stays safe";
+"settings.benefit_sync" = "Automatic sync";
+"settings.benefit_devices" = "Access on all devices";
 
 "settings.sign_out" = "Sign Out";
 "settings.sign_out_title" = "Sign Out";
@@ -307,6 +320,9 @@
 "sync.network_status" = "Network Status";
 "sync.connected" = "Connected";
 "sync.status" = "Status";
+"sync.state.idle" = "Sync Idle";
+"sync.state.syncing" = "Sync Syncing";
+"sync.state.offline" = "Sync Offline";
 "sync.state.error" = "Sync Error";
 "sync.sync_now" = "Sync Now";
 "sync.download_from_cloud" = "Download from Cloud";
@@ -336,6 +352,7 @@
 "settings.feedback" = "Feedback";
 
 // MARK: - Danger Zone (Data Cleanup)
+"settings.danger_zone" = "Danger Zone";
 "settings.deleteAll" = "Delete All Data";
 "settings.deleteAll.title" = "Delete All Data";
 "settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";

@@ -78,13 +78,7 @@ final class AuthService: ObservableObject {
         @discardableResult
         func signInAnonymously() async throws -> User {
             // ✅ Önce mevcut session kontrol et
-            if let existingUser = SupabaseManager.shared.currentUser,
-              await SupabaseManager.shared.hasValidSession() {
-                print("⚠️ [AUTH] Already authenticated, returning existing user")
-                print("   User ID: \(existingUser.id)")
-                return existingUser
-            }
-            
+           
             isLoading = true
             errorMessage = nil
             
@@ -347,23 +341,108 @@ final class AuthService: ObservableObject {
         }
         
         /// User profiles tablosuna kayıt oluştur
-        private func createUserProfileIfNeeded(for user: User, fullName: String? = nil) async throws {
-            let profile = UserProfile(
-                id: user.id,
-                email: user.email,
-                fullName: fullName ?? user.userMetadata["full_name"]?.stringValue,
-                isAnonymous: user.isAnonymous,
-                createdAt: Date()
-            )
+    func createUserProfileIfNeeded(for user: User, fullName: String? = nil) async throws {
             
+            print("👤 [PROFILE] Checking user profile for: \(user.id)")
+            
+            // Önce mevcut profil var mı kontrol et
+            let existingProfile: UserProfile? = try? await client
+                .from(SupabaseConfig.Tables.userProfiles)
+                .select()
+                .eq("id", value: user.id)
+                .single()
+                .execute()
+                .value
+            
+            let profile: UserProfile
+            
+            if let existing = existingProfile {
+                // Mevcut profili güncelle
+                
+                profile = UserProfile(
+                    id: existing.id,
+                    email: user.email ?? existing.email,
+                    fullName: fullName ?? existing.fullName,
+                    displayName: existing.displayName, // Mevcut display name'i koru
+                    isAnonymous: user.isAnonymous,
+                    createdAt: existing.createdAt,
+                    avatarUrl: existing.avatarUrl,
+                    lastSyncAt: Date(),
+                    deviceId: UIDevice.current.identifierForVendor?.uuidString,
+                    appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+                )
+            } else {
+                // Yeni profil oluştur
+                if user.isAnonymous {
+                    profile = UserProfile.createAnonymous(userId: user.id)
+                    print("🆕 [PROFILE] Creating anonymous profile: \(profile.displayName)")
+                } else {
+                    let name = fullName ?? user.userMetadata["full_name"]?.stringValue
+                    profile = UserProfile.create(userId: user.id, email: user.email, fullName: name)
+                    print("🆕 [PROFILE] Creating user profile: \(profile.displayName)")
+                }
+            }
+            
+            // Supabase'e kaydet
             try await client
                 .from(SupabaseConfig.Tables.userProfiles)
                 .upsert(profile, onConflict: "id")
                 .execute()
             
-            print("✅ User profile created/updated")
+            print("✅ [PROFILE] Profile saved successfully: \(profile.displayName)")
+        }
+    
+    /// Mevcut kullanıcının profilini getir
+        func getCurrentUserProfile() async throws -> UserProfile? {
+            guard let userId = currentUser?.id else {
+                return nil
+            }
+            
+            let profile: UserProfile = try await client
+                .from(SupabaseConfig.Tables.userProfiles)
+                .select()
+                .eq("id", value: userId)
+                .single()
+                .execute()
+                .value
+            
+            return profile
         }
         
+        /// Display name güncelle
+        func updateDisplayName(_ newName: String) async throws {
+            guard let userId = currentUser?.id else {
+                throw AuthError.notAuthenticated
+            }
+            
+            try await client
+                .from(SupabaseConfig.Tables.userProfiles)
+                .update(["display_name": newName, "last_sync_at": ISO8601DateFormatter().string(from: Date())])
+                .eq("id", value: userId)
+                .execute()
+            
+            print("✅ [PROFILE] Display name updated to: \(newName)")
+        }
+        
+        /// Avatar URL güncelle
+        func updateAvatarUrl(_ url: String?) async throws {
+            guard let userId = currentUser?.id else {
+                throw AuthError.notAuthenticated
+            }
+            
+            let updateData: [String: String?] = [
+                "avatar_url": url,
+                "last_sync_at": ISO8601DateFormatter().string(from: Date())
+            ]
+            
+            try await client
+                .from(SupabaseConfig.Tables.userProfiles)
+                .update(updateData)
+                .eq("id", value: userId)
+                .execute()
+            
+            print("✅ [PROFILE] Avatar URL updated")
+        }
         // MARK: - Sign Out
         
         /// Çıkış yap

@@ -53,18 +53,20 @@ struct SettingsView: View {
                     HStack(spacing: 12) {
                         // Avatar
                         ZStack {
-                            Circle()
-                                .fill(sessionStore.isAnonymous ? Color.gray : Color.blue)
-                                .frame(width: 44, height: 44)
-                            
-                            Text(sessionStore.avatarInitial)
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
+                           
+                            if  sessionStore.isAnonymous {
+                                Image(systemName: "person.crop.circle.badge.exclamationmark.fill").font(.largeTitle).foregroundStyle(.orange)
+                            }else{
+                                Image(systemName: "person.crop.circle.fill").font(.largeTitle).foregroundStyle(.gray)
+                            }
+                                
+                           
+                                
                         }
-                        Text(sessionStore.displayName)
-                            .font(.title3)
+                        Text(sessionStore.nameForDisplay)
+                            .font(.body)
                             .fontWeight(.medium)
+                      
                         
                         Spacer()
                         
@@ -73,9 +75,9 @@ struct SettingsView: View {
                     }
                 }
             } else {
-                Button {
-                    // SignIn sheet aç
-                } label: {
+                NavigationLink {
+                    SignInView()
+                }label: {
                     Label("auth.sign_in", systemImage: "person.crop.circle")
                 }
             }
@@ -199,7 +201,7 @@ struct SettingsView: View {
     
     private var syncStatusText: String {
         switch syncService.syncState {
-        case .idle: return String(localized: "sync.state.idle")
+        case .idle: return String(localized: "settings.synced")
         case .syncing: return String(localized: "sync.state.syncing")
         case .offline: return String(localized: "sync.state.offline")
         case .error: return String(localized: "sync.state.error")

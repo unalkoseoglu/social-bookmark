@@ -119,8 +119,8 @@ struct SignInView: View {
             // Anonymous Sign In
             Button {
                 Task {
-                    
-                }
+                        await sessionStore.signInAnonymously()
+                    }
             } label: {
                 HStack {
                     Image(systemName: "person.crop.circle.badge.questionmark")

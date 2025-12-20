@@ -4,13 +4,7 @@
 //
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
-
-
-//
-//  AccountSettingsView.swift
-//  Social Bookmark
-//
-//  Created by Ünal Köseoğlu on 15.12.2025.
+//  ⚠️ GÜNCELLEME: Anonim kullanıcı için hesap bağlama iyileştirildi
 //
 
 import SwiftUI
@@ -37,17 +31,22 @@ struct AccountSettingsView: View {
             // Kullanıcı Bilgileri
             userInfoSection
             
+            // Anonim kullanıcı için hesap bağlama (ayrı section - daha belirgin)
+            if sessionStore.isAuthenticated && sessionStore.isAnonymous {
+                linkAccountSection
+            }
+            
             // Hesap İşlemleri
             if sessionStore.isAuthenticated {
                 accountActionsSection
-            }
-            
-            // Tehlikeli İşlemler
-            if sessionStore.isAuthenticated {
+                
                 dangerZoneSection
             }
+            
+          
         }
         .navigationTitle("settings.account")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSignIn) {
             SignInView(isPresented: true)
                 .environmentObject(sessionStore)
@@ -95,61 +94,75 @@ struct AccountSettingsView: View {
     
     private var userInfoSection: some View {
         Section {
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 // Avatar
-                ZStack {
-                    Circle()
-                        .fill(sessionStore.isAnonymous ? Color.gray : Color.blue)
-                        .frame(width: 60, height: 60)
+                HStack(spacing: 12) {
+                    // Avatar
                     
-                    if sessionStore.isAuthenticated {
-                        Text(sessionStore.avatarInitial)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white)
-                    } else {
-                        Image(systemName: "person.crop.circle")
-                            .font(.title)
-                            .foregroundStyle(.white)
-                    }
-                }
-                
-                // User Info
-                VStack(alignment: .leading, spacing: 4) {
-                    if sessionStore.isAuthenticated {
-                        Text(sessionStore.displayName)
-                            .font(.headline)
-                        
-                        if let email = sessionStore.userEmail {
-                            Text(email)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        } else if sessionStore.isAnonymous {
-                            Label("auth.anonymous_account", systemImage: "person.crop.circle.badge.questionmark")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
+                        if  sessionStore.isAnonymous {
+                            Image(systemName: "person.crop.circle.badge.exclamationmark.fill").font(.largeTitle).foregroundStyle(.orange)
+                        }else{
+                            Image(systemName: "person.crop.circle.fill").font(.largeTitle).foregroundStyle(.gray)
                         }
-                    } else {
-                        Text("auth.not_signed_in")
-                            .font(.headline)
-                        
-                        Text("auth.sign_in_to_sync")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                            
+                    Text(sessionStore.nameForDisplay)
+                        .font(.body)
+                        .fontWeight(.medium)
+                    
                 }
                 
-                Spacer()
-                
-                // Status Badge
-                if sessionStore.isAuthenticated {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                }
             }
-            .padding(.vertical, 8)
+
         } header: {
             Text("settings.account_info")
+        }
+    }
+    
+    // MARK: - Link Account Section (Anonim kullanıcılar için)
+    
+    private var linkAccountSection: some View {
+        Section {
+            // Uyarı Banner
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.orange)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("settings.anonymous_warning_title")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    
+                    Text("settings.anonymous_warning_message")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.vertical, 4)
+            
+            // Apple ile Bağla Butonu
+            Button {
+                prepareNonce()
+                showingLinkAccountSheet = true
+            } label: {
+                HStack {
+                    
+                    Label("settings.link_with_apple", systemImage: "apple.logo")
+                   
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .foregroundStyle(.primary)
+            }
+            
+        } header: {
+            Text("settings.secure_your_account")
+        } footer: {
+            Text("settings.link_account_footer")
         }
     }
     
@@ -157,20 +170,6 @@ struct AccountSettingsView: View {
     
     private var accountActionsSection: some View {
         Section {
-            // Anonim kullanıcı için hesap bağlama
-            if sessionStore.isAnonymous {
-                Button {
-                    prepareNonce()
-                    showingLinkAccountSheet = true
-                } label: {
-                    Label("settings.link_account", systemImage: "link.circle")
-                }
-                
-                Text("settings.link_account_description")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
             // Sync durumu
             HStack {
                 Label("settings.sync_status", systemImage: "arrow.triangle.2.circlepath")
@@ -201,8 +200,7 @@ struct AccountSettingsView: View {
             } label: {
                 Label("settings.delete_account", systemImage: "trash")
             }
-        } header: {
-            Text("settings.danger_zone")
+        
         } footer: {
             Text("settings.delete_account_warning")
         }
@@ -216,10 +214,16 @@ struct AccountSettingsView: View {
                 Spacer()
                 
                 // Header
-                VStack(spacing: 12) {
-                    Image(systemName: "link.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.blue)
+                VStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.1))
+                            .frame(width: 100, height: 100)
+                        
+                        Image(systemName: "link.circle.fill")
+                            .font(.system(size: 50))
+                            .foregroundStyle(.blue)
+                    }
                     
                     Text("settings.link_account_title")
                         .font(.title2)
@@ -231,6 +235,16 @@ struct AccountSettingsView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
+                
+                Spacer()
+                
+                // Faydalar listesi
+                VStack(alignment: .leading, spacing: 12) {
+                    benefitRow(icon: "checkmark.shield.fill", text: "settings.benefit_secure", color: .green)
+                    benefitRow(icon: "arrow.triangle.2.circlepath", text: "settings.benefit_sync", color: .blue)
+                    benefitRow(icon: "macbook.and.iphone", text: "settings.benefit_devices", color: .purple)
+                }
+                .padding(.horizontal, 32)
                 
                 Spacer()
                 
@@ -254,6 +268,7 @@ struct AccountSettingsView: View {
                     .padding(.horizontal, 32)
                 
                 Spacer()
+                    .frame(height: 20)
             }
             .navigationTitle("settings.link_account")
             .navigationBarTitleDisplayMode(.inline)
@@ -265,7 +280,22 @@ struct AccountSettingsView: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
+    }
+    
+    // MARK: - Helper Views
+    
+    private func benefitRow(icon: String, text: LocalizedStringKey, color: Color) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(color)
+                .frame(width: 24)
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+        }
     }
     
     // MARK: - Private Methods
@@ -314,28 +344,47 @@ struct AccountSettingsSection: View {
                         // Avatar
                         ZStack {
                             Circle()
-                                .fill(sessionStore.isAnonymous ? Color.gray : Color.blue)
-                                .frame(width: 40, height: 40)
+                                .fill(sessionStore.isAnonymous ? Color.orange.opacity(0.2) : Color.blue.opacity(0.2))
+                                .frame(width: 44, height: 44)
                             
-                            Text(sessionStore.avatarInitial)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
+                            if sessionStore.isAnonymous {
+                                Image(systemName: "person.crop.circle.badge.questionmark")
+                                    .font(.title2)
+                                    .foregroundStyle(.orange)
+                            } else {
+                                Text(sessionStore.avatarInitial)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.blue)
+                            }
                         }
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(sessionStore.displayName)
+                            Text(sessionStore.nameForDisplay)
                                 .font(.subheadline)
+                                .fontWeight(.medium)
                             
                             if sessionStore.isAnonymous {
-                                Text("auth.anonymous_account")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.caption2)
+                                    Text("auth.tap_to_secure")
+                                        .font(.caption)
+                                }
+                                .foregroundStyle(.orange)
                             } else if let email = sessionStore.userEmail {
                                 Text(email)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+                        }
+                        
+                        Spacer()
+                        
+                        // Anonim için uyarı badge
+                        if sessionStore.isAnonymous {
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .foregroundStyle(.orange)
                         }
                     }
                 }
@@ -358,14 +407,14 @@ struct AccountSettingsSection: View {
 
 // MARK: - Previews
 
-#Preview("Account Settings") {
+#Preview("Account Settings - Anonymous") {
     NavigationStack {
         AccountSettingsView()
             .environmentObject(SessionStore())
     }
 }
 
-#Preview("Settings Section - Authenticated") {
+#Preview("Settings Section") {
     NavigationStack {
         List {
             AccountSettingsSection()

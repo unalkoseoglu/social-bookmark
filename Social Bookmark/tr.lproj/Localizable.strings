@@ -36,6 +36,7 @@
 "auth.anonymous_account" = "Anonim Hesap";
 "auth.not_signed_in" = "Giriş Yapılmadı";
 "auth.sign_in_to_sync" = "Verilerinizi eşitlemek için giriş yapın";
+"auth.tap_to_secure" = "Güvenceye almak için dokunun";
 
 /* Auth - Errors */
 "auth.error.not_authenticated" = "Giriş yapmanız gerekiyor";
@@ -283,9 +284,21 @@
 "settings.account_actions" = "Hesap İşlemleri";
 "settings.link_account" = "Hesabı Bağla";
 "settings.link_account_description" = "Verilerinizi korumak için anonim hesabınızı Apple'a bağlayın.";
-"settings.link_account_title" = "Hesabı Bağla";
-"settings.link_account_subtitle" = "Verilerinizi güvenceye alın ve Apple hesabınızla tüm cihazlarda eşitleyin.";
-"settings.link_keeps_data" = "Mevcut tüm verileriniz korunacaktır.";
+"settings.link_account_title" = "Hesabınızı Bağlayın";
+"settings.link_account_subtitle" = "Apple hesabınızla giriş yaparak yer işaretlerinizi güvence altına alın.";
+"settings.link_keeps_data" = "Mevcut yer işaretleriniz ve kategorileriniz korunacaktır.";
+
+/* Anonymous Account Warning */
+"settings.anonymous_warning_title" = "Hesabınız Güvende Değil";
+"settings.anonymous_warning_message" = "Uygulamayı sildiğinizde veya cihazı değiştirdiğinizde verilerinizi kaybedebilirsiniz.";
+"settings.secure_your_account" = "Hesabınızı Güvenceye Alın";
+"settings.link_with_apple" = "Apple ile Bağla";
+"settings.link_account_footer" = "Apple hesabınızla bağlayarak verilerinizi güvence altına alın ve tüm cihazlarınızda senkronize edin.";
+
+/* Link Account Benefits */
+"settings.benefit_secure" = "Verileriniz güvende kalır";
+"settings.benefit_sync" = "Otomatik senkronizasyon";
+"settings.benefit_devices" = "Tüm cihazlarınızda erişim";
 
 "settings.sign_out" = "Çıkış Yap";
 "settings.sign_out_title" = "Çıkış Yap";
@@ -306,6 +319,9 @@
 "sync.network_status" = "Ağ Durumu";
 "sync.connected" = "Bağlı";
 "sync.status" = "Durum";
+"sync.state.idle" = "Eşitleme Beklemede";
+"sync.state.syncing" = "Eşitleniyor";
+"sync.state.offline" = "Çevrimdışı";
 "sync.state.error" = "Eşitleme Hatası";
 "sync.sync_now" = "Şimdi Eşitle";
 "sync.download_from_cloud" = "Buluttan İndir";
@@ -335,6 +351,7 @@
 "settings.feedback" = "Geri Bildirim";
 
 // MARK: - Danger Zone (Data Cleanup)
+"settings.danger_zone" = "Tehlikeli Bölge";
 "settings.deleteAll" = "Tüm Verileri Sil";
 "settings.deleteAll.title" = "Tüm Verileri Sil";
 "settings.deleteAll.message" = "Tüm yer işaretleri ve kategoriler silinecek. Bu işlem geri alınamaz!";

@@ -317,14 +317,6 @@ extension Notification.Name {
     static let syncDidFail = Notification.Name("syncDidFail")
 }
 
-// MARK: - User Extension
-
-extension User {
-    var isAnonymous: Bool {
-        email == nil && (identities?.isEmpty ?? true)
-    }
-}
-
 // MARK: - SupabaseClient Extension
 
 extension SupabaseClient {

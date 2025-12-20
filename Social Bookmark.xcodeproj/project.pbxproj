@@ -12,6 +12,8 @@
 		C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05B510F2EF06B3E007DF808 /* PostgREST */; };
 		C05B51122EF06B3E007DF808 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05B51112EF06B3E007DF808 /* Storage */; };
 		C05B51152EF06C49007DF808 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C05B51142EF06C49007DF808 /* Supabase */; };
+		C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */; };
+		C05B51392EF5FEED007DF808 /* BookmarkActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE4282EEF758E00EFC6B2 /* Auth */; };
 		C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42A2EEF758E00EFC6B2 /* PostgREST */; };
 		C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42C2EEF758E00EFC6B2 /* Storage */; };
@@ -23,6 +25,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C05B51372EF5FEED007DF808 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C0867EF32EE9A86D000C8D7D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C05B512A2EF5FEED007DF808;
+			remoteInfo = BookmarkActionExtension;
+		};
 		C0867F092EE9A86F000C8D7D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C0867EF32EE9A86D000C8D7D /* Project object */;
@@ -53,6 +62,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				C05B51392EF5FEED007DF808 /* BookmarkActionExtension.appex in Embed Foundation Extensions */,
 				C0867F8A2EEA2A73000C8D7D /* BookmarkShareExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -61,6 +71,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookmarkActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Supabase.xcconfig; sourceTree = "<group>"; };
 		C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		C0867EFB2EE9A86D000C8D7D /* Social Bookmark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Social Bookmark.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +82,39 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C05B513A2EF5FEED007DF808 /* Exceptions for "BookmarkActionExtension" folder in "BookmarkActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
+		};
+		C05B51442EF60259007DF808 /* Exceptions for "Social Bookmark" folder in "BookmarkActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/Bookmark.swift,
+				Models/BookmarkSource.swift,
+				Models/Category.swift,
+				Repositories/BookmarkRepository.swift,
+				Repositories/CategoryRepository.swift,
+				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
+				Repositories/Protocol/CategoryRepositoryProtocol.swift,
+				Utilities/Services/LinkedInService.swift,
+				Utilities/Services/MediumService.swift,
+				Utilities/Services/OCRService.swift,
+				Utilities/Services/RedditService.swift,
+				Utilities/Services/TwitterService.swift,
+				Utilities/Services/URLMetadataService.swift,
+			);
+			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
+		};
+		C05B51522EF602C6007DF808 /* Exceptions for "BookmarkShareExtension" folder in "BookmarkActionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ShareExtensionView.swift,
+			);
+			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
+		};
 		C0867F8B2EEA2A73000C8D7D /* Exceptions for "BookmarkShareExtension" folder in "BookmarkShareExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -105,6 +150,7 @@
 				Supabase/Services/SyncService.swift,
 				Supabase/SupabaseManager.swift,
 				Utilities/AppLanguage.swift,
+				Utilities/Constants/RandomNameGenerator.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
@@ -118,10 +164,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C05B512E2EF5FEED007DF808 /* BookmarkActionExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C05B513A2EF5FEED007DF808 /* Exceptions for "BookmarkActionExtension" folder in "BookmarkActionExtension" target */,
+			);
+			path = BookmarkActionExtension;
+			sourceTree = "<group>";
+		};
 		C0867EFD2EE9A86D000C8D7D /* Social Bookmark */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C0867F932EEA2B68000C8D7D /* Exceptions for "Social Bookmark" folder in "BookmarkShareExtension" target */,
+				C05B51442EF60259007DF808 /* Exceptions for "Social Bookmark" folder in "BookmarkActionExtension" target */,
 			);
 			path = "Social Bookmark";
 			sourceTree = "<group>";
@@ -140,6 +195,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C0867F8B2EEA2A73000C8D7D /* Exceptions for "BookmarkShareExtension" folder in "BookmarkShareExtension" target */,
+				C05B51522EF602C6007DF808 /* Exceptions for "BookmarkShareExtension" folder in "BookmarkActionExtension" target */,
 			);
 			path = BookmarkShareExtension;
 			sourceTree = "<group>";
@@ -147,6 +203,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C05B51282EF5FEED007DF808 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C0867EF82EE9A86D000C8D7D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -198,6 +262,7 @@
 		C05DE4662EEF838E00EFC6B2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -209,6 +274,7 @@
 				C0867F0B2EE9A86F000C8D7D /* Social BookmarkTests */,
 				C0867F152EE9A86F000C8D7D /* Social BookmarkUITests */,
 				C0867F812EEA2A73000C8D7D /* BookmarkShareExtension */,
+				C05B512E2EF5FEED007DF808 /* BookmarkActionExtension */,
 				C0867EFC2EE9A86D000C8D7D /* Products */,
 				C05DE4402EEF79B300EFC6B2 /* Config */,
 				C05DE4662EEF838E00EFC6B2 /* Frameworks */,
@@ -222,6 +288,7 @@
 				C0867F082EE9A86F000C8D7D /* Social BookmarkTests.xctest */,
 				C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */,
 				C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */,
+				C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -229,6 +296,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C05B513B2EF5FEED007DF808 /* Build configuration list for PBXNativeTarget "BookmarkActionExtension" */;
+			buildPhases = (
+				C05B51272EF5FEED007DF808 /* Sources */,
+				C05B51282EF5FEED007DF808 /* Frameworks */,
+				C05B51292EF5FEED007DF808 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C05B512E2EF5FEED007DF808 /* BookmarkActionExtension */,
+			);
+			name = BookmarkActionExtension;
+			packageProductDependencies = (
+			);
+			productName = BookmarkActionExtension;
+			productReference = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		C0867EFA2EE9A86D000C8D7D /* Social Bookmark */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0867F1C2EE9A86F000C8D7D /* Build configuration list for PBXNativeTarget "Social Bookmark" */;
@@ -242,6 +331,7 @@
 			);
 			dependencies = (
 				C0867F892EEA2A73000C8D7D /* PBXTargetDependency */,
+				C05B51382EF5FEED007DF808 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C0867EFD2EE9A86D000C8D7D /* Social Bookmark */,
@@ -339,6 +429,9 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					C05B512A2EF5FEED007DF808 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
 					C0867EFA2EE9A86D000C8D7D = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -377,11 +470,19 @@
 				C0867F072EE9A86F000C8D7D /* Social BookmarkTests */,
 				C0867F112EE9A86F000C8D7D /* Social BookmarkUITests */,
 				C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */,
+				C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C05B51292EF5FEED007DF808 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C0867EF92EE9A86D000C8D7D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -417,6 +518,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C05B51272EF5FEED007DF808 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C0867EF72EE9A86D000C8D7D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -448,6 +556,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C05B51382EF5FEED007DF808 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
+			targetProxy = C05B51372EF5FEED007DF808 /* PBXContainerItemProxy */;
+		};
 		C0867F0A2EE9A86F000C8D7D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C0867EFA2EE9A86D000C8D7D /* Social Bookmark */;
@@ -466,6 +579,79 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		C05B513C2EF5FEED007DF808 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2NR24646H4;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Social Bookmark'a Kaydet";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkActionExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C05B513D2EF5FEED007DF808 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2NR24646H4;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Social Bookmark'a Kaydet";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkActionExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		C0867F1A2EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */;
@@ -599,7 +785,9 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Social-Bookmark-Info.plist";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Fotoğraf çekmek için kamera erişimi gereklidir.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to take photos and add images to your bookmarks.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Bookmark'a resim eklemek için galeri erişimi gereklidir.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -609,7 +797,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -620,13 +808,14 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
@@ -646,7 +835,9 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Social-Bookmark-Info.plist";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Fotoğraf çekmek için kamera erişimi gereklidir.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to take photos and add images to your bookmarks.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Bookmark'a resim eklemek için galeri erişimi gereklidir.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -656,7 +847,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -667,13 +858,14 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
@@ -803,6 +995,10 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
@@ -834,6 +1030,10 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
@@ -846,6 +1046,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C05B513B2EF5FEED007DF808 /* Build configuration list for PBXNativeTarget "BookmarkActionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C05B513C2EF5FEED007DF808 /* Debug */,
+				C05B513D2EF5FEED007DF808 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C0867EF62EE9A86D000C8D7D /* Build configuration list for PBXProject "Social Bookmark" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

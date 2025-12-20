@@ -4,9 +4,9 @@
 //
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
-//  ⚠️ GÜNCELLEME: AuthService API değişikliklerine uyumlu hale getirildi
-//  - Apple Sign In desteği eklendi
-//  - prepareAppleSignIn eklendi
+//  ⚠️ GÜNCELLEME: UserProfile display_name desteği eklendi
+//  - Anonim kullanıcılar için "user_XXXXXX" formatında isim
+//  - Apple Sign In desteği
 //
 
 import Foundation
@@ -26,6 +26,8 @@ final class SessionStore: ObservableObject {
     @Published private(set) var isAuthenticated = false
     @Published private(set) var userId: String?
     @Published private(set) var userEmail: String?
+    @Published private(set) var displayName: String?
+    @Published private(set) var userProfile: UserProfile?
     @Published private(set) var isAnonymous = false
     @Published private(set) var isLoading = true
     @Published private(set) var error: AuthError?
@@ -43,17 +45,17 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Computed Properties
     
-    /// Kullanıcı display name
-    var displayName: String {
-        if let email = userEmail {
-            return email.components(separatedBy: "@").first ?? email
+    /// Kullanıcı avatar (ilk harf veya initials)
+    var avatarInitial: String {
+        if let profile = userProfile {
+            return profile.initials
         }
-        return isAnonymous ? String(localized: "auth.anonymous_user") : String(localized: "auth.user")
+        return String((displayName ?? userEmail ?? "U").prefix(1)).uppercased()
     }
     
-    /// Kullanıcı avatar (ilk harf)
-    var avatarInitial: String {
-        String(displayName.prefix(1)).uppercased()
+    /// Gösterilecek isim
+    var nameForDisplay: String {
+        userProfile?.nameForDisplay ?? displayName ?? userEmail ?? "Kullanıcı"
     }
     
     // MARK: - Initialization
@@ -90,6 +92,8 @@ final class SessionStore: ObservableObject {
         // Mevcut kullanıcıyı kontrol et
         if let user = SupabaseManager.shared.currentUser {
             updateUserState(from: user)
+            // UserProfile'ı yükle
+            await loadUserProfile()
             Logger.auth.info("Session restored for user: \(user.id)")
         } else {
             resetUserState()
@@ -99,17 +103,17 @@ final class SessionStore: ObservableObject {
         Logger.auth.info("Session initialization complete, authenticated: \(self.isAuthenticated)")
     }
     
-    
     func initializeOnce() async {
-          guard !didInitialize else { return }
-          didInitialize = true
-          await initialize()
-      }
+        guard !didInitialize else { return }
+        didInitialize = true
+        await initialize()
+    }
 
-      func ensureAuthenticatedOnce() async {
-          // initializeOnce sonrası çalıştır
-          await ensureAuthenticated()
-      }
+    func ensureAuthenticatedOnce() async {
+        // initializeOnce sonrası çalıştır
+        await ensureAuthenticated()
+    }
+    
     /// Ensures user is authenticated (restores session or signs in anonymously)
     func ensureAuthenticated() async {
         isLoading = true
@@ -118,6 +122,8 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.ensureAuthenticated()
             updateUserState(from: user)
+            // UserProfile'ı yükle
+            await loadUserProfile()
             Logger.auth.info("Authentication ensured for user: \(user.id)")
         } catch let authError as AuthError {
             error = authError
@@ -138,6 +144,8 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.signInAnonymously()
             updateUserState(from: user)
+            // UserProfile'ı yükle
+            await loadUserProfile()
             Logger.auth.info("Anonymous sign in successful")
         } catch let authError as AuthError {
             error = authError
@@ -173,6 +181,7 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.signInWithApple(credential: appleIDCredential)
             updateUserState(from: user)
+            await loadUserProfile()
             Logger.auth.info("Apple sign in successful")
         } catch let authError as AuthError {
             error = authError
@@ -194,6 +203,7 @@ final class SessionStore: ObservableObject {
             // Önce Apple ile giriş yap, hesap otomatik link olacak
             let user = try await authService.signInWithApple(credential: credential)
             updateUserState(from: user)
+            await loadUserProfile()
             Logger.auth.info("Account linked to Apple successfully")
         } catch let authError as AuthError {
             error = authError
@@ -213,6 +223,7 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.linkEmail(email, password: password)
             updateUserState(from: user)
+            await loadUserProfile()
             Logger.auth.info("Account linked to email successfully")
         } catch let authError as AuthError {
             error = authError
@@ -234,6 +245,7 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.signUp(email: email, password: password, fullName: fullName)
             updateUserState(from: user)
+            await loadUserProfile()
             Logger.auth.info("Sign up successful")
         } catch let authError as AuthError {
             error = authError
@@ -252,6 +264,7 @@ final class SessionStore: ObservableObject {
         do {
             let user = try await authService.signIn(email: email, password: password)
             updateUserState(from: user)
+            await loadUserProfile()
             Logger.auth.info("Sign in successful")
         } catch let authError as AuthError {
             error = authError
@@ -302,6 +315,37 @@ final class SessionStore: ObservableObject {
         isLoading = false
     }
     
+    // MARK: - User Profile Management
+    
+    /// UserProfile'ı Supabase'den yükle
+    func loadUserProfile() async {
+        do {
+            if let profile = try await authService.getCurrentUserProfile() {
+                self.userProfile = profile
+                self.displayName = profile.displayName
+                Logger.auth.info("User profile loaded: \(profile.displayName)")
+            }
+        } catch {
+            Logger.auth.error("Failed to load user profile: \(error.localizedDescription)")
+            // Hata olursa fallback olarak UUID'den isim oluştur
+            if let userId = userId, let uuid = UUID(uuidString: userId) {
+                self.displayName = RandomNameGenerator.generate(from: uuid)
+            }
+        }
+    }
+    
+    /// Display name güncelle
+    func updateDisplayName(_ newName: String) async {
+        do {
+            try await authService.updateDisplayName(newName)
+            self.displayName = newName
+            self.userProfile?.displayName = newName
+            Logger.auth.info("Display name updated to: \(newName)")
+        } catch {
+            Logger.auth.error("Failed to update display name: \(error.localizedDescription)")
+        }
+    }
+    
     // MARK: - Private Methods
     
     private func updateUserState(from user: User) {
@@ -309,11 +353,22 @@ final class SessionStore: ObservableObject {
         userEmail = user.email
         isAuthenticated = true
         isAnonymous = user.isAnonymous
+        
+        // Geçici displayName (UserProfile yüklenene kadar)
+        if displayName == nil {
+            if let email = user.email {
+                displayName = email.components(separatedBy: "@").first
+            } else {
+                displayName = RandomNameGenerator.generate(from: user.id)
+            }
+        }
     }
     
     private func resetUserState() {
         userId = nil
         userEmail = nil
+        displayName = nil
+        userProfile = nil
         isAuthenticated = false
         isAnonymous = false
     }
@@ -336,6 +391,7 @@ final class SessionStore: ObservableObject {
         case .initialSession:
             if let session {
                 updateUserState(from: session.user)
+                await loadUserProfile()
             } else {
                 resetUserState()
             }
@@ -344,6 +400,7 @@ final class SessionStore: ObservableObject {
         case .signedIn:
             if let session {
                 updateUserState(from: session.user)
+                await loadUserProfile()
             }
             
         case .signedOut:
@@ -355,6 +412,7 @@ final class SessionStore: ObservableObject {
         case .userUpdated:
             if let session {
                 updateUserState(from: session.user)
+                await loadUserProfile()
             }
             
         default:
@@ -388,4 +446,3 @@ final class SessionStore: ObservableObject {
         return hashString
     }
 }
-

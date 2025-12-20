@@ -101,7 +101,7 @@ struct HomeView: View {
                     SettingsView().environmentObject(sessionStore)
                 } label: {
                     Image(systemName: "gearshape")
-                        .font(.title2)
+                        .font(.system(size: 30))
                         .foregroundStyle(.secondary)
                 }
             
