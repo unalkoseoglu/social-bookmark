@@ -2,7 +2,7 @@ import UIKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
-import MobileCoreServices
+import UniformTypeIdentifiers
 
 // MARK: - ActionViewController
 
@@ -75,7 +75,7 @@ class ActionViewController: UIViewController {
         
         for provider in itemProviders {
             // 1. Property List (Safari'den gelen JavaScript data)
-            if provider.hasItemConformingToTypeIdentifier(kUTTypePropertyList as String) {
+            if provider.hasItemConformingToTypeIdentifier(UTType.propertyList.identifier as String) {
                 if let url = await loadURLFromPropertyList(provider: provider) {
                     foundURL = url
                     break
@@ -118,7 +118,7 @@ class ActionViewController: UIViewController {
     
     private func loadURLFromPropertyList(provider: NSItemProvider) async -> URL? {
         return await withCheckedContinuation { continuation in
-            provider.loadItem(forTypeIdentifier: kUTTypePropertyList as String, options: nil) { item, error in
+            provider.loadItem(forTypeIdentifier: UTType.propertyList.identifier as String, options: nil) { item, error in
                 guard error == nil,
                       let dictionary = item as? NSDictionary,
                       let results = dictionary[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary,

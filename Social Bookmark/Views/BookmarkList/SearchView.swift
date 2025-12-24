@@ -1,7 +1,9 @@
 import SwiftUI
+internal import Combine
 
 /// Bookmark arama ekranı
 /// Native iOS searchable modifier ile çalışır
+/// Optimized: Debounced search, cached results
 struct SearchView: View {
     // MARK: - Properties
     
@@ -12,13 +14,30 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedScope: SearchScope = .all
     
+    // MARK: - Optimized Search State
+    
+    /// Debounced search text - arama geciktirilir
+    @State private var debouncedSearchText = ""
+    
+    /// Cached search results
+    @State private var cachedResults: [Bookmark] = []
+    
+    /// Search task for cancellation
+    @State private var searchTask: Task<Void, Never>?
+    
+    /// Is searching
+    @State private var isSearching = false
+    
+    // Recent searches (could be persisted)
+    @State private var recentSearches: [String] = []
+    
+    // Cached popular tags - sadece bir kez hesaplanır
+    @State private var cachedPopularTags: [String] = []
+    
     // MARK: - Search Scope
     
     enum SearchScope: String, CaseIterable, Identifiable {
-        case all = "all"
-        case title = "title"
-        case notes = "notes"
-        case tags = "tags"
+        case all, title, notes, tags
         
         var id: String { rawValue }
         
@@ -32,36 +51,6 @@ struct SearchView: View {
         }
     }
     
-    // MARK: - Search Results
-    
-    private var searchResults: [Bookmark] {
-        guard !searchText.isEmpty else { return [] }
-        
-        let query = searchText.lowercased()
-        
-        return viewModel.allBookmarks.filter { bookmark in
-            switch selectedScope {
-            case .all:
-                return bookmark.title.localizedCaseInsensitiveContains(query) ||
-                       bookmark.note.localizedCaseInsensitiveContains(query) ||
-                       bookmark.tags.contains { $0.localizedCaseInsensitiveContains(query) } ||
-                       (bookmark.url?.localizedCaseInsensitiveContains(query) ?? false)
-                
-            case .title:
-                return bookmark.title.localizedCaseInsensitiveContains(query)
-                
-            case .notes:
-                return bookmark.note.localizedCaseInsensitiveContains(query)
-                
-            case .tags:
-                return bookmark.tags.contains { $0.localizedCaseInsensitiveContains(query) }
-            }
-        }
-    }
-    
-    // Recent searches (could be persisted)
-    @State private var recentSearches: [String] = []
-    
     // MARK: - Body
     
     var body: some View {
@@ -70,9 +59,11 @@ struct SearchView: View {
             scopePicker
             
             // Content
-            if searchText.isEmpty {
+            if debouncedSearchText.isEmpty {
                 suggestionsView
-            } else if searchResults.isEmpty {
+            } else if isSearching {
+                searchingView
+            } else if cachedResults.isEmpty {
                 noResultsView
             } else {
                 resultsListView
@@ -80,9 +71,98 @@ struct SearchView: View {
         }
         .navigationTitle(String(localized: "search.title"))
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // Cache popular tags once
+            if cachedPopularTags.isEmpty {
+                cachedPopularTags = Array(viewModel.popularTags.prefix(10))
+            }
+        }
+        .onChange(of: searchText) { _, newValue in
+            debounceSearch(newValue)
+        }
+        .onChange(of: selectedScope) { _, _ in
+            // Scope değişince yeniden ara
+            if !debouncedSearchText.isEmpty {
+                performSearch(debouncedSearchText)
+            }
+        }
         .onSubmit(of: .search) {
             if !searchText.isEmpty {
                 addToRecentSearches(searchText)
+            }
+        }
+    }
+    
+    // MARK: - Debounced Search
+    
+    private func debounceSearch(_ query: String) {
+        // Cancel previous task
+        searchTask?.cancel()
+        
+        // Empty query - clear immediately
+        if query.isEmpty {
+            debouncedSearchText = ""
+            cachedResults = []
+            isSearching = false
+            return
+        }
+        
+        isSearching = true
+        
+        // Debounce: 300ms bekle
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+            
+            guard !Task.isCancelled else { return }
+            
+            await MainActor.run {
+                debouncedSearchText = query
+                performSearch(query)
+            }
+        }
+    }
+    
+    // MARK: - Perform Search
+    
+    private func performSearch(_ query: String) {
+        guard !query.isEmpty else {
+            cachedResults = []
+            isSearching = false
+            return
+        }
+        
+        // Background'da ara
+        Task.detached(priority: .userInitiated) {
+            let results = await searchBookmarks(query: query, scope: selectedScope)
+            
+            await MainActor.run {
+                cachedResults = results
+                isSearching = false
+            }
+        }
+    }
+    
+    /// Background'da arama yap
+    private func searchBookmarks(query: String, scope: SearchScope) async -> [Bookmark] {
+        let lowercasedQuery = query.lowercased()
+        let bookmarks = viewModel.allBookmarks
+        
+        return bookmarks.filter { bookmark in
+            switch scope {
+            case .all:
+                return bookmark.title.localizedStandardContains(lowercasedQuery) ||
+                       bookmark.note.localizedStandardContains(lowercasedQuery) ||
+                       bookmark.tags.contains { $0.localizedStandardContains(lowercasedQuery) } ||
+                       (bookmark.url?.localizedStandardContains(lowercasedQuery) ?? false)
+                
+            case .title:
+                return bookmark.title.localizedStandardContains(lowercasedQuery)
+                
+            case .notes:
+                return bookmark.note.localizedStandardContains(lowercasedQuery)
+                
+            case .tags:
+                return bookmark.tags.contains { $0.localizedStandardContains(lowercasedQuery) }
             }
         }
     }
@@ -93,20 +173,12 @@ struct SearchView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(SearchScope.allCases) { scope in
-                    Button {
-                        withAnimation {
-                            selectedScope = scope
-                        }
-                    } label: {
-                        Text(scope.title)
-                            .font(.subheadline)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(selectedScope == scope ? Color.blue : Color(.systemGray6))
-                            .foregroundStyle(selectedScope == scope ? .white : .primary)
-                            .clipShape(Capsule())
+                    ScopeButton(
+                        title: scope.title,
+                        isSelected: selectedScope == scope
+                    ) {
+                        selectedScope = scope
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 16)
@@ -114,97 +186,104 @@ struct SearchView: View {
         .padding(.vertical, 8)
     }
     
+    // MARK: - Searching View
+    
+    private var searchingView: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            ProgressView()
+                .scaleEffect(1.2)
+            Text("search.searching")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+    }
+    
     // MARK: - Suggestions View
     
     private var suggestionsView: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            LazyVStack(alignment: .leading, spacing: 24) {
                 // Recent searches
                 if !recentSearches.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("search.recent")
-                                .font(.headline)
-                            
-                            Spacer()
-                            
-                            Button("search.clear") {
-                                recentSearches.removeAll()
-                            }
-                            .font(.subheadline)
-                            .foregroundStyle(.blue)
-                        }
-                        
-                        FlowLayout(spacing: 8) {
-                            ForEach(recentSearches, id: \.self) { search in
-                                Button {
-                                    searchText = search
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "clock.arrow.circlepath")
-                                            .font(.caption)
-                                        Text(search)
-                                    }
-                                    .font(.subheadline)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(Color(.systemGray6))
-                                    .clipShape(Capsule())
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
+                    recentSearchesSection
                 }
                 
                 // Popular tags
-                if !viewModel.popularTags.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("search.popular_tags")
-                            .font(.headline)
-                        
-                        FlowLayout(spacing: 8) {
-                            ForEach(viewModel.popularTags.prefix(10), id: \.self) { tag in
-                                Button {
-                                    searchText = tag
-                                    selectedScope = .tags
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "tag.fill")
-                                            .font(.caption)
-                                        Text(tag)
-                                    }
-                                    .font(.subheadline)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(Color.blue.opacity(0.1))
-                                    .foregroundStyle(.blue)
-                                    .clipShape(Capsule())
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
+                if !cachedPopularTags.isEmpty {
+                    popularTagsSection
                 }
                 
                 // Source shortcuts
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("search.browse_by_source")
-                        .font(.headline)
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        ForEach(BookmarkSource.allCases) { source in
-                            let count = viewModel.allBookmarks.filter { $0.source == source }.count
-                            if count > 0 {
-                                SourceShortcutCard(source: source, count: count) {
-                                    searchText = source.displayName
-                                }
-                            }
+                sourceShortcutsSection
+            }
+            .padding(16)
+        }
+    }
+    
+    // MARK: - Recent Searches Section
+    
+    private var recentSearchesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("search.recent")
+                    .font(.headline)
+                
+                Spacer()
+                
+                Button("search.clear") {
+                    recentSearches.removeAll()
+                }
+                .font(.subheadline)
+                .foregroundStyle(.blue)
+            }
+            
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
+                ForEach(recentSearches, id: \.self) { search in
+                    RecentSearchChip(text: search) {
+                        searchText = search
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Popular Tags Section
+    
+    private var popularTagsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("search.popular_tags")
+                .font(.headline)
+            
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
+                ForEach(cachedPopularTags, id: \.self) { tag in
+                    TagChip(tag: tag) {
+                        searchText = tag
+                        selectedScope = .tags
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Source Shortcuts Section
+    
+    private var sourceShortcutsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("search.browse_by_source")
+                .font(.headline)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(BookmarkSource.allCases) { source in
+                    let count = viewModel.bookmarkSourceCount(for: source )
+                    if count > 0 {
+                        SourceShortcutCard(source: source, count: count) {
+                            searchText = source.displayName
                         }
                     }
                 }
             }
-            .padding(16)
         }
     }
     
@@ -214,7 +293,7 @@ struct SearchView: View {
         ContentUnavailableView {
             Label("search.no_results.title", systemImage: "magnifyingglass")
         } description: {
-            Text("search.no_results.desc \(searchText)")
+            Text("search.no_results.desc \(debouncedSearchText)")
         } actions: {
             Button {
                 searchText = ""
@@ -229,12 +308,12 @@ struct SearchView: View {
     private var resultsListView: some View {
         List {
             Section {
-                Text("search.results_count \(searchResults.count)")
+                Text("search.results_count \(cachedResults.count)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
             
-            ForEach(searchResults) { bookmark in
+            ForEach(cachedResults) { bookmark in
                 NavigationLink {
                     BookmarkDetailView(
                         bookmark: bookmark,
@@ -243,7 +322,7 @@ struct SearchView: View {
                 } label: {
                     SearchResultRow(
                         bookmark: bookmark,
-                        searchText: searchText,
+                        searchText: debouncedSearchText,
                         scope: selectedScope
                     )
                 }
@@ -261,6 +340,74 @@ struct SearchView: View {
                 recentSearches.removeLast()
             }
         }
+    }
+}
+
+// MARK: - Scope Button
+
+private struct ScopeButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.blue : Color(.systemGray6))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Recent Search Chip
+
+private struct RecentSearchChip: View {
+    let text: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.caption)
+                Text(text)
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(.systemGray6))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Tag Chip
+
+private struct TagChip: View {
+    let tag: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: "tag.fill")
+                    .font(.caption2)
+                Text(tag)
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.blue.opacity(0.1))
+            .foregroundStyle(.blue)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -310,6 +457,7 @@ struct SearchResultRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            // Title row
             HStack(spacing: 8) {
                 Text(bookmark.source.emoji)
                     .font(.caption)
@@ -328,44 +476,72 @@ struct SearchResultRow: View {
                 }
             }
             
-            // Eşleşen içeriği göster
-            if scope == .notes || scope == .all, !bookmark.note.isEmpty {
-                if let matchRange = bookmark.note.range(of: searchText, options: .caseInsensitive) {
-                    let startIndex = bookmark.note.index(matchRange.lowerBound, offsetBy: -20, limitedBy: bookmark.note.startIndex) ?? bookmark.note.startIndex
-                    let endIndex = bookmark.note.index(matchRange.upperBound, offsetBy: 40, limitedBy: bookmark.note.endIndex) ?? bookmark.note.endIndex
-                    let snippet = String(bookmark.note[startIndex..<endIndex])
-                    
-                    Text("...\(snippet)...")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
+            // Note snippet - only if relevant
+            if shouldShowNoteSnippet {
+                noteSnippetView
             }
             
-            // Etiketler
-            if scope == .tags || scope == .all, bookmark.hasTags {
-                HStack(spacing: 4) {
-                    Image(systemName: "tag.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.blue)
-                    
-                    Text(bookmark.tags.joined(separator: ", "))
-                        .font(.caption)
-                        .foregroundStyle(.blue)
-                        .lineLimit(1)
-                }
+            // Tags - only if relevant
+            if shouldShowTags {
+                tagsView
             }
             
-            // Meta bilgi
-            HStack(spacing: 6) {
-                Text(bookmark.source.displayName)
-                Text("•")
-                Text(bookmark.relativeDate)
-            }
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
+            // Meta info
+            metaInfoView
         }
         .padding(.vertical, 4)
+    }
+    
+    private var shouldShowNoteSnippet: Bool {
+        (scope == .notes || scope == .all) && !bookmark.note.isEmpty
+    }
+    
+    private var shouldShowTags: Bool {
+        (scope == .tags || scope == .all) && bookmark.hasTags
+    }
+    
+    @ViewBuilder
+    private var noteSnippetView: some View {
+        if let snippet = createSnippet() {
+            Text(snippet)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+    
+    private func createSnippet() -> String? {
+        guard let range = bookmark.note.range(of: searchText, options: .caseInsensitive) else {
+            return nil
+        }
+        
+        let start = bookmark.note.index(range.lowerBound, offsetBy: -20, limitedBy: bookmark.note.startIndex) ?? bookmark.note.startIndex
+        let end = bookmark.note.index(range.upperBound, offsetBy: 40, limitedBy: bookmark.note.endIndex) ?? bookmark.note.endIndex
+        
+        return "...\(bookmark.note[start..<end])..."
+    }
+    
+    private var tagsView: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "tag.fill")
+                .font(.caption2)
+                .foregroundStyle(.blue)
+            
+            Text(bookmark.tags.joined(separator: ", "))
+                .font(.caption)
+                .foregroundStyle(.blue)
+                .lineLimit(1)
+        }
+    }
+    
+    private var metaInfoView: some View {
+        HStack(spacing: 6) {
+            Text(bookmark.source.displayName)
+            Text("•")
+            Text(bookmark.relativeDate)
+        }
+        .font(.caption2)
+        .foregroundStyle(.tertiary)
     }
 }
 
@@ -377,9 +553,9 @@ struct SearchResultRow: View {
             viewModel: HomeViewModel(
                 bookmarkRepository: PreviewMockRepository.shared,
                 categoryRepository: PreviewMockCategoryRepository.shared
-            ), selectedTab: .constant(.home),
+            ),
+            selectedTab: .constant(.search),
             searchText: .constant("")
         )
-        .searchable(text: .constant(""), placement: .navigationBarDrawer(displayMode: .always))
     }
 }

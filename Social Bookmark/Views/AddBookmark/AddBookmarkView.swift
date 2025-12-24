@@ -589,9 +589,11 @@ struct AddBookmarkView: View {
         let manualImageData = selectedImage?.jpegData(compressionQuality: 0.8)
         let finalImageData = viewModel.tweetImagesData.first ?? manualImageData
         
-        if viewModel.saveBookmark(withImage: finalImageData, extractedText: viewModel.note) {
-            onSaved?()
-            dismiss()
+       Task {
+            if await viewModel.saveBookmark(withImage: finalImageData, extractedText: viewModel.note) {
+                onSaved?()
+                dismiss()
+            }
         }
     }
     

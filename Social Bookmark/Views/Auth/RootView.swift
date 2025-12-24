@@ -13,6 +13,7 @@ import Supabase
 
 // MARK: - App Initialization Extension
 
+@available(iOS 18.0, *)
 extension Social_BookmarkApp {
     
     /// Supabase servislerini başlat

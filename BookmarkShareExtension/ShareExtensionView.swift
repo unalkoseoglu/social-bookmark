@@ -120,7 +120,7 @@ struct ShareExtensionView: View {
                 // Tags
                 tagsSection
             }
-            .navigationTitle("Bookmark Kaydet")
+            .navigationTitle(L("extension.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .disabled(isSaving)
@@ -168,7 +168,7 @@ struct ShareExtensionView: View {
                 }
             }
         } header: {
-            Text("Kaynak")
+            Text(L("extension.source"))
         }
     }
     
@@ -203,7 +203,7 @@ struct ShareExtensionView: View {
                     Image(systemName: error.icon)
                         .foregroundStyle(error.color)
                     
-                    Text(error.title)
+                    Text(error.localizedTitle)
                         .font(.headline)
                     
                     Spacer()
@@ -216,7 +216,7 @@ struct ShareExtensionView: View {
                     }
                 }
                 
-                Text(error.message)
+                Text(error.localizedMessage)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
@@ -226,7 +226,7 @@ struct ShareExtensionView: View {
                     } label: {
                         HStack {
                             Image(systemName: "safari")
-                            Text("Tarayıcıda Aç")
+                            Text(L("extension.error.openInBrowser"))
                         }
                         .font(.subheadline)
                         .frame(maxWidth: .infinity)
@@ -248,12 +248,12 @@ struct ShareExtensionView: View {
                 HStack {
                     Image(systemName: "bird.fill")
                         .foregroundStyle(.blue)
-                    Text("Tweet Önizleme")
+                    Text(L("extension.preview.tweet"))
                         .font(.headline)
                     Spacer()
                     
                     if tweetImagesData.count > 1 {
-                        Text("\(tweetImagesData.count) görsel")
+                        Text(L("extension.stats.images", tweetImagesData.count))
                             .font(.caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -358,7 +358,7 @@ struct ShareExtensionView: View {
                 HStack {
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .foregroundStyle(.orange)
-                    Text("Reddit Önizleme")
+                    Text(L("extension.preview.reddit"))
                         .font(.headline)
                     Spacer()
                     Image(systemName: "checkmark.seal.fill")
@@ -405,7 +405,7 @@ struct ShareExtensionView: View {
                 HStack(spacing: 16) {
                     Label(formatCount(reddit.score), systemImage: "arrow.up")
                         .foregroundStyle(.orange)
-                    Label("\(formatCount(reddit.commentCount)) yorum", systemImage: "bubble.right")
+                    Label(L("extension.stats.comments", formatCount(reddit.commentCount)), systemImage: "bubble.right")
                         .foregroundStyle(.blue)
                 }
                 .font(.caption)
@@ -428,7 +428,7 @@ struct ShareExtensionView: View {
                 HStack {
                     Image(systemName: "briefcase.fill")
                         .foregroundStyle(.cyan)
-                    Text("LinkedIn Önizleme")
+                    Text(L("extension.preview.linkedin"))
                         .font(.headline)
                     Spacer()
                     
@@ -494,7 +494,7 @@ struct ShareExtensionView: View {
                     } label: {
                         HStack {
                             Image(systemName: "safari")
-                            Text("Tarayıcıda Aç")
+                            Text(L("extension.error.openInBrowser"))
                         }
                         .font(.subheadline)
                         .frame(maxWidth: .infinity)
@@ -533,14 +533,14 @@ struct ShareExtensionView: View {
                 HStack {
                     Image(systemName: "doc.text.fill")
                         .foregroundStyle(.green)
-                    Text("Medium Önizleme")
+                    Text(L("extension.preview.medium"))
                         .font(.headline)
                     Spacer()
                     
                     if medium.isPaywalled {
                         HStack(spacing: 4) {
                             Image(systemName: "lock.fill")
-                            Text("Üyelere Özel")
+                            Text(L("extension.stats.membersOnly"))
                         }
                         .font(.caption2)
                         .padding(.horizontal, 8)
@@ -583,7 +583,7 @@ struct ShareExtensionView: View {
                     Spacer()
                     
                     if medium.readTime > 0 {
-                        Text("\(medium.readTime) dk okuma")
+                        Text(L("extension.stats.readTime", medium.readTime))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -603,7 +603,7 @@ struct ShareExtensionView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.up.right.square.fill")
-                        Text("Medium'da Oku")
+                        Text(L("extension.medium.readOn"))
                     }
                     .font(.subheadline)
                     .fontWeight(.medium)
@@ -634,12 +634,12 @@ struct ShareExtensionView: View {
     // MARK: - Basic Info Section
     
     private var basicInfoSection: some View {
-        Section("Temel Bilgiler") {
-            TextField("Başlık", text: $title, axis: .vertical)
+        Section(L("extension.basicInfo")) {
+            TextField(L("extension.title.placeholder"), text: $title, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
-            Picker("Kaynak", selection: $selectedSource) {
+            Picker(L("extension.source.label"), selection: $selectedSource) {
                 ForEach(BookmarkSource.allCases) { source in
                     HStack {
                         Text(source.emoji)
@@ -652,17 +652,17 @@ struct ShareExtensionView: View {
             // Content status
             if hasContent {
                 HStack {
-                    Label("İçerik çekildi", systemImage: "checkmark.circle.fill")
+                    Label(L("extension.contentFetched"), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                     
                     Spacer()
                     
                     if !tweetImagesData.isEmpty {
-                        Text("\(tweetImagesData.count) görsel")
+                        Text(L("extension.stats.images", tweetImagesData.count))
                             .font(.caption)
                             .foregroundStyle(.blue)
                     } else if !redditImagesData.isEmpty {
-                        Text("\(redditImagesData.count) görsel")
+                        Text(L("extension.stats.images", redditImagesData.count))
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
@@ -683,17 +683,17 @@ struct ShareExtensionView: View {
                         .frame(width: 24)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Kategori yok")
+                        Text(L("extension.category.empty"))
                             .font(.subheadline)
-                        Text("Ana uygulamadan kategori oluşturabilirsiniz")
+                        Text(L("extension.category.emptyHint"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
             } else {
-                Picker("Kategori", selection: $selectedCategoryId) {
+                Picker(L("extension.category"), selection: $selectedCategoryId) {
                     // None option
-                    Label("Kategorisiz", systemImage: "tray")
+                    Label(L("extension.category.none"), systemImage: "tray")
                         .tag(nil as UUID?)
                     
                     Divider()
@@ -712,7 +712,7 @@ struct ShareExtensionView: View {
                 .pickerStyle(.menu)
             }
         } header: {
-            Text("Kategori")
+            Text(L("extension.category"))
         } footer: {
             if let category = selectedCategory {
                 Label(category.name, systemImage: category.icon)
@@ -725,8 +725,8 @@ struct ShareExtensionView: View {
     // MARK: - Details Section
     
     private var detailsSection: some View {
-        Section("Notlar") {
-            TextField("Notlarınızı buraya ekleyin", text: $note, axis: .vertical)
+        Section(L("extension.notes")) {
+            TextField(L("extension.notes.placeholder"), text: $note, axis: .vertical)
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
         }
@@ -736,12 +736,12 @@ struct ShareExtensionView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField("Etiketler (virgülle ayır)", text: $tagsInput)
+            TextField(L("extension.tags.placeholder"), text: $tagsInput)
                 .focused($focusedField, equals: .tags)
         } header: {
-            Text("Etiketler")
+            Text(L("extension.tags"))
         } footer: {
-            Text("Örnek: swift, ios, tutorial")
+            Text(L("extension.tags.hint"))
                 .font(.caption)
         }
     }
@@ -751,7 +751,7 @@ struct ShareExtensionView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("İptal") {
+            Button(L("extension.cancel")) {
                 onCancel()
             }
         }
@@ -760,7 +760,7 @@ struct ShareExtensionView: View {
             if isSaving {
                 ProgressView()
             } else {
-                Button("Kaydet") {
+                Button(L("extension.save")) {
                     saveBookmark()
                 }
                 .fontWeight(.semibold)
@@ -797,26 +797,26 @@ extension ShareExtensionView {
         case medium(String)
         case network(String)
         
-        var title: String {
+        var localizedTitle: String {
             switch self {
-            case .twitter: return "Twitter Hatası"
-            case .reddit: return "Reddit Hatası"
-            case .linkedin: return "LinkedIn Hatası"
-            case .medium: return "Medium Hatası"
-            case .network: return "Bağlantı Hatası"
+            case .twitter: return L("extension.error.twitter")
+            case .reddit: return L("extension.error.reddit")
+            case .linkedin: return L("extension.error.linkedin")
+            case .medium: return L("extension.error.medium")
+            case .network: return L("extension.error.network")
             }
         }
         
-        var message: String {
+        var localizedMessage: String {
             switch self {
             case .twitter(let msg): return msg
             case .reddit(let msg): return msg
             case .linkedin(let error):
                 switch error {
                 case .authRequired:
-                    return "Bu içeriği görüntülemek için LinkedIn'de giriş gerekiyor."
+                    return L("extension.linkedin.authRequired")
                 case .botDetected:
-                    return "LinkedIn erişimi geçici olarak kısıtlandı. Daha sonra tekrar deneyin."
+                    return L("extension.linkedin.botDetected")
                 default:
                     return error.localizedDescription
                 }

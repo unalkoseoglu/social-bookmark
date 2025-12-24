@@ -64,7 +64,7 @@ final class AddBookmarkViewModel {
         
         var id: String {
             switch self {
-            case .twitter: return "twitter"
+            case .twitter: return "x.com"
             case .reddit: return "reddit"
             case .linkedin: return "linkedin"
             case .medium: return "medium"
@@ -217,37 +217,26 @@ final class AddBookmarkViewModel {
     }
     
     @discardableResult
-    func saveBookmark(withImage imageData: Data? = nil, extractedText: String? = nil) -> Bool {
+    func saveBookmark(withImage imageData: Data? = nil, extractedText: String? = nil) async -> Bool {
         guard validate() else { return false }
-        
+
         let parsedTags = parseTags(from: tagsInput)
         let sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
-        
-        // Görsel verilerini hazırla - Twitter, Reddit, LinkedIn, Medium veya manuel
+
         let finalImageData: Data? = {
-            if let first = tweetImagesData.first {
-                return first
-            } else if let first = redditImagesData.first {
-                return first
-            } else if let linkedin = linkedInImageData {
-                return linkedin
-            } else if let medium = mediumImageData {  // ← YENİ
-                return medium
-            } else {
-                return imageData
-            }
+            if let first = tweetImagesData.first { return first }
+            if let first = redditImagesData.first { return first }
+            if let linkedin = linkedInImageData { return linkedin }
+            if let medium = mediumImageData { return medium }
+            return imageData
         }()
-        
+
         let finalImagesData: [Data]? = {
-            if !tweetImagesData.isEmpty {
-                return tweetImagesData
-            } else if !redditImagesData.isEmpty {
-                return redditImagesData
-            } else {
-                return nil
-            }
+            if !tweetImagesData.isEmpty { return tweetImagesData }
+            if !redditImagesData.isEmpty { return redditImagesData }
+            return nil
         }()
-        
+
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
             url: sanitizedURL,
@@ -259,12 +248,20 @@ final class AddBookmarkViewModel {
             imagesData: finalImagesData,
             extractedText: extractedText
         )
-        
+
         repository.create(newBookmark)
-        resetForm()
-        
-        return true
+
+        do {
+            try await SyncService.shared.syncBookmark( newBookmark)
+            resetForm()
+            return true
+        } catch {
+            // İstersen burada error state/log/notification ekle
+            // state = state.copyWith(errorMessage: ...)
+            return false
+        }
     }
+
     
     func fetchMetadata() async {
         guard !url.isEmpty, isURLValid else { return }

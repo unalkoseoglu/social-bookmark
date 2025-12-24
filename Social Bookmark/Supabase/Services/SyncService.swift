@@ -407,16 +407,17 @@ final class SyncService: ObservableObject {
         for bookmark in localBookmarks {
             // İstersen burada resim upload edip image_urls'a koyabilirsin.
             // Senin diğer dosyada ImageUploadService vardı. Projende varsa aç:
-            /*
+            
             var imageUrls: [String] = []
             if let imageData = bookmark.imageData, let image = UIImage(data: imageData) {
                 if let uploaded = try? await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0) {
                     imageUrls = [uploaded]
                 }
             }
-            */
+            
 
             var payload = createBookmarkPayload(bookmark, userId: userId)
+            payload["image_urls"] = AnyEncodable(imageUrls)
 
             // Eğer yukarıdaki image upload aktif edilirse:
             // payload["image_urls"] = AnyEncodable(imageUrls)

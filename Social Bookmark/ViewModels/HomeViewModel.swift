@@ -99,6 +99,11 @@ final class HomeViewModel {
         bookmarks.filter { $0.categoryId == category.id }.count
     }
     
+    /// Belirli bir kaynak için bookmark sayısı
+        func bookmarkSourceCount(for source: BookmarkSource) -> Int {
+            bookmarks.filter { $0.source == source }.count
+        }
+    
     /// Belirli bir kategorideki bookmarklar
     func bookmarks(for category: Category) -> [Bookmark] {
         bookmarks.filter { $0.categoryId == category.id }
@@ -112,8 +117,14 @@ final class HomeViewModel {
     }
     
     /// Yeni kategori ekle
-    func addCategory(_ category: Category) {
+    func addCategory(_ category: Category) async {
         categoryRepository.create(category)
+        do{
+            try await SyncService.shared.syncCategory(category)
+        }catch {}
+
+            
+         
         loadCategories()
     }
     

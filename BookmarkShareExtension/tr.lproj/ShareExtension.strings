@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Share Extension Localization - Turkish
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Navigation */
+"extension.title" = "Bookmark Kaydet";
+"extension.cancel" = "İptal";
+"extension.save" = "Kaydet";
+
+/* URL Section */
+"extension.source" = "Kaynak";
+
+/* Error Banner */
+"extension.error.twitter" = "Twitter Hatası";
+"extension.error.reddit" = "Reddit Hatası";
+"extension.error.linkedin" = "LinkedIn Hatası";
+"extension.error.medium" = "Medium Hatası";
+"extension.error.network" = "Bağlantı Hatası";
+"extension.error.openInBrowser" = "Tarayıcıda Aç";
+
+/* LinkedIn Specific Errors */
+"extension.linkedin.authRequired" = "Bu içeriği görüntülemek için LinkedIn'de giriş gerekiyor.";
+"extension.linkedin.botDetected" = "LinkedIn erişimi geçici olarak kısıtlandı. Daha sonra tekrar deneyin.";
+
+/* Preview Sections */
+"extension.preview.tweet" = "Tweet Önizleme";
+"extension.preview.reddit" = "Reddit Önizleme";
+"extension.preview.linkedin" = "LinkedIn Önizleme";
+"extension.preview.medium" = "Medium Önizleme";
+
+/* Preview Stats */
+"extension.stats.images" = "%d görsel";
+"extension.stats.comments" = "%@ yorum";
+"extension.stats.readTime" = "%d dk okuma";
+"extension.stats.membersOnly" = "Üyelere Özel";
+
+/* Basic Info Section */
+"extension.basicInfo" = "Temel Bilgiler";
+"extension.title.placeholder" = "Başlık";
+"extension.source.label" = "Kaynak";
+"extension.contentFetched" = "İçerik çekildi";
+
+/* Category Section */
+"extension.category" = "Kategori";
+"extension.category.none" = "Kategorisiz";
+"extension.category.empty" = "Kategori yok";
+"extension.category.emptyHint" = "Ana uygulamadan kategori oluşturabilirsiniz";
+
+/* Notes Section */
+"extension.notes" = "Notlar";
+"extension.notes.placeholder" = "Notlarınızı buraya ekleyin";
+
+/* Tags Section */
+"extension.tags" = "Etiketler";
+"extension.tags.placeholder" = "Etiketler (virgülle ayır)";
+"extension.tags.hint" = "Örnek: swift, ios, tutorial";
+
+/* Medium */
+"extension.medium.readOn" = "Medium'da Oku";
+
+/* Status */
+"extension.loading" = "Yükleniyor...";
+"extension.saved" = "Kaydedildi";

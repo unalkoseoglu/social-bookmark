@@ -67,24 +67,24 @@ final class Category {
 // MARK: - Color Extension
 
 extension Color {
-    /// Hex string'den Color oluştur
+
+    /// Hex string'den Color oluştur (failable)
+    /// Destek: RGB (#RRGGBB) ve ARGB (#AARRGGBB)
     init?(hex: String) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
-        
+
         var rgb: UInt64 = 0
         guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
-        
-        let length = hexSanitized.count
-        
-        switch length {
-        case 6: // RGB (24-bit)
+
+        switch hexSanitized.count {
+        case 6: // RRGGBB
             self.init(
                 red: Double((rgb & 0xFF0000) >> 16) / 255.0,
                 green: Double((rgb & 0x00FF00) >> 8) / 255.0,
                 blue: Double(rgb & 0x0000FF) / 255.0
             )
-        case 8: // ARGB (32-bit)
+        case 8: // AARRGGBB
             self.init(
                 red: Double((rgb & 0x00FF0000) >> 16) / 255.0,
                 green: Double((rgb & 0x0000FF00) >> 8) / 255.0,
@@ -95,18 +95,58 @@ extension Color {
             return nil
         }
     }
-    
-    /// Color'dan hex string'e çevir
+
+    /// Hex string'den Color oluştur (non-optional)
+    /// Hex parse edilemezse fallback döner.
+    init(hex: String, fallback: Color = .secondary) {
+        if let c = Color(hex: hex) { // yukarıdaki init?(hex:) çağrılır
+            self = c
+        } else {
+            self = fallback
+        }
+    }
+
+    /// Color -> Hex string (#RRGGBB). Opacity dahil edilmez.
     func toHex() -> String? {
-        guard let components = UIColor(self).cgColor.components else { return nil }
-        
-        let r = components[0]
-        let g = components.count > 1 ? components[1] : r
-        let b = components.count > 2 ? components[2] : r
-        
-        return String(format: "#%02lX%02lX%02lX",
-                      lround(Double(r) * 255),
-                      lround(Double(g) * 255),
-                      lround(Double(b) * 255))
+        let uiColor = UIColor(self)
+
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+
+        guard uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) else {
+            return nil
+        }
+
+        return String(
+            format: "#%02lX%02lX%02lX",
+            lround(Double(r) * 255),
+            lround(Double(g) * 255),
+            lround(Double(b) * 255)
+        )
+    }
+
+    /// Color -> Hex string (#AARRGGBB) (opsiyonel)
+    func toHexWithAlpha() -> String? {
+        let uiColor = UIColor(self)
+
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+
+        guard uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) else {
+            return nil
+        }
+
+        return String(
+            format: "#%02lX%02lX%02lX%02lX",
+            lround(Double(a) * 255),
+            lround(Double(r) * 255),
+            lround(Double(g) * 255),
+            lround(Double(b) * 255)
+        )
     }
 }
+

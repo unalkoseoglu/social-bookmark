@@ -3,7 +3,7 @@ import SwiftUI
 /// Bookmark kaynak türleri
 /// Her sosyal platform için özelleştirilmiş görünüm
 enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
-    case twitter = "Twitter"
+    case twitter = "x.com"
     case reddit = "Reddit"
     case linkedin = "LinkedIn"
     case medium = "Medium"
@@ -23,15 +23,24 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
     /// Platform emoji'si
     var emoji: String {
         switch self {
-        case .twitter: return "🐦"
-        case .reddit: return "🤖"
-        case .linkedin: return "💼"
-        case .medium: return "📝"
-        case .youtube: return "▶️"
-        case .instagram: return "📷"
-        case .github: return "💻"
-        case .article: return "📄"
-        case .other: return "🔗"
+        case .twitter:
+            return "𝕏"
+        case .reddit:
+            return "👽"
+        case .linkedin:
+            return "💼"
+        case .medium:
+            return "✍️"
+        case .youtube:
+            return "📺"
+        case .instagram:
+            return "📸"
+        case .github:
+            return "🧩"
+        case .article:
+            return "📰"
+        case .other:
+            return "🔗"
         }
     }
     
@@ -50,20 +59,38 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         }
     }
     
-    /// Platform rengi
     var color: Color {
         switch self {
-        case .twitter: return .blue
-        case .reddit: return .orange
-        case .linkedin: return Color(red: 0, green: 0.47, blue: 0.71)
-        case .medium: return .black
-        case .youtube: return .red
-        case .instagram: return Color(red: 0.88, green: 0.19, blue: 0.42)
-        case .github: return Color(red: 0.1, green: 0.1, blue: 0.1)
-        case .article: return .gray
-        case .other: return .secondary
+        case .twitter:
+            return Color(hex: "#1D9BF0")
+
+        case .reddit:
+            return Color(hex: "#FF4500")
+
+        case .linkedin:
+            return Color(hex: "#0A66C2")
+
+        case .medium:
+            return .primary
+
+        case .youtube:
+            return Color(hex: "#FF0000")
+
+        case .instagram:
+            return Color(hex: "#E1306C")
+
+        case .github:
+            return Color(hex: "#24292F")
+
+        case .article:
+            return Color(hex: "#6B7280")
+
+        case .other:
+            return .secondary
         }
     }
+
+
     
     /// URL'den kaynak türünü tahmin et
     static func detect(from urlString: String) -> BookmarkSource {

@@ -113,6 +113,7 @@
 		C05B51522EF602C6007DF808 /* Exceptions for "BookmarkShareExtension" folder in "BookmarkActionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				NSLocalizedStrings.swift,
 				ShareExtensionView.swift,
 			);
 			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
@@ -165,6 +166,14 @@
 			);
 			target = C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */;
 		};
+		C0A1E4642EF9C88200F2FE6F /* Exceptions for "BookmarkShareExtension" folder in "Social Bookmark" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"/Localized: ShareExtension.strings",
+				NSLocalizedStrings.swift,
+			);
+			target = C0867EFA2EE9A86D000C8D7D /* Social Bookmark */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -198,6 +207,7 @@
 		C0867F812EEA2A73000C8D7D /* BookmarkShareExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				C0A1E4642EF9C88200F2FE6F /* Exceptions for "BookmarkShareExtension" folder in "Social Bookmark" target */,
 				C0867F8B2EEA2A73000C8D7D /* Exceptions for "BookmarkShareExtension" folder in "BookmarkShareExtension" target */,
 				C05B51522EF602C6007DF808 /* Exceptions for "BookmarkShareExtension" folder in "BookmarkActionExtension" target */,
 			);

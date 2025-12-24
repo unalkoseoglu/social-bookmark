@@ -103,7 +103,10 @@ struct CategoriesManagementView: View {
         }
         .sheet(isPresented: $showingAddCategory) {
             AddCategoryView { category in
-                viewModel.addCategory(category)
+                Task  {
+                    
+                   await viewModel.addCategory(category)
+                }
             }
         }
         .sheet(item: $editingCategory) { category in

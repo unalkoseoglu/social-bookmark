@@ -70,7 +70,9 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingAddCategory) {
             AddCategoryView { category in
-                viewModel.addCategory(category)
+                Task {
+                 await   viewModel.addCategory(category)
+                }
             }
         }
         .refreshable {

@@ -1,0 +1,63 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Share Extension Localization - English
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Navigation */
+"extension.title" = "Save Bookmark";
+"extension.cancel" = "Cancel";
+"extension.save" = "Save";
+
+/* URL Section */
+"extension.source" = "Source";
+
+/* Error Banner */
+"extension.error.twitter" = "Twitter Error";
+"extension.error.reddit" = "Reddit Error";
+"extension.error.linkedin" = "LinkedIn Error";
+"extension.error.medium" = "Medium Error";
+"extension.error.network" = "Connection Error";
+"extension.error.openInBrowser" = "Open in Browser";
+
+/* LinkedIn Specific Errors */
+"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
+"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+
+/* Preview Sections */
+"extension.preview.tweet" = "Tweet Preview";
+"extension.preview.reddit" = "Reddit Preview";
+"extension.preview.linkedin" = "LinkedIn Preview";
+"extension.preview.medium" = "Medium Preview";
+
+/* Preview Stats */
+"extension.stats.images" = "%d images";
+"extension.stats.comments" = "%@ comments";
+"extension.stats.readTime" = "%d min read";
+"extension.stats.membersOnly" = "Members Only";
+
+/* Basic Info Section */
+"extension.basicInfo" = "Basic Information";
+"extension.title.placeholder" = "Title";
+"extension.source.label" = "Source";
+"extension.contentFetched" = "Content fetched";
+
+/* Category Section */
+"extension.category" = "Category";
+"extension.category.none" = "Uncategorized";
+"extension.category.empty" = "No categories";
+"extension.category.emptyHint" = "You can create categories from the main app";
+
+/* Notes Section */
+"extension.notes" = "Notes";
+"extension.notes.placeholder" = "Add your notes here";
+
+/* Tags Section */
+"extension.tags" = "Tags";
+"extension.tags.placeholder" = "Tags (comma separated)";
+"extension.tags.hint" = "Example: swift, ios, tutorial";
+
+/* Medium */
+"extension.medium.readOn" = "Read on Medium";
+
+/* Status */
+"extension.loading" = "Loading...";
+"extension.saved" = "Saved";

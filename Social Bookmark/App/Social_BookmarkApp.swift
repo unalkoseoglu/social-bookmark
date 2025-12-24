@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@available(iOS 18.0, *)
 @main
 struct Social_BookmarkApp: App {
     // MARK: - Properties
