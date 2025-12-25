@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftData
+import OSLog
 
 /// Kategori Repository
 /// SwiftData ile kategori CRUD işlemleri
@@ -32,7 +33,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         do {
             return try modelContext.fetch(descriptor)
         } catch {
-            print("❌ Category fetchAll error: \(error)")
+            Logger.repository.error("Category fetchAll error: \(error.localizedDescription)")
             return []
         }
     }
@@ -44,7 +45,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         do {
             return try modelContext.fetch(descriptor).first
         } catch {
-            print("❌ Category fetch by id error: \(error)")
+            Logger.repository.error("Category fetch by id error: \(error.localizedDescription)")
             return nil
         }
     }
@@ -55,18 +56,19 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         
         modelContext.insert(category)
         save()
-        print("✅ Created category: \(category.name)")
+        Logger.repository.info("Created category: \(category.name)")
     }
     
     func update(_ category: Category) {
         save()
-        print("✅ Updated category: \(category.name)")
+        Logger.repository.info("Updated category: \(category.name)")
     }
     
     func delete(_ category: Category) {
+        let name = category.name
         modelContext.delete(category)
         save()
-        print("✅ Deleted category: \(category.name)")
+        Logger.repository.info("Deleted category: \(name)")
     }
     
     func bookmarkCount(for categoryId: UUID) -> Int {
@@ -76,7 +78,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
-            print("❌ Bookmark count error: \(error)")
+            Logger.repository.error("Bookmark count error: \(error.localizedDescription)")
             return 0
         }
     }
@@ -86,6 +88,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
+            Logger.repository.error("Category count error: \(error.localizedDescription)")
             return 0
         }
     }
@@ -98,7 +101,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
             modelContext.insert(category)
         }
         save()
-        print("✅ Created \(defaults.count) default categories")
+        Logger.repository.info("Created \(defaults.count) default categories")
     }
     
     // MARK: - Private Methods
@@ -107,7 +110,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         do {
             try modelContext.save()
         } catch {
-            print("❌ Category save error: \(error)")
+            Logger.repository.error("Category save error: \(error.localizedDescription)")
         }
     }
 }

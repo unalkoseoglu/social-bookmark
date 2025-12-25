@@ -25,6 +25,7 @@ struct AccountSettingsView: View {
     // Apple Sign In için
     @State private var currentNonce: String?
     @State private var currentHashedNonce: String?
+    @StateObject private var syncService = SyncService.shared
     
     var body: some View {
         List {
@@ -37,7 +38,7 @@ struct AccountSettingsView: View {
             }
             
             // Hesap İşlemleri
-            if sessionStore.isAuthenticated {
+            if sessionStore.isAuthenticated && !sessionStore.isAnonymous {
                 accountActionsSection
                 
                 dangerZoneSection
@@ -58,7 +59,8 @@ struct AccountSettingsView: View {
             Button("common.cancel", role: .cancel) { }
             Button("settings.sign_out", role: .destructive) {
                 Task {
-                    await sessionStore.signOut()
+                    // Çıkış yap ve local verileri temizle
+                    await sessionStore.signOutAndClearData()
                 }
             }
         } message: {
@@ -321,6 +323,7 @@ struct AccountSettingsView: View {
             Task {
                 await sessionStore.linkToApple(credential: credential)
                 showingLinkAccountSheet = false
+                await syncService.syncChanges()
             }
         case .failure(let error):
             if let authError = error as? ASAuthorizationError,

@@ -1,5 +1,6 @@
 import SwiftData
 import Foundation
+import OSLog
 
 /// Concrete implementation of BookmarkRepositoryProtocol
 /// SwiftData ile veritabanı işlemlerini yönetir
@@ -89,11 +90,15 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            Logger.repository.error("search failed: \(error.localizedDescription)")
+            return []
+        }
     }
     
     func filter(by source: BookmarkSource) -> [Bookmark] {
-        // WHERE source = ?
         let predicate = #Predicate<Bookmark> { bookmark in
             bookmark.source == source
         }
@@ -103,11 +108,15 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            Logger.repository.error("filter(by source) failed: \(error.localizedDescription)")
+            return []
+        }
     }
     
     func fetchUnread() -> [Bookmark] {
-        // WHERE isRead = false
         let predicate = #Predicate<Bookmark> { bookmark in
             bookmark.isRead == false
         }
@@ -117,11 +126,15 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            Logger.repository.error("fetchUnread failed: \(error.localizedDescription)")
+            return []
+        }
     }
     
     func filter(by tag: String) -> [Bookmark] {
-        // WHERE tags CONTAINS tag
         let predicate = #Predicate<Bookmark> { bookmark in
             bookmark.tags.contains(tag)
         }
@@ -131,11 +144,15 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            Logger.repository.error("filter(by tag) failed: \(error.localizedDescription)")
+            return []
+        }
     }
     
     func fetch(from startDate: Date, to endDate: Date) -> [Bookmark] {
-        // WHERE createdAt BETWEEN ? AND ?
         let predicate = #Predicate<Bookmark> { bookmark in
             bookmark.createdAt >= startDate && bookmark.createdAt <= endDate
         }
@@ -145,20 +162,34 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            Logger.repository.error("fetch(from:to:) failed: \(error.localizedDescription)")
+            return []
+        }
     }
     
     // MARK: - Statistics
     
     var count: Int {
-        // SELECT COUNT(*) FROM Bookmark
         let descriptor = FetchDescriptor<Bookmark>()
-        return (try? modelContext.fetchCount(descriptor)) ?? 0
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            Logger.repository.error("count failed: \(error.localizedDescription)")
+            return 0
+        }
     }
     
     var unreadCount: Int {
         let predicate = #Predicate<Bookmark> { $0.isRead == false }
         let descriptor = FetchDescriptor<Bookmark>(predicate: predicate)
-        return (try? modelContext.fetchCount(descriptor)) ?? 0
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            Logger.repository.error("unreadCount failed: \(error.localizedDescription)")
+            return 0
+        }
     }
 }

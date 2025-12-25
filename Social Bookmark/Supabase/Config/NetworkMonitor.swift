@@ -10,12 +10,11 @@
 import Foundation
 import Network
 internal import Combine
+import OSLog
 
 /// Ağ durumu izleme servisi
 @MainActor
 final class NetworkMonitor: ObservableObject {
-
-    
     
     // MARK: - Singleton
     
@@ -61,12 +60,12 @@ final class NetworkMonitor: ObservableObject {
             }
         }
         monitor.start(queue: queue)
-        print("📡 [NETWORK] Monitoring started")
+        Logger.network.info("Network monitoring started")
     }
     
     func stopMonitoring() {
         monitor.cancel()
-        print("📡 [NETWORK] Monitoring stopped")
+        Logger.network.info("Network monitoring stopped")
     }
     
     // MARK: - Private Methods
@@ -89,10 +88,10 @@ final class NetworkMonitor: ObservableObject {
         // Log status change
         if wasConnected != isConnected {
             if isConnected {
-                print("📡 [NETWORK] Connected via \(connectionType)")
+                Logger.network.info("Connected via \(String(describing: self.connectionType))")
                 NotificationCenter.default.post(name: .networkDidConnect, object: nil)
             } else {
-                print("📡 [NETWORK] Disconnected")
+                Logger.network.warning("Disconnected")
                 NotificationCenter.default.post(name: .networkDidDisconnect, object: nil)
             }
         }
@@ -100,7 +99,6 @@ final class NetworkMonitor: ObservableObject {
 }
 
 // MARK: - Notification Names
-
 
 extension Notification.Name {
     static let networkDidConnect    = Notification.Name("networkDidConnect")

@@ -1,6 +1,6 @@
 /* Localizable.strings
    Social Bookmark
-   English Localization - Final Clean Version
+   English Localization - Cleaned & Optimized Version
 */
 
 // MARK: - Common
@@ -11,10 +11,13 @@
 "common.edit" = "Edit";
 "common.save" = "Save";
 "common.copy" = "Copy";
+"common.add" = "Add";
 "common.go_back" = "Go Back";
 "common.error" = "Error";
 "common.loading" = "Loading...";
 "common.success" = "Success";
+"common.retry" = "Retry";
+"common.try_again" = "Try Again";
 "common.all" = "All";
 "common.today" = "Today";
 "common.this_week" = "This Week";
@@ -26,6 +29,8 @@
 "auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
 "auth.or_divider" = "or";
 "auth.continue_anonymously" = "Continue Without Account";
+"auth.sign_in_apple" = "Sign in with Apple";
+"auth.sign_up" = "Sign Up";
 "auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
 "auth.error_title" = "Error";
 "auth.sign_in" = "Sign In";
@@ -66,11 +71,14 @@
 
 // MARK: - Home View
 "home.title" = "Bookmarks";
+"home.greeting.morning" = "Good Morning";
+"home.greeting.afternoon" = "Good Afternoon";
+"home.greeting.evening" = "Good Evening";
 "home.stats_summary %lld %lld" = "%lld total • %lld unread";
 "home.stat.total" = "Total";
 "home.stat.unread" = "Unread";
-"home.stat.total_count %lld total" = "%lld total";
-"home.stat.unread_count %lld unread" = "%lld unread";
+"home.stat.total_count %lld" = "%lld bookmarks";
+"home.stat.unread_count %lld" = "%lld unread";
 "home.stat.this_week" = "This Week";
 
 "home.section.quick_access" = "Quick Access";
@@ -87,7 +95,7 @@
 "home.action.add_first" = "Add Your First Bookmark";
 
 "home.empty.no_bookmarks" = "No bookmarks yet";
-"home.empty.no_bookmarks_desc" = "Add content using the share button";
+"home.empty.no_bookmarks_desc" = "Add content using the share button or start by adding your first bookmark.";
 "home.empty.add_category" = "Add Category";
 "home.empty.add_category_desc" = "Create categories to organize your bookmarks";
 
@@ -102,7 +110,7 @@
 "library.categories.empty.subtitle" = "Create categories to organize your bookmarks";
 "library.action.create_default_categories" = "Create Default Categories";
 
-// MARK: - Filtered/All Bookmarks View
+// MARK: - All Bookmarks View
 "all.title" = "All Bookmarks";
 "all.search_prompt" = "Search title, notes or tags...";
 "all.section.bookmarks" = "Bookmarks";
@@ -173,16 +181,21 @@
 "addBookmark.section.organization" = "Organization";
 "addBookmark.section.tags" = "Tags";
 "addBookmark.section.image" = "Image";
+"addBookmark.section.category" = "Category";
+"addBookmark.section.source" = "Source";
 
 "addBookmark.field.title" = "Title";
-"addBookmark.field.url" = "URL (optional)";
+"addBookmark.field.url" = "URL";
 "addBookmark.field.notes" = "Add your notes here";
+"addBookmark.field.note" = "Note";
 "addBookmark.field.tags" = "Tags";
+"addBookmark.field.tags.hint" = "Separate with commas";
 "addBookmark.field.source" = "Source";
 "addBookmark.field.category" = "Category";
 
 "addBookmark.select" = "Select";
 "addBookmark.no_category" = "No Category";
+"addBookmark.category.none" = "Uncategorized";
 "addBookmark.tags.placeholder" = "swift, ios, development";
 "addBookmark.tags.hint" = "Separate multiple tags with commas";
 
@@ -206,6 +219,41 @@
 "addBookmark.ocr.processing" = "Processing OCR...";
 "addBookmark.errors" = "Errors";
 "addBookmark.error.invalid_url" = "Invalid URL format";
+"addBookmark.action.save" = "Save";
+"addBookmark.action.cancel" = "Cancel";
+"addBookmark.saving" = "Saving...";
+
+// MARK: - Edit Bookmark
+"editBookmark.title" = "Edit";
+"editBookmark.section.basic" = "Basic Info";
+"editBookmark.section.images" = "Images";
+"editBookmark.section.category" = "Category";
+"editBookmark.section.details" = "Details";
+"editBookmark.section.tags" = "Tags";
+
+"editBookmark.field.title" = "Title";
+"editBookmark.field.url" = "URL (optional)";
+"editBookmark.field.notes" = "Notes (optional)";
+"editBookmark.field.tags" = "Tags (comma separated)";
+
+"editBookmark.addImage" = "Add Image";
+"editBookmark.maxImages" = "You can add up to 4 images";
+"editBookmark.imageCount %lld" = "%lld/4 images";
+"editBookmark.processingImages" = "Processing images...";
+"editBookmark.tapToEdit" = "Tap image to edit";
+"editBookmark.newBadge" = "NEW";
+
+"editBookmark.imageOptions" = "Image Options";
+"editBookmark.viewFullScreen" = "View Full Screen";
+
+"editBookmark.category" = "Category";
+"editBookmark.uncategorized" = "Uncategorized";
+"editBookmark.noCategories" = "No categories defined";
+"editBookmark.createCategoryHint" = "You can create a new category from the home screen";
+
+"editBookmark.source" = "Source";
+"editBookmark.tagsHint" = "Example: Swift, iOS, Tutorial";
+"editBookmark.saveError" = "An error occurred while saving";
 
 // MARK: - Bookmark Detail
 "bookmarkDetail.title" = "Details";
@@ -226,7 +274,6 @@
 "bookmarkDetail.delete" = "Delete";
 "bookmarkDetail.delete_title" = "Delete Bookmark?";
 "bookmarkDetail.delete_confirmation" = "Are you sure you want to delete this bookmark? This action cannot be undone.";
-
 "bookmarkDetail.word_count %lld" = "%lld words";
 
 // MARK: - Categories Management
@@ -267,24 +314,48 @@
 "source.other" = "Other";
 
 // MARK: - Previews & Special Content
+"preview.twitter.title" = "Tweet Preview";
+"preview.reddit.title" = "Reddit Preview";
+"preview.linkedin.title" = "LinkedIn Preview";
+"preview.medium.title" = "Medium Preview";
+
 "reddit.preview.title" = "Reddit Preview";
 "reddit.images_count %lld" = "%lld images";
 "reddit.comments_count %lld" = "%lld comments";
+
 "linkedin.preview.title" = "LinkedIn Preview";
 "linkedin.partial_content_warning" = "Partial Content";
+
 "tweet.preview.title" = "Tweet Preview";
-"medium.preview.title" = "Medium Preview";
-"medium.preview.badge" = "Preview";
+
+"medium.preview.title" = "Medium Article";
+"medium.preview.badge" = "Member";
 "medium.read_time %lld" = "%lld min read";
 
-// MARK: - Service Errors
-"error.twitter.title" = "X Error";
-"error.reddit.title" = "Reddit Error";
-"error.linkedin.title" = "LinkedIn Error";
-"error.medium.title" = "Medium Error";
+// MARK: - Errors (Network & Service)
+"error.network" = "Check your internet connection";
 "error.network.title" = "Connection Error";
-"error.linkedin.auth_required" = "Sign in to LinkedIn to view this content.";
-"error.linkedin.bot_detected" = "LinkedIn access temporarily restricted. Try again later.";
+"error.rate_limited" = "Too many requests. Please wait.";
+
+"error.twitter.title" = "X Error";
+"error.twitter.not_found" = "𝕏 Tweet not found or may have been deleted.";
+"error.twitter.invalid_url" = "𝕏 Invalid Twitter URL.";
+"error.twitter.parse" = "⚠️ Could not process tweet content.";
+"error.twitter.generic" = "𝕏 Could not fetch Twitter content.";
+
+"error.reddit.title" = "Reddit Error";
+"error.reddit.not_found" = "👽 Reddit content not found.";
+"error.reddit.invalid_url" = "👽 Invalid Reddit URL.";
+"error.reddit.parse" = "⚠️ Could not process Reddit content.";
+
+"error.linkedin.title" = "LinkedIn Error";
+"error.linkedin.auth_required" = "🔒 Sign in required to view this LinkedIn content.";
+"error.linkedin.bot_detected" = "⏳ LinkedIn access temporarily restricted.";
+
+"error.medium.title" = "Medium Error";
+"error.medium.paywall" = "📗 This article requires membership.";
+"error.medium.parse" = "⚠️ Could not process Medium content.";
+
 "error.action.open_browser" = "Open in Browser";
 
 // MARK: - Share Extension
@@ -298,8 +369,10 @@
 
 // MARK: - Validation
 "validation.titleRequired" = "Title is required";
+"validation.title_required" = "Title is required";
 "validation.titleTooLong" = "Title too long (max 200 characters)";
 "validation.invalidURL" = "Invalid URL format";
+"validation.invalid_url" = "Invalid URL format";
 "validation.noteTooLong" = "Note too long (max 5000 characters)";
 
 // MARK: - Image & OCR
@@ -318,6 +391,27 @@
 "ocr.noText" = "No text found";
 "ocr.result" = "OCR Result";
 
+// MARK: - Migration Process
+"migration.state.idle" = "Ready";
+"migration.state.preparing" = "Preparing...";
+"migration.state.categories %lld %lld" = "Migrating categories (%lld/%lld)";
+"migration.state.bookmarks %lld %lld" = "Migrating bookmarks (%lld/%lld)";
+"migration.state.images %lld %lld" = "Uploading images (%lld/%lld)";
+"migration.state.cleaning" = "Cleaning up...";
+"migration.state.completed" = "Completed!";
+"migration.state.failed %@" = "Error: %@";
+
+"migration.error.not_anonymous" = "Only anonymous accounts can be migrated";
+"migration.error.no_new_account" = "New account not found";
+"migration.error.same_account" = "Cannot migrate to the same account";
+"migration.error.in_progress" = "Migration already in progress";
+"migration.error.no_data" = "No data to migrate";
+"migration.error.category_failed %@" = "Category migration failed: %@";
+"migration.error.bookmark_failed %@" = "Bookmark migration failed: %@";
+"migration.error.image_failed %@" = "Image migration failed: %@";
+"migration.error.cleanup_failed %@" = "Cleanup failed: %@";
+"migration.error.network" = "Internet connection required";
+
 // MARK: - Settings & Account
 "settings.title" = "Settings";
 "settings.section.general" = "General";
@@ -325,20 +419,24 @@
 "settings.section.about" = "About";
 "settings.section.danger" = "Danger Zone";
 "settings.appearance" = "Appearance";
-"settings.language" = "App Language";
+"settings.language" = "Language";
 "settings.autoDetectSource" = "Auto-detect Source";
 "settings.showReadingTime" = "Show Reading Time";
 
 "settings.account" = "Account";
 "settings.account_info" = "Account Information";
 "settings.account_actions" = "Account Actions";
+"settings.secure_your_data" = "Secure Your Data";
 "settings.link_account" = "Link Account";
 "settings.link_account_title" = "Link Your Account";
 "settings.link_account_subtitle" = "Sign in with Apple to secure your bookmarks.";
+"settings.link_description" = "Sign in with your Apple account to backup your data to the cloud and sync across all your devices.";
 "settings.link_account_footer" = "Link your Apple account to secure your data and sync across all your devices.";
-"settings.link_keeps_data" = "Your existing data will be preserved.";
-"settings.benefit_secure" = "Your data stays safe";
-"settings.benefit_sync" = "Automatic sync";
+"settings.link_keeps_data" = "All your existing bookmarks and categories will be transferred to your Apple account.";
+
+"settings.benefit_secure" = "End-to-end encryption security";
+"settings.benefit_sync" = "Sync across all devices";
+"settings.benefit_restore" = "Restore your data anytime";
 "settings.benefit_devices" = "Access on all devices";
 
 "settings.anonymous_warning_title" = "Your Account is Not Secure";
@@ -346,9 +444,22 @@
 "settings.secure_your_account" = "Secure Your Account";
 "settings.link_with_apple" = "Link with Apple";
 
+"settings.migration_warning_title" = "Important";
+"settings.migration_warning_body" = "This action cannot be undone. Your data will be permanently linked to your Apple account.";
+"settings.migrating_data" = "Migrating Data";
+"settings.do_not_close" = "Please don't close the app";
+"settings.migration_complete" = "Migration Complete!";
+"settings.migration_complete_desc" = "All your data has been successfully transferred to your Apple account.";
+"settings.categories_migrated" = "Categories";
+"settings.bookmarks_migrated" = "Bookmarks";
+"settings.images_migrated" = "Images";
+"settings.migration_failed" = "Migration Failed";
+
 "settings.sign_out" = "Sign Out";
-"settings.sign_out_title" = "Sign Out";
-"settings.sign_out_message" = "Are you sure you want to sign out?";
+"settings.signout_warning_title" = "Sign Out?";
+"settings.signout_warning_anonymous" = "All data in your anonymous account will be deleted and cannot be recovered.";
+"settings.signout_warning_authenticated" = "Data on this device will be cleared. Your data will be restored when you sign in again.";
+"settings.signout_confirm" = "Sign Out";
 
 "settings.delete_account" = "Delete Account";
 "settings.delete_account_title" = "Delete Account";
@@ -388,6 +499,11 @@
 "sync.clear_cache_title" = "Clear Cache";
 "sync.clear_cache_confirm" = "All local cache will be cleared. Do you want to continue?";
 "sync.cache_footer" = "Clearing the cache frees up space on your device.";
+
+"sync.error.not_authenticated" = "Please sign in";
+"sync.error.network" = "No network connection";
+"sync.error.failed" = "Sync failed";
+"sync.error.conflict" = "Data conflict detected";
 
 // MARK: - Language Settings
 "settings.language.system" = "System";

@@ -10,10 +10,10 @@
 import SwiftUI
 import SwiftData
 import Supabase
+import OSLog
 
 // MARK: - App Initialization Extension
 
-@available(iOS 18.0, *)
 extension Social_BookmarkApp {
     
     /// Supabase servislerini başlat
@@ -64,12 +64,13 @@ struct RootView: View {
     
     /// İlk açılışta sync yapıldı mı?
     @State private var hasPerformedInitialSync = false
-    
+    @State private var showSplash = false
+
     // MARK: - Body
     
     var body: some View {
         Group {
-            if sessionStore.isLoading {
+            if showSplash || sessionStore.isLoading {
                 loadingView
             } else if !sessionStore.isAuthenticated && requireExplicitSignIn {
                 NavigationStack {
@@ -85,6 +86,19 @@ struct RootView: View {
         }
         .task {
             await initializeAuth()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .appShouldRestart)) { _ in
+            showSplash = true
+            hasPerformedInitialSync = false
+            Task {
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                await initializeAuth()
+                showSplash = false
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidSignOut)) { _ in
+            showSplash = true
+            hasPerformedInitialSync = false
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)
@@ -162,7 +176,7 @@ struct RootView: View {
         switch newPhase {
         case .active:
             // Uygulama aktif olduğunda (açılış veya arka plandan dönüş)
-            print("📱 [APP] Scene became active")
+            Logger.app.info("Scene became active")
             
             if sessionStore.isAuthenticated && networkMonitor.isConnected {
                 Task {
@@ -171,11 +185,11 @@ struct RootView: View {
             }
             
         case .inactive:
-            print("📱 [APP] Scene became inactive")
+            Logger.app.debug("Scene became inactive")
             
         case .background:
             // Arka plana geçerken son değişiklikleri kaydet
-            print("📱 [APP] Scene went to background")
+            Logger.app.debug("Scene went to background")
             
         @unknown default:
             break
@@ -188,7 +202,7 @@ struct RootView: View {
     private func performInitialSync() async {
         guard !hasPerformedInitialSync else { return }
         
-        print("🔄 [APP] Performing initial sync...")
+        Logger.sync.info("Performing initial sync...")
         hasPerformedInitialSync = true
         
         // Auto-sync'i başlat
@@ -205,7 +219,7 @@ struct RootView: View {
     private func performSyncOnAppActive() async {
         // Zaten sync yapılıyorsa atla
         guard syncService.syncState != .syncing else {
-            print("⏭️ [APP] Sync already in progress, skipping")
+            Logger.sync.debug("Sync already in progress, skipping")
             return
         }
         
@@ -214,12 +228,12 @@ struct RootView: View {
             let timeSinceLastSync = Date().timeIntervalSince(lastSync)
             
             if timeSinceLastSync < 60 {
-                print("⏭️ [APP] Last sync was \(Int(timeSinceLastSync))s ago, skipping")
+                Logger.sync.debug("Last sync was \(Int(timeSinceLastSync))s ago, skipping")
                 return
             }
         }
         
-        print("🔄 [APP] Syncing on app active...")
+        Logger.sync.info("Syncing on app active...")
         await syncService.performFullSync()
         
         // ViewModel'i yenile

@@ -2,13 +2,9 @@
 //  ImageUploadService.swift
 //  Social Bookmark
 //
-//  Created by Claude on 15.12.2025.
-//
-//  Bookmark görsellerini Supabase Storage'a yükler
-//  - Resim sıkıştırma
-//  - Thumbnail oluşturma
-//  - Batch upload
-//  - Cache yönetimi
+//  ✅ DÜZELTME: Private bucket için signed URL desteği
+//  - loadImage(): Path veya URL'yi destekler
+//  - getSignedURL(): Private bucket'tan signed URL alır
 //
 
 import Foundation
@@ -17,6 +13,7 @@ import UIKit
 import CryptoKit
 internal import Combine
 import SwiftUI
+import OSLog
 
 
 /// Görsel yükleme servisi
@@ -40,6 +37,7 @@ final class ImageUploadService: ObservableObject {
     private let thumbnailSize: CGSize = CGSize(width: 300, height: 300)
     private let fullImageMaxDimension: CGFloat = 1920
     private let compressionQuality: CGFloat = 0.8
+    private let signedURLExpiration: Int = 3600 // 1 saat
     
     // MARK: - Dependencies
     
@@ -49,6 +47,7 @@ final class ImageUploadService: ObservableObject {
     // MARK: - Cache
     
     private let cache = NSCache<NSString, UIImage>()
+    private let signedURLCache = NSCache<NSString, NSString>()  // ✅ Signed URL cache
     private let fileManager = FileManager.default
     private var _cacheDirectory: URL?
     
@@ -68,7 +67,8 @@ final class ImageUploadService: ObservableObject {
     private init() {
         cache.countLimit = 100
         cache.totalCostLimit = 50 * 1024 * 1024 // 50MB
-        print("🖼️ [IMAGE] ImageUploadService initialized")
+        signedURLCache.countLimit = 200
+        Logger.network.info("ImageUploadService initialized")
     }
     
     // MARK: - Public Methods
@@ -78,7 +78,7 @@ final class ImageUploadService: ObservableObject {
     ///   - image: Yüklenecek UIImage
     ///   - bookmarkId: Bookmark UUID
     ///   - index: Görsel indexi (birden fazla görsel için)
-    /// - Returns: Yüklenen görselin public URL'i
+    /// - Returns: Yüklenen görselin Storage path'i (NOT: full URL değil!)
     func uploadImage(_ image: UIImage, for bookmarkId: UUID, index: Int = 0) async throws -> String {
         guard let userId = SupabaseManager.shared.userId else {
             throw ImageUploadError.notAuthenticated
@@ -90,14 +90,12 @@ final class ImageUploadService: ObservableObject {
         
         defer { isUploading = false }
         
-        print("🖼️ [IMAGE] Uploading image for bookmark: \(bookmarkId)")
+        Logger.network.info("Uploading image for bookmark: \(bookmarkId)")
         
         // 1. Görseli optimize et
         guard let optimizedData = optimizeImage(image) else {
             throw ImageUploadError.compressionFailed
         }
-        
-        print("   Original: \(image.size), Optimized: \(optimizedData.count) bytes")
         
         // 2. Boyut kontrolü
         guard optimizedData.count <= maxImageSize else {
@@ -110,10 +108,12 @@ final class ImageUploadService: ObservableObject {
         let fileName = "\(index)_\(UUID().uuidString.prefix(8)).jpg"
         let filePath = "\(userId.uuidString)/\(bookmarkId.uuidString)/\(fileName)"
         
-        print("   Path: \(filePath)")
+        Logger.network.debug("Path: \(filePath)")
         
         // 4. Storage'a yükle
         do {
+            print("📤 [ImageUpload] Uploading \(optimizedData.count / 1024) KB to: \(filePath)")
+            
             try await storage.upload(
                 filePath,
                 data: optimizedData,
@@ -124,22 +124,16 @@ final class ImageUploadService: ObservableObject {
                 )
             )
             
-            uploadProgress = 0.8
-            
-            // 5. Public URL al
-            let publicURL = try storage.getPublicURL(path: filePath)
-            
             uploadProgress = 1.0
             
-            print("✅ [IMAGE] Uploaded: \(publicURL.absoluteString)")
+            print("✅ [ImageUpload] Upload successful: \(filePath)")
             
-            // 6. Cache'e ekle
-            cacheImage(image, for: publicURL.absoluteString)
-            
-            return publicURL.absoluteString
+            // ✅ Private bucket için sadece path döndür (URL değil!)
+            return filePath
             
         } catch {
-            print("❌ [IMAGE] Upload failed: \(error)")
+            print("❌ [ImageUpload] Upload failed: \(error)")
+            Logger.network.error("Upload failed: \(error)")
             lastError = .uploadFailed(error.localizedDescription)
             throw ImageUploadError.uploadFailed(error.localizedDescription)
         }
@@ -147,17 +141,17 @@ final class ImageUploadService: ObservableObject {
     
     /// Birden fazla görseli yükle
     func uploadImages(_ images: [UIImage], for bookmarkId: UUID) async throws -> [String] {
-        var urls: [String] = []
+        var paths: [String] = []
         
         for (index, image) in images.enumerated() {
             uploadProgress = Double(index) / Double(images.count)
             
-            let url = try await uploadImage(image, for: bookmarkId, index: index)
-            urls.append(url)
+            let path = try await uploadImage(image, for: bookmarkId, index: index)
+            paths.append(path)
         }
         
         uploadProgress = 1.0
-        return urls
+        return paths
     }
     
     /// URL'den görsel yükle (Twitter, Reddit vs. için)
@@ -166,7 +160,7 @@ final class ImageUploadService: ObservableObject {
             throw ImageUploadError.invalidURL
         }
         
-        print("🖼️ [IMAGE] Downloading from URL: \(urlString)")
+        Logger.network.info("Downloading from URL: \(urlString)")
         
         // Görseli indir
         let (data, response) = try await URLSession.shared.data(from: url)
@@ -190,7 +184,7 @@ final class ImageUploadService: ObservableObject {
             throw ImageUploadError.notAuthenticated
         }
         
-        print("🖼️ [IMAGE] Creating thumbnail for: \(bookmarkId)")
+        Logger.network.info("Creating thumbnail for: \(bookmarkId)")
         
         // Thumbnail oluştur
         guard let thumbnail = createThumbnail(from: image),
@@ -211,11 +205,9 @@ final class ImageUploadService: ObservableObject {
             )
         )
         
-        let publicURL = try storage.getPublicURL(path: filePath)
+        Logger.network.info("Thumbnail uploaded: \(filePath)")
         
-        print("✅ [IMAGE] Thumbnail uploaded: \(publicURL.absoluteString)")
-        
-        return publicURL.absoluteString
+        return filePath
     }
     
     /// Bookmark için tüm görselleri sil
@@ -226,14 +218,14 @@ final class ImageUploadService: ObservableObject {
         
         let folderPath = "\(userId.uuidString)/\(bookmarkId.uuidString)"
         
-        print("🗑️ [IMAGE] Deleting images at: \(folderPath)")
+        Logger.network.info("Deleting images at: \(folderPath)")
         
         do {
             // Klasördeki dosyaları listele
             let files = try await storage.list(path: folderPath)
             
             if files.isEmpty {
-                print("ℹ️ [IMAGE] No images to delete")
+                Logger.network.info("No images to delete")
                 return
             }
             
@@ -241,63 +233,150 @@ final class ImageUploadService: ObservableObject {
             let filePaths = files.map { "\(folderPath)/\($0.name)" }
             try await storage.remove(paths: filePaths)
             
-            print("✅ [IMAGE] Deleted \(files.count) images")
+            Logger.network.info("Deleted \(files.count) images")
             
             // Cache'den de sil
             for file in files {
-                let url = try storage.getPublicURL(path: "\(folderPath)/\(file.name)")
-                removeCachedImage(for: url.absoluteString)
+                let path = "\(folderPath)/\(file.name)"
+                removeCachedImage(for: path)
             }
             
         } catch {
-            print("❌ [IMAGE] Delete failed: \(error)")
+            Logger.network.error("Delete failed: \(error)")
             throw ImageUploadError.deleteFailed(error.localizedDescription)
         }
     }
     
-    // MARK: - Image Loading (with Cache)
+    // MARK: - Image Loading (with Cache & Signed URL)
     
-    /// Görseli yükle (cache'den veya network'ten)
-    func loadImage(from urlString: String) async -> UIImage? {
+    /// ✅ DÜZELTME: Storage path veya URL'den görsel yükle
+    /// - Parameter pathOrUrl: Storage path (örn: "userId/bookmarkId/0_xxx.jpg") veya tam URL
+    /// - Returns: Yüklenen UIImage veya nil
+    func loadImage(from pathOrUrl: String) async -> UIImage? {
+        print("🖼️ [ImageUpload] loadImage called with: \(pathOrUrl.prefix(60))...")
+        
         // 1. Memory cache kontrol
-        if let cached = cache.object(forKey: urlString as NSString) {
+        if let cached = cache.object(forKey: pathOrUrl as NSString) {
+            print("   ✅ Found in memory cache")
             return cached
         }
         
         // 2. Disk cache kontrol
-        if let diskCached = loadFromDiskCache(urlString: urlString) {
-            cache.setObject(diskCached, forKey: urlString as NSString)
+        if let diskCached = loadFromDiskCache(urlString: pathOrUrl) {
+            cache.setObject(diskCached, forKey: pathOrUrl as NSString)
+            print("   ✅ Found in disk cache")
             return diskCached
         }
         
-        // 3. Network'ten indir
-        guard let url = URL(string: urlString) else { return nil }
+        // 3. URL mi yoksa path mi belirle
+        let isFullURL = pathOrUrl.hasPrefix("http://") || pathOrUrl.hasPrefix("https://")
         
+        var downloadURL: URL?
+        
+        if isFullURL {
+            // Zaten tam URL
+            downloadURL = URL(string: pathOrUrl)
+            print("   📍 Using as direct URL")
+        } else {
+            // Storage path - Signed URL al
+            print("   📍 Getting signed URL for path...")
+            if let signedURL = await getSignedURL(for: pathOrUrl) {
+                downloadURL = signedURL
+                print("   ✅ Got signed URL")
+            } else {
+                print("   ❌ Failed to get signed URL")
+                return nil
+            }
+        }
+        
+        guard let url = downloadURL else {
+            print("   ❌ Invalid URL")
+            return nil
+        }
+        
+        // 4. Network'ten indir
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            print("   ⬇️ Downloading from: \(url.absoluteString.prefix(80))...")
+            let (data, response) = try await URLSession.shared.data(from: url)
             
-            guard let image = UIImage(data: data) else { return nil }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("   ❌ Invalid response")
+                return nil
+            }
             
-            // Cache'e kaydet
-            cacheImage(image, for: urlString)
-            saveToDiskCache(data: data, urlString: urlString)
+            guard httpResponse.statusCode == 200 else {
+                print("   ❌ HTTP \(httpResponse.statusCode)")
+                return nil
+            }
             
+            guard let image = UIImage(data: data) else {
+                print("   ❌ Invalid image data")
+                return nil
+            }
+            
+            // Cache'e kaydet (path ile, URL ile değil)
+            cacheImage(image, for: pathOrUrl)
+            saveToDiskCache(data: data, urlString: pathOrUrl)
+            
+            print("   ✅ Downloaded and cached successfully")
             return image
             
         } catch {
-            print("❌ [IMAGE] Load failed: \(error)")
+            print("   ❌ Download error: \(error.localizedDescription)")
+            Logger.network.error("Load failed: \(error)")
             return nil
         }
+    }
+    
+    /// ✅ Private bucket için signed URL al
+    /// - Parameter path: Storage dosya yolu
+    /// - Returns: Signed URL veya nil
+    func getSignedURL(for path: String) async -> URL? {
+        // Cache kontrol
+        if let cachedURL = signedURLCache.object(forKey: path as NSString) {
+            if let url = URL(string: cachedURL as String) {
+                return url
+            }
+        }
+        
+        do {
+            let signedURL = try await storage.createSignedURL(
+                path: path,
+                expiresIn: signedURLExpiration
+            )
+            
+            // Cache'e kaydet
+            signedURLCache.setObject(signedURL.absoluteString as NSString, forKey: path as NSString)
+            
+            return signedURL
+        } catch {
+            print("❌ [ImageUpload] Failed to create signed URL: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    /// ✅ Birden fazla path için signed URL'ler al
+    func getSignedURLs(for paths: [String]) async -> [String: URL] {
+        var result: [String: URL] = [:]
+        
+        for path in paths {
+            if let url = await getSignedURL(for: path) {
+                result[path] = url
+            }
+        }
+        
+        return result
     }
     
     /// Cache'i temizle
     func clearCache() {
         cache.removeAllObjects()
+        signedURLCache.removeAllObjects()
         
         try? fileManager.removeItem(at: cacheDirectory)
         try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
         
-        print("🧹 [IMAGE] Cache cleared")
+        Logger.network.info("Cache cleared")
     }
     
     /// Cache boyutunu hesapla
@@ -373,6 +452,7 @@ final class ImageUploadService: ObservableObject {
     /// Memory cache'den sil
     private func removeCachedImage(for urlString: String) {
         cache.removeObject(forKey: urlString as NSString)
+        signedURLCache.removeObject(forKey: urlString as NSString)
         
         // Disk cache'den de sil
         let cacheKey = sha256(urlString)
@@ -444,7 +524,6 @@ enum ImageUploadError: LocalizedError {
 }
 
 // MARK: - SwiftUI Image Loader
-
 
 /// AsyncImage benzeri ama cache destekli
 struct CachedAsyncImage<Content: View, Placeholder: View>: View {

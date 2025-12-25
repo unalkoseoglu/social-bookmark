@@ -22,6 +22,7 @@
 import Foundation
 import CryptoKit
 import Security
+import OSLog
 
 /// End-to-End Encryption Service
 /// Tüm kullanıcı verileri cihazda şifrelenir, sunucuya şifreli gider
@@ -67,7 +68,7 @@ final class EncryptionService: ObservableObject {
         cachedKey = key
         isKeyAvailable = true
         
-        print("🔐 [ENCRYPTION] New encryption key generated and stored")
+        Logger.keychain.info("New encryption key generated and stored")
         return key
     }
     

@@ -1,5 +1,5 @@
 import Foundation
-
+import OSLog
 /// Twitter/X içeriklerini çeken servis
 /// FxTwitter API kullanır - ücretsiz ve stabil
 /// FixUpX alternatif olarak kullanılır
@@ -247,7 +247,6 @@ final class TwitterService {
                 if let urlString = item.url ?? item.thumbnail_url,
                    let url = URL(string: urlString) {
                     mediaURLs.append(url)
-                    print("   ✅ Media URL eklendi (all): \(urlString.prefix(80))...")
                 }
             }
         }
@@ -256,7 +255,6 @@ final class TwitterService {
         if mediaURLs.isEmpty, let mosaicURL = fxTweet.media?.mosaic?.formats?.jpeg {
             if let url = URL(string: mosaicURL) {
                 mediaURLs.append(url)
-                print("   ✅ Mosaic URL eklendi: \(mosaicURL.prefix(80))...")
             }
         }
         
@@ -266,7 +264,6 @@ final class TwitterService {
                 for photo in photos {
                     if let urlString = photo.url, let url = URL(string: urlString) {
                         mediaURLs.append(url)
-                        print("   ✅ Photo URL eklendi: \(urlString.prefix(80))...")
                     }
                 }
             }
@@ -275,13 +272,12 @@ final class TwitterService {
                 for video in videos {
                     if let urlString = video.thumbnail_url, let url = URL(string: urlString) {
                         mediaURLs.append(url)
-                        print("   ✅ Video thumbnail eklendi: \(urlString.prefix(80))...")
                     }
                 }
             }
         }
         
-        print("🖼️ Toplam media URL: \(mediaURLs.count)")
+    
         
         // Tarih parse
         var createdAt: Date?
@@ -312,7 +308,6 @@ final class TwitterService {
         var avatarURL: URL? = nil
         if let avatarString = fxTweet.author?.avatar_url {
             avatarURL = URL(string: avatarString)
-            print("👤 Avatar URL: \(avatarString)")
         }
         
         let tweet = Tweet(
@@ -329,7 +324,7 @@ final class TwitterService {
             originalURL: originalURL
         )
         
-        print("✅ Tweet oluşturuldu: hasMedia = \(tweet.hasMedia)")
+        
         
         return tweet
     }

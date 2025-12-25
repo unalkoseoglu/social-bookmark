@@ -334,10 +334,16 @@ final class AuthService: ObservableObject {
             }
         }
 
-        try await client
-            .from(SupabaseConfig.Tables.userProfiles)
-            .upsert(profile, onConflict: "id")
-            .execute()
+        do {
+            try await client
+                .from(SupabaseConfig.Tables.userProfiles)
+                .upsert(profile, onConflict: "id")
+                .execute()
+            print("✅ [AuthService] UserProfile upsert succeeded for user: \(user.id)")
+        } catch {
+            print("❌ [AuthService] UserProfile upsert failed: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func getCurrentUserProfile() async throws -> UserProfile? {

@@ -84,7 +84,7 @@ struct SettingsView: View {
                         
                         Spacer()
                         
-                        SyncStatusBadge()
+                        
                     }
                 }
             } else {
@@ -118,9 +118,7 @@ struct SettingsView: View {
                                 .scaleEffect(0.7)
                         }
                         
-                        Text(syncStatusText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        SyncStatusBadge()
                     }
                 }
             }

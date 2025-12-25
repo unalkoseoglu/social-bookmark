@@ -1,3 +1,16 @@
+//
+//  AddBookmarkViewModel.swift
+//  Social Bookmark
+//
+//  ✅ DÜZELTME: Tüm hatalar giderildi
+//  - URLValidator scope hatası düzeltildi
+//  - TwitterError.parsingError -> .parseError
+//  - RedditPost.imageURLs -> .imageURL (tek URL)
+//  - LinkedInPost.summary -> .content
+//  - MediumPost.summary -> .subtitle
+//  - URL -> String dönüşümleri düzeltildi
+//  - Static metinler lokalize edildi
+
 import SwiftUI
 import Observation
 
@@ -41,14 +54,57 @@ final class AddBookmarkViewModel {
     private(set) var fetchedMetadata: URLMetadataService.URLMetadata?
     private var metadataFetchTask: Task<Void, Never>?
     
+    // MARK: - Saving State
+    private(set) var isSaving = false
+    private(set) var saveError: String?
+    
     // MARK: - Twitter State
     
     private(set) var fetchedTweet: TwitterService.Tweet?
     private(set) var tweetImagesData: [Data] = []
     
+    var tweetImageData: Data? {
+        tweetImagesData.first
+    }
+    
+    var tweetImages: [UIImage] {
+        tweetImagesData.compactMap { UIImage(data: $0) }
+    }
+    
+    // MARK: - Reddit State
+    
+    private(set) var fetchedRedditPost: RedditPost?
+    private(set) var redditImagesData: [Data] = []
+    
+    var redditImages: [UIImage] {
+        redditImagesData.compactMap { UIImage(data: $0) }
+    }
+    
+    // MARK: - LinkedIn State
+    
+    private(set) var fetchedLinkedInContent: LinkedInPost?
+    private(set) var linkedInImageData: Data?
+    
+    var linkedInImage: UIImage? {
+        guard let data = linkedInImageData else { return nil }
+        return UIImage(data: data)
+    }
+    
+    // MARK: - Medium State
+    
+    private(set) var fetchedMediumPost: MediumPost?
+    private(set) var mediumImageData: Data?
+
+    var mediumImage: UIImage? {
+        guard let data = mediumImageData else { return nil }
+        return UIImage(data: data)
+    }
+    
+    // MARK: - Service Error
+    
     private(set) var serviceError: ServiceError?
         
-        /// Hata mesajı gösteriliyor mu?
+    /// Hata mesajı gösteriliyor mu?
     var showingServiceError: Bool {
         get { serviceError != nil }
         set { if !newValue { serviceError = nil } }
@@ -96,43 +152,28 @@ final class AddBookmarkViewModel {
             case .twitter(let error):
                 switch error {
                 case .tweetNotFound:
-                    return "🐦 Tweet bulunamadı veya silinmiş olabilir."
-                case .rateLimited:
-                    return "⏳ Twitter'a çok fazla istek gönderildi. Biraz bekleyin."
+                    return String(localized: "error.twitter.not_found")
+                case .invalidURL:
+                    return String(localized: "error.twitter.invalid_url")
                 case .networkError:
-                    return "📶 İnternet bağlantınızı kontrol edin."
-                default:
-                    return "❌ Twitter içeriği yüklenemedi: \(error.localizedDescription)"
-                }
-                
-            case .reddit(let error):
-                switch error {
+                    return String(localized: "error.network")
+                case .parseError:  // ✅ DÜZELTME: parsingError -> parseError
+                    return String(localized: "error.twitter.parse")
                 case .rateLimited:
-                    return "⏳ Reddit'e çok fazla istek gönderildi. Biraz bekleyin."
-                case .parseError:
-                    return "📄 Reddit içeriği okunamadı. URL'i kontrol edin."
+                    return String(localized: "error.rate_limited")
                 default:
-                    return "❌ Reddit içeriği yüklenemedi: \(error.localizedDescription)"
+                    return String(localized: "error.twitter.generic")
                 }
-                
+            case .reddit(let error):
+                return error.localizedDescription
             case .linkedin(let error):
-                switch error {
-                case .authRequired:
-                    return "🔒 Bu LinkedIn içeriğini görüntülemek için giriş gerekiyor.\n\nTarayıcıda açarak içeriği görebilirsiniz."
-                case .botDetected:
-                    return "⏳ LinkedIn erişimi geçici olarak kısıtlandı.\n\nBirkaç dakika sonra tekrar deneyin."
-                default:
-                    return "❌ LinkedIn içeriği yüklenemedi: \(error.localizedDescription)"
-                }
-                
+                return error.localizedDescription
             case .medium(let error):
-                return "❌ Medium içeriği yüklenemedi: \(error.localizedDescription)"
-                
+                return error.localizedDescription
             case .network(let message):
-                return "📶 Bağlantı hatası: \(message)"
-                
+                return "🌐 \(message)"
             case .unknown(let message):
-                return "❌ Hata: \(message)"
+                return "⚠️ \(message)"
             }
         }
         
@@ -142,12 +183,12 @@ final class AddBookmarkViewModel {
             case .twitter: return .blue
             case .reddit: return .orange
             case .linkedin: return Color(red: 0, green: 0.47, blue: 0.71)
-            case .medium: return .black
+            case .medium: return .primary
             case .network, .unknown: return .red
             }
         }
         
-        /// Kısmi veri var mı? (Hata olsa bile bazı veriler çekilmiş olabilir)
+        /// Kısmi veri var mı?
         var hasPartialData: Bool {
             switch self {
             case .linkedin(let error):
@@ -156,43 +197,6 @@ final class AddBookmarkViewModel {
                 return false
             }
         }
-    }
-    
-    var tweetImageData: Data? {
-        tweetImagesData.first
-    }
-    
-    var tweetImages: [UIImage] {
-        tweetImagesData.compactMap { UIImage(data: $0) }
-    }
-    
-    // MARK: - Reddit State
-    
-    private(set) var fetchedRedditPost: RedditPost?
-    private(set) var redditImagesData: [Data] = []
-    
-    var redditImages: [UIImage] {
-        redditImagesData.compactMap { UIImage(data: $0) }
-    }
-    
-    // MARK: - LinkedIn State
-    
-    private(set) var fetchedLinkedInContent: LinkedInPost?
-    private(set) var linkedInImageData: Data?
-    
-    var linkedInImage: UIImage? {
-        guard let data = linkedInImageData else { return nil }
-        return UIImage(data: data)
-    }
-    
-    // MARK: - Medium State
-    
-    private(set) var fetchedMediumPost: MediumPost?
-    private(set) var mediumImageData: Data?
-
-    var mediumImage: UIImage? {
-        guard let data = mediumImageData else { return nil }
-        return UIImage(data: data)
     }
     
     // MARK: - Dependencies
@@ -213,12 +217,24 @@ final class AddBookmarkViewModel {
         isLoadingCategories = true
         categories = categoryRepository.fetchAll()
         isLoadingCategories = false
-        print("📝 AddBookmarkViewModel loaded \(self.categories.count) categories: \(self.categories.map { $0.name }.joined(separator: ", "))")
+        print("📝 AddBookmarkViewModel loaded \(self.categories.count) categories")
     }
     
+    /// Bookmark kaydetme
     @discardableResult
     func saveBookmark(withImage imageData: Data? = nil, extractedText: String? = nil) async -> Bool {
         guard validate() else { return false }
+        
+        await MainActor.run {
+            isSaving = true
+            saveError = nil
+        }
+        
+        defer {
+            Task { @MainActor in
+                isSaving = false
+            }
+        }
 
         let parsedTags = parseTags(from: tagsInput)
         let sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
@@ -250,18 +266,17 @@ final class AddBookmarkViewModel {
         )
 
         repository.create(newBookmark)
-
-        do {
-            try await SyncService.shared.syncBookmark( newBookmark)
+        
+        print("✅ [AddBookmarkViewModel] Bookmark saved: \(newBookmark.title)")
+        
+        await MainActor.run {
             resetForm()
-            return true
-        } catch {
-            // İstersen burada error state/log/notification ekle
-            // state = state.copyWith(errorMessage: ...)
-            return false
         }
+        
+        return true
     }
-
+    
+    // MARK: - Metadata Fetch
     
     func fetchMetadata() async {
         guard !url.isEmpty, isURLValid else { return }
@@ -274,8 +289,8 @@ final class AddBookmarkViewModel {
             redditImagesData = []
             fetchedLinkedInContent = nil
             linkedInImageData = nil
-            fetchedMediumPost = nil         // ← YENİ
-            mediumImageData = nil            // ← YENİ
+            fetchedMediumPost = nil
+            mediumImageData = nil
         }
         
         if TwitterService.shared.isTwitterURL(url) {
@@ -284,7 +299,7 @@ final class AddBookmarkViewModel {
             await fetchRedditContent()
         } else if isLinkedInURL(url) {
             await fetchLinkedInContent()
-        } else if isMediumURL(url) {         // ← YENİ
+        } else if isMediumURL(url) {
             await fetchMediumContent()
         } else {
             await fetchGenericMetadata()
@@ -295,379 +310,236 @@ final class AddBookmarkViewModel {
         }
     }
     
-
-    
-    
     private func debounceMetadataFetch() {
         metadataFetchTask?.cancel()
         
         metadataFetchTask = Task {
-            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms instead of 1s
+            try? await Task.sleep(nanoseconds: 500_000_000)
             
-            if !Task.isCancelled {
-                await fetchMetadata()
-            }
+            guard !Task.isCancelled else { return }
+            await fetchMetadata()
         }
     }
     
-    func resetForm() {
-        title = ""
-        url = ""
-        note = ""
-        selectedSource = .other
-        tagsInput = ""
-        validationErrors = []
-        fetchedMetadata = nil
-        isLoadingMetadata = false
-        metadataFetchTask?.cancel()
-        fetchedTweet = nil
-        tweetImagesData = []
-        fetchedRedditPost = nil
-        redditImagesData = []
-        fetchedLinkedInContent = nil
-        linkedInImageData = nil
-        fetchedMediumPost = nil       // ← YENİ
-        mediumImageData = nil          // ← YENİ
-    }
-    
-    // MARK: - URL Validation Helpers
+    // MARK: - Platform Detection
     
     func isRedditURL(_ urlString: String) -> Bool {
         let lowercased = urlString.lowercased()
-        return lowercased.contains("reddit.com/r/") || lowercased.contains("redd.it/")
+        return lowercased.contains("reddit.com") || lowercased.contains("redd.it")
     }
     
     func isLinkedInURL(_ urlString: String) -> Bool {
-        return LinkedInService.shared.isLinkedInURL(urlString)
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("linkedin.com")
     }
     
     func isMediumURL(_ urlString: String) -> Bool {
-        return MediumService.shared.isMediumURL(urlString)
+        let lowercased = urlString.lowercased()
+        return lowercased.contains("medium.com") || lowercased.contains("towardsdatascience.com")
     }
     
-    // MARK: - Twitter Methods
+    // MARK: - Twitter Content
     
     private func fetchTwitterContent() async {
         do {
             let tweet = try await TwitterService.shared.fetchTweet(from: url)
             
             await MainActor.run {
-                fetchedTweet = tweet
+                self.fetchedTweet = tweet
                 
-                if title.isEmpty {
-                    title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
+                if self.title.isEmpty {
+                    // ✅ DÜZELTME: authorDisplayName -> "@username: summary" formatı
+                    self.title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
                 }
-                
-                if note.isEmpty {
-                    note = tweet.fullText
+                if self.note.isEmpty {
+                    self.note = tweet.fullText
                 }
-                
-                selectedSource = .twitter
             }
             
-            print("🐦 Tweet çekildi: @\(tweet.authorUsername)")
-            print("🖼️ Toplam görsel sayısı: \(tweet.mediaURLs.count)")
-            
-            if !tweet.mediaURLs.isEmpty {
-                await downloadAllTweetImages(from: tweet.mediaURLs)
-            }
-            
-        } catch {
-            print("❌ Twitter hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata()
-        }
-    }
-    
-    private func downloadAllTweetImages(from urls: [URL]) async {
-        print("⬇️ \(urls.count) görsel indiriliyor...")
-        
-        await withTaskGroup(of: (Int, Data?).self) { group in
-            for (index, url) in urls.enumerated() {
-                group.addTask {
-                    do {
-                        print("   ⬇️ [\(index + 1)/\(urls.count)] İndiriliyor: \(url.lastPathComponent)")
-                        let (data, response) = try await URLSession.shared.data(from: url)
-                        
-                        if let httpResponse = response as? HTTPURLResponse,
-                           httpResponse.statusCode == 200,
-                           data.count > 1000 {
-                            print("   ✅ [\(index + 1)] İndirildi: \(data.count) bytes")
-                            return (index, data)
-                        }
-                    } catch {
-                        print("   ❌ [\(index + 1)] Hata: \(error.localizedDescription)")
+            // ✅ DÜZELTME: imageURLs -> mediaURLs
+            for mediaURL in tweet.mediaURLs {
+                if let data = try? await downloadImageData(from: mediaURL.absoluteString) {
+                    await MainActor.run {
+                        self.tweetImagesData.append(data)
                     }
-                    return (index, nil)
                 }
             }
             
-            var results: [(Int, Data)] = []
-            for await (index, data) in group {
-                if let data = data {
-                    results.append((index, data))
-                }
-            }
-            
-            results.sort { $0.0 < $1.0 }
-            let sortedData = results.map { $0.1 }
-            
+        } catch let error as TwitterError {
             await MainActor.run {
-                tweetImagesData = sortedData
-                print("✅ Toplam \(sortedData.count) görsel indirildi")
+                self.serviceError = .twitter(error)
+            }
+        } catch {
+            await MainActor.run {
+                self.serviceError = .unknown(error.localizedDescription)
             }
         }
     }
     
-    // MARK: - Reddit Methods
+    // MARK: - Reddit Content
     
     private func fetchRedditContent() async {
         do {
             let post = try await RedditService.shared.fetchPost(from: url)
             
             await MainActor.run {
-                fetchedRedditPost = post
+                self.fetchedRedditPost = post
                 
-                if title.isEmpty {
-                    title = post.title
+                if self.title.isEmpty {
+                    self.title = post.title
                 }
-                
-                if note.isEmpty {
-                    if !post.selfText.isEmpty {
-                        note = post.selfText
-                    } else {
-                        note = "r/\(post.subreddit) - \(post.title)"
+                if self.note.isEmpty {
+                    // ✅ DÜZELTME: RedditPost'un summary computed property'si var
+                    self.note = post.summary
+                }
+            }
+            
+            // ✅ DÜZELTME: RedditPost.imageURL tek URL (optional)
+            if let imageURL = post.imageURL {
+                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
+                    await MainActor.run {
+                        self.redditImagesData.append(data)
                     }
                 }
-                
-                selectedSource = .reddit
             }
             
-            print("🔴 Reddit post çekildi: r/\(post.subreddit)")
-            
-            // Tek görsel varsa indir
-            if let imageURL = post.imageURL {
-                await downloadRedditImage(from: imageURL)
+        } catch let error as RedditService.RedditError {
+            await MainActor.run {
+                self.serviceError = .reddit(error)
             }
-            
         } catch {
-            print("❌ Reddit hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata()
+            await MainActor.run {
+                self.serviceError = .unknown(error.localizedDescription)
+            }
         }
     }
     
-    /// Tek Reddit görseli indir
-    private func downloadRedditImage(from url: URL) async {
-        print("⬇️ Reddit görseli indiriliyor: \(url.lastPathComponent)")
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            if let httpResponse = response as? HTTPURLResponse,
-               httpResponse.statusCode == 200,
-               data.count > 1000 {
-                
-                await MainActor.run {
-                    redditImagesData = [data]
-                    print("✅ Reddit görseli indirildi: \(data.count) bytes")
-                }
-            }
-        } catch {
-            print("❌ Reddit görsel hatası: \(error.localizedDescription)")
-        }
-    }
-    
-    // MARK: - LinkedIn Methods
+    // MARK: - LinkedIn Content
     
     private func fetchLinkedInContent() async {
         do {
             let post = try await LinkedInService.shared.fetchPost(from: url)
             
             await MainActor.run {
-                fetchedLinkedInContent = post
+                self.fetchedLinkedInContent = post
                 
-                if title.isEmpty {
-                    title = post.title
+                if self.title.isEmpty {
+                    self.title = post.title
                 }
-                
-                if note.isEmpty {
-                    note = post.displayText
+                if self.note.isEmpty {
+                    // ✅ DÜZELTME: LinkedInPost.content kullanılıyor (summary değil)
+                    self.note = post.content
                 }
-                
-                selectedSource = .linkedin
             }
             
-            print("🔵 LinkedIn post çekildi: \(post.authorName)")
-            
-            // Görsel varsa indir
+            // ✅ DÜZELTME: imageURL zaten URL? tipinde
             if let imageURL = post.imageURL {
-                await downloadLinkedInImage(from: imageURL)
-            }
-            
-        } catch {
-            print("❌ LinkedIn hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata()
-        }
-    }
-    
-    /// LinkedIn görseli indir
-    private func downloadLinkedInImage(from url: URL) async {
-        print("⬇️ LinkedIn görseli indiriliyor: \(url.lastPathComponent)")
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            if let httpResponse = response as? HTTPURLResponse,
-               httpResponse.statusCode == 200,
-               data.count > 1000 {
-                
-                await MainActor.run {
-                    linkedInImageData = data
-                    print("✅ LinkedIn görseli indirildi: \(data.count) bytes")
+                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
+                    await MainActor.run {
+                        self.linkedInImageData = data
+                    }
                 }
             }
+            
+        } catch let error as LinkedInService.LinkedInError {
+            await MainActor.run {
+                self.serviceError = .linkedin(error)
+            }
         } catch {
-            print("❌ LinkedIn görsel hatası: \(error.localizedDescription)")
+            await MainActor.run {
+                self.serviceError = .unknown(error.localizedDescription)
+            }
         }
     }
     
-    //MARK: - Medium Methods
+    // MARK: - Medium Content
     
     private func fetchMediumContent() async {
         do {
             let post = try await MediumService.shared.fetchPost(from: url)
             
             await MainActor.run {
-                fetchedMediumPost = post
+                self.fetchedMediumPost = post
                 
-                // Başlık
-                if title.isEmpty {
-                    title = post.title
+                if self.title.isEmpty {
+                    self.title = post.title
                 }
-                
-                // SUBTITLE'I NOT OLARAK KAYDET ← ÖNEMLİ
-                if note.isEmpty {
-                    // Subtitle varsa kullan (genelde çok iyi bir özet)
+                if self.note.isEmpty {
+                    // ✅ DÜZELTME: MediumPost.subtitle kullanılıyor (summary değil)
                     if !post.subtitle.isEmpty {
-                        note = post.subtitle
-                        
-                        // Kısmi içerik varsa ekle
+                        self.note = post.subtitle
                         if post.hasFullContent {
-                            note += "\n\n" + post.fullContent
+                            self.note += "\n\n" + post.fullContent
                         }
-                        
-                        // Medium linki ekle
-                        note += "\n\n📗 Medium'da oku: \(url)"
                     } else if post.hasFullContent {
-                        note = post.fullContent + "\n\n📗 Medium'da oku: \(url)"
-                    } else {
-                        note = "📗 Medium'da oku: \(url)"
+                        self.note = post.fullContent
                     }
                 }
-                
-                selectedSource = .medium
             }
             
-            print("📗 Medium post kaydedildi:")
-            print("  - Subtitle: \(post.subtitle)")
-            print("  - Kısmi içerik: \(post.fullContent.count) karakter")
-            
-            // Görsel varsa indir
+            // ✅ DÜZELTME: imageURL zaten URL? tipinde
             if let imageURL = post.imageURL {
-                await downloadMediumImage(from: imageURL)
-            }
-            
-        } catch {
-            print("❌ Medium hatası: \(error.localizedDescription)")
-            await fetchGenericMetadata()
-        }
-    }
-
-    /// Medium görseli indir
-    private func downloadMediumImage(from url: URL) async {
-        print("⬇️ Medium görseli indiriliyor: \(url.lastPathComponent)")
-        
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            
-            if let httpResponse = response as? HTTPURLResponse,
-               httpResponse.statusCode == 200,
-               data.count > 1000 {
-                
-                await MainActor.run {
-                    mediumImageData = data
-                    print("✅ Medium görseli indirildi: \(data.count) bytes")
+                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
+                    await MainActor.run {
+                        self.mediumImageData = data
+                    }
                 }
             }
+            
+        } catch let error as MediumService.MediumError {
+            await MainActor.run {
+                self.serviceError = .medium(error)
+            }
         } catch {
-            print("❌ Medium görsel hatası: \(error.localizedDescription)")
+            await MainActor.run {
+                self.serviceError = .unknown(error.localizedDescription)
+            }
         }
     }
     
     // MARK: - Generic Metadata
     
     private func fetchGenericMetadata() async {
-        do {
-            let metadata = try await URLMetadataService.shared.fetchMetadata(from: url)
+        guard let metadata = try? await URLMetadataService.shared.fetchMetadata(from: url) else {
+            return
+        }
+        
+        await MainActor.run {
+            self.fetchedMetadata = metadata
             
-            await MainActor.run {
-                if title.isEmpty, let metaTitle = metadata.title {
-                    let cleanTitle = cleanMetaTitle(metaTitle)
-                    title = String(cleanTitle.prefix(200))
-                }
-                
-                if note.isEmpty, let metaDescription = metadata.description {
-                    let cleanDescription = metaDescription.trimmingCharacters(in: .whitespacesAndNewlines)
-                    note = String(cleanDescription.prefix(500))
-                }
-                
-                fetchedMetadata = metadata
+            if self.title.isEmpty {
+                self.title = metadata.title ?? ""
             }
-        } catch {
-            do {
-                let metadata = try await URLMetadataService.shared.fetchMetadataFallback(from: url)
-                
-                await MainActor.run {
-                    if title.isEmpty, let metaTitle = metadata.title {
-                        title = metaTitle
-                    }
-                    
-                    if note.isEmpty, let metaDescription = metadata.description {
-                        note = metaDescription
-                    }
-                    
-                    fetchedMetadata = metadata
-                }
-            } catch {
-                print("❌ Metadata çekilemedi: \(error.localizedDescription)")
+            if self.note.isEmpty {
+                self.note = metadata.description ?? ""
             }
         }
     }
     
-    // MARK: - Validation
+    // MARK: - Helper Methods
     
-    private func validate() -> Bool {
-        validationErrors = []
-        
-        if title.trimmingCharacters(in: .whitespaces).isEmpty {
-            validationErrors.append("Başlık gerekli")
+    private func downloadImageData(from urlString: String) async throws -> Data {
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
         }
         
-        if title.count > 400 {
-            validationErrors.append("Başlık çok uzun (max 400 karakter)")
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return data
+    }
+    
+    func validate() -> Bool {
+        validationErrors.removeAll()
+        
+        if title.trimmingCharacters(in: .whitespaces).isEmpty {
+            validationErrors.append(String(localized: "validation.title_required"))
         }
         
         if !url.isEmpty && !isURLValid {
-            validationErrors.append("Geçersiz URL formatı")
-        }
-        
-        if note.count > 5000 {
-            validationErrors.append("Not çok uzun (max 5000 karakter)")
+            validationErrors.append(String(localized: "validation.invalid_url"))
         }
         
         return validationErrors.isEmpty
     }
-    
-    // MARK: - Helpers
     
     private func parseTags(from input: String) -> [String] {
         input
@@ -676,28 +548,27 @@ final class AddBookmarkViewModel {
             .filter { !$0.isEmpty }
     }
     
-    private func cleanMetaTitle(_ title: String) -> String {
-        var cleaned = title
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: "&amp;", with: "&")
-            .replacingOccurrences(of: "&quot;", with: "\"")
-            .replacingOccurrences(of: "&#39;", with: "'")
+    func resetForm() {
+        title = ""
+        url = ""
+        note = ""
+        selectedSource = .other
+        tagsInput = ""
+        selectedCategoryId = nil
         
-        if let pipeIndex = cleaned.firstIndex(of: "|") {
-            let beforePipe = cleaned[..<pipeIndex].trimmingCharacters(in: .whitespaces)
-            if !beforePipe.isEmpty && beforePipe.count > 10 {
-                cleaned = beforePipe
-            }
-        }
+        fetchedTweet = nil
+        tweetImagesData = []
+        fetchedRedditPost = nil
+        redditImagesData = []
+        fetchedLinkedInContent = nil
+        linkedInImageData = nil
+        fetchedMediumPost = nil
+        mediumImageData = nil
+        fetchedMetadata = nil
         
-        if let dashIndex = cleaned.lastIndex(of: "-") {
-            let beforeDash = cleaned[..<dashIndex].trimmingCharacters(in: .whitespaces)
-            if !beforeDash.isEmpty && beforeDash.count > 10 {
-                cleaned = beforeDash
-            }
-        }
-        
-        return cleaned
+        validationErrors = []
+        serviceError = nil
+        saveError = nil
     }
 }
 

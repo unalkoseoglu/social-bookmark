@@ -4,11 +4,12 @@
 //
 //  Created by Ünal Köseoğlu on 15.12.2025.
 //
+//  ✅ DÜZELTME: SyncableRepository'ler kullanılıyor
 
 import SwiftUI
 import SwiftData
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 @main
 struct Social_BookmarkApp: App {
     // MARK: - Properties
@@ -17,9 +18,11 @@ struct Social_BookmarkApp: App {
     let modelContainer: ModelContainer
 
     /// Bookmark repository - app genelinde paylaşılan
+    /// ✅ DÜZELTME: SyncableBookmarkRepository kullanılıyor
     let bookmarkRepository: BookmarkRepositoryProtocol
     
     /// Category repository - kategori yönetimi
+    /// ✅ DÜZELTME: SyncableCategoryRepository kullanılıyor
     let categoryRepository: CategoryRepositoryProtocol
 
     /// App Group ID - Extension ile paylaşım için
@@ -27,6 +30,7 @@ struct Social_BookmarkApp: App {
     
     // MARK: - Initialization
     
+    @available(iOS 17.6, *)
     init() {
         do {
             guard let containerURL = FileManager.default.containerURL(
@@ -48,11 +52,19 @@ struct Social_BookmarkApp: App {
             fatalError("ModelContainer oluşturulamadı: \(error)")
         }
 
-        // 1) Önce repository'ler
-        bookmarkRepository = BookmarkRepository(modelContext: modelContainer.mainContext)
-        categoryRepository = CategoryRepository(modelContext: modelContainer.mainContext)
+        // ✅ DÜZELTME: Base repository'leri oluştur
+        let baseBookmarkRepo = BookmarkRepository(modelContext: modelContainer.mainContext)
+        let baseCategoryRepo = CategoryRepository(modelContext: modelContainer.mainContext)
+        
+        // ✅ DÜZELTME: Syncable wrapper'larla wrap et
+        // Bu sayede her CRUD işleminden sonra otomatik sync tetiklenir
+        bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
+        categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
 
-        // 2) Sonra supabase
+        // ✅ AccountMigrationService'i ModelContext ile configure et
+        AccountMigrationService.shared.configure(modelContext: modelContainer.mainContext)
+
+        // Supabase başlat
         initializeSupabase()
     }
     

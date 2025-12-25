@@ -46,6 +46,9 @@ final class Bookmark {
     /// OCR ile çıkarılan metin
     var extractedText: String?
     
+    /// Cloud storage'daki görsel URL/path'leri (sync için)
+    var imageUrls: [String]?
+    
     // MARK: - Initialization
     
     /// Yeni bookmark oluştururken kullanılır
@@ -55,12 +58,13 @@ final class Bookmark {
             note: String = "",
             source: BookmarkSource = .other,
             isRead: Bool = false,
-            isFavorite: Bool = false,           // ← YENİ
-            categoryId: UUID? = nil,            // ← YENİ
+            isFavorite: Bool = false,
+            categoryId: UUID? = nil,
             tags: [String] = [],
             imageData: Data? = nil,
             imagesData: [Data]? = nil,
-            extractedText: String? = nil
+            extractedText: String? = nil,
+            imageUrls: [String]? = nil
         ) {
             self.id = UUID()
             self.title = title
@@ -69,12 +73,13 @@ final class Bookmark {
             self.source = source
             self.createdAt = Date()
             self.isRead = isRead
-            self.isFavorite = isFavorite        // ← YENİ
-            self.categoryId = categoryId        // ← YENİ
+            self.isFavorite = isFavorite
+            self.categoryId = categoryId
             self.tags = tags
             self.imageData = imageData
             self.imagesData = imagesData
             self.extractedText = extractedText
+            self.imageUrls = imageUrls
         }
 }
 

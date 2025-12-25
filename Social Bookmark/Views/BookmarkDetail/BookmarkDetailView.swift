@@ -16,11 +16,21 @@ struct BookmarkDetailView: View {
     @State private var showingShareSheet = false
     @State private var showingFullScreenImage = false
     @State private var selectedImageIndex = 0
+    @State private var loadedImages: [UIImage] = []
+    @State private var isLoadingImages = false
     
     // MARK: - Computed Properties
     
     private var allImages: [UIImage] {
-        return bookmark.allImagesData.compactMap { UIImage(data: $0) }
+        let localImages = bookmark.allImagesData.compactMap { UIImage(data: $0) }
+        if !localImages.isEmpty {
+            return localImages
+        }
+        return loadedImages
+    }
+    
+    private var hasImages: Bool {
+        !allImages.isEmpty || isLoadingImages
     }
     
     // MARK: - Body
@@ -33,7 +43,7 @@ struct BookmarkDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         // Cover Image Section
-                        if !allImages.isEmpty {
+                        if hasImages {
                             coverImageSection
                                 .padding(.bottom, 24)
                         }
@@ -111,6 +121,49 @@ struct BookmarkDetailView: View {
                 .disabled(!bookmark.hasURL)
             }
         }
+        .task {
+            await loadImagesFromStorage()
+        }
+    }
+    
+    // MARK: - Image Loading
+    
+    private func loadImagesFromStorage() async {
+        print("🖼️ [BookmarkDetailView] loadImagesFromStorage called")
+        print("   - Local images count: \(bookmark.allImagesData.count)")
+        print("   - imageUrls: \(bookmark.imageUrls ?? [])")
+        
+        // Eğer local'de görsel varsa yükleme yapma
+        guard bookmark.allImagesData.isEmpty else {
+            print("   - Using local images")
+            return
+        }
+        
+        // Cloud'dan yüklenmiş image_urls varsa onları yükle
+        guard let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else {
+            print("   - No imageUrls to load")
+            return
+        }
+        
+        print("   - Loading \(imageUrls.count) images from Storage...")
+        await MainActor.run { isLoadingImages = true }
+        
+        var images: [UIImage] = []
+        for (index, path) in imageUrls.enumerated() {
+            print("   - Loading image \(index): \(path.prefix(50))...")
+            if let image = await ImageUploadService.shared.loadImage(from: path) {
+                images.append(image)
+                print("   - ✅ Image \(index) loaded")
+            } else {
+                print("   - ❌ Image \(index) failed to load")
+            }
+        }
+        
+        await MainActor.run {
+            loadedImages = images
+            isLoadingImages = false
+            print("   - Total loaded: \(images.count) images")
+        }
     }
     
     // MARK: - Cover Image Section
@@ -119,16 +172,23 @@ struct BookmarkDetailView: View {
         ZStack(alignment: .bottom) {
             Color(.systemGray6)
             
-            if allImages.count == 1 {
+            if isLoadingImages {
+                // Loading state
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 280)
+            } else if allImages.count == 1 {
                 // Tek görsel
                 if let image = allImages.first {
                     Image(uiImage: image)
                         .resizable()
+                        .scaledToFill()
                         .frame(maxWidth: .infinity)
                         .frame(height: 280)
                         .clipped()
                 }
-            } else {
+            } else if allImages.count > 1 {
                 // Birden fazla görsel - Slider
                 TabView(selection: $selectedImageIndex) {
                     ForEach(0..<allImages.count, id: \.self) { index in

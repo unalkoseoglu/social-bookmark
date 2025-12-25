@@ -75,7 +75,7 @@ struct CategoryDetailView: View {
                 NavigationLink {
                     BookmarkDetailView(bookmark: bookmark, viewModel: viewModel)
                 } label: {
-                    CategoryBookmarkRow(bookmark: bookmark)
+                    EnhancedBookmarkRow(bookmark: bookmark)
                 }
             }
             .onDelete(perform: deleteBookmarks)
@@ -92,9 +92,9 @@ struct CategoryDetailView: View {
     private func deleteBookmarks(at offsets: IndexSet) {
         for index in offsets {
             let bookmark = filteredBookmarks[index]
-            Task {
-                   await viewModel.deleteBookmark(bookmark)
-            }
+
+                    viewModel.deleteBookmark(bookmark)
+
                }
             
         loadBookmarks()

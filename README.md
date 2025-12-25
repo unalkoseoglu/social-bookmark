@@ -562,7 +562,7 @@ Katkılar hoştur! Lütfen:
 **C**: Vision Framework'ün desteklediği tüm diller (Türkçe, İngilizce, vb.)
 
 ### **S: Veriler ne zaman senkronize edilir?**
-**C**: Şu an senkronizasyon yok. İleride iCloud sync planlanıyor.
+**C**: Supabase ile bulut senkronizasyonu aktif! Her CRUD işleminden sonra otomatik sync yapılır. Ayrıca 5 dakikalık otomatik sync döngüsü mevcuttur.
 
 ### **S: Share Extension'dan bookmark nasıl kaydedilir?**
 **C**: Safari → Share → Social Bookmark → Bilgileri düzenle → Kaydet
@@ -574,9 +574,9 @@ Katkılar hoştur! Lütfen:
 
 ## 🚀 Gelecek Özellikler
 
-- [ ] iCloud Sync
+- [x] ~~Supabase Cloud Sync~~ ✅
+- [ ] iCloud Sync (alternatif)
 - [ ] Dark Mode iyileştirmeleri
-- [ ] Bulut yedekleme
 - [ ] PDF export
 - [ ] Offline mode
 - [ ] Widget desteği
@@ -596,7 +596,7 @@ Sorularınız veya sorunlarınız için:
 
 ---
 
-**Son Güncelleme**: 14 Aralık 2025  
-**Sürüm**: 1.0.0  
+**Son Güncelleme**: 24 Aralık 2025  
+**Sürüm**: 1.1.0  
 **Swift**: 5.9+  
 **iOS**: 17+

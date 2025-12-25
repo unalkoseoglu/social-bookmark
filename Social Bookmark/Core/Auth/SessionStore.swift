@@ -16,6 +16,7 @@ import OSLog
 internal import Combine
 import AuthenticationServices
 import CryptoKit
+import SwiftData
 
 /// Observable session state for SwiftUI views
 @MainActor
@@ -94,13 +95,13 @@ final class SessionStore: ObservableObject {
             updateUserState(from: user)
             // UserProfile'ı yükle
             await loadUserProfile()
-            Logger.auth.info("Session restored for user: \(user.id)")
+            os.Logger.auth.info("Session restored for user: \(user.id)")
         } else {
             resetUserState()
         }
         
         isLoading = false
-        Logger.auth.info("Session initialization complete, authenticated: \(self.isAuthenticated)")
+        os.Logger.auth.info("Session initialization complete, authenticated: \(self.isAuthenticated)")
     }
     
     func initializeOnce() async {
@@ -297,21 +298,26 @@ final class SessionStore: ObservableObject {
     }
     
     /// Deletes user account
+    @MainActor
     func deleteAccount() async {
         isLoading = true
         error = nil
-        
         do {
             try await authService.deleteAccount()
-            resetUserState()
             Logger.auth.info("Account deleted successfully")
+            await AccountMigrationService.shared.clearAllLocalData()
+            ImageUploadService.shared.clearCache()
+            resetUserState()
+            NotificationCenter.default.post(name: .userDidSignOut, object: nil)
+            try await Task.sleep(nanoseconds: 500_000_000)
+            await signInAnonymously()
+            NotificationCenter.default.post(name: .appShouldRestart, object: nil)
         } catch let authError as AuthError {
             error = authError
             Logger.auth.error("Account deletion failed: \(authError.localizedDescription)")
         } catch {
             self.error = .unknown(error.localizedDescription)
         }
-        
         isLoading = false
     }
     
@@ -445,4 +451,148 @@ final class SessionStore: ObservableObject {
         }.joined()
         return hashString
     }
+}
+
+extension SessionStore {
+    
+    /// Anonim hesabı Apple'a bağla VE verileri taşı
+    /// Bu metod mevcut `linkToApple` metodunu değiştirir
+    func linkAnonymousToApple(credential: ASAuthorizationAppleIDCredential) async {
+        guard isAnonymous else {
+            Logger.auth.warning("linkAnonymousToApple called but user is not anonymous")
+            return
+        }
+        
+        guard let currentUserId = SupabaseManager.shared.userId else {
+            error = .notAuthenticated
+            return
+        }
+        
+        isLoading = true
+        error = nil
+        
+        // Anonim user ID'yi sakla (migration için)
+        let anonymousUserId = currentUserId
+        
+        Logger.auth.info("🔄 [SessionStore] Starting anonymous -> Apple migration")
+        
+        do {
+            // 1. Apple ile giriş yap (yeni hesap oluşturulacak veya mevcut hesaba bağlanacak)
+            let newUser = try await authService.signInWithApple(credential: credential)
+            
+            // 2. Yeni kullanıcı farklı mı kontrol et
+            guard newUser.id != anonymousUserId else {
+                // Aynı kullanıcı, sadece identity link olmuş
+                updateUserState(from: newUser)
+                await loadUserProfile()
+                Logger.auth.info("✅ [SessionStore] Identity linked to existing account")
+                isLoading = false
+                return
+            }
+            
+            // 3. Verileri yeni hesaba taşı
+            Logger.auth.info("🔄 [SessionStore] Migrating data from \(anonymousUserId) to \(newUser.id)")
+            
+            let result = try await AccountMigrationService.shared.migrateAnonymousDataToAppleAccount(
+                from: anonymousUserId,
+                to: newUser.id
+            )
+            
+            // 4. Kullanıcı state'ini güncelle
+            updateUserState(from: newUser)
+            await loadUserProfile()
+            
+            Logger.auth.info("✅ [SessionStore] Migration completed! Categories: \(result.categoriesMigrated), Bookmarks: \(result.bookmarksMigrated)")
+            
+            // 5. Bildirim gönder
+            NotificationCenter.default.post(
+                name: .accountMigrationCompleted,
+                object: result
+            )
+            
+        } catch let migrationError as MigrationError {
+            Logger.auth.error("❌ [SessionStore] Migration failed: \(migrationError.localizedDescription)")
+            error = .unknown(migrationError.localizedDescription)
+        } catch let authError as AuthError {
+            error = authError
+            Logger.auth.error("❌ [SessionStore] Apple sign in failed: \(authError.localizedDescription)")
+        } catch {
+            self.error = .unknown(error.localizedDescription)
+            Logger.auth.error("❌ [SessionStore] Unknown error: \(error.localizedDescription)")
+        }
+        
+        isLoading = false
+    }
+    
+    /// Çıkış yap - Local verileri temizle ve app'i yeniden başlat
+    func signOutAndClearData() async {
+        isLoading = true
+        error = nil
+        
+        Logger.auth.info("🚪 [SessionStore] Signing out and clearing local data...")
+        
+        do {
+            // 1. Auto sync'i durdur
+            SyncService.shared.stopAutoSync()
+            
+            // 2. Supabase'den çıkış
+            try await authService.signOut()
+            
+            // 3. Local SwiftData verilerini temizle
+            await AccountMigrationService.shared.clearAllLocalData()
+            
+            // 4. Cache'leri temizle
+            ImageUploadService.shared.clearCache()
+            
+            // 5. State'i sıfırla
+            resetUserState()
+            
+            Logger.auth.info("✅ [SessionStore] Signed out and data cleared")
+            
+            // 6. Bildirim gönder - UI'ın splash'e dönmesi için
+            NotificationCenter.default.post(name: .userDidSignOut, object: nil)
+            
+            // 7. Kısa bir bekleme
+            try await Task.sleep(nanoseconds: 500_000_000) // 0.5 saniye
+            
+            // 8. Yeni anonim kullanıcı oluştur
+            Logger.auth.info("🔄 [SessionStore] Creating new anonymous user...")
+            await signInAnonymously()
+            
+            // 9. App'i splash'ten yeniden başlat
+            Logger.auth.info("🔄 [SessionStore] Triggering app restart...")
+            NotificationCenter.default.post(name: .appShouldRestart, object: nil)
+            
+        } catch {
+            self.error = .unknown(error.localizedDescription)
+            Logger.auth.error("❌ [SessionStore] Sign out failed: \(error.localizedDescription)")
+        }
+        
+        isLoading = false
+    }
+    
+    /// Local verileri temizle - AccountMigrationService kullan
+    private func clearLocalDataOnSignOut() async {
+        await AccountMigrationService.shared.clearAllLocalData()
+    }
+    
+    /// ModelContext'i al (SyncService üzerinden)
+    @MainActor
+    private func getModelContext() async -> ModelContext? {
+        // Bu metod uygulamanın yapısına göre düzenlenmeli
+        // Örneğin App'ten veya SyncService'ten alınabilir
+        return nil // Placeholder - gerçek implementasyonda düzeltilmeli
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    /// Hesap migrasyonu tamamlandı
+    static let accountMigrationCompleted = Notification.Name("accountMigrationCompleted")
+    
+    /// App yeniden başlatılmalı (splash'ten)
+    static let appShouldRestart = Notification.Name("appShouldRestart")
+    
+    // userDidSignOut zaten SupabaseManager.swift'te tanımlı
 }

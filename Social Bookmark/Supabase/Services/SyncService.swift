@@ -10,6 +10,7 @@ import SwiftData
 import Supabase
 internal import Combine
 import UIKit
+import OSLog
 
 // MARK: - Sync State
 
@@ -84,15 +85,15 @@ private struct CloudBookmark: Codable {
 
 private struct CloudCategory: Codable {
     let id: String
-    let userId: String
+    let userId: String?
     let localId: String?
-    let name: String
+    let name: String?
     let icon: String?
     let color: String?
     let order: Int?
     let isEncrypted: Bool?
-    let createdAt: String
-    let updatedAt: String
+    let createdAt: String?
+    let updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -128,12 +129,12 @@ final class SyncService: ObservableObject {
     }
 
     private init() {
-        print("🔄 [SYNC] SyncService initialized")
+        Logger.sync.info("SyncService initialized")
     }
 
     func configure(modelContext: ModelContext) {
         self.modelContext = modelContext
-        print("🔄 [SYNC] ModelContext configured")
+        Logger.sync.info("ModelContext configured")
     }
 
     // MARK: - Public
@@ -155,9 +156,9 @@ final class SyncService: ObservableObject {
             lastSyncDate = Date()
             syncState = .idle
             NotificationCenter.default.post(name: .syncDidComplete, object: nil)
-            print("✅ [SYNC] Full sync completed!")
+            Logger.sync.info("Full sync completed!")
         } catch {
-            print("❌ [SYNC] Error: \(error.localizedDescription)")
+            Logger.sync.error("Sync error: \(error.localizedDescription)")
             syncError = SyncError.syncFailed(error.localizedDescription)
             syncState = .error
             NotificationCenter.default.post(name: .syncDidFail, object: error)
@@ -195,22 +196,35 @@ final class SyncService: ObservableObject {
     /// Tek bookmark sync et
     func syncBookmark(_ bookmark: Bookmark) async throws {
         guard let userId = SupabaseManager.shared.userId else {
+            print("❌ [SYNC] syncBookmark: Not authenticated")
             throw SyncError.notAuthenticated
         }
 
-        let existing: [CloudBookmark] = try await client
+        print("🔄 [SYNC] syncBookmark START")
+        print("   - Title: \(bookmark.title)")
+        print("   - ID: \(bookmark.id)")
+        print("   - Note: \(bookmark.note.isEmpty ? "(empty)" : String(bookmark.note.prefix(50)))")
+        print("   - Tags: \(bookmark.tags)")
+        print("   - CategoryId: \(bookmark.categoryId?.uuidString ?? "nil")")
+
+        // Mevcut kayıt var mı kontrol et - sadece count al
+        let countResponse = try await client
             .from("bookmarks")
-            .select("id, local_id")
+            .select("id", head: true, count: .exact)
             .eq("user_id", value: userId.uuidString)
             .eq("local_id", value: bookmark.id.uuidString)
             .execute()
-            .value
+        
+        let existingCount = countResponse.count ?? 0
+        print("📋 [SYNC] Existing count: \(existingCount)")
 
         let payload = createBookmarkPayload(bookmark, userId: userId)
 
-        if existing.isEmpty {
+        if existingCount == 0 {
+            print("➕ [SYNC] INSERT bookmark")
             try await client.from("bookmarks").insert(payload).execute()
         } else {
+            print("🔄 [SYNC] UPDATE bookmark")
             try await client
                 .from("bookmarks")
                 .update(payload)
@@ -218,27 +232,48 @@ final class SyncService: ObservableObject {
                 .eq("local_id", value: bookmark.id.uuidString)
                 .execute()
         }
+        print("✅ [SYNC] Bookmark sync done")
     }
 
     /// Tek kategori sync et
     func syncCategory(_ category: Category) async throws {
         guard let userId = SupabaseManager.shared.userId else {
+            print("❌ [SYNC] syncCategory: Not authenticated")
             throw SyncError.notAuthenticated
         }
 
-        let existing: [CloudCategory] = try await client
+        print("🔄 [SYNC] syncCategory: \(category.name), icon=\(category.icon), color=\(category.colorHex)")
+
+        // Mevcut kayıt var mı kontrol et - sadece count al
+        let countResponse = try await client
             .from("categories")
-            .select("id, local_id")
+            .select("id", head: true, count: .exact)
             .eq("user_id", value: userId.uuidString)
             .eq("local_id", value: category.id.uuidString)
             .execute()
-            .value
+        
+        let existingCount = countResponse.count ?? 0
+        print("📋 [SYNC] Existing count: \(existingCount)")
 
-        let payload = createCategoryPayload(category, userId: userId)
+        // Basit payload
+        let payload: [String: AnyEncodable] = [
+            "user_id": AnyEncodable(userId.uuidString),
+            "local_id": AnyEncodable(category.id.uuidString),
+            "name": AnyEncodable(category.name),
+            "icon": AnyEncodable(category.icon),
+            "color": AnyEncodable(category.colorHex),
+            "order": AnyEncodable(category.order),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "is_encrypted": AnyEncodable(false)
+        ]
 
-        if existing.isEmpty {
-            try await client.from("categories").insert(payload).execute()
+        if existingCount == 0 {
+            print("➕ [SYNC] INSERT")
+            var insertPayload = payload
+            insertPayload["created_at"] = AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt))
+            try await client.from("categories").insert(insertPayload).execute()
         } else {
+            print("🔄 [SYNC] UPDATE")
             try await client
                 .from("categories")
                 .update(payload)
@@ -246,6 +281,7 @@ final class SyncService: ObservableObject {
                 .eq("local_id", value: category.id.uuidString)
                 .execute()
         }
+        print("✅ [SYNC] Done")
     }
 
     /// Bookmark sil (cloud)
@@ -304,13 +340,15 @@ final class SyncService: ObservableObject {
 
         let localCategories = try context.fetch(FetchDescriptor<Category>())
         let localIdSet = Set(localCategories.map { $0.id.uuidString })
-
         for cloud in cloudCategories {
             let targetId = cloud.localId ?? cloud.id
-            guard !localIdSet.contains(targetId) else { continue }
+            guard let targetUUID = UUID(uuidString: targetId) else { continue }
+            if localIdSet.contains(targetId) || localIdSet.contains(cloud.id) || localIdSet.contains(targetUUID.uuidString) {
+                continue
+            }
 
             let isEnc = (cloud.isEncrypted == true)
-            let name = decryptIfNeeded(cloud.name, isEncrypted: isEnc)
+            let name = decryptIfNeeded(cloud.name ?? "Unnamed", isEncrypted: isEnc)
 
             let newCategory = Category(
                 id: UUID(uuidString: targetId) ?? UUID(),
@@ -320,7 +358,7 @@ final class SyncService: ObservableObject {
                 order: cloud.order ?? 0
             )
 
-            if let created = ISO8601DateFormatter().date(from: cloud.createdAt) {
+            if let createdAt = cloud.createdAt, let created = ISO8601DateFormatter().date(from: createdAt) {
                 newCategory.createdAt = created
             }
 
@@ -338,10 +376,12 @@ final class SyncService: ObservableObject {
 
         let localBookmarks = try context.fetch(FetchDescriptor<Bookmark>())
         let localIdSet = Set(localBookmarks.map { $0.id.uuidString })
-
         for cloud in cloudBookmarks {
             let targetId = cloud.localId ?? cloud.id
-            guard !localIdSet.contains(targetId) else { continue }
+            guard let targetUUID = UUID(uuidString: targetId) else { continue }
+            if localIdSet.contains(targetId) || localIdSet.contains(cloud.id) || localIdSet.contains(targetUUID.uuidString) {
+                continue
+            }
 
             let isEnc = (cloud.isEncrypted == true)
 

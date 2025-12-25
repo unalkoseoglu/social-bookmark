@@ -1,3 +1,10 @@
+//
+//  HomeViewModel.swift
+//  Social Bookmark
+//
+//  ✅ DÜZELTME: Manuel sync çağrıları kaldırıldı
+//  SyncableRepository kullanıldığı için otomatik sync yapılıyor
+
 import SwiftUI
 import Observation
 
@@ -13,7 +20,6 @@ final class HomeViewModel {
     
     let bookmarkRepository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
-    let syncService: SyncService
     
     // MARK: - Computed Properties
     
@@ -23,10 +29,10 @@ final class HomeViewModel {
     }
     
     var popularTags: [String] {
-            let tags = allBookmarks.flatMap { $0.tags }
-            let counts = Dictionary(grouping: tags, by: { $0 }).mapValues(\.count)
-            return counts.sorted { $0.value > $1.value }.map(\.key)
-        }
+        let tags = allBookmarks.flatMap { $0.tags }
+        let counts = Dictionary(grouping: tags, by: { $0 }).mapValues(\.count)
+        return counts.sorted { $0.value > $1.value }.map(\.key)
+    }
     
     var allBookmarks: [Bookmark] {
         bookmarkRepository.fetchAll()
@@ -64,7 +70,7 @@ final class HomeViewModel {
         bookmarks.filter { $0.categoryId == nil }.count
     }
     
-    /// Son eklenen bookmarklar (5 adet)
+    /// Son eklenen bookmarklar (10 adet)
     var recentBookmarks: [Bookmark] {
         Array(bookmarks.prefix(10))
     }
@@ -82,9 +88,25 @@ final class HomeViewModel {
     init(bookmarkRepository: BookmarkRepositoryProtocol, categoryRepository: CategoryRepositoryProtocol) {
         self.bookmarkRepository = bookmarkRepository
         self.categoryRepository = categoryRepository
-        self.syncService = SyncService.shared
         
         loadData()
+        
+        // ✅ YENİ: Sync tamamlandığında verileri yenile
+        setupSyncObserver()
+    }
+    
+    // MARK: - Private Setup
+    
+    /// ✅ YENİ: Sync completion observer
+    private func setupSyncObserver() {
+        NotificationCenter.default.addObserver(
+            forName: .syncDidComplete,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 [HomeViewModel] Sync completed, refreshing data...")
+            self?.loadData()
+        }
     }
     
     // MARK: - Public Methods
@@ -100,15 +122,14 @@ final class HomeViewModel {
     }
     
     /// Belirli bir kaynak için bookmark sayısı
-        func bookmarkSourceCount(for source: BookmarkSource) -> Int {
-            bookmarks.filter { $0.source == source }.count
-        }
+    func bookmarkSourceCount(for source: BookmarkSource) -> Int {
+        bookmarks.filter { $0.source == source }.count
+    }
     
     /// Belirli bir kategorideki bookmarklar
     func bookmarks(for category: Category) -> [Bookmark] {
         bookmarks.filter { $0.categoryId == category.id }
     }
-    
     
     /// Varsayılan kategorileri oluştur
     func createDefaultCategories() {
@@ -117,28 +138,19 @@ final class HomeViewModel {
     }
     
     /// Yeni kategori ekle
-    func addCategory(_ category: Category) async {
+    /// ✅ DÜZELTME: Manuel sync kaldırıldı - SyncableCategoryRepository otomatik sync yapıyor
+    func addCategory(_ category: Category) {
         categoryRepository.create(category)
-        do{
-            try await SyncService.shared.syncCategory(category)
-        }catch {}
-
-            
-         
         loadCategories()
     }
     
     /// Kategori sil
-    func deleteCategory(_ category: Category) async {
+    /// ✅ DÜZELTME: Manuel sync kaldırıldı
+    func deleteCategory(_ category: Category) {
         // Önce bu kategorideki bookmarkların categoryId'sini nil yap
         for bookmark in bookmarks(for: category) {
             bookmark.categoryId = nil
             bookmarkRepository.update(bookmark)
-        }
-        do {
-            try await SyncService.shared.deleteCategory(category)
-        } catch {
-            print("❌ [SYNC] Delete failed: \(error)")
         }
         
         categoryRepository.delete(category)
@@ -146,46 +158,38 @@ final class HomeViewModel {
     }
     
     /// Kategori güncelle
-    func updateCategory(_ category: Category) async {
+    /// ✅ DÜZELTME: Debug logları eklendi
+    func updateCategory(_ category: Category) {
+        print("🔄 [HomeViewModel] updateCategory called")
+        print("   - ID: \(category.id)")
+        print("   - Name: \(category.name)")
+        print("   - Icon: \(category.icon)")
+        print("   - Color: \(category.colorHex)")
+        
         categoryRepository.update(category)
-        do {
-            try await SyncService.shared.syncCategory(category)
-        } catch {
-            print("❌ [SYNC] Delete failed: \(error)")
-        }
         loadCategories()
+        
+        print("✅ [HomeViewModel] updateCategory completed")
     }
     
     /// Bookmark sil
-    func deleteBookmark(_ bookmark: Bookmark) async {
+    /// ✅ DÜZELTME: Manuel sync kaldırıldı
+    func deleteBookmark(_ bookmark: Bookmark) {
         bookmarkRepository.delete(bookmark)
-            do {
-                try await SyncService.shared.deleteBookmark(bookmark)
-            } catch {
-                print("❌ [SYNC] Delete failed: \(error)")
-            }
         loadBookmarks()
     }
     
     /// Bookmark okundu/okunmadı toggle
-    func toggleReadStatus(_ bookmark: Bookmark) async {
+    /// ✅ DÜZELTME: Manuel sync kaldırıldı
+    func toggleReadStatus(_ bookmark: Bookmark) {
         bookmark.isRead.toggle()
-        do {
-            try await SyncService.shared.syncBookmark(bookmark)
-        } catch {
-            print("❌ [SYNC] Delete failed: \(error)")
-        }
         bookmarkRepository.update(bookmark)
     }
     
     /// Bookmark favori toggle
-    func toggleFavorite(_ bookmark: Bookmark) async {
+    /// ✅ DÜZELTME: Manuel sync kaldırıldı
+    func toggleFavorite(_ bookmark: Bookmark) {
         bookmark.isFavorite.toggle()
-        do {
-            try await SyncService.shared.syncBookmark(bookmark)
-        } catch {
-            print("❌ [SYNC] Delete failed: \(error)")
-        }
         bookmarkRepository.update(bookmark)
     }
     
@@ -210,6 +214,10 @@ final class HomeViewModel {
     
     private func loadCategories() {
         categories = categoryRepository.fetchAll()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 

@@ -34,6 +34,11 @@ struct EditBookmarkView: View {
     @State private var selectedImageIndex: Int?
     @State private var showingFullScreenImage = false
     
+    // ✅ YENİ: Kaydetme durumu
+    @State private var isSaving = false
+    @State private var saveError: String?
+    @State private var showingSaveError = false
+    
     /// Klavye odağı kontrolü
     @FocusState private var focusedField: Field?
     
@@ -117,7 +122,7 @@ struct EditBookmarkView: View {
                 // Etiketler
                 tagsSection
             }
-            .navigationTitle("Düzenle")
+            .navigationTitle(String(localized: "editBookmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
@@ -130,22 +135,28 @@ struct EditBookmarkView: View {
                     await loadNewImages(from: newItems)
                 }
             }
-            .confirmationDialog("Resim Seçenekleri", isPresented: $showingImageOptions, presenting: selectedImageIndex) { index in
-                Button("Tam Ekran Görüntüle") {
+            .confirmationDialog(String(localized: "editBookmark.imageOptions"), isPresented: $showingImageOptions, presenting: selectedImageIndex) { index in
+                Button(String(localized: "editBookmark.viewFullScreen")) {
                     showingFullScreenImage = true
                 }
                 
-                Button("Sil", role: .destructive) {
+                Button(String(localized: "common.delete"), role: .destructive) {
                     deleteImage(at: index)
                 }
                 
-                Button("İptal", role: .cancel) {}
+                Button(String(localized: "common.cancel"), role: .cancel) {}
             }
             .fullScreenCover(isPresented: $showingFullScreenImage) {
                 if let index = selectedImageIndex, index < allImages.count {
                     FullScreenImageViewer(images: allImages.map { $0.image }, initialIndex: index)
                 }
             }
+            .alert(String(localized: "common.error"), isPresented: $showingSaveError) {
+                Button(String(localized: "common.done"), role: .cancel) {}
+            } message: {
+                Text(saveError ?? String(localized: "editBookmark.saveError"))
+            }
+            .disabled(isSaving)
         }
     }
     
@@ -158,19 +169,19 @@ struct EditBookmarkView: View {
     // MARK: - Sections
     
     private var basicInfoSection: some View {
-        Section("Temel Bilgiler") {
-            TextField("Başlık", text: $title, axis: .vertical)
+        Section(String(localized: "editBookmark.section.basic")) {
+            TextField(String(localized: "editBookmark.field.title"), text: $title, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
-            TextField("URL (isteğe bağlı)", text: $url)
+            TextField(String(localized: "editBookmark.field.url"), text: $url)
                 .keyboardType(.URL)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: .url)
             
             if !url.isEmpty && !isURLValid {
-                Label("Geçersiz URL formatı", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "validation.invalid_url"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
                     .font(.caption)
             }
@@ -197,10 +208,10 @@ struct EditBookmarkView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Resim Ekle")
+                            Text("editBookmark.addImage")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                            Text("Maksimum 4 resim ekleyebilirsiniz")
+                            Text("editBookmark.maxImages")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -220,7 +231,7 @@ struct EditBookmarkView: View {
                     
                     // Alt bilgi ve ekleme butonu
                     HStack {
-                        Text("\(totalImageCount)/4 resim")
+                        Text("editBookmark.imageCount \(totalImageCount)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
@@ -232,7 +243,7 @@ struct EditBookmarkView: View {
                                 maxSelectionCount: 4 - totalImageCount,
                                 matching: .images
                             ) {
-                                Label("Ekle", systemImage: "plus")
+                                Label(String(localized: "common.add"), systemImage: "plus")
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
@@ -247,16 +258,16 @@ struct EditBookmarkView: View {
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
-                    Text("Resimler işleniyor...")
+                    Text("editBookmark.processingImages")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
         } header: {
-            Text("Resimler")
+            Text("editBookmark.section.images")
         } footer: {
             if !allImages.isEmpty {
-                Text("Düzenlemek için resme dokunun")
+                Text("editBookmark.tapToEdit")
                     .font(.caption)
             }
         }
@@ -304,7 +315,7 @@ struct EditBookmarkView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        Text("YENİ")
+                        Text("editBookmark.newBadge")
                             .font(.caption2)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
@@ -329,17 +340,17 @@ struct EditBookmarkView: View {
                         .frame(width: 24)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Kategori tanımlanmamış")
+                        Text("editBookmark.noCategories")
                             .font(.subheadline)
-                        Text("Ana ekrandan yeni bir kategori oluşturabilirsiniz")
+                        Text("editBookmark.createCategoryHint")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
             } else {
-                Picker("Kategori", selection: $selectedCategoryId) {
+                Picker(String(localized: "editBookmark.category"), selection: $selectedCategoryId) {
                     // Hiçbiri seçeneği
-                    Label("Kategorisiz", systemImage: "tray")
+                    Label(String(localized: "editBookmark.uncategorized"), systemImage: "tray")
                         .tag(nil as UUID?)
                     
                     Divider()
@@ -358,7 +369,7 @@ struct EditBookmarkView: View {
                 .pickerStyle(.menu)
             }
         } header: {
-            Text("Kategori")
+            Text("editBookmark.section.category")
         } footer: {
             if let category = selectedCategory {
                 Label(category.name, systemImage: category.icon)
@@ -369,8 +380,8 @@ struct EditBookmarkView: View {
     }
     
     private var detailsSection: some View {
-        Section("Detaylar") {
-            Picker("Kaynak", selection: $selectedSource) {
+        Section(String(localized: "editBookmark.section.details")) {
+            Picker(String(localized: "editBookmark.source"), selection: $selectedSource) {
                 ForEach(BookmarkSource.allCases) { source in
                     HStack {
                         Text(source.emoji)
@@ -381,7 +392,7 @@ struct EditBookmarkView: View {
             }
             .pickerStyle(.menu)
             
-            TextField("Notlar (isteğe bağlı)", text: $note, axis: .vertical)
+            TextField(String(localized: "editBookmark.field.notes"), text: $note, axis: .vertical)
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
         }
@@ -389,12 +400,12 @@ struct EditBookmarkView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField("Etiketler (virgülle ayırın)", text: $tagsInput)
+            TextField(String(localized: "editBookmark.field.tags"), text: $tagsInput)
                 .focused($focusedField, equals: .tags)
         } header: {
-            Text("Etiketler")
+            Text("editBookmark.section.tags")
         } footer: {
-            Text("Örnek: Swift, iOS, Eğitim")
+            Text("editBookmark.tagsHint")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -403,17 +414,25 @@ struct EditBookmarkView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("İptal") {
+            Button(String(localized: "common.cancel")) {
                 dismiss()
             }
+            .disabled(isSaving)
         }
         
         ToolbarItem(placement: .confirmationAction) {
-            Button("Kaydet") {
-                saveChanges()
+            if isSaving {
+                ProgressView()
+                    .scaleEffect(0.8)
+            } else {
+                Button(String(localized: "common.save")) {
+                    Task {
+                        await saveChanges()
+                    }
+                }
+                .disabled(!isValid || isLoadingImages)
+                .fontWeight(.semibold)
             }
-            .disabled(!isValid || isLoadingImages)
-            .fontWeight(.semibold)
         }
     }
     
@@ -497,7 +516,19 @@ struct EditBookmarkView: View {
     
     // MARK: - Actions
     
-    private func saveChanges() {
+    /// ✅ DÜZELTME: Async save with Supabase Storage upload
+    private func saveChanges() async {
+        await MainActor.run {
+            isSaving = true
+            saveError = nil
+        }
+        
+        defer {
+            Task { @MainActor in
+                isSaving = false
+            }
+        }
+        
         // Bookmark verilerini güncelle
         bookmark.title = title.trimmingCharacters(in: .whitespaces)
         bookmark.url = url.isEmpty ? nil : URLValidator.sanitize(url)
@@ -506,22 +537,65 @@ struct EditBookmarkView: View {
         bookmark.tags = parseTags(from: tagsInput)
         bookmark.categoryId = selectedCategoryId
         
-        // Resimleri güncelle
+        // ✅ YENİ: Görselleri Supabase Storage'a yükle
+        var uploadedImageUrls: [String] = []
+        
+        // Mevcut cloud URL'lerini koru (eğer local görsel silinmediyse)
+        if let existingUrls = bookmark.imageUrls {
+            // Mevcut görseller hala varsa URL'leri koru
+            let existingCount = existingImagesData.count
+            uploadedImageUrls = Array(existingUrls.prefix(existingCount))
+        }
+        
+        // Yeni görselleri Supabase'e yükle
+        if !newImagesData.isEmpty {
+            print("📤 [EditBookmark] Uploading \(newImagesData.count) new images to Supabase...")
+            
+            for (index, imageData) in newImagesData.enumerated() {
+                if let image = UIImage(data: imageData) {
+                    do {
+                        let imageUrl = try await ImageUploadService.shared.uploadImage(
+                            image,
+                            for: bookmark.id,
+                            index: existingImagesData.count + index
+                        )
+                        uploadedImageUrls.append(imageUrl)
+                        print("✅ [EditBookmark] Image \(index + 1) uploaded: \(imageUrl.prefix(50))...")
+                    } catch {
+                        print("❌ [EditBookmark] Failed to upload image \(index + 1): \(error.localizedDescription)")
+                        // Hata olsa bile devam et, local kaydet
+                    }
+                }
+            }
+        }
+        
+        // Local resimleri güncelle
         let allImagesData = existingImagesData + newImagesData
         
         if allImagesData.isEmpty {
             bookmark.imageData = nil
             bookmark.imagesData = nil
+            bookmark.imageUrls = nil
         } else {
             bookmark.imageData = allImagesData.first
             bookmark.imagesData = allImagesData.count > 1 ? allImagesData : nil
+            
+            // ✅ Cloud URL'lerini kaydet
+            if !uploadedImageUrls.isEmpty {
+                bookmark.imageUrls = uploadedImageUrls
+                print("✅ [EditBookmark] Saved \(uploadedImageUrls.count) image URLs to bookmark")
+            }
         }
         
-        // Veritabanını güncelle
+        // Veritabanını güncelle (SyncableRepository otomatik sync yapacak)
         repository.update(bookmark)
         
+        print("✅ [EditBookmark] Bookmark updated successfully")
+        
         // Görünümü kapat
-        dismiss()
+        await MainActor.run {
+            dismiss()
+        }
     }
     
     private func parseTags(from input: String) -> [String] {
@@ -621,6 +695,7 @@ struct FullScreenImageViewer: View {
         }
     }
 }
+
 
 // MARK: - Preview
 

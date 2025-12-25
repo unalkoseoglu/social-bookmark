@@ -1,3 +1,9 @@
+//
+//  BookmarkListViewModel.swift
+//  Social Bookmark
+//
+//  ✅ DÜZELTME: Sync completion observer eklendi
+
 import SwiftUI
 import Observation
 
@@ -66,6 +72,23 @@ final class BookmarkListViewModel {
     init(repository: BookmarkRepositoryProtocol) {
         self.repository = repository
         loadBookmarks()
+        
+        // ✅ YENİ: Sync tamamlandığında listeyi yenile
+        setupSyncObserver()
+    }
+    
+    // MARK: - Private Setup
+    
+    /// ✅ YENİ: Sync completion observer
+    private func setupSyncObserver() {
+        NotificationCenter.default.addObserver(
+            forName: .syncDidComplete,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 [BookmarkListViewModel] Sync completed, refreshing list...")
+            self?.loadBookmarks()
+        }
     }
     
     // MARK: - Public Methods
@@ -92,6 +115,7 @@ final class BookmarkListViewModel {
     }
     
     /// Bookmark sil
+    /// ✅ SyncableRepository sayesinde otomatik sync yapılır
     func deleteBookmark(_ bookmark: Bookmark) {
         repository.delete(bookmark)
         loadBookmarks() // Listeyi güncelle
@@ -105,6 +129,7 @@ final class BookmarkListViewModel {
     }
     
     /// Okundu işaretle / işareti kaldır
+    /// ✅ SyncableRepository sayesinde otomatik sync yapılır
     func toggleReadStatus(_ bookmark: Bookmark) {
         bookmark.isRead.toggle()
         repository.update(bookmark)
@@ -122,6 +147,13 @@ final class BookmarkListViewModel {
             repository.update(bookmark)
         }
         loadBookmarks()
+    }
+    
+    /// Favori toggle
+    /// ✅ YENİ: Favori toggle metodu eklendi
+    func toggleFavorite(_ bookmark: Bookmark) {
+        bookmark.isFavorite.toggle()
+        repository.update(bookmark)
     }
     
     /// Filtreleri sıfırla
@@ -162,19 +194,8 @@ final class BookmarkListViewModel {
             isLoading = false
         }
     }
-}
-
-// MARK: - iOS 16 Support (eğer iOS 16'yı destekleyeceksen)
-
-/*
-// @Observable yerine ObservableObject kullan:
-final class BookmarkListViewModel: ObservableObject {
-    @Published var bookmarks: [Bookmark] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var searchText = "" {
-        didSet { performSearch() }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
-    // ... geri kalanı aynı
 }
-*/

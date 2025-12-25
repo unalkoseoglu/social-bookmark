@@ -2,13 +2,12 @@
 //  SyncableBookmarkRepository.swift
 //  Social Bookmark
 //
-//  Created by Claude on 15.12.2025.
-//
-//  BookmarkRepository'yi wrap ederek otomatik sync sağlar
-//
+//  ✅ DÜZELTME: Daha güvenilir async sync
+//  Task'lar detached olarak çalışır, hata loglanır
 
 import Foundation
 import SwiftData
+import OSLog
 
 /// Sync destekli BookmarkRepository wrapper
 /// Her CRUD işleminden sonra otomatik sync tetikler
@@ -25,6 +24,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     
     init(baseRepository: BookmarkRepositoryProtocol) {
         self.baseRepository = baseRepository
+        print("✅ [SyncableBookmarkRepository] Initialized with sync enabled")
     }
     
     // MARK: - BookmarkRepositoryProtocol
@@ -46,32 +46,57 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     }
     
     func create(_ bookmark: Bookmark) {
+        print("📝 [SyncableBookmarkRepository] Creating bookmark: \(bookmark.title)")
         baseRepository.create(bookmark)
         
-        // Async sync tetikle
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.syncBookmark(bookmark)
+            // Bookmark bilgilerini capture et
+            let snapshot = createBookmarkSnapshot(bookmark)
+            
+            Task.detached { @MainActor in
+                do {
+                    try await SyncService.shared.syncBookmark(snapshot)
+                    print("✅ [SyncableBookmarkRepository] Synced new bookmark: \(snapshot.title)")
+                } catch {
+                    print("❌ [SyncableBookmarkRepository] Sync failed for new bookmark: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func update(_ bookmark: Bookmark) {
+        print("📝 [SyncableBookmarkRepository] Updating bookmark: \(bookmark.title)")
         baseRepository.update(bookmark)
         
-        // Async sync tetikle
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.syncBookmark(bookmark)
+            // Bookmark bilgilerini capture et
+            let snapshot = createBookmarkSnapshot(bookmark)
+            
+            Task.detached { @MainActor in
+                do {
+                    try await SyncService.shared.syncBookmark(snapshot)
+                    print("✅ [SyncableBookmarkRepository] Synced updated bookmark: \(snapshot.title)")
+                } catch {
+                    print("❌ [SyncableBookmarkRepository] Sync failed for updated bookmark: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func delete(_ bookmark: Bookmark) {
-        // Önce cloud'dan sil
+        Logger.sync.info("Deleting bookmark: \(bookmark.title)")
+        
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.deleteBookmark(bookmark)
+            // Bookmark bilgilerini capture et (silmeden önce)
+            let snapshot = createBookmarkSnapshot(bookmark)
+            
+            Task.detached { @MainActor in
+                do {
+                    try await SyncService.shared.deleteBookmark(snapshot)
+                    Logger.sync.info("Deleted from cloud: \(snapshot.title)")
+                } catch {
+                    Logger.sync.error("Cloud delete failed: \(error.localizedDescription)")
+                }
             }
         }
         
@@ -79,16 +104,47 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     }
     
     func deleteMultiple(_ bookmarks: [Bookmark]) {
-        // Önce cloud'dan sil
+        Logger.sync.info("Deleting \(bookmarks.count) bookmarks")
+        
         if isSyncEnabled {
-            Task { @MainActor in
-                for bookmark in bookmarks {
-                    try? await SyncService.shared.deleteBookmark(bookmark)
+            // Tüm bookmark'ları capture et
+            let snapshots = bookmarks.map { createBookmarkSnapshot($0) }
+            
+            Task.detached { @MainActor in
+                for snapshot in snapshots {
+                    do {
+                        try await SyncService.shared.deleteBookmark(snapshot)
+                        Logger.sync.info("Deleted from cloud: \(snapshot.title)")
+                    } catch {
+                        Logger.sync.error("Cloud delete failed for \(snapshot.title): \(error.localizedDescription)")
+                    }
                 }
             }
         }
         
         baseRepository.deleteMultiple(bookmarks)
+    }
+    
+    // MARK: - Private Helpers
+    
+    /// SwiftData managed object'i async-safe snapshot'a çevirir
+    private func createBookmarkSnapshot(_ bookmark: Bookmark) -> Bookmark {
+        let snapshot = Bookmark(
+            title: bookmark.title,
+            url: bookmark.url,
+            note: bookmark.note,
+            source: bookmark.source,
+            isRead: bookmark.isRead,
+            isFavorite: bookmark.isFavorite,
+            categoryId: bookmark.categoryId,
+            tags: bookmark.tags,
+            imageData: bookmark.imageData,
+            imagesData: bookmark.imagesData,
+            imageUrls: bookmark.imageUrls
+        )
+        snapshot.id = bookmark.id
+        snapshot.createdAt = bookmark.createdAt
+        return snapshot
     }
     
     func search(query: String) -> [Bookmark] {
@@ -112,6 +168,8 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     }
 }
 
+// MARK: - SyncableCategoryRepository
+
 /// Sync destekli CategoryRepository wrapper
 final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     
@@ -126,6 +184,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     
     init(baseRepository: CategoryRepositoryProtocol) {
         self.baseRepository = baseRepository
+        Logger.sync.info("SyncableCategoryRepository initialized with sync enabled")
     }
     
     // MARK: - CategoryRepositoryProtocol
@@ -143,29 +202,82 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     }
     
     func create(_ category: Category) {
+        Logger.sync.info("Creating category: \(category.name)")
         baseRepository.create(category)
         
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.syncCategory(category)
+            // Category bilgilerini capture et (SwiftData managed object'i async context'e taşıyamayız)
+            let categoryId = category.id
+            let categoryName = category.name
+            let categoryIcon = category.icon
+            let categoryColorHex = category.colorHex
+            let categoryOrder = category.order
+            let categoryCreatedAt = category.createdAt
+            
+            Task.detached { @MainActor in
+                do {
+                    let categorySnapshot = Category(
+                        id: categoryId,
+                        name: categoryName,
+                        icon: categoryIcon,
+                        colorHex: categoryColorHex,
+                        order: categoryOrder
+                    )
+                    categorySnapshot.createdAt = categoryCreatedAt
+                    
+                    try await SyncService.shared.syncCategory(categorySnapshot)
+                    Logger.sync.info("Synced new category: \(categoryName)")
+                } catch {
+                    Logger.sync.error("Sync failed for new category: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func update(_ category: Category) {
+        Logger.sync.info("Updating category: \(category.name)")
         baseRepository.update(category)
         
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.syncCategory(category)
+            Task.detached { @MainActor in
+                do {
+                    try await SyncService.shared.syncCategory(category)
+                    Logger.sync.info("Synced updated category: \(category.name)")
+                } catch {
+                    Logger.sync.error("Sync failed for updated category: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func delete(_ category: Category) {
+        Logger.sync.info("Deleting category: \(category.name)")
+        
         if isSyncEnabled {
-            Task { @MainActor in
-                try? await SyncService.shared.deleteCategory(category)
+            // Category bilgilerini capture et (silmeden önce)
+            let categoryId = category.id
+            let categoryName = category.name
+            let categoryIcon = category.icon
+            let categoryColorHex = category.colorHex
+            let categoryOrder = category.order
+            let categoryCreatedAt = category.createdAt
+            
+            Task.detached { @MainActor in
+                do {
+                    let categorySnapshot = Category(
+                        id: categoryId,
+                        name: categoryName,
+                        icon: categoryIcon,
+                        colorHex: categoryColorHex,
+                        order: categoryOrder
+                    )
+                    categorySnapshot.createdAt = categoryCreatedAt
+                    
+                    try await SyncService.shared.deleteCategory(categorySnapshot)
+                    Logger.sync.info("Deleted from cloud: \(categoryName)")
+                } catch {
+                    Logger.sync.error("Cloud delete failed: \(error.localizedDescription)")
+                }
             }
         }
         
@@ -182,8 +294,11 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         
         // Yeni kategoriler oluşturulduysa sync et
         if !hadDefaults && isSyncEnabled {
-            Task { @MainActor in
+            Logger.sync.info("Default categories created, syncing...")
+            
+            Task.detached { @MainActor in
                 await SyncService.shared.syncChanges()
+                Logger.sync.info("Default categories synced")
             }
         }
     }

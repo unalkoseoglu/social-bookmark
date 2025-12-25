@@ -157,7 +157,7 @@ final class RedditService {
            let children = dataDict["children"] as? [[String: Any]],
            let postDict = children.first,
            let postData = postDict["data"] as? [String: Any] {
-            print("🔴 Reddit: Array format parse edildi")
+
             return postData
         }
         
@@ -167,21 +167,23 @@ final class RedditService {
            let children = dataDict["children"] as? [[String: Any]],
            let postDict = children.first,
            let postData = postDict["data"] as? [String: Any] {
-            print("🔴 Reddit: Object format parse edildi")
+            
             return postData
         }
         
         // Format 3: Direkt post datası
         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            json["title"] != nil {
-            print("🔴 Reddit: Direct format parse edildi")
+            
             return json
         }
         
         // Debug için JSON'ı yazdır
+        #if DEBUG
         if let jsonString = String(data: data, encoding: .utf8) {
-            print("📄 Reddit: JSON (ilk 500 karakter): \(String(jsonString.prefix(500)))")
+           
         }
+        #endif
         
         throw RedditError.parseError
     }
