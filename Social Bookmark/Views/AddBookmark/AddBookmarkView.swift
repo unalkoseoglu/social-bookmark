@@ -10,10 +10,33 @@ struct AddBookmarkView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
     
-    @State private var showingImagePicker = false
-    @State private var showingImageCrop = false
-    @State private var selectedImage: UIImage?
+    // OCR Image States
+    @State private var showingOCRImagePicker = false
+    @State private var showingOCRImageCrop = false
+    @State private var ocrImage: UIImage?
     @State private var isProcessingOCR = false
+    
+    // Bookmark Cover Image States
+    @State private var showingCoverImagePicker = false
+    @State private var showingCoverImageCrop = false
+    @State private var coverImage: UIImage?
+    
+    // Sheet states for pickers
+    @State private var showingCategoryPicker = false
+    @State private var showingSourcePicker = false
+    
+    // MARK: - Computed Properties
+    
+    /// Form'da herhangi bir içerik var mı kontrol eder
+    private var hasAnyContent: Bool {
+        !viewModel.url.isEmpty ||
+        !viewModel.title.isEmpty ||
+        !viewModel.note.isEmpty ||
+        viewModel.fetchedTweet != nil ||
+        viewModel.fetchedRedditPost != nil ||
+        viewModel.fetchedLinkedInContent != nil ||
+        viewModel.fetchedMetadata != nil
+    }
     
     // MARK: - Initialization
     
@@ -35,16 +58,14 @@ struct AddBookmarkView: View {
                 detailsSection
                 organizationSection
                 tagsSection
-                imageSection
+                coverImageSection
+                ocrSection
                 
                 if !viewModel.validationErrors.isEmpty {
                     validationErrorsSection
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .onTapGesture {
-                hideKeyboard()
-            }
             .navigationTitle(String(localized: "addBookmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -65,20 +86,98 @@ struct AddBookmarkView: View {
                     viewModel.loadCategories()
                 }
             }
-            .sheet(isPresented: $showingImagePicker) {
+            // OCR Image Sheets
+            .sheet(isPresented: $showingOCRImagePicker) {
                 ImagePickerView { image in
-                    selectedImage = image
-                    showingImageCrop = true
+                    ocrImage = image
+                    showingOCRImageCrop = true
                 }
             }
-            .sheet(isPresented: $showingImageCrop) {
-                if let image = selectedImage {
+            .sheet(isPresented: $showingOCRImageCrop) {
+                if let image = ocrImage {
                     ImageCropView(image: image) { croppedImage in
-                        selectedImage = croppedImage
+                        ocrImage = croppedImage
                         performOCR(on: croppedImage)
                     }
                 }
             }
+            // Cover Image Sheets
+            .sheet(isPresented: $showingCoverImagePicker) {
+                ImagePickerView { image in
+                    coverImage = image
+                    showingCoverImageCrop = true
+                }
+            }
+            .sheet(isPresented: $showingCoverImageCrop) {
+                if let image = coverImage {
+                    ImageCropView(image: image) { croppedImage in
+                        coverImage = croppedImage
+                    }
+                }
+            }
+            // Picker Sheets
+            .sheet(isPresented: $showingCategoryPicker) {
+                SelectionPickerSheet(
+                    title: String(localized: "addBookmark.field.category"),
+                    items: buildCategoryItems(),
+                    selectedId: viewModel.selectedCategoryId?.uuidString,
+                    onSelect: { id in
+                        viewModel.selectedCategoryId = id.flatMap { UUID(uuidString: $0) }
+                    }
+                )
+                .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showingSourcePicker) {
+                SelectionPickerSheet(
+                    title: String(localized: "addBookmark.field.source"),
+                    items: buildSourceItems(),
+                    selectedId: viewModel.selectedSource.rawValue,
+                    onSelect: { id in
+                        if let id = id, let source = BookmarkSource(rawValue: id) {
+                            viewModel.selectedSource = source
+                        }
+                    }
+                )
+                .presentationDetents([.medium, .large])
+            }
+        }
+    }
+    
+    // MARK: - Build Picker Items
+    
+    private func buildCategoryItems() -> [SelectionPickerItem] {
+        var items: [SelectionPickerItem] = [
+            SelectionPickerItem(
+                id: nil,
+                icon: "tray.fill",
+                iconColor: .gray,
+                title: String(localized: "addBookmark.no_category"),
+                subtitle: String(localized: "addBookmark.category.no_category_hint")
+            )
+        ]
+        
+        items += viewModel.categories.map { category in
+            SelectionPickerItem(
+                id: category.id.uuidString,
+                icon: category.icon,
+                iconColor: category.color,
+                title: category.name,
+                subtitle: nil
+            )
+        }
+        
+        return items
+    }
+    
+    private func buildSourceItems() -> [SelectionPickerItem] {
+        BookmarkSource.allCases.map { source in
+            SelectionPickerItem(
+                id: source.rawValue,
+                emoji: source.emoji,
+                iconColor: source.color,
+                title: source.displayName,
+                subtitle: source.sourceDescription
+            )
         }
     }
     
@@ -104,7 +203,7 @@ struct AddBookmarkView: View {
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .url)
                 
-                Button{
+                Button {
                     pasteFromClipboard()
                 } label: {
                     Image(systemName: "list.bullet.clipboard.fill")
@@ -143,6 +242,20 @@ struct AddBookmarkView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: viewModel.url)
+            
+            // Clear butonu - içerik varsa göster
+            if hasAnyContent {
+                Button(role: .destructive) {
+                    clearAllContent()
+                } label: {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text(String(localized: "addBookmark.clearAll"))
+                    }
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity)
+                }
+            }
             
             if !viewModel.url.isEmpty && !viewModel.isURLValid {
                 Label(String(localized: "addBookmark.error.invalid_url"), systemImage: "exclamationmark.triangle")
@@ -435,64 +548,34 @@ struct AddBookmarkView: View {
         }
     }
     
+    // MARK: - Organization Section
+    
     private var organizationSection: some View {
         Section(String(localized: "addBookmark.section.organization")) {
-            // Kategori seçici
-            if viewModel.categories.isEmpty {
-                Text(String(localized: "addBookmark.no_category"))
-                    .foregroundStyle(.secondary)
-            } else {
-                Picker(selection: $viewModel.selectedCategoryId) {
-                    Text(String(localized: "addBookmark.no_category"))
-                        .tag(nil as UUID?)
-                    
-                    ForEach(viewModel.categories) { category in
-                        HStack(spacing: 8) {
-                            Image(systemName: category.icon)
-                                .foregroundStyle(category.color)
-                            Text(category.name)
-                        }
-                        .tag(category.id as UUID?)
-                    }
-                } label: {
-                    HStack {
-                        Text(String(localized: "addBookmark.field.category"))
-                        Spacer()
-                        if let categoryId = viewModel.selectedCategoryId,
-                           let category = viewModel.categories.first(where: { $0.id == categoryId }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: category.icon)
-                                    .foregroundStyle(category.color)
-                                Text(category.name)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else {
-                            Text(String(localized: "addBookmark.select"))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
+            // Kategori Seçici
+            SelectionRowButton(
+                icon: viewModel.selectedCategoryId.flatMap { id in
+                    viewModel.categories.first { $0.id == id }?.icon
+                } ?? "folder.fill",
+                iconColor: viewModel.selectedCategoryId.flatMap { id in
+                    viewModel.categories.first { $0.id == id }?.color
+                } ?? .gray,
+                label: String(localized: "addBookmark.field.category"),
+                value: viewModel.selectedCategoryId.flatMap { id in
+                    viewModel.categories.first { $0.id == id }?.name
+                } ?? String(localized: "addBookmark.no_category")
+            ) {
+                showingCategoryPicker = true
             }
             
-            // Kaynak seçici
-            Picker(selection: $viewModel.selectedSource) {
-                ForEach(BookmarkSource.allCases) { source in
-                    HStack(spacing: 8) {
-                        Text(source.emoji)
-                        Text(source.displayName)
-                    }
-                    .tag(source)
-                }
-            } label: {
-                HStack {
-                    Text(String(localized: "addBookmark.field.source"))
-                    Spacer()
-                    HStack(spacing: 4) {
-                        Text(viewModel.selectedSource.emoji)
-                        Text(viewModel.selectedSource.displayName)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+            // Kaynak Seçici
+            SelectionRowButton(
+                emoji: viewModel.selectedSource.emoji,
+                iconColor: viewModel.selectedSource.color,
+                label: String(localized: "addBookmark.field.source"),
+                value: viewModel.selectedSource.displayName
+            ) {
+                showingSourcePicker = true
             }
         }
     }
@@ -510,43 +593,212 @@ struct AddBookmarkView: View {
         }
     }
     
-    private var imageSection: some View {
-        Section(String(localized: "addBookmark.section.image")) {
-            if let image = selectedImage {
+    // MARK: - Cover Image Section (Bookmark Kapak Görseli)
+    
+    private var coverImageSection: some View {
+        Section {
+            if let image = coverImage {
                 VStack(spacing: 12) {
+                    // Görsel önizleme
                     Image(uiImage: image)
                         .resizable()
-                        .scaledToFit()
-                        .frame(maxHeight: 200)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(.separator), lineWidth: 1)
+                        )
                     
-                    HStack {
-                        Button(action: { showingImageCrop = true }) {
-                            Label(String(localized: "addBookmark.image.edit"), systemImage: "crop")
+                    // Aksiyonlar
+                    HStack(spacing: 16) {
+                        Button {
+                            showingCoverImageCrop = true
+                        } label: {
+                            Label(String(localized: "addBookmark.coverImage.edit"), systemImage: "crop")
+                                .font(.subheadline)
                         }
                         
                         Spacer()
                         
-                        if isProcessingOCR {
-                            ProgressView().progressViewStyle(.circular)
-                            Text(String(localized: "addBookmark.ocr.processing"))
+                        Button {
+                            showingCoverImagePicker = true
+                        } label: {
+                            Label(String(localized: "addBookmark.coverImage.change"), systemImage: "arrow.triangle.2.circlepath.camera")
+                                .font(.subheadline)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(role: .destructive) {
+                            withAnimation {
+                                coverImage = nil
+                            }
+                        } label: {
+                            Label(String(localized: "addBookmark.coverImage.remove"), systemImage: "trash")
+                                .font(.subheadline)
+                        }
+                    }
+                }
+                .padding(.vertical, 4)
+            } else {
+                // Görsel ekleme butonu
+                Button {
+                    showingCoverImagePicker = true
+                } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "photo.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(String(localized: "addBookmark.coverImage.add"))
+                                .font(.body)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.primary)
+                            
+                            Text(String(localized: "addBookmark.coverImage.hint"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         
                         Spacer()
                         
-                        Button(role: .destructive, action: { selectedImage = nil }) {
-                            Label(String(localized: "addBookmark.image.remove"), systemImage: "trash")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.blue)
+                    }
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Label(String(localized: "addBookmark.section.coverImage"), systemImage: "photo.on.rectangle")
+        } footer: {
+            if coverImage == nil {
+                Text(String(localized: "addBookmark.coverImage.footer"))
+            }
+        }
+    }
+    
+    // MARK: - OCR Section (Metin Çıkarma)
+    
+    private var ocrSection: some View {
+        Section {
+            if let image = ocrImage {
+                VStack(spacing: 12) {
+                    // Görsel önizleme
+                    HStack(spacing: 12) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            if isProcessingOCR {
+                                HStack(spacing: 8) {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text(String(localized: "addBookmark.ocr.processing"))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } else {
+                                Label(String(localized: "addBookmark.ocr.completed"), systemImage: "checkmark.circle.fill")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.green)
+                                
+                                Text(String(localized: "addBookmark.ocr.completedHint"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    // Aksiyonlar
+                    HStack(spacing: 16) {
+                        Button {
+                            showingOCRImageCrop = true
+                        } label: {
+                            Label(String(localized: "addBookmark.ocr.recrop"), systemImage: "crop")
+                                .font(.subheadline)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(role: .destructive) {
+                            withAnimation {
+                                ocrImage = nil
+                            }
+                        } label: {
+                            Label(String(localized: "addBookmark.ocr.remove"), systemImage: "trash")
+                                .font(.subheadline)
                         }
                     }
-                    .font(.subheadline)
                 }
+                .padding(.vertical, 4)
             } else {
-                Button(action: { showingImagePicker = true }) {
-                    Label(String(localized: "addBookmark.image.add"), systemImage: "photo.badge.plus")
-                        .frame(maxWidth: .infinity)
+                // OCR ekleme butonu
+                Button {
+                    showingOCRImagePicker = true
+                } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "doc.text.viewfinder")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                LinearGradient(
+                                    colors: [.orange, .red],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(String(localized: "addBookmark.ocr.add"))
+                                .font(.body)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.primary)
+                            
+                            Text(String(localized: "addBookmark.ocr.hint"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.orange)
+                    }
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Label(String(localized: "addBookmark.section.ocr"), systemImage: "text.viewfinder")
+        } footer: {
+            if ocrImage == nil {
+                Text(String(localized: "addBookmark.ocr.footer"))
             }
         }
     }
@@ -565,7 +817,6 @@ struct AddBookmarkView: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        // Back button - Ana Sayfa'ya döner
         ToolbarItem(placement: .topBarLeading) {
             Button {
                 onSaved?()
@@ -586,10 +837,11 @@ struct AddBookmarkView: View {
     // MARK: - Actions
     
     private func saveBookmark() {
-        let manualImageData = selectedImage?.jpegData(compressionQuality: 0.8)
-        let finalImageData = viewModel.tweetImagesData.first ?? manualImageData
+        // Cover image öncelikli, yoksa tweet/platform görseli
+        let coverImageData = coverImage?.jpegData(compressionQuality: 0.8)
+        let finalImageData = coverImageData ?? viewModel.tweetImagesData.first
         
-       Task {
+        Task {
             if await viewModel.saveBookmark(withImage: finalImageData, extractedText: viewModel.note) {
                 onSaved?()
                 dismiss()
@@ -635,8 +887,214 @@ struct AddBookmarkView: View {
         }
     }
     
+    private func clearAllContent() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            viewModel.clearAll()
+        }
+    }
+    
     enum Field: Hashable {
         case title, url, note, tags
+    }
+}
+
+// MARK: - Selection Picker Item
+
+struct SelectionPickerItem: Identifiable {
+    let id: String?
+    var icon: String?
+    var emoji: String?
+    let iconColor: Color
+    let title: String
+    let subtitle: String?
+    
+    init(id: String?, icon: String, iconColor: Color, title: String, subtitle: String?) {
+        self.id = id
+        self.icon = icon
+        self.emoji = nil
+        self.iconColor = iconColor
+        self.title = title
+        self.subtitle = subtitle
+    }
+    
+    init(id: String?, emoji: String, iconColor: Color, title: String, subtitle: String?) {
+        self.id = id
+        self.icon = nil
+        self.emoji = emoji
+        self.iconColor = iconColor
+        self.title = title
+        self.subtitle = subtitle
+    }
+}
+
+// MARK: - Selection Picker Sheet (Ortak Tasarım)
+
+struct SelectionPickerSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    let title: String
+    let items: [SelectionPickerItem]
+    let selectedId: String?
+    let onSelect: (String?) -> Void
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(items) { item in
+                    Button {
+                        onSelect(item.id)
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 14) {
+                            // İkon veya Emoji
+                            Group {
+                                if let icon = item.icon {
+                                    Image(systemName: icon)
+                                        .font(.body)
+                                        .foregroundStyle(.white)
+                                } else if let emoji = item.emoji {
+                                    Text(emoji)
+                                        .font(.title3)
+                                }
+                            }
+                            .frame(width: 40, height: 40)
+                            .background(item.icon != nil ? item.iconColor : item.iconColor.opacity(0.15))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            
+                            // Başlık ve Alt başlık
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.title)
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(.primary)
+                                
+                                if let subtitle = item.subtitle {
+                                    Text(subtitle)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            // Seçim işareti
+                            if selectedId == item.id {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(String(localized: "common.done")) {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Selection Row Button (Tekrar Kullanılabilir)
+
+struct SelectionRowButton: View {
+    var icon: String?
+    var emoji: String?
+    let iconColor: Color
+    let label: String
+    let value: String
+    let action: () -> Void
+    
+    init(icon: String, iconColor: Color, label: String, value: String, action: @escaping () -> Void) {
+        self.icon = icon
+        self.emoji = nil
+        self.iconColor = iconColor
+        self.label = label
+        self.value = value
+        self.action = action
+    }
+    
+    init(emoji: String, iconColor: Color, label: String, value: String, action: @escaping () -> Void) {
+        self.icon = nil
+        self.emoji = emoji
+        self.iconColor = iconColor
+        self.label = label
+        self.value = value
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                // İkon
+                Group {
+                    if let icon = icon {
+                        Image(systemName: icon)
+                            .font(.body)
+                            .foregroundStyle(.white)
+                            .frame(width: 32, height: 32)
+                            .background(iconColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } else if let emoji = emoji {
+                        Text(emoji)
+                            .font(.title3)
+                            .frame(width: 32, height: 32)
+                            .background(iconColor.opacity(0.15))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                
+                // Label ve Değer
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(label)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    Text(value)
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.primary)
+                }
+                
+                Spacer()
+                
+                // Chevron
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - BookmarkSource Extension
+
+extension BookmarkSource {
+    var sourceDescription: String? {
+        switch self {
+        case .twitter: return String(localized: "source.twitter.description")
+        case .reddit: return String(localized: "source.reddit.description")
+        case .linkedin: return String(localized: "source.linkedin.description")
+        case .medium: return String(localized: "source.medium.description")
+        case .youtube: return String(localized: "source.youtube.description")
+        case .instagram: return String(localized: "source.instagram.description")
+        case .github: return String(localized: "source.github.description")
+        case .article: return String(localized: "source.article.description")
+        case .other: return nil
+        }
     }
 }
 

@@ -5,7 +5,6 @@
 //  Created by Ünal Köseoğlu on 14.12.2025.
 //
 
-
 import SwiftUI
 
 /// Kategori yönetim ekranı
@@ -19,9 +18,6 @@ struct CategoriesManagementView: View {
     @State private var editingCategory: Category?
     @State private var showingDeleteAlert = false
     @State private var categoryToDelete: Category?
-    @State private var useCustomColor = false
-    @State private var customColor: Color = .blue
-
     
     // MARK: - Body
     
@@ -103,26 +99,24 @@ struct CategoriesManagementView: View {
         }
         .sheet(isPresented: $showingAddCategory) {
             AddCategoryView { category in
-                Task  {
-                    
-                   await viewModel.addCategory(category)
+                Task {
+                    await viewModel.addCategory(category)
                 }
             }
         }
         .sheet(item: $editingCategory) { category in
             EditCategoryView(category: category) { updatedCategory in
-                Task{
-                  await  viewModel.updateCategory(updatedCategory)
+                Task {
+                    await viewModel.updateCategory(updatedCategory)
                 }
-               
             }
         }
         .alert("category.delete.title", isPresented: $showingDeleteAlert) {
             Button("common.cancel", role: .cancel) {}
             Button("common.delete", role: .destructive) {
                 if let category = categoryToDelete {
-                    Task{
-                      await  viewModel.deleteCategory(category)
+                    Task {
+                        await viewModel.deleteCategory(category)
                     }
                 }
             }
@@ -160,11 +154,10 @@ struct CategoriesManagementView: View {
         var categories = viewModel.categories
         categories.move(fromOffsets: source, toOffset: destination)
         
-        // Sıralamayı güncelle
         for (index, category) in categories.enumerated() {
             category.order = index
-            Task{
-              await  viewModel.updateCategory(category)
+            Task {
+                 viewModel.updateCategory(category)
             }
         }
         
@@ -181,7 +174,6 @@ struct CategoryManagementRow: View {
     
     var body: some View {
         HStack(spacing: 14) {
-            // İkon
             Image(systemName: category.icon)
                 .font(.title3)
                 .foregroundStyle(.white)
@@ -189,7 +181,6 @@ struct CategoryManagementRow: View {
                 .background(category.color)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
-            // Bilgiler
             VStack(alignment: .leading, spacing: 2) {
                 Text(category.name)
                     .font(.body)
@@ -202,7 +193,6 @@ struct CategoryManagementRow: View {
             
             Spacer()
             
-            // Düzenle butonu
             Button(action: onEdit) {
                 Image(systemName: "chevron.right")
                     .font(.caption)
@@ -233,22 +223,18 @@ struct AddCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // İsim
                 Section("category.field.name") {
                     TextField("category.field.name_placeholder", text: $name)
                 }
                 
-                // İkon seçimi
                 Section("category.field.icon") {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
-                // Renk seçimi
                 Section("category.field.color") {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
-                // Önizleme
                 Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
@@ -275,17 +261,13 @@ struct AddCategoryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("common.cancel") {
-                        dismiss()
-                    }
+                    Button("common.cancel") { dismiss() }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.save") {
-                        saveCategory()
-                    }
-                    .fontWeight(.semibold)
-                    .disabled(!isValid)
+                    Button("common.save") { saveCategory() }
+                        .fontWeight(.semibold)
+                        .disabled(!isValid)
                 }
             }
         }
@@ -329,22 +311,18 @@ struct EditCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // İsim
                 Section("category.field.name") {
                     TextField("category.field.name", text: $name)
                 }
                 
-                // İkon seçimi
                 Section("category.field.icon") {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
-                // Renk seçimi
                 Section("category.field.color") {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
-                // Önizleme
                 Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
@@ -371,17 +349,13 @@ struct EditCategoryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("common.cancel") {
-                        dismiss()
-                    }
+                    Button("common.cancel") { dismiss() }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.save") {
-                        saveChanges()
-                    }
-                    .fontWeight(.semibold)
-                    .disabled(!isValid)
+                    Button("common.save") { saveChanges() }
+                        .fontWeight(.semibold)
+                        .disabled(!isValid)
                 }
             }
         }
@@ -395,91 +369,191 @@ struct EditCategoryView: View {
         dismiss()
     }
 }
-// IconPickerGrid ve ColorPickerGrid yapıları statik metin içermediği için (sadece sistem ikonları ve renkler) oldukları gibi bırakılmıştır.
 
-// MARK: - Icon Picker Grid
-struct CategoryDesign {
-    static let icons: [String] = [
-        // Temel & Klasör
-        "folder.fill", "folder.badge.plus", "folder.badge.gear", "archivebox.fill", "tray.full.fill",
-        // İş & Eğitim
-        "briefcase.fill", "building.2.fill", "chart.bar.fill", "graduationcap.fill", "pencil.and.outline",
-        "doc.text.fill", "signature", "calendar", "book.fill", "books.vertical.fill", "newspaper.fill",
-        // Teknoloji
-        "laptopcomputer", "desktopcomputer", "iphone", "ipad", "applewatch", "terminal.fill", "cpu",
-        // Sosyal & İletişim
-        "person.2.fill", "bubble.left.and.bubble.right.fill", "network", "envelope.fill", "phone.fill",
-        // Medya & Eğlence
-        "play.circle.fill", "music.note", "gamecontroller.fill", "camera.fill", "tv.fill", "headphones",
-        // Yaşam & Hobi
-        "star.fill", "heart.fill", "bookmark.fill", "lightbulb.fill", "leaf.fill", "cart.fill",
-        "airplane", "house.fill", "car.fill", "bicycle", "tram.fill", "map.fill",
-        // Sağlık & Spor
-        "cross.case.fill", "pills.fill", "figure.run", "dumbbell.fill", "fork.knife", "cup.and.saucer.fill",
-        // Finans & Araçlar
-        "creditcard.fill", "banknote.fill", "hammer.fill", "wrench.and.screwdriver.fill", "bolt.fill", "key.fill"
-    ]
-    
-    static let colors: [Color] = [
-        .blue, .purple, .pink, .red, .orange, .yellow,
-        .green, .mint, .teal, .cyan, .indigo, .brown,
-        .gray, .black, .accentColor,
-       
-    ]
-}
-
-// MARK: - Modern Icon Picker Grid
+// MARK: - Icon Picker Grid (3 satır + daha fazla butonu)
 
 struct IconPickerGrid: View {
     @Binding var selectedIcon: String
+    @State private var showAllIcons = false
+    
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
     
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 15) {
-            ForEach(CategoryDesign.icons, id: \.self) { icon in
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        selectedIcon = icon
+        VStack(spacing: 12) {
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(CategoryDesign.quickIcons, id: \.self) { icon in
+                    IconButton(icon: icon, isSelected: selectedIcon == icon) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            selectedIcon = icon
+                        }
                     }
-                } label: {
-                    Image(systemName: icon)
-                        .font(.title3)
-                        .frame(width: 46, height: 46)
-                        .background(selectedIcon == icon ? Color.blue.opacity(0.15) : Color(.systemGray6))
-                        .foregroundStyle(selectedIcon == icon ? .blue : .secondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(selectedIcon == icon ? Color.blue : Color.clear, lineWidth: 2)
-                        )
-                        .scaleEffect(selectedIcon == icon ? 1.1 : 1.0)
                 }
-                .buttonStyle(.plain)
             }
+            
+            Button {
+                showAllIcons = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.body)
+                    Text("category.icons.show_more")
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.blue)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .buttonStyle(.plain)
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
+        .sheet(isPresented: $showAllIcons) {
+            AllIconsPickerView(selectedIcon: $selectedIcon)
+        }
     }
 }
 
-// MARK: - Modern Color Picker Grid
+// MARK: - Icon Button
+
+struct IconButton: View {
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.title3)
+                .frame(width: 46, height: 46)
+                .background(isSelected ? Color.blue.opacity(0.15) : Color(.systemGray6))
+                .foregroundStyle(isSelected ? .blue : .secondary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                )
+                .scaleEffect(isSelected ? 1.08 : 1.0)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - All Icons Picker View
+
+struct AllIconsPickerView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedIcon: String
+    @State private var searchText = ""
+    
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 6)
+    
+    private var filteredCategories: [IconCategory] {
+        if searchText.isEmpty {
+            return CategoryDesign.allIcons
+        }
+        
+        return CategoryDesign.allIcons.compactMap { category in
+            let filteredIcons = category.icons.filter { $0.localizedCaseInsensitiveContains(searchText) }
+            if filteredIcons.isEmpty { return nil }
+            return IconCategory(name: category.name, icons: filteredIcons)
+        }
+    }
+    
+    private var totalIconCount: Int {
+        CategoryDesign.allIcons.reduce(0) { $0 + $1.icons.count }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 24) {
+                    if searchText.isEmpty {
+                        Text("category.icons.total_count \(totalIconCount)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
+                    }
+                    
+                    ForEach(filteredCategories) { category in
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text(category.name)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                
+                                Text("(\(category.icons.count))")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.horizontal)
+                            
+                            LazyVGrid(columns: columns, spacing: 10) {
+                                ForEach(category.icons, id: \.self) { icon in
+                                    Button {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                            selectedIcon = icon
+                                        }
+                                        dismiss()
+                                    } label: {
+                                        Image(systemName: icon)
+                                            .font(.title2)
+                                            .frame(width: 50, height: 50)
+                                            .background(selectedIcon == icon ? Color.blue.opacity(0.15) : Color(.systemGray4))
+                                            .foregroundStyle(selectedIcon == icon ? .blue : .secondary)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(selectedIcon == icon ? Color.blue : Color.clear, lineWidth: 2)
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            
+                            .padding(.horizontal)
+
+                        }
+                    }
+                }
+                
+                .padding(.vertical)
+            }
+            .navigationTitle("category.icons.all_title")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "category.icons.search")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("common.done") { dismiss() }
+                        .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Color Picker Grid
 
 struct ColorPickerGrid: View {
     @Binding var selectedColor: Color
-    @State private var showCustomColorPicker = false
-
+    
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 6)
     
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 18) {
-            ForEach(CategoryDesign.colors, id: \.self) { color in
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedColor = color
-                    }
-                } label: {
-                    ZStack {
-                        if color == CategoryDesign.colors.last{
-                            ColorPicker("category.color.picker", selection: $selectedColor, supportsOpacity: false)
-                                .labelsHidden().controlSize(.extraLarge).scaleEffect(1.2)
-                        }else{
+        LazyVGrid(columns: columns, spacing: 18) {
+            ForEach(Array(CategoryDesign.colors.enumerated()), id: \.offset) { index, color in
+                if index == CategoryDesign.colors.count - 1 {
+                    ColorPicker("", selection: $selectedColor, supportsOpacity: false)
+                        .labelsHidden()
+                        .scaleEffect(1.3)
+                        .frame(width: 34, height: 34)
+                } else {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedColor = color
+                        }
+                    } label: {
+                        ZStack {
                             Circle()
                                 .fill(color)
                                 .frame(width: 34, height: 34)
@@ -493,70 +567,20 @@ struct ColorPickerGrid: View {
                                 Image(systemName: "checkmark")
                                     .font(.caption2.bold())
                                     .foregroundStyle(isDarkColor(color) ? .white : .black)
-                                
                             }
                         }
-                        
-                        
                     }
-                    
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
-            
         }
         .padding(.vertical, 10)
     }
     
-    // Kontrast kontrolü (Koyu renklerde checkmark beyaz, açıklarda siyah olsun)
     private func isDarkColor(_ color: Color) -> Bool {
-        // Basit bir yaklaşım, daha kompleks lüminans kontrolü de yapılabilir
-        return color == .black || color == .indigo || color == .blue || color == .brown
+        return color == .black || color == .indigo || color == .blue || color == .brown || color == .purple
     }
 }
-
-// MARK: - Preview
-
-struct CustomColorPickerSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var selectedColor: Color
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-
-                ColorPicker(
-                    "Renk Seç",
-                    selection: $selectedColor,
-                    supportsOpacity: false
-                )
-                .labelsHidden()
-                .padding()
-
-                // Önizleme
-                Circle()
-                    .fill(selectedColor)
-                    .frame(width: 64, height: 64)
-                    .overlay(
-                        Circle().stroke(Color.white, lineWidth: 2)
-                    )
-
-                Spacer()
-            }
-            .navigationTitle("Özel Renk")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Bitti") {
-                        dismiss()
-                    }
-                    .fontWeight(.semibold)
-                }
-            }
-        }
-    }
-}
-
 
 // MARK: - Preview
 
@@ -573,4 +597,8 @@ struct CustomColorPickerSheet: View {
 
 #Preview("Add Category") {
     AddCategoryView { _ in }
+}
+
+#Preview("All Icons") {
+    AllIconsPickerView(selectedIcon: .constant("folder.fill"))
 }

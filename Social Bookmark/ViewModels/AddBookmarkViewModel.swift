@@ -199,6 +199,36 @@ final class AddBookmarkViewModel {
         }
     }
     
+    // MARK: - Clear All
+    func clearAll() {
+        // URL'yi temizle
+        url = ""
+        
+        // Başlık ve notları temizle
+        title = ""
+        note = ""
+        
+        // Fetch edilen içerikleri temizle
+        fetchedTweet = nil
+        fetchedRedditPost = nil
+        fetchedLinkedInContent = nil
+        fetchedMetadata = nil
+        
+        // Görsel verilerini temizle
+        tweetImagesData = []
+        redditImagesData = []
+        linkedInImageData = nil
+        
+        // Kaynak seçimini sıfırla
+        selectedSource = .other
+        
+        // Tags'i temizle
+        tagsInput = ""
+        
+        // Validation errors'ı temizle
+        validationErrors = []
+    }
+    
     // MARK: - Dependencies
     
     private let repository: BookmarkRepositoryProtocol

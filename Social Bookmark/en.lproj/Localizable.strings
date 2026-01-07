@@ -3,21 +3,21 @@
    English Localization - Cleaned & Optimized Version
 */
 
+
 // MARK: - Common
 "common.ok" = "OK";
+"common.offline" = "Offline";
 "common.cancel" = "Cancel";
 "common.done" = "Done";
 "common.delete" = "Delete";
 "common.edit" = "Edit";
 "common.save" = "Save";
 "common.copy" = "Copy";
-"common.add" = "Add";
 "common.go_back" = "Go Back";
 "common.error" = "Error";
 "common.loading" = "Loading...";
 "common.success" = "Success";
 "common.retry" = "Retry";
-"common.try_again" = "Try Again";
 "common.all" = "All";
 "common.today" = "Today";
 "common.this_week" = "This Week";
@@ -223,38 +223,6 @@
 "addBookmark.action.cancel" = "Cancel";
 "addBookmark.saving" = "Saving...";
 
-// MARK: - Edit Bookmark
-"editBookmark.title" = "Edit";
-"editBookmark.section.basic" = "Basic Info";
-"editBookmark.section.images" = "Images";
-"editBookmark.section.category" = "Category";
-"editBookmark.section.details" = "Details";
-"editBookmark.section.tags" = "Tags";
-
-"editBookmark.field.title" = "Title";
-"editBookmark.field.url" = "URL (optional)";
-"editBookmark.field.notes" = "Notes (optional)";
-"editBookmark.field.tags" = "Tags (comma separated)";
-
-"editBookmark.addImage" = "Add Image";
-"editBookmark.maxImages" = "You can add up to 4 images";
-"editBookmark.imageCount %lld" = "%lld/4 images";
-"editBookmark.processingImages" = "Processing images...";
-"editBookmark.tapToEdit" = "Tap image to edit";
-"editBookmark.newBadge" = "NEW";
-
-"editBookmark.imageOptions" = "Image Options";
-"editBookmark.viewFullScreen" = "View Full Screen";
-
-"editBookmark.category" = "Category";
-"editBookmark.uncategorized" = "Uncategorized";
-"editBookmark.noCategories" = "No categories defined";
-"editBookmark.createCategoryHint" = "You can create a new category from the home screen";
-
-"editBookmark.source" = "Source";
-"editBookmark.tagsHint" = "Example: Swift, iOS, Tutorial";
-"editBookmark.saveError" = "An error occurred while saving";
-
 // MARK: - Bookmark Detail
 "bookmarkDetail.title" = "Details";
 "bookmarkDetail.section.content" = "Content";
@@ -391,27 +359,6 @@
 "ocr.noText" = "No text found";
 "ocr.result" = "OCR Result";
 
-// MARK: - Migration Process
-"migration.state.idle" = "Ready";
-"migration.state.preparing" = "Preparing...";
-"migration.state.categories %lld %lld" = "Migrating categories (%lld/%lld)";
-"migration.state.bookmarks %lld %lld" = "Migrating bookmarks (%lld/%lld)";
-"migration.state.images %lld %lld" = "Uploading images (%lld/%lld)";
-"migration.state.cleaning" = "Cleaning up...";
-"migration.state.completed" = "Completed!";
-"migration.state.failed %@" = "Error: %@";
-
-"migration.error.not_anonymous" = "Only anonymous accounts can be migrated";
-"migration.error.no_new_account" = "New account not found";
-"migration.error.same_account" = "Cannot migrate to the same account";
-"migration.error.in_progress" = "Migration already in progress";
-"migration.error.no_data" = "No data to migrate";
-"migration.error.category_failed %@" = "Category migration failed: %@";
-"migration.error.bookmark_failed %@" = "Bookmark migration failed: %@";
-"migration.error.image_failed %@" = "Image migration failed: %@";
-"migration.error.cleanup_failed %@" = "Cleanup failed: %@";
-"migration.error.network" = "Internet connection required";
-
 // MARK: - Settings & Account
 "settings.title" = "Settings";
 "settings.section.general" = "General";
@@ -426,17 +373,13 @@
 "settings.account" = "Account";
 "settings.account_info" = "Account Information";
 "settings.account_actions" = "Account Actions";
-"settings.secure_your_data" = "Secure Your Data";
 "settings.link_account" = "Link Account";
 "settings.link_account_title" = "Link Your Account";
 "settings.link_account_subtitle" = "Sign in with Apple to secure your bookmarks.";
-"settings.link_description" = "Sign in with your Apple account to backup your data to the cloud and sync across all your devices.";
 "settings.link_account_footer" = "Link your Apple account to secure your data and sync across all your devices.";
-"settings.link_keeps_data" = "All your existing bookmarks and categories will be transferred to your Apple account.";
-
-"settings.benefit_secure" = "End-to-end encryption security";
-"settings.benefit_sync" = "Sync across all devices";
-"settings.benefit_restore" = "Restore your data anytime";
+"settings.link_keeps_data" = "Your existing data will be preserved.";
+"settings.benefit_secure" = "Your data stays safe";
+"settings.benefit_sync" = "Automatic sync";
 "settings.benefit_devices" = "Access on all devices";
 
 "settings.anonymous_warning_title" = "Your Account is Not Secure";
@@ -444,22 +387,9 @@
 "settings.secure_your_account" = "Secure Your Account";
 "settings.link_with_apple" = "Link with Apple";
 
-"settings.migration_warning_title" = "Important";
-"settings.migration_warning_body" = "This action cannot be undone. Your data will be permanently linked to your Apple account.";
-"settings.migrating_data" = "Migrating Data";
-"settings.do_not_close" = "Please don't close the app";
-"settings.migration_complete" = "Migration Complete!";
-"settings.migration_complete_desc" = "All your data has been successfully transferred to your Apple account.";
-"settings.categories_migrated" = "Categories";
-"settings.bookmarks_migrated" = "Bookmarks";
-"settings.images_migrated" = "Images";
-"settings.migration_failed" = "Migration Failed";
-
 "settings.sign_out" = "Sign Out";
-"settings.signout_warning_title" = "Sign Out?";
-"settings.signout_warning_anonymous" = "All data in your anonymous account will be deleted and cannot be recovered.";
-"settings.signout_warning_authenticated" = "Data on this device will be cleared. Your data will be restored when you sign in again.";
-"settings.signout_confirm" = "Sign Out";
+"settings.sign_out_title" = "Sign Out";
+"settings.sign_out_message" = "Are you sure you want to sign out?";
 
 "settings.delete_account" = "Delete Account";
 "settings.delete_account_title" = "Delete Account";
@@ -541,3 +471,265 @@
 "widget.quick_stats" = "Quick Stats";
 "widget.popular_tags" = "Popular Tags";
 "widget.read_count %lld %lld" = "%lld/%lld read";
+
+
+// MARK: - Migration States
+"migration.state.idle" = "Ready";
+"migration.state.preparing" = "Preparing...";
+"migration.state.categories %lld %lld" = "Migrating categories (%lld/%lld)";
+"migration.state.bookmarks %lld %lld" = "Migrating bookmarks (%lld/%lld)";
+"migration.state.images %lld %lld" = "Uploading images (%lld/%lld)";
+"migration.state.cleaning" = "Cleaning up...";
+"migration.state.completed" = "Completed!";
+"migration.state.failed %@" = "Error: %@";
+
+// MARK: - Migration Errors
+"migration.error.not_anonymous" = "Only anonymous accounts can be migrated";
+"migration.error.no_new_account" = "New account not found";
+"migration.error.same_account" = "Cannot migrate to the same account";
+"migration.error.in_progress" = "Migration already in progress";
+"migration.error.no_data" = "No data to migrate";
+"migration.error.category_failed %@" = "Category migration failed: %@";
+"migration.error.bookmark_failed %@" = "Bookmark migration failed: %@";
+"migration.error.image_failed %@" = "Image migration failed: %@";
+"migration.error.cleanup_failed %@" = "Cleanup failed: %@";
+"migration.error.network" = "Internet connection required";
+
+// MARK: - Account Settings
+"settings.secure_your_data" = "Secure Your Data";
+"settings.link_description" = "Sign in with your Apple account to backup your data to the cloud and sync across all your devices.";
+"settings.benefit_sync" = "Sync across all devices";
+"settings.benefit_restore" = "Restore your data anytime";
+"settings.benefit_secure" = "End-to-end encryption security";
+"settings.link_keeps_data" = "All your existing bookmarks and categories will be transferred to your Apple account.";
+
+"settings.migration_warning_title" = "Important";
+"settings.migration_warning_body" = "This action cannot be undone. Your data will be permanently linked to your Apple account.";
+
+"settings.migrating_data" = "Migrating Data";
+"settings.do_not_close" = "Please don't close the app";
+
+"settings.migration_complete" = "Migration Complete!";
+"settings.migration_complete_desc" = "All your data has been successfully transferred to your Apple account.";
+
+"settings.categories_migrated" = "Categories";
+"settings.bookmarks_migrated" = "Bookmarks";
+"settings.images_migrated" = "Images";
+
+"settings.migration_failed" = "Migration Failed";
+
+// MARK: - Sign Out
+"settings.signout_warning_title" = "Sign Out?";
+"settings.signout_warning_anonymous" = "All data in your anonymous account will be deleted and cannot be recovered.";
+"settings.signout_warning_authenticated" = "Data on this device will be cleared. Your data will be restored when you sign in again.";
+"settings.signout_confirm" = "Sign Out";
+
+// MARK: - Common
+"common.try_again" = "Try Again";
+"common.done" = "Done";
+
+
+/*
+  EditBookmark Localization - English
+  Add to existing Localizable.strings file
+*/
+
+// MARK: - Edit Bookmark Screen
+"editBookmark.title" = "Edit";
+"editBookmark.section.basic" = "Basic Info";
+"editBookmark.section.images" = "Images";
+"editBookmark.section.category" = "Category";
+"editBookmark.section.details" = "Details";
+"editBookmark.section.tags" = "Tags";
+
+"editBookmark.field.title" = "Title";
+"editBookmark.field.url" = "URL (optional)";
+"editBookmark.field.notes" = "Notes (optional)";
+"editBookmark.field.tags" = "Tags (comma separated)";
+
+"editBookmark.addImage" = "Add Image";
+"editBookmark.maxImages" = "You can add up to 4 images";
+"editBookmark.imageCount %lld" = "%lld/4 images";
+"editBookmark.processingImages" = "Processing images...";
+"editBookmark.tapToEdit" = "Tap image to edit";
+"editBookmark.newBadge" = "NEW";
+
+"editBookmark.imageOptions" = "Image Options";
+"editBookmark.viewFullScreen" = "View Full Screen";
+
+"editBookmark.category" = "Category";
+"editBookmark.uncategorized" = "Uncategorized";
+"editBookmark.noCategories" = "No categories defined";
+"editBookmark.createCategoryHint" = "You can create a new category from the home screen";
+
+"editBookmark.source" = "Source";
+"editBookmark.tagsHint" = "Example: Swift, iOS, Tutorial";
+
+"editBookmark.saveError" = "An error occurred while saving";
+
+// MARK: - Common (if not already present)
+"common.add" = "Add";
+
+// MARK: - UI Static Additions (2025-12-25)
+"filters.title" = "Filters";
+"preview.title" = "Preview";
+"toolbar.title" = "Toolbar";
+"image.preview" = "Image Preview";
+"button.close" = "Close";
+"button.confirm" = "Confirm";
+"button.cancel" = "Cancel";
+"button.save" = "Save";
+"button.edit" = "Edit";
+"button.delete" = "Delete";
+"button.copy" = "Copy";
+
+// MARK: - Category Icons
+
+// Icon Picker
+"category.icons.show_more" = "More Icons";
+"category.icons.all_title" = "All Icons";
+"category.icons.search" = "Search icons...";
+"category.icons.total_count %lld" = "Total %lld icons";
+
+// Icon Categories
+"category.icons.general" = "General";
+"category.icons.books" = "Books & Reading";
+"category.icons.communication" = "Communication";
+"category.icons.people" = "People";
+"category.icons.sports" = "Sports & Fitness";
+"category.icons.nature" = "Nature & Weather";
+"category.icons.objects" = "Objects";
+"category.icons.devices" = "Devices";
+"category.icons.transport" = "Transport";
+"category.icons.places" = "Places";
+"category.icons.work" = "Work & Office";
+"category.icons.health" = "Health";
+"category.icons.food" = "Food & Drink";
+"category.icons.entertainment" = "Entertainment";
+"category.icons.education" = "Education";
+"category.icons.tech" = "Technology";
+"category.icons.symbols" = "Symbols & Shapes";
+"category.icons.security" = "Security";
+"category.icons.media" = "Media Controls";
+"category.icons.badges" = "Flags & Badges";
+
+// MARK: - Add Bookmark - New Keys
+// Clear All
+"addBookmark.clearAll" = "Clear All";
+
+// Category Picker
+"addBookmark.category.no_category_hint" = "Save without category";
+
+// Cover Image Section
+"addBookmark.section.coverImage" = "Cover Image";
+"addBookmark.coverImage.add" = "Add Cover Image";
+"addBookmark.coverImage.hint" = "Choose a custom image for the bookmark";
+"addBookmark.coverImage.footer" = "Add a custom cover image that will appear in the list";
+"addBookmark.coverImage.edit" = "Crop";
+"addBookmark.coverImage.change" = "Change";
+"addBookmark.coverImage.remove" = "Remove";
+
+// OCR Section
+"addBookmark.section.ocr" = "Text Extraction (OCR)";
+"addBookmark.ocr.add" = "Extract Text from Image";
+"addBookmark.ocr.hint" = "Add text from photo to notes";
+"addBookmark.ocr.footer" = "Extract text from an image and automatically add it to notes";
+"addBookmark.ocr.processing" = "Extracting text...";
+"addBookmark.ocr.completed" = "Text extracted";
+"addBookmark.ocr.completedHint" = "Text added to notes";
+"addBookmark.ocr.recrop" = "Recrop";
+"addBookmark.ocr.remove" = "Remove";
+
+// Source Descriptions
+"source.twitter.description" = "Twitter/X posts";
+"source.reddit.description" = "Reddit posts & comments";
+"source.linkedin.description" = "LinkedIn posts";
+"source.medium.description" = "Medium articles";
+"source.youtube.description" = "YouTube videos";
+"source.github.description" = "GitHub repositories";
+"source.news.description" = "News articles";
+"source.blog.description" = "Blog posts";
+"source.documentation.description" = "Technical documentation";
+
+// MARK: - Add Bookmark - New Keys
+
+// Category Picker
+"addBookmark.category.no_category_hint" = "Save without category";
+
+// Cover Image Section
+"addBookmark.section.coverImage" = "Cover Image";
+"addBookmark.coverImage.add" = "Add Cover Image";
+"addBookmark.coverImage.hint" = "Choose a custom image for the bookmark";
+"addBookmark.coverImage.footer" = "Add a custom cover image that will appear in the list";
+"addBookmark.coverImage.edit" = "Crop";
+"addBookmark.coverImage.change" = "Change";
+"addBookmark.coverImage.remove" = "Remove";
+
+// OCR Section
+"addBookmark.section.ocr" = "Text Extraction (OCR)";
+"addBookmark.ocr.add" = "Extract Text from Image";
+"addBookmark.ocr.hint" = "Add text from photo to notes";
+"addBookmark.ocr.footer" = "Extract text from an image and automatically add it to notes";
+"addBookmark.ocr.processing" = "Extracting text...";
+"addBookmark.ocr.completed" = "Text extracted";
+"addBookmark.ocr.completedHint" = "Text added to notes";
+"addBookmark.ocr.recrop" = "Recrop";
+"addBookmark.ocr.remove" = "Remove";
+
+// Source Descriptions
+"source.twitter.description" = "Twitter/X posts";
+"source.reddit.description" = "Reddit posts & comments";
+"source.linkedin.description" = "LinkedIn posts";
+"source.medium.description" = "Medium articles";
+"source.youtube.description" = "YouTube videos";
+"source.instagram.description" = "Instagram posts";
+"source.github.description" = "GitHub repositories";
+"source.article.description" = "Articles and blog posts";
+
+/* Encryption Key Backup View */
+
+/* Status Section */
+"encryption.status.title" = "Status";
+"encryption.status.label" = "Encryption Status";
+"encryption.status.active" = "Active";
+"encryption.status.inactive" = "Inactive";
+"encryption.status.footer" = "Your data is encrypted on your device. Only the encrypted version is stored on the server.";
+
+/* Export Section */
+"encryption.export.title" = "Backup";
+"encryption.export.button" = "Export Key";
+"encryption.export.key_label" = "Your Encryption Key:";
+"encryption.export.copy_button" = "Copy";
+"encryption.export.footer" = "⚠️ Keep this key in a safe place. If you lose it, you won't be able to access your data.";
+
+/* Import Section */
+"encryption.import.title" = "Restore";
+"encryption.import.placeholder" = "Paste key...";
+"encryption.import.button" = "Import Key";
+
+/* Danger Zone */
+"encryption.danger.title" = "Danger Zone";
+"encryption.danger.reset_button" = "Reset Key";
+"encryption.danger.footer" = "⚠️ If you reset the key, all your encrypted data will become unreadable!";
+
+/* Alerts */
+"encryption.alert.info" = "Info";
+"encryption.alert.ok" = "OK";
+"encryption.alert.reset_title" = "Reset Key";
+"encryption.alert.reset_message" = "This action cannot be undone. All your encrypted data will become unreadable.";
+"encryption.alert.cancel" = "Cancel";
+"encryption.alert.reset_confirm" = "Reset";
+"encryption.alert.import_success" = "Key imported successfully";
+
+/* Navigation */
+"encryption.navigation_title" = "Encryption";
+
+/* Errors - from EncryptionError enum */
+"encryption.error.key_not_found" = "Encryption key not found";
+"encryption.error.invalid_key_format" = "Invalid key format";
+"encryption.error.encoding_failed" = "Data could not be encoded";
+"encryption.error.decoding_failed" = "Data could not be decoded";
+"encryption.error.encryption_failed" = "Encryption failed";
+"encryption.error.decryption_failed" = "Decryption failed";
+"encryption.error.invalid_ciphertext" = "Invalid encrypted data";
+"encryption.error.keychain_error" = "Keychain error: %d";

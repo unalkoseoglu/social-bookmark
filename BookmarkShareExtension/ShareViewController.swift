@@ -48,25 +48,36 @@ class ShareViewController: UIViewController {
     private var collectedTexts: [String] = []
     private var collectedImageFileNames: [String] = []
     
-    /// Lazy ModelContainer - sadece ihtiyaç olduğunda oluşturulur
-    private lazy var modelContainer: ModelContainer? = {
-        createModelContainer()
-    }()
+    /// ModelContainer - background'da oluşturulacak
+    private var modelContainer: ModelContainer?
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Hemen loading göster
+        // 1. Hemen loading göster
         showLoadingView()
         
-        // Arka planda işlemleri yap
-        Task(priority: .userInitiated) {
-            await processExtensionInput()
+        // 2. Tüm ağır işleri background'da yap
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self = self else { return }
+            
+            // Paralel olarak: Container oluştur + URL'leri topla
+            async let containerTask = self.createModelContainerAsync()
+            async let payloadTask = self.collectPayloadSafe()
+            
+            let (container, payload) = await (containerTask, payloadTask)
+            
+            await MainActor.run {
+                self.modelContainer = container
+            }
+            
+            // UI'ı göster
+            await self.showUIWithPayload(payload)
         }
         
-        // Global timeout
+        // 3. Global timeout
         DispatchQueue.main.asyncAfter(deadline: .now() + loadingTimeoutSeconds) { [weak self] in
             guard let self = self, self.hostingController == nil else { return }
             print("⚠️ Share Extension timeout")
@@ -76,59 +87,173 @@ class ShareViewController: UIViewController {
     
     // MARK: - Loading View
     
+    private var hintLabel: UILabel?
+    
     private func showLoadingView() {
         view.backgroundColor = .systemBackground
         
-        let loadingView = UIActivityIndicatorView(style: .large)
+        // İlk açılış mı kontrol et
+        let isFirstLaunch = !UserDefaults(suiteName: appGroupId)!.bool(forKey: "extension_launched_before")
+        
+        // İlk açılışta üstte banner göster
+        if isFirstLaunch {
+            showFirstLaunchBanner()
+        }
+        
+        // Container view
+        let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.backgroundColor = .secondarySystemBackground
+        containerView.layer.cornerRadius = 16
+        view.addSubview(containerView)
+        
+        // App icon
+        let iconImageView = UIImageView()
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        iconImageView.image = UIImage(systemName: "bookmark.fill")
+        iconImageView.tintColor = .systemBlue
+        iconImageView.contentMode = .scaleAspectFit
+        containerView.addSubview(iconImageView)
+        
+        // Loading spinner
+        let loadingView = UIActivityIndicatorView(style: .medium)
         loadingView.translatesAutoresizingMaskIntoConstraints = false
         loadingView.startAnimating()
+        loadingView.color = .secondaryLabel
+        containerView.addSubview(loadingView)
         
+        // Label
         let label = UILabel()
-        label.text = "Yükleniyor..."
-        label.textColor = .secondaryLabel
-        label.font = .systemFont(ofSize: 14)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = L("extension.loading")
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = .secondaryLabel
+        label.textAlignment = .center
+        containerView.addSubview(label)
         
-        view.addSubview(loadingView)
-        view.addSubview(label)
+        // Hint label (ilk açılış için)
+        let hint = UILabel()
+        hint.translatesAutoresizingMaskIntoConstraints = false
+        hint.text = L("extension.loading.hint")
+        hint.font = .systemFont(ofSize: 12)
+        hint.textColor = .tertiaryLabel
+        hint.textAlignment = .center
+        hint.numberOfLines = 0
+        hint.alpha = 0
+        containerView.addSubview(hint)
+        self.hintLabel = hint
         
         NSLayoutConstraint.activate([
-            loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.topAnchor.constraint(equalTo: loadingView.bottomAnchor, constant: 12)
-        ])
-    }
-    
-    // MARK: - Process Input
-    
-    private func processExtensionInput() async {
-        do {
-            let payload = try await collectPayload()
+            // Container
+            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            containerView.widthAnchor.constraint(equalToConstant: 200),
+            containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 140),
             
-            // URL varsa SwiftUI view'ı göster
-            if let firstURL = payload.urls.first, let url = URL(string: firstURL) {
-                await MainActor.run {
-                    setupSwiftUIView(with: url, payload: payload)
-                }
-            } else if let text = payload.texts.first, let url = parseURL(from: text) {
-                await MainActor.run {
-                    setupSwiftUIView(with: url, payload: payload)
-                }
-            } else {
-                // URL yok, App Group'a kaydet ve kapat
-                persistToAppGroup(payload: payload)
-                await MainActor.run { close() }
+            // Icon
+            iconImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            iconImageView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            iconImageView.widthAnchor.constraint(equalToConstant: 32),
+            iconImageView.heightAnchor.constraint(equalToConstant: 32),
+            
+            // Spinner
+            loadingView.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 16),
+            loadingView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            
+            // Label
+            label.topAnchor.constraint(equalTo: loadingView.bottomAnchor, constant: 12),
+            label.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            
+            // Hint
+            hint.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 8),
+            hint.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            hint.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            hint.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20)
+        ])
+        
+        // 2 saniye sonra hint göster (ilk açılış yavaşsa)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            UIView.animate(withDuration: 0.3) {
+                self?.hintLabel?.alpha = 1
             }
-        } catch {
-            print("❌ Share Extension error: \(error.localizedDescription)")
-            await MainActor.run { close() }
         }
     }
     
-    // MARK: - Model Container (Lazy)
+    // MARK: - First Launch Banner
     
-    private func createModelContainer() -> ModelContainer? {
+    private func showFirstLaunchBanner() {
+        let bannerView = UIView()
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        bannerView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.95)
+        bannerView.layer.cornerRadius = 12
+        bannerView.layer.shadowColor = UIColor.black.cgColor
+        bannerView.layer.shadowOpacity = 0.15
+        bannerView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        bannerView.layer.shadowRadius = 8
+        bannerView.tag = 888
+        view.addSubview(bannerView)
+        
+        // Icon
+        let iconView = UIImageView()
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        iconView.image = UIImage(systemName: "info.circle.fill")
+        iconView.tintColor = .white
+        iconView.contentMode = .scaleAspectFit
+        bannerView.addSubview(iconView)
+        
+        // Message
+        let messageLabel = UILabel()
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        messageLabel.text = L("extension.firstLaunch.message")
+        messageLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        messageLabel.textColor = .white
+        messageLabel.numberOfLines = 2
+        bannerView.addSubview(messageLabel)
+        
+        NSLayoutConstraint.activate([
+            bannerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            bannerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            bannerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            bannerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            
+            iconView.leadingAnchor.constraint(equalTo: bannerView.leadingAnchor, constant: 12),
+            iconView.centerYAnchor.constraint(equalTo: bannerView.centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 24),
+            iconView.heightAnchor.constraint(equalToConstant: 24),
+            
+            messageLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
+            messageLabel.trailingAnchor.constraint(equalTo: bannerView.trailingAnchor, constant: -12),
+            messageLabel.topAnchor.constraint(equalTo: bannerView.topAnchor, constant: 12),
+            messageLabel.bottomAnchor.constraint(equalTo: bannerView.bottomAnchor, constant: -12)
+        ])
+        
+        // Animate in
+        bannerView.alpha = 0
+        bannerView.transform = CGAffineTransform(translationX: 0, y: -20)
+        
+        UIView.animate(withDuration: 0.4, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            bannerView.alpha = 1
+            bannerView.transform = .identity
+        }
+        
+        // 5 saniye sonra kaybol
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            UIView.animate(withDuration: 0.3) {
+                bannerView.alpha = 0
+                bannerView.transform = CGAffineTransform(translationX: 0, y: -20)
+            } completion: { _ in
+                bannerView.removeFromSuperview()
+            }
+        }
+        
+        // İlk açılış flag'ini kaydet
+        UserDefaults(suiteName: appGroupId)?.set(true, forKey: "extension_launched_before")
+    }
+    
+    // MARK: - Model Container (Async)
+    
+    private func createModelContainerAsync() async -> ModelContainer? {
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else {
             print("❌ App Group container bulunamadı")
             return nil
@@ -139,7 +264,7 @@ class ShareViewController: UIViewController {
         do {
             let configuration = ModelConfiguration(url: storeURL, allowsSave: true)
             let container = try ModelContainer(for: Bookmark.self, Category.self, configurations: configuration)
-            print("✅ ModelContainer created")
+            print("✅ ModelContainer created (background)")
             return container
         } catch {
             print("❌ ModelContainer error: \(error)")
@@ -147,7 +272,44 @@ class ShareViewController: UIViewController {
         }
     }
     
-    // MARK: - Collect Payload
+    // MARK: - Show UI
+    
+    private func showUIWithPayload(_ payload: SharedInboxPayload?) async {
+        guard let payload = payload else {
+            await MainActor.run { close() }
+            return
+        }
+        
+        // URL bul
+        var targetURL: URL?
+        
+        if let firstURL = payload.urls.first, let url = URL(string: firstURL) {
+            targetURL = url
+        } else if let text = payload.texts.first, let url = parseURL(from: text) {
+            targetURL = url
+        }
+        
+        if let url = targetURL {
+            await MainActor.run {
+                setupSwiftUIView(with: url, payload: payload)
+            }
+        } else {
+            // URL yok, App Group'a kaydet ve kapat
+            persistToAppGroup(payload: payload)
+            await MainActor.run { close() }
+        }
+    }
+    
+    // MARK: - Collect Payload (Safe)
+    
+    private func collectPayloadSafe() async -> SharedInboxPayload? {
+        do {
+            return try await collectPayload()
+        } catch {
+            print("❌ Payload collection error: \(error.localizedDescription)")
+            return nil
+        }
+    }
     
     private func collectPayload() async throws -> SharedInboxPayload {
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
@@ -174,11 +336,12 @@ class ShareViewController: UIViewController {
     }
     
     private func processAttachment(_ provider: NSItemProvider) async {
-        // URL kontrolü
+        // URL kontrolü (öncelikli - en hızlı)
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = await loadURL(from: provider) {
                 collectedURLs.insert(url.absoluteString)
                 print("   ✅ URL: \(url.absoluteString)")
+                return // URL bulunca diğerlerini kontrol etme
             }
         }
         
@@ -196,7 +359,7 @@ class ShareViewController: UIViewController {
             }
         }
         
-        // Image kontrolü
+        // Image kontrolü (en yavaş - sona bırak)
         if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             if let fileName = await loadAndSaveImage(from: provider) {
                 collectedImageFileNames.append(fileName)
@@ -372,12 +535,12 @@ class ShareViewController: UIViewController {
     
     private func showFallbackAlert(url: URL) {
         let alert = UIAlertController(
-            title: "Bağlantı Kaydedildi",
-            message: "Bu bağlantı ana uygulamada işlenecek.",
+            title: L("extension.fallback.title"),
+            message: L("extension.fallback.message"),
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Tamam", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: L("extension.fallback.ok"), style: .default) { [weak self] _ in
             self?.close()
         })
         

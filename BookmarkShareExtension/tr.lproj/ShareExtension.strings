@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    Share Extension Localization - Turkish
    ═══════════════════════════════════════════════════════════════════ */
+"CFBundleDisplayName" = "Link Bookmark'a Kaydet";
 
 /* Navigation */
 "extension.title" = "Bookmark Kaydet";
@@ -59,5 +60,16 @@
 "extension.medium.readOn" = "Medium'da Oku";
 
 /* Status */
-"extension.loading" = "Yükleniyor...";
 "extension.saved" = "Kaydedildi";
+
+"extension.fallback.title" = "Bağlantı Kaydedildi";
+"extension.fallback.message" = "Bu bağlantı ana uygulamada işlenecek.";
+"extension.fallback.ok" = "Tamam";
+
+// MARK: - Share Extension (ShareViewController)
+// Loading
+"extension.loading" = "Hazırlanıyor...";
+"extension.loading.hint" = "İlk açılış biraz zaman alabilir";
+
+// First Launch Banner
+"extension.firstLaunch.message" = "İlk yükleme biraz uzun sürebilir, lütfen bekleyin...";

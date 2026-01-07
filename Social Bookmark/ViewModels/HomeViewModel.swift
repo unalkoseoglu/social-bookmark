@@ -10,6 +10,7 @@ import Observation
 
 /// Ana sayfa ViewModel'i
 /// Dashboard için gerekli tüm verileri yönetir
+@MainActor
 @Observable
 final class HomeViewModel {
     // MARK: - Properties
@@ -112,8 +113,16 @@ final class HomeViewModel {
     // MARK: - Public Methods
     
     /// Verileri yenile
-    func refresh() {
-        loadData()
+    func refresh()  {  // ← async ekle
+        isLoading = true
+        
+        print("🔄 [HomeViewModel] Manual refresh - triggering sync...")
+        Task{
+            await SyncService.shared.performFullSync()
+            loadData()
+        }
+
+        isLoading = false
     }
     
     /// Belirli bir kategori için bookmark sayısı
@@ -201,7 +210,7 @@ final class HomeViewModel {
     
     // MARK: - Private Methods
     
-    private func loadData() {
+    func loadData() {
         isLoading = true
         loadBookmarks()
         loadCategories()

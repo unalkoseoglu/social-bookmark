@@ -1,35 +1,24 @@
 //
-//  EncryptionService.swift
+//  EncryptionService.swift - iCloud Keychain Sync Patch
 //  Social Bookmark
 //
-//  Created by Ünal Köseoğlu on 15.12.2025.
+//  Updated: 27.12.2025
 //
-
-
-//
-//  EncryptionService.swift
-//  Social Bookmark
-//
-//  Created by Claude on 15.12.2025.
-//
-//  End-to-End Encryption (E2EE) Service
-//  - Kullanıcı verilerini cihazda şifreler
-//  - Sunucuya sadece şifreli veri gönderilir
-//  - Admin dahil kimse içeriği okuyamaz
-//  - AES-256-GCM encryption
+//  Değişiklikler:
+//  - iCloud Keychain sync eklendi (kSecAttrSynchronizable)
+//  - Encryption key tüm cihazlarda senkronize olacak
 //
 
 import Foundation
 import CryptoKit
 import Security
 import OSLog
+internal import Combine
 
 /// End-to-End Encryption Service
 /// Tüm kullanıcı verileri cihazda şifrelenir, sunucuya şifreli gider
 @MainActor
 final class EncryptionService: ObservableObject {
-
-    
     
     // MARK: - Singleton
     
@@ -49,9 +38,10 @@ final class EncryptionService: ObservableObject {
     
     // MARK: - Initialization
     
-    private init() {
+    nonisolated private init() {
         // Mevcut key'i kontrol et
-        isKeyAvailable = retrieveKeyFromKeychain() != nil
+        // Not: isKeyAvailable MainActor'da olduğu için burada set edilemez
+        // İlk kullanımda lazy olarak kontrol edilecek
     }
     
     // MARK: - Key Management
@@ -82,6 +72,12 @@ final class EncryptionService: ObservableObject {
         // Keychain'den al
         if let existingKey = retrieveKeyFromKeychain() {
             cachedKey = existingKey
+            
+            // isKeyAvailable'ı güncelle (MainActor'da)
+            Task { @MainActor in
+                self.isKeyAvailable = true
+            }
+            
             return existingKey
         }
         
@@ -117,7 +113,8 @@ final class EncryptionService: ObservableObject {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keyAccount
+            kSecAttrAccount as String: keyAccount,
+            kSecAttrSynchronizable as String: kSecAttrSynchronizableAny // ✅ Both local and synced
         ]
         
         let status = SecItemDelete(query as CFDictionary)
@@ -132,9 +129,8 @@ final class EncryptionService: ObservableObject {
         print("🔐 [ENCRYPTION] Key deleted")
     }
     
-    // MARK: - Encryption Methods
+    // MARK: - Encryption Methods (unchanged)
     
-    /// String'i şifrele
     func encrypt(_ plaintext: String) throws -> EncryptedData {
         guard let data = plaintext.data(using: .utf8) else {
             throw EncryptionError.encodingFailed
@@ -142,17 +138,11 @@ final class EncryptionService: ObservableObject {
         return try encrypt(data)
     }
     
-    /// Data'yı şifrele
     func encrypt(_ plainData: Data) throws -> EncryptedData {
         let key = try getOrCreateKey()
-        
-        // Random nonce (IV) oluştur
         let nonce = AES.GCM.Nonce()
-        
-        // AES-256-GCM ile şifrele
         let sealedBox = try AES.GCM.seal(plainData, using: key, nonce: nonce)
         
-        // Combined = nonce + ciphertext + tag
         guard let combined = sealedBox.combined else {
             throw EncryptionError.encryptionFailed
         }
@@ -163,7 +153,6 @@ final class EncryptionService: ObservableObject {
         )
     }
     
-    /// Şifreli string'i çöz
     func decryptString(_ encrypted: EncryptedData) throws -> String {
         let data = try decrypt(encrypted)
         guard let string = String(data: data, encoding: .utf8) else {
@@ -172,7 +161,6 @@ final class EncryptionService: ObservableObject {
         return string
     }
     
-    /// Şifreli data'yı çöz
     func decrypt(_ encrypted: EncryptedData) throws -> Data {
         let key = try getOrCreateKey()
         
@@ -186,27 +174,23 @@ final class EncryptionService: ObservableObject {
         return decryptedData
     }
     
-    /// Optional string'i şifrele (nil safe)
     func encryptOptional(_ plaintext: String?) throws -> String? {
         guard let text = plaintext, !text.isEmpty else { return nil }
         let encrypted = try encrypt(text)
         return encrypted.ciphertext
     }
     
-    /// Optional şifreli string'i çöz (nil safe)
     func decryptOptional(_ ciphertext: String?) throws -> String? {
         guard let cipher = ciphertext, !cipher.isEmpty else { return nil }
         let encrypted = EncryptedData(ciphertext: cipher, algorithm: "AES-256-GCM")
         return try decryptString(encrypted)
     }
     
-    // MARK: - Batch Encryption (for sync)
+    // MARK: - Batch Encryption (unchanged)
     
-    /// Bookmark payload'ını şifrele
     func encryptBookmarkPayload(_ payload: [String: Any]) throws -> [String: Any] {
         var encrypted = payload
         
-        // Şifrelenecek alanlar
         let sensitiveFields = ["title", "url", "note", "extracted_text"]
         
         for field in sensitiveFields {
@@ -216,27 +200,22 @@ final class EncryptionService: ObservableObject {
             }
         }
         
-        // Tags array'ini şifrele
         if let tags = payload["tags"] as? [String] {
             let encryptedTags = try tags.map { try encrypt($0).ciphertext }
             encrypted["tags"] = encryptedTags
         }
         
-        // image_urls array'ini şifrele
         if let imageUrls = payload["image_urls"] as? [String] {
             let encryptedUrls = try imageUrls.map { try encrypt($0).ciphertext }
             encrypted["image_urls"] = encryptedUrls
         }
         
-        // Encryption flag ekle
         encrypted["is_encrypted"] = true
         
         return encrypted
     }
     
-    /// Şifreli bookmark payload'ını çöz
     func decryptBookmarkPayload(_ payload: [String: Any]) throws -> [String: Any] {
-        // Şifreli değilse olduğu gibi döndür
         guard payload["is_encrypted"] as? Bool == true else {
             return payload
         }
@@ -251,13 +230,11 @@ final class EncryptionService: ObservableObject {
             }
         }
         
-        // Tags
         if let encryptedTags = payload["tags"] as? [String] {
             let decryptedTags = try encryptedTags.compactMap { try decryptOptional($0) }
             decrypted["tags"] = decryptedTags
         }
         
-        // image_urls
         if let encryptedUrls = payload["image_urls"] as? [String] {
             let decryptedUrls = try encryptedUrls.compactMap { try decryptOptional($0) }
             decrypted["image_urls"] = decryptedUrls
@@ -266,11 +243,9 @@ final class EncryptionService: ObservableObject {
         return decrypted
     }
     
-    /// Category payload'ını şifrele
     func encryptCategoryPayload(_ payload: [String: Any]) throws -> [String: Any] {
         var encrypted = payload
         
-        // Sadece name şifrelenecek (icon ve color değil)
         if let name = payload["name"] as? String {
             encrypted["name"] = try encrypt(name).ciphertext
         }
@@ -280,7 +255,6 @@ final class EncryptionService: ObservableObject {
         return encrypted
     }
     
-    /// Şifreli category payload'ını çöz
     func decryptCategoryPayload(_ payload: [String: Any]) throws -> [String: Any] {
         guard payload["is_encrypted"] as? Bool == true else {
             return payload
@@ -295,41 +269,50 @@ final class EncryptionService: ObservableObject {
         return decrypted
     }
     
-    // MARK: - Private Methods
+    // MARK: - Private Methods (UPDATED for iCloud Sync)
     
-    private func storeKeyInKeychain(_ key: SymmetricKey) throws {
+    /// Keychain'e kaydet - iCloud sync ile
+    nonisolated private func storeKeyInKeychain(_ key: SymmetricKey) throws {
         let keyData = key.withUnsafeBytes { Data($0) }
         
-        // Önce mevcut key'i sil
+        // Önce mevcut key'i sil (hem local hem synced)
         let deleteQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
-            kSecAttrAccount as String: keyAccount
+            kSecAttrAccount as String: keyAccount,
+            kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
         ]
         SecItemDelete(deleteQuery as CFDictionary)
         
-        // Yeni key'i ekle
+        // ✅ Yeni key'i ekle - iCloud Keychain sync ile
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keyAccount,
             kSecValueData as String: keyData,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+            kSecAttrSynchronizable as String: true // ✅ iCloud sync enabled
         ]
         
         let status = SecItemAdd(query as CFDictionary, nil)
         
         if status != errSecSuccess {
+            Logger.keychain.error("❌ Failed to store key in Keychain: \(status)")
             throw EncryptionError.keychainError(status)
         }
+        
+        Logger.keychain.info("✅ Encryption key stored with iCloud sync")
     }
     
-    private func retrieveKeyFromKeychain() -> SymmetricKey? {
+    /// Keychain'den al - iCloud sync ile
+    nonisolated private func retrieveKeyFromKeychain() -> SymmetricKey? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: keyAccount,
-            kSecReturnData as String: true
+            kSecAttrSynchronizable as String: kSecAttrSynchronizableAny, // ✅ Search both local and synced
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
         ]
         
         var result: AnyObject?
@@ -338,22 +321,24 @@ final class EncryptionService: ObservableObject {
         guard status == errSecSuccess,
               let keyData = result as? Data,
               keyData.count == 32 else {
+            if status != errSecItemNotFound {
+                Logger.keychain.error("❌ Failed to retrieve key from Keychain: \(status)")
+            }
             return nil
         }
         
+        Logger.keychain.info("✅ Encryption key retrieved from Keychain")
         return SymmetricKey(data: keyData)
     }
 }
 
-// MARK: - Types
+// MARK: - Types (unchanged)
 
-/// Şifreli veri container'ı
 struct EncryptedData: Codable {
     let ciphertext: String
     let algorithm: String
 }
 
-/// Encryption hataları
 enum EncryptionError: LocalizedError {
     case keyNotFound
     case invalidKeyFormat
@@ -367,21 +352,22 @@ enum EncryptionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .keyNotFound:
-            return "Şifreleme anahtarı bulunamadı"
+            return NSLocalizedString("encryption.error.key_not_found", comment: "Key not found")
         case .invalidKeyFormat:
-            return "Geçersiz anahtar formatı"
+            return NSLocalizedString("encryption.error.invalid_key_format", comment: "Invalid format")
         case .encodingFailed:
-            return "Veri kodlanamadı"
+            return NSLocalizedString("encryption.error.encoding_failed", comment: "Encoding failed")
         case .decodingFailed:
-            return "Veri çözümlenemedi"
+            return NSLocalizedString("encryption.error.decoding_failed", comment: "Decoding failed")
         case .encryptionFailed:
-            return "Şifreleme başarısız"
+            return NSLocalizedString("encryption.error.encryption_failed", comment: "Encryption failed")
         case .decryptionFailed:
-            return "Şifre çözme başarısız"
+            return NSLocalizedString("encryption.error.decryption_failed", comment: "Decryption failed")
         case .invalidCiphertext:
-            return "Geçersiz şifreli veri"
+            return NSLocalizedString("encryption.error.invalid_ciphertext", comment: "Invalid ciphertext")
         case .keychainError(let status):
-            return "Keychain hatası: \(status)"
+            let format = NSLocalizedString("encryption.error.keychain_error", comment: "Keychain error")
+            return String(format: format, status)
         }
     }
 }
@@ -389,9 +375,8 @@ enum EncryptionError: LocalizedError {
 // MARK: - Key Backup View
 
 import SwiftUI
-internal import Combine
 
-/// Encryption key backup/restore UI
+/// Encryption key backup/restore UI - Localized
 struct EncryptionKeyBackupView: View {
     @StateObject private var encryptionService = EncryptionService.shared
     
@@ -407,15 +392,20 @@ struct EncryptionKeyBackupView: View {
             // Durum
             Section {
                 HStack {
-                    Label("Şifreleme Durumu", systemImage: "lock.shield")
+                    Label(
+                        NSLocalizedString("encryption.status.label", comment: "Encryption Status"),
+                        systemImage: "lock.shield"
+                    )
                     Spacer()
-                    Text(encryptionService.isKeyAvailable ? "Aktif" : "Pasif")
+                    Text(encryptionService.isKeyAvailable
+                         ? NSLocalizedString("encryption.status.active", comment: "Active")
+                         : NSLocalizedString("encryption.status.inactive", comment: "Inactive"))
                         .foregroundStyle(encryptionService.isKeyAvailable ? .green : .red)
                 }
             } header: {
-                Text("Durum")
+                Text(NSLocalizedString("encryption.status.title", comment: "Status"))
             } footer: {
-                Text("Verileriniz cihazınızda şifrelenir. Sunucuda sadece şifreli hali saklanır.")
+                Text(NSLocalizedString("encryption.status.footer", comment: "Footer text"))
             }
             
             // Export
@@ -423,12 +413,15 @@ struct EncryptionKeyBackupView: View {
                 Button {
                     exportKey()
                 } label: {
-                    Label("Anahtarı Dışa Aktar", systemImage: "square.and.arrow.up")
+                    Label(
+                        NSLocalizedString("encryption.export.button", comment: "Export Key"),
+                        systemImage: "square.and.arrow.up"
+                    )
                 }
                 
                 if !exportedKey.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Şifreleme Anahtarınız:")
+                        Text(NSLocalizedString("encryption.export.key_label", comment: "Your Encryption Key:"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
@@ -439,31 +432,37 @@ struct EncryptionKeyBackupView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
                         
-                        Button("Kopyala") {
+                        Button(NSLocalizedString("encryption.export.copy_button", comment: "Copy")) {
                             UIPasteboard.general.string = exportedKey
                         }
                         .font(.caption)
                     }
                 }
             } header: {
-                Text("Yedekleme")
+                Text(NSLocalizedString("encryption.export.title", comment: "Backup"))
             } footer: {
-                Text("⚠️ Bu anahtarı güvenli bir yerde saklayın. Kaybederseniz verilerinize erişemezsiniz.")
+                Text(NSLocalizedString("encryption.export.footer", comment: "Warning text"))
             }
             
             // Import
             Section {
-                TextField("Anahtar yapıştır...", text: $importKey)
-                    .font(.system(.body, design: .monospaced))
+                TextField(
+                    NSLocalizedString("encryption.import.placeholder", comment: "Paste key..."),
+                    text: $importKey
+                )
+                .font(.system(.body, design: .monospaced))
                 
                 Button {
                     importKeyAction()
                 } label: {
-                    Label("Anahtarı İçe Aktar", systemImage: "square.and.arrow.down")
+                    Label(
+                        NSLocalizedString("encryption.import.button", comment: "Import Key"),
+                        systemImage: "square.and.arrow.down"
+                    )
                 }
                 .disabled(importKey.isEmpty)
             } header: {
-                Text("Geri Yükleme")
+                Text(NSLocalizedString("encryption.import.title", comment: "Restore"))
             }
             
             // Reset (Danger Zone)
@@ -471,27 +470,30 @@ struct EncryptionKeyBackupView: View {
                 Button(role: .destructive) {
                     showingResetAlert = true
                 } label: {
-                    Label("Anahtarı Sıfırla", systemImage: "trash")
+                    Label(
+                        NSLocalizedString("encryption.danger.reset_button", comment: "Reset Key"),
+                        systemImage: "trash"
+                    )
                 }
             } header: {
-                Text("Tehlikeli Bölge")
+                Text(NSLocalizedString("encryption.danger.title", comment: "Danger Zone"))
             } footer: {
-                Text("⚠️ Anahtarı sıfırlarsanız tüm şifreli verileriniz okunamaz hale gelir!")
+                Text(NSLocalizedString("encryption.danger.footer", comment: "Warning"))
             }
         }
-        .navigationTitle("Şifreleme")
-        .alert("Bilgi", isPresented: $showingExportAlert) {
-            Button("Tamam", role: .cancel) { }
+        .navigationTitle(NSLocalizedString("encryption.navigation_title", comment: "Encryption"))
+        .alert(NSLocalizedString("encryption.alert.info", comment: "Info"), isPresented: $showingExportAlert) {
+            Button(NSLocalizedString("encryption.alert.ok", comment: "OK"), role: .cancel) { }
         } message: {
             Text(alertMessage)
         }
-        .alert("Anahtarı Sıfırla", isPresented: $showingResetAlert) {
-            Button("İptal", role: .cancel) { }
-            Button("Sıfırla", role: .destructive) {
+        .alert(NSLocalizedString("encryption.alert.reset_title", comment: "Reset Key"), isPresented: $showingResetAlert) {
+            Button(NSLocalizedString("encryption.alert.cancel", comment: "Cancel"), role: .cancel) { }
+            Button(NSLocalizedString("encryption.alert.reset_confirm", comment: "Reset"), role: .destructive) {
                 resetKey()
             }
         } message: {
-            Text("Bu işlem geri alınamaz. Tüm şifreli verileriniz okunamaz hale gelecek.")
+            Text(NSLocalizedString("encryption.alert.reset_message", comment: "Warning message"))
         }
     }
     
@@ -507,7 +509,7 @@ struct EncryptionKeyBackupView: View {
     private func importKeyAction() {
         do {
             try encryptionService.importKey(base64String: importKey)
-            alertMessage = "Anahtar başarıyla içe aktarıldı"
+            alertMessage = NSLocalizedString("encryption.alert.import_success", comment: "Success message")
             importKey = ""
         } catch {
             alertMessage = error.localizedDescription
@@ -524,5 +526,11 @@ struct EncryptionKeyBackupView: View {
             alertMessage = error.localizedDescription
             showingExportAlert = true
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        EncryptionKeyBackupView()
     }
 }

@@ -1,8 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════
    Share Extension Localization - English
    ═══════════════════════════════════════════════════════════════════ */
+"CFBundleDisplayName" = "Save to Link Bookmark";
 
 /* Navigation */
+
 "extension.title" = "Save Bookmark";
 "extension.cancel" = "Cancel";
 "extension.save" = "Save";
@@ -61,3 +63,16 @@
 /* Status */
 "extension.loading" = "Loading...";
 "extension.saved" = "Saved";
+
+"extension.fallback.title" = "Link Saved";
+"extension.fallback.message" = "This link will be processed in the main app.";
+"extension.fallback.ok" = "OK";
+
+// MARK: - Share Extension (ShareViewController)
+
+// Loading
+"extension.loading.hint" = "First launch may take a moment";
+
+// First Launch Banner
+"extension.firstLaunch.message" = "First launch may take longer, please wait...";
+

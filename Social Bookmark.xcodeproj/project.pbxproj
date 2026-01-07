@@ -114,6 +114,7 @@
 		C05B51522EF602C6007DF808 /* Exceptions for "BookmarkShareExtension" folder in "BookmarkActionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"/Localized: ShareExtension.strings",
 				NSLocalizedStrings.swift,
 				ShareExtensionView.swift,
 			);

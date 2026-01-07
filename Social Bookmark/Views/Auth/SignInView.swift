@@ -74,7 +74,9 @@ struct SignInView: View {
                     dismiss()
                 }
             }
-          
+            .onAppear {
+                prepareNonce()
+            }
         }
     }
     

@@ -284,19 +284,23 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            try await authService.signOut()
+            // ✅ Session varsa sign out yap
+            if isAuthenticated {
+                try await authService.signOut()
+            }
+            
+            // Local state'i temizle
             resetUserState()
-            Logger.auth.info("Sign out successful")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Sign out failed: \(authError.localizedDescription)")
+            Logger.auth.info("✅ [SessionStore] Sign out successful")
+            
         } catch {
-            self.error = .unknown(error.localizedDescription)
+            // ⚠️ Hata olsa bile local state'i temizle
+            Logger.auth.warning("⚠️ [SessionStore] Sign out warning: \(error.localizedDescription)")
+            resetUserState()
         }
         
         isLoading = false
     }
-    
     /// Deletes user account
     @MainActor
     func deleteAccount() async {

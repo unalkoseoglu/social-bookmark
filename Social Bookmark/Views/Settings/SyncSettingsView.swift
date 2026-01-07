@@ -185,7 +185,7 @@ struct SyncSettingsView: View {
             }
             Button(String(localized: "common.cancel"), role: .cancel) { }
         } message: {
-            Text(String(localized: "sync.clear_cache_message"))
+            Text(String(localized: "sync.clear_cache_confirm"))
         }
     }
     

@@ -212,7 +212,7 @@ struct RootView: View {
         await syncService.performFullSync()
         
         // ViewModel'i yenile
-        homeViewModel.refresh()
+       await homeViewModel.refresh()
     }
     
     /// Uygulama aktif olduğunda sync
@@ -237,9 +237,9 @@ struct RootView: View {
         await syncService.performFullSync()
         
         // ViewModel'i yenile
-        await MainActor.run {
-            homeViewModel.refresh()
-        }
+        
+           await homeViewModel.refresh()
+        
     }
 }
 

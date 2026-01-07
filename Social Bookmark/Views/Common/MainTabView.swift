@@ -173,7 +173,9 @@ private struct AddTabContent: View {
                     AddBookmarkView(
                         viewModel: addVM,
                         onSaved: {
-                            viewModel.refresh()
+                            Task{
+                                await  viewModel.refresh()
+                            }
                             selectedTab = .home
                         }
                     )

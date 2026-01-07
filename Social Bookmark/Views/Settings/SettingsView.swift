@@ -8,6 +8,9 @@
 //
 
 import SwiftUI
+import SwiftData
+internal import PostgREST
+import Supabase
 
 struct SettingsView: View {
     
@@ -15,6 +18,7 @@ struct SettingsView: View {
     @ObservedObject private var languageManager = LanguageManager.shared
     @StateObject private var syncService = SyncService.shared
     @StateObject private var networkMonitor = NetworkMonitor.shared
+    @Environment(\.modelContext) private var modelContext  // ✅ BU SATIRI EKLE
     
     @State private var showingRestartAlert = false
     @State private var pendingLanguage: AppLanguage?
@@ -56,6 +60,8 @@ struct SettingsView: View {
         .id(languageManager.refreshID)
     }
     
+    // Fonksiyonlar:
+
     // MARK: - Account Section
     
     private var accountSection: some View {
@@ -145,7 +151,10 @@ struct SettingsView: View {
             Text(languageManager.localized("settings.sync_section"))
         } footer: {
             if let lastSync = syncService.lastSyncDate {
-                Text("sync.last_sync_footer \(lastSync, style: .relative)")
+                HStack(spacing: 4) {
+                    Text(String(localized: "sync.last_sync_footer"))
+                    Text(lastSync, style: .relative)
+                }
             }
         }
     }

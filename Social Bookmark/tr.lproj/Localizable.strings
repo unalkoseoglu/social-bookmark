@@ -3,6 +3,8 @@
    Turkish Localization - Cleaned & Optimized Version
 */
 
+
+
 // MARK: - Common
 "common.ok" = "Tamam";
 "common.cancel" = "İptal";
@@ -11,13 +13,11 @@
 "common.edit" = "Düzenle";
 "common.save" = "Kaydet";
 "common.copy" = "Kopyala";
-"common.add" = "Ekle";
 "common.go_back" = "Geri Git";
 "common.error" = "Hata";
 "common.loading" = "Yükleniyor...";
 "common.success" = "Başarılı";
 "common.retry" = "Tekrar Dene";
-"common.try_again" = "Tekrar Dene";
 "common.all" = "Hepsi";
 "common.today" = "Bugün";
 "common.this_week" = "Bu Hafta";
@@ -95,7 +95,7 @@
 "home.action.add_first" = "İlk Yer İşaretini Ekle";
 
 "home.empty.no_bookmarks" = "Henüz yer işareti yok";
-"home.empty.no_bookmarks_desc" = "Paylaş butonunu kullanarak içerik ekleyin veya ilk yer işaretinizi ekleyerek başlayın.";
+"home.empty.no_bookmarks_desc" = "Paylaş butonunu kullanarak içerik ekleyin veya ilk yer işaretinizi manuel ekleyerek başlayın.";
 "home.empty.add_category" = "Kategori Ekle";
 "home.empty.add_category_desc" = "Yer işaretlerinizi düzenlemek için kategoriler oluşturun";
 
@@ -222,38 +222,6 @@
 "addBookmark.action.save" = "Kaydet";
 "addBookmark.action.cancel" = "İptal";
 "addBookmark.saving" = "Kaydediliyor...";
-
-// MARK: - Edit Bookmark
-"editBookmark.title" = "Düzenle";
-"editBookmark.section.basic" = "Temel Bilgiler";
-"editBookmark.section.images" = "Görseller";
-"editBookmark.section.category" = "Kategori";
-"editBookmark.section.details" = "Detaylar";
-"editBookmark.section.tags" = "Etiketler";
-
-"editBookmark.field.title" = "Başlık";
-"editBookmark.field.url" = "URL (isteğe bağlı)";
-"editBookmark.field.notes" = "Notlar (isteğe bağlı)";
-"editBookmark.field.tags" = "Etiketler (virgülle ayırın)";
-
-"editBookmark.addImage" = "Görsel Ekle";
-"editBookmark.maxImages" = "En fazla 4 görsel ekleyebilirsiniz";
-"editBookmark.imageCount %lld" = "%lld/4 görsel";
-"editBookmark.processingImages" = "Görseller işleniyor...";
-"editBookmark.tapToEdit" = "Düzenlemek için görsele dokunun";
-"editBookmark.newBadge" = "YENİ";
-
-"editBookmark.imageOptions" = "Görsel Seçenekleri";
-"editBookmark.viewFullScreen" = "Tam Ekran Görüntüle";
-
-"editBookmark.category" = "Kategori";
-"editBookmark.uncategorized" = "Kategorisiz";
-"editBookmark.noCategories" = "Tanımlı kategori yok";
-"editBookmark.createCategoryHint" = "Ana ekrandan yeni bir kategori oluşturabilirsiniz";
-
-"editBookmark.source" = "Kaynak";
-"editBookmark.tagsHint" = "Örnek: Swift, iOS, Eğitim";
-"editBookmark.saveError" = "Kaydetme sırasında bir hata oluştu";
 
 // MARK: - Bookmark Detail
 "bookmarkDetail.title" = "Detaylar";
@@ -391,27 +359,6 @@
 "ocr.noText" = "Metin bulunamadı";
 "ocr.result" = "OCR Sonucu";
 
-// MARK: - Migration Process
-"migration.state.idle" = "Hazır";
-"migration.state.preparing" = "Hazırlanıyor...";
-"migration.state.categories %lld %lld" = "Kategoriler taşınıyor (%lld/%lld)";
-"migration.state.bookmarks %lld %lld" = "Yer işaretleri taşınıyor (%lld/%lld)";
-"migration.state.images %lld %lld" = "Görseller yükleniyor (%lld/%lld)";
-"migration.state.cleaning" = "Temizleniyor...";
-"migration.state.completed" = "Tamamlandı!";
-"migration.state.failed %@" = "Hata: %@";
-
-"migration.error.not_anonymous" = "Sadece anonim hesaplar taşınabilir";
-"migration.error.no_new_account" = "Yeni hesap bulunamadı";
-"migration.error.same_account" = "Aynı hesaba taşıma yapılamaz";
-"migration.error.in_progress" = "Taşıma işlemi zaten devam ediyor";
-"migration.error.no_data" = "Taşınacak veri bulunamadı";
-"migration.error.category_failed %@" = "Kategori taşıma başarısız: %@";
-"migration.error.bookmark_failed %@" = "Yer işareti taşıma başarısız: %@";
-"migration.error.image_failed %@" = "Görsel taşıma başarısız: %@";
-"migration.error.cleanup_failed %@" = "Temizlik başarısız: %@";
-"migration.error.network" = "İnternet bağlantısı gereklidir";
-
 // MARK: - Settings & Account
 "settings.title" = "Ayarlar";
 "settings.section.general" = "Genel";
@@ -426,17 +373,13 @@
 "settings.account" = "Hesap";
 "settings.account_info" = "Hesap Bilgileri";
 "settings.account_actions" = "Hesap İşlemleri";
-"settings.secure_your_data" = "Verilerinizi Güvenceye Alın";
 "settings.link_account" = "Hesabı Bağla";
 "settings.link_account_title" = "Hesabınızı Bağlayın";
-"settings.link_account_subtitle" = "Yer işaretlerinizi korumak için Apple ile giriş yapın.";
-"settings.link_description" = "Verilerinizi buluta yedeklemek ve tüm cihazlarınızda eşitlemek için Apple hesabınızla giriş yapın.";
+"settings.link_account_subtitle" = "Yer işaretlerinizi güvenceye almak için Apple ile giriş yapın.";
 "settings.link_account_footer" = "Verilerinizi korumak ve tüm cihazlarınızda eşitlemek için Apple hesabınızı bağlayın.";
-"settings.link_keeps_data" = "Mevcut tüm yer işaretleriniz ve kategorileriniz Apple hesabınıza aktarılacaktır.";
-
-"settings.benefit_secure" = "Uçtan uca şifreleme güvenliği";
-"settings.benefit_sync" = "Tüm cihazlarda eşitleme";
-"settings.benefit_restore" = "Verilerinizi istediğiniz zaman geri yükleyin";
+"settings.link_keeps_data" = "Mevcut verileriniz korunacaktır.";
+"settings.benefit_secure" = "Verileriniz güvende kalır";
+"settings.benefit_sync" = "Otomatik eşitleme";
 "settings.benefit_devices" = "Tüm cihazlardan erişim";
 
 "settings.anonymous_warning_title" = "Hesabınız Güvende Değil";
@@ -444,27 +387,14 @@
 "settings.secure_your_account" = "Hesabı Güvenceye Al";
 "settings.link_with_apple" = "Apple ile Bağla";
 
-"settings.migration_warning_title" = "Önemli";
-"settings.migration_warning_body" = "Bu işlem geri alınamaz. Verileriniz kalıcı olarak Apple hesabınıza bağlanacaktır.";
-"settings.migrating_data" = "Veriler Taşınıyor";
-"settings.do_not_close" = "Lütfen uygulamayı kapatmayın";
-"settings.migration_complete" = "Taşıma Tamamlandı!";
-"settings.migration_complete_desc" = "Tüm verileriniz başarıyla Apple hesabınıza aktarıldı.";
-"settings.categories_migrated" = "Kategoriler";
-"settings.bookmarks_migrated" = "Yer İşaretleri";
-"settings.images_migrated" = "Görseller";
-"settings.migration_failed" = "Taşıma Başarısız";
-
 "settings.sign_out" = "Oturumu Kapat";
-"settings.signout_warning_title" = "Oturumu Kapat?";
-"settings.signout_warning_anonymous" = "Anonim hesabınızdaki tüm veriler silinecek ve geri getirilemeyecektir.";
-"settings.signout_warning_authenticated" = "Bu cihazdaki veriler temizlenecek. Tekrar giriş yaptığınızda verileriniz geri yüklenecektir.";
-"settings.signout_confirm" = "Oturumu Kapat";
+"settings.sign_out_title" = "Oturumu Kapat";
+"settings.sign_out_message" = "Oturumu kapatmak istediğinize emin misiniz?";
 
 "settings.delete_account" = "Hesabı Sil";
 "settings.delete_account_title" = "Hesabı Sil";
 "settings.delete_account_message" = "Bu işlem geri alınamaz. Tüm verileriniz silinecektir.";
-"settings.delete_account_warning" = "Hesabınızı silmek, tüm yer işaretlerinizi ve verilerinizi kalıcı olarak kaldıracaktır.";
+"settings.delete_account_warning" = "Hesabınızı silmek tüm yer işaretlerinizi ve verilerinizi kalıcı olarak kaldıracaktır.";
 
 // MARK: - Synchronization
 "settings.sync_section" = "Eşitleme";
@@ -517,8 +447,8 @@
 "settings.language_changed_message" = "Uygulama dili başarıyla değiştirildi.";
 "settings.language_change_title" = "Dili Değiştir";
 "settings.language_change_message" = "Dil değişikliğinin tam uygulanması için uygulamanın yeniden başlatılması gerekebilir.";
-"settings.language_footer" = "Uygulama, dil değişikliğini uygulamak için yeniden başlatılacak";
-"settings_language_footer" = "Uygulama, dil değişikliğini tamamen uygulamak için yeniden başlatılacak.";
+"settings.language_footer" = "Uygulama dil değişikliğini uygulamak için yeniden başlatılacak";
+"settings_language_footer" = "Uygulama dil değişikliğini tamamen uygulamak için yeniden başlatılacak.";
 "settings.restart_now" = "Şimdi Yeniden Başlat";
 "settings.restart_later" = "Sonra";
 
@@ -541,3 +471,120 @@
 "widget.quick_stats" = "Hızlı İstatistikler";
 "widget.popular_tags" = "Popüler Etiketler";
 "widget.read_count %lld %lld" = "%lld/%lld okundu";
+
+// MARK: - UI Statik Eklemeler (2025-12-25)
+"filters.title" = "Filtreler";
+"preview.title" = "Önizleme";
+"toolbar.title" = "Araç Çubuğu";
+"image.preview" = "Görsel Önizleme";
+"button.close" = "Kapat";
+"button.confirm" = "Onayla";
+"button.cancel" = "İptal";
+"button.save" = "Kaydet";
+"button.edit" = "Düzenle";
+"button.delete" = "Sil";
+"button.copy" = "Kopyala";
+
+// MARK: - Category Icons
+
+// Icon Picker
+"category.icons.show_more" = "Daha Fazla İkon";
+"category.icons.all_title" = "Tüm İkonlar";
+"category.icons.search" = "İkon ara...";
+"category.icons.total_count %lld" = "Toplam %lld ikon";
+
+// Icon Categories
+"category.icons.general" = "Genel";
+"category.icons.books" = "Kitap & Okuma";
+"category.icons.communication" = "İletişim";
+"category.icons.people" = "İnsanlar";
+"category.icons.sports" = "Spor & Fitness";
+"category.icons.nature" = "Doğa & Hava";
+"category.icons.objects" = "Nesneler";
+"category.icons.devices" = "Cihazlar";
+"category.icons.transport" = "Ulaşım";
+"category.icons.places" = "Mekanlar";
+"category.icons.work" = "İş & Ofis";
+"category.icons.health" = "Sağlık";
+"category.icons.food" = "Yiyecek & İçecek";
+"category.icons.entertainment" = "Eğlence";
+"category.icons.education" = "Eğitim";
+"category.icons.tech" = "Teknoloji";
+"category.icons.symbols" = "Semboller & Şekiller";
+"category.icons.security" = "Güvenlik";
+"category.icons.media" = "Medya Kontrolleri";
+"category.icons.badges" = "Bayraklar & Rozetler";
+
+// MARK: - Add Bookmark - New Keys
+
+// Clear All
+"addBookmark.clearAll" = "Tümünü Temizle";
+
+// Category Picker
+"addBookmark.category.no_category_hint" = "Kategorisiz kaydet";
+
+// Cover Image Section
+"addBookmark.section.coverImage" = "Kapak Görseli";
+"addBookmark.coverImage.add" = "Kapak Görseli Ekle";
+"addBookmark.coverImage.hint" = "Bookmark için özel bir görsel seçin";
+"addBookmark.coverImage.footer" = "Listede görünecek özel bir kapak görseli ekleyin";
+"addBookmark.coverImage.edit" = "Kırp";
+"addBookmark.coverImage.change" = "Değiştir";
+"addBookmark.coverImage.remove" = "Kaldır";
+
+// OCR Section
+"addBookmark.section.ocr" = "Metin Çıkarma (OCR)";
+"addBookmark.ocr.add" = "Görselten Metin Çıkar";
+"addBookmark.ocr.hint" = "Fotoğraftaki metni notlara ekle";
+"addBookmark.ocr.footer" = "Bir fotoğraftan metin çıkarıp notlara otomatik ekleyin";
+"addBookmark.ocr.processing" = "Metin çıkarılıyor...";
+"addBookmark.ocr.completed" = "Metin çıkarıldı";
+"addBookmark.ocr.completedHint" = "Metin notlara eklendi";
+"addBookmark.ocr.recrop" = "Yeniden Kırp";
+"addBookmark.ocr.remove" = "Kaldır";
+
+// Source Descriptions
+"source.twitter.description" = "Twitter/X gönderileri";
+"source.reddit.description" = "Reddit paylaşımları";
+"source.linkedin.description" = "LinkedIn gönderileri";
+"source.medium.description" = "Medium makaleleri";
+"source.youtube.description" = "YouTube videoları";
+"source.github.description" = "GitHub depoları";
+"source.news.description" = "Haber siteleri";
+"source.blog.description" = "Blog yazıları";
+"source.documentation.description" = "Teknik dökümanlar";
+
+// MARK: - Add Bookmark - New Keys
+
+// Category Picker
+"addBookmark.category.no_category_hint" = "Kategorisiz kaydet";
+
+// Cover Image Section
+"addBookmark.section.coverImage" = "Kapak Görseli";
+"addBookmark.coverImage.add" = "Kapak Görseli Ekle";
+"addBookmark.coverImage.hint" = "Bookmark için özel bir görsel seçin";
+"addBookmark.coverImage.footer" = "Listede görünecek özel bir kapak görseli ekleyin";
+"addBookmark.coverImage.edit" = "Kırp";
+"addBookmark.coverImage.change" = "Değiştir";
+"addBookmark.coverImage.remove" = "Kaldır";
+
+// OCR Section
+"addBookmark.section.ocr" = "Metin Çıkarma (OCR)";
+"addBookmark.ocr.add" = "Görselten Metin Çıkar";
+"addBookmark.ocr.hint" = "Fotoğraftaki metni notlara ekle";
+"addBookmark.ocr.footer" = "Bir fotoğraftan metin çıkarıp notlara otomatik ekleyin";
+"addBookmark.ocr.processing" = "Metin çıkarılıyor...";
+"addBookmark.ocr.completed" = "Metin çıkarıldı";
+"addBookmark.ocr.completedHint" = "Metin notlara eklendi";
+"addBookmark.ocr.recrop" = "Yeniden Kırp";
+"addBookmark.ocr.remove" = "Kaldır";
+
+// Source Descriptions
+"source.twitter.description" = "Twitter/X gönderileri";
+"source.reddit.description" = "Reddit paylaşımları";
+"source.linkedin.description" = "LinkedIn gönderileri";
+"source.medium.description" = "Medium makaleleri";
+"source.youtube.description" = "YouTube videoları";
+"source.instagram.description" = "Instagram paylaşımları";
+"source.github.description" = "GitHub depoları";
+"source.article.description" = "Makale ve blog yazıları";

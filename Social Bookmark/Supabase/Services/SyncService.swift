@@ -175,6 +175,7 @@ final class SyncService: ObservableObject {
               let userId = SupabaseManager.shared.userId else {
             throw SyncError.notAuthenticated
         }
+        print("🔄 [SYNC] Downloading from cloud for user: \(userId.uuidString)")
 
         try await downloadCategories(context: context, userId: userId)
         try await downloadBookmarks(context: context, userId: userId)
@@ -203,11 +204,22 @@ final class SyncService: ObservableObject {
         print("🔄 [SYNC] syncBookmark START")
         print("   - Title: \(bookmark.title)")
         print("   - ID: \(bookmark.id)")
-        print("   - Note: \(bookmark.note.isEmpty ? "(empty)" : String(bookmark.note.prefix(50)))")
-        print("   - Tags: \(bookmark.tags)")
-        print("   - CategoryId: \(bookmark.categoryId?.uuidString ?? "nil")")
 
-        // Mevcut kayıt var mı kontrol et - sadece count al
+        // 🔑 Category'nin cloud ID'sini bul
+        var cloudCategoryId: String? = nil
+        if let localCategoryId = bookmark.categoryId {
+            let catResponse: [CloudCategory] = try await client
+                .from("categories")
+                .select("id")
+                .eq("user_id", value: userId.uuidString)
+                .eq("local_id", value: localCategoryId.uuidString)
+                .execute()
+                .value
+            
+            cloudCategoryId = catResponse.first?.id
+        }
+
+        // Mevcut kayıt var mı kontrol et
         let countResponse = try await client
             .from("bookmarks")
             .select("id", head: true, count: .exact)
@@ -218,7 +230,31 @@ final class SyncService: ObservableObject {
         let existingCount = countResponse.count ?? 0
         print("📋 [SYNC] Existing count: \(existingCount)")
 
-        let payload = createBookmarkPayload(bookmark, userId: userId)
+        var payload = createBookmarkPayload(bookmark, userId: userId)
+        
+        // 🖼️ Image upload
+        var imageUrls: [String] = []
+        if let imageData = bookmark.imageData, let image = UIImage(data: imageData) {
+            do {
+                let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0)
+                imageUrls.append(uploaded)
+                print("📤 [SYNC] Uploaded image: \(uploaded)")
+            } catch {
+                print("❌ [SYNC] Image upload failed: \(error)")
+            }
+        }
+        
+        // ✅ image_urls ekle
+        if !imageUrls.isEmpty {
+            payload["image_urls"] = AnyEncodable(imageUrls)
+        }
+        
+        // 🔑 Cloud category ID'yi kullan
+        if let cloudId = cloudCategoryId {
+            payload["category_id"] = AnyEncodable(cloudId)
+        } else {
+            payload["category_id"] = AnyEncodable(nil as String?)
+        }
 
         if existingCount == 0 {
             print("➕ [SYNC] INSERT bookmark")
@@ -235,7 +271,6 @@ final class SyncService: ObservableObject {
         print("✅ [SYNC] Bookmark sync done")
     }
 
-    /// Tek kategori sync et
     func syncCategory(_ category: Category) async throws {
         guard let userId = SupabaseManager.shared.userId else {
             print("❌ [SYNC] syncCategory: Not authenticated")
@@ -255,23 +290,12 @@ final class SyncService: ObservableObject {
         let existingCount = countResponse.count ?? 0
         print("📋 [SYNC] Existing count: \(existingCount)")
 
-        // Basit payload
-        let payload: [String: AnyEncodable] = [
-            "user_id": AnyEncodable(userId.uuidString),
-            "local_id": AnyEncodable(category.id.uuidString),
-            "name": AnyEncodable(category.name),
-            "icon": AnyEncodable(category.icon),
-            "color": AnyEncodable(category.colorHex),
-            "order": AnyEncodable(category.order),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
-            "is_encrypted": AnyEncodable(false)
-        ]
+        // ✅ createCategoryPayload kullan - şifreleme ile
+        var payload = createCategoryPayload(category, userId: userId)
 
         if existingCount == 0 {
             print("➕ [SYNC] INSERT")
-            var insertPayload = payload
-            insertPayload["created_at"] = AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt))
-            try await client.from("categories").insert(insertPayload).execute()
+            try await client.from("categories").insert(payload).execute()
         } else {
             print("🔄 [SYNC] UPDATE")
             try await client
@@ -283,7 +307,6 @@ final class SyncService: ObservableObject {
         }
         print("✅ [SYNC] Done")
     }
-
     /// Bookmark sil (cloud)
     func deleteBookmark(_ bookmark: Bookmark) async throws {
         guard let userId = SupabaseManager.shared.userId else { return }
@@ -375,22 +398,84 @@ final class SyncService: ObservableObject {
             .value
 
         let localBookmarks = try context.fetch(FetchDescriptor<Bookmark>())
-        let localIdSet = Set(localBookmarks.map { $0.id.uuidString })
+        
+        // Local bookmark'ları ID'ye göre map'le
+        var localBookmarkMap: [String: Bookmark] = [:]
+        for bookmark in localBookmarks {
+            localBookmarkMap[bookmark.id.uuidString] = bookmark
+        }
+        
+        // Cloud category ID → local ID mapping
+        let cloudCategories: [CloudCategory] = try await client
+            .from("categories")
+            .select("id, local_id")
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+            .value
+        
+        var cloudToLocalCategoryMap: [String: String] = [:]
+        for cat in cloudCategories {
+            if let localId = cat.localId {
+                cloudToLocalCategoryMap[cat.id] = localId
+            }
+        }
+        
         for cloud in cloudBookmarks {
             let targetId = cloud.localId ?? cloud.id
             guard let targetUUID = UUID(uuidString: targetId) else { continue }
-            if localIdSet.contains(targetId) || localIdSet.contains(cloud.id) || localIdSet.contains(targetUUID.uuidString) {
-                continue
+            
+            // ✅ DÜZELTME: Mevcut bookmark varsa güncelle, yoksa oluştur
+            if let existingBookmark = localBookmarkMap[targetUUID.uuidString] {
+                print("🔄 [DOWNLOAD] Updating existing bookmark: \(cloud.title)")
+                
+                // Title, note, tags vs. güncelle
+                let isEnc = (cloud.isEncrypted == true)
+                existingBookmark.title = decryptIfNeeded(cloud.title, isEncrypted: isEnc)
+                existingBookmark.url = cloud.url.map { decryptIfNeeded($0, isEncrypted: isEnc) }
+                existingBookmark.note = cloud.note.map { decryptIfNeeded($0, isEncrypted: isEnc) } ?? ""
+                existingBookmark.tags = (cloud.tags ?? []).map { decryptIfNeeded($0, isEncrypted: isEnc) }
+                existingBookmark.isRead = cloud.isRead
+                existingBookmark.isFavorite = cloud.isFavorite
+                
+                // 🖼️ Resimleri güncelle
+                if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
+                    print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for existing bookmark")
+                    
+                    // İlk resmi indir
+                    if let firstImagePath = imageUrls.first {
+                        print("   📥 Downloading image from: \(firstImagePath)")
+                        
+                        if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
+                            if let imageData = image.jpegData(compressionQuality: 0.8) {
+                                existingBookmark.imageData = imageData
+                                print("   ✅ Image downloaded and saved")
+                            }
+                        } else {
+                            print("   ❌ Failed to download image")
+                        }
+                    }
+                    
+                    existingBookmark.imageUrls = imageUrls
+                }
+                
+                // Category güncelle
+                if let cloudCategoryId = cloud.categoryId,
+                   let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId],
+                   let uuid = UUID(uuidString: localCategoryId) {
+                    existingBookmark.categoryId = uuid
+                }
+                
+                continue  // Next bookmark
             }
-
+            
+            // ✅ YENİ BOOKMARK OLUŞTUR
+            print("➕ [DOWNLOAD] Creating new bookmark: \(cloud.title)")
+            
             let isEnc = (cloud.isEncrypted == true)
-
             let title = decryptIfNeeded(cloud.title, isEncrypted: isEnc)
             let url = cloud.url.map { decryptIfNeeded($0, isEncrypted: isEnc) }
             let note = cloud.note.map { decryptIfNeeded($0, isEncrypted: isEnc) } ?? ""
-
             let tags: [String] = (cloud.tags ?? []).map { decryptIfNeeded($0, isEncrypted: isEnc) }
-
             let source = BookmarkSource(rawValue: cloud.source) ?? .other
 
             let newBookmark = Bookmark(
@@ -403,23 +488,36 @@ final class SyncService: ObservableObject {
                 tags: tags
             )
 
-            if let uuid = UUID(uuidString: targetId) {
-                newBookmark.id = uuid
-            }
+            newBookmark.id = targetUUID
 
             if let createdDate = ISO8601DateFormatter().date(from: cloud.createdAt) {
                 newBookmark.createdAt = createdDate
             }
 
-            // Eğer image_urls varsa ilkini indirip local'e koy (senin modelinde imageData var diye varsaydım)
-            if let firstImageUrl = cloud.imageUrls?.first, !firstImageUrl.isEmpty {
-                if let imageData = await downloadImageData(from: firstImageUrl) {
-                    newBookmark.imageData = imageData
+            // 🖼️ Resimleri indir
+            if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
+                print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for new bookmark")
+                
+                if let firstImagePath = imageUrls.first {
+                    print("   📥 Downloading image from: \(firstImagePath)")
+                    
+                    if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
+                        if let imageData = image.jpegData(compressionQuality: 0.8) {
+                            newBookmark.imageData = imageData
+                            print("   ✅ Image downloaded and saved")
+                        }
+                    } else {
+                        print("   ❌ Failed to download image")
+                    }
                 }
+                
+                newBookmark.imageUrls = imageUrls
             }
 
-            // category_id eşlemesi (modelin categoryId tutuyor varsayımı)
-            if let categoryId = cloud.categoryId, let uuid = UUID(uuidString: categoryId) {
+            // Category mapping
+            if let cloudCategoryId = cloud.categoryId,
+               let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId],
+               let uuid = UUID(uuidString: localCategoryId) {
                 newBookmark.categoryId = uuid
             }
 
@@ -443,24 +541,72 @@ final class SyncService: ObservableObject {
 
     private func uploadBookmarks(context: ModelContext, userId: UUID) async throws {
         let localBookmarks = try context.fetch(FetchDescriptor<Bookmark>())
+        
+        // Önce tüm kategorilerin local_id → cloud_id mapping'ini al
+        let cloudCategories: [CloudCategory] = try await client
+            .from("categories")
+            .select("id, local_id")
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+            .value
+        
+        // local_id → cloud_id map oluştur
+        var categoryIdMap: [String: String] = [:]
+        for cat in cloudCategories {
+            if let localId = cat.localId {
+                categoryIdMap[localId] = cat.id
+            }
+        }
+        
+        Logger.sync.info("📦 Category ID map created with \(categoryIdMap.count) entries")
 
         for bookmark in localBookmarks {
-            // İstersen burada resim upload edip image_urls'a koyabilirsin.
-            // Senin diğer dosyada ImageUploadService vardı. Projende varsa aç:
+            // ✅ DÜZELTME: Önce payload oluştur, sonra image_urls ekle
+            var payload = createBookmarkPayload(bookmark, userId: userId)
             
+            // 🖼️ Image upload
             var imageUrls: [String] = []
+            
+            // Tek resim varsa (imageData)
             if let imageData = bookmark.imageData, let image = UIImage(data: imageData) {
-                if let uploaded = try? await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0) {
-                    imageUrls = [uploaded]
+                do {
+                    let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0)
+                    imageUrls.append(uploaded)
+                    print("📤 [SYNC] Uploaded image: \(uploaded)")
+                } catch {
+                    print("❌ [SYNC] Image upload failed: \(error)")
                 }
             }
             
-
-            var payload = createBookmarkPayload(bookmark, userId: userId)
-            payload["image_urls"] = AnyEncodable(imageUrls)
-
-            // Eğer yukarıdaki image upload aktif edilirse:
-            // payload["image_urls"] = AnyEncodable(imageUrls)
+            // Çoklu resimler varsa (imagesData) - BONUS
+            if let imagesData = bookmark.imagesData {
+                for (index, imageData) in imagesData.enumerated() {
+                    if let image = UIImage(data: imageData) {
+                        do {
+                            let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: index)
+                            imageUrls.append(uploaded)
+                            print("📤 [SYNC] Uploaded image \(index): \(uploaded)")
+                        } catch {
+                            print("❌ [SYNC] Image \(index) upload failed: \(error)")
+                        }
+                    }
+                }
+            }
+            
+            // ✅ DÜZELTME: image_urls'i payload'a ekle (override değil!)
+            if !imageUrls.isEmpty {
+                payload["image_urls"] = AnyEncodable(imageUrls)
+                print("✅ [SYNC] Added \(imageUrls.count) image URLs to payload")
+            }
+            
+            // 🔑 Category ID'yi cloud ID ile değiştir
+            if let localCategoryId = bookmark.categoryId?.uuidString,
+               let cloudCategoryId = categoryIdMap[localCategoryId] {
+                payload["category_id"] = AnyEncodable(cloudCategoryId)
+                Logger.sync.debug("🔗 Mapped category \(localCategoryId) → \(cloudCategoryId)")
+            } else {
+                payload["category_id"] = AnyEncodable(nil as String?)
+            }
 
             try await client
                 .from("bookmarks")
@@ -528,19 +674,18 @@ final class SyncService: ObservableObject {
                 payload["tags"] = AnyEncodable([String]())
             }
 
-            payload["image_urls"] = AnyEncodable([String]())
+            // ✅ DÜZELTME: image_urls'i burada SET ETME!
+            // Caller (uploadBookmarks) set edecek
+
         } catch {
             payload["title"] = AnyEncodable("[Encryption Error]")
             payload["url"] = AnyEncodable("")
             payload["note"] = AnyEncodable("")
             payload["tags"] = AnyEncodable([String]())
-            payload["image_urls"] = AnyEncodable([String]())
             payload["is_encrypted"] = AnyEncodable(false)
         }
 
-        if let categoryId = bookmark.categoryId {
-            payload["category_id"] = AnyEncodable(categoryId.uuidString)
-        }
+        // Not: category_id ve image_urls caller tarafından eklenir
 
         return payload
     }

@@ -2,13 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.applesignin</key>
-	<array>
-		<string>Default</string>
-	</array>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.com.unal.socialbookmark</string>
-	</array>
+    <!-- Apple Sign In -->
+    <key>com.apple.developer.applesignin</key>
+    <array>
+        <string>Default</string>
+    </array>
+    
+    <!-- App Groups - Share Extension ile veri paylaşımı -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.unal.socialbookmark</string>
+    </array>
+    
+    <!-- ✅ Keychain Sharing - Encryption key'i cihazlar arası senkronize etmek için -->
+    <!-- Not: iCloud Keychain sadece bu entitlement ile çalışır, CloudKit gerekmez -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.unal.socialbookmark</string>
+    </array>
 </dict>
 </plist>

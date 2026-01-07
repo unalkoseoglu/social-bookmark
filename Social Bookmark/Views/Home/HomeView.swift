@@ -76,7 +76,7 @@ struct HomeView: View {
             }
         }
         .refreshable {
-            viewModel.refresh()
+          await viewModel.refresh()
         }
         .id(languageManager.refreshID)
     }
