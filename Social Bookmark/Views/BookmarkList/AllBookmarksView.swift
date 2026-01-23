@@ -2,15 +2,25 @@ import SwiftUI
 
 /// Tüm bookmarkları listeleyen view
 /// "Tümünü Gör" butonundan açılır
+/// ✅ Pagination ile optimize edildi
 struct AllBookmarksView: View {
     // MARK: - Properties
     
     @Bindable var viewModel: HomeViewModel
     
     @State private var searchText = ""
+    @State private var debouncedSearchText = "" // Debounced search
     @State private var selectedSource: BookmarkSource?
     @State private var sortOrder: SortOrder = .newest
     @State private var showingFilters = false
+    
+    // MARK: - Pagination State
+    
+    @State private var displayedBookmarks: [Bookmark] = []
+    @State private var currentPage = 0
+    @State private var isLoadingMore = false
+    
+    private let itemsPerPage = 20
     
     // MARK: - Sort Order
     
@@ -41,50 +51,28 @@ struct AllBookmarksView: View {
         }
     }
     
-    // MARK: - Filtered & Sorted Bookmarks
+    // MARK: - Filtered & Sorted Bookmarks (OPTIMIZED)
+    
+    @State private var filteredResults: [Bookmark] = []
     
     private var filteredBookmarks: [Bookmark] {
-        var bookmarks = viewModel.allBookmarks
-        
-        // Kaynak filtresi
-        if let source = selectedSource {
-            bookmarks = bookmarks.filter { $0.source == source }
-        }
-        
-        // Arama filtresi
-        if !searchText.isEmpty {
-            bookmarks = bookmarks.filter { bookmark in
-                bookmark.title.localizedCaseInsensitiveContains(searchText) ||
-                bookmark.note.localizedCaseInsensitiveContains(searchText) ||
-                bookmark.tags.contains { $0.localizedCaseInsensitiveContains(searchText) }
-            }
-        }
-        
-        // Sıralama
-        switch sortOrder {
-        case .newest:
-            bookmarks.sort { $0.createdAt > $1.createdAt }
-        case .oldest:
-            bookmarks.sort { $0.createdAt < $1.createdAt }
-        case .alphabetical:
-            bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
-        case .source:
-            bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
-        }
-        
-        return bookmarks
+        filteredResults
     }
     
     // Kaynak bazlı gruplama
     private var groupedBookmarks: [BookmarkSource: [Bookmark]] {
-        Dictionary(grouping: filteredBookmarks, by: { $0.source })
+        Dictionary(grouping: displayedBookmarks, by: { $0.source })
+    }
+    
+    private var hasMorePages: Bool {
+        displayedBookmarks.count < filteredResults.count
     }
     
     // MARK: - Body
     
     var body: some View {
         Group {
-            if filteredBookmarks.isEmpty {
+            if filteredBookmarks.isEmpty && !isLoadingMore {
                 emptyStateView
             } else {
                 bookmarkList
@@ -96,8 +84,82 @@ struct AllBookmarksView: View {
         .toolbar {
             toolbarContent
         }
-        .sheet(isPresented: $showingFilters) {
-            filterSheet
+        
+        .task {
+            // İlk açılışta hesapla
+            await updateFilteredBookmarks()
+            loadInitialPage()
+        }
+        .onChange(of: searchText) { _, newValue in
+            // Debounce logic inside the Task
+            Task {
+                try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+                if searchText == newValue {
+                    debouncedSearchText = newValue
+                    await updateFilteredBookmarks()
+                    resetPagination()
+                }
+            }
+        }
+        .onChange(of: selectedSource) { _, _ in
+            Task {
+                await updateFilteredBookmarks()
+                resetPagination()
+            }
+        }
+        .onChange(of: sortOrder) { _, _ in
+            Task {
+                await updateFilteredBookmarks()
+                resetPagination()
+            }
+        }
+    }
+    
+    // MARK: - Optimization Methods
+    
+    private func updateFilteredBookmarks() async {
+        let currentBookmarks = viewModel.allBookmarks
+        let currentSearch = debouncedSearchText
+        let currentSource = selectedSource
+        let currentSort = sortOrder
+        
+        // Heavy lifting off main thread
+        let results = await Task.detached(priority: .userInitiated) {
+            var bookmarks = currentBookmarks
+            
+            // Kaynak filtresi
+            if let source = currentSource {
+                bookmarks = bookmarks.filter { $0.source == source }
+            }
+            
+            // Arama filtresi
+            if !currentSearch.isEmpty {
+                let searchLower = currentSearch.lowercased()
+                bookmarks = bookmarks.filter { bookmark in
+                    bookmark.title.lowercased().contains(searchLower) ||
+                    bookmark.note.lowercased().contains(searchLower) ||
+                    bookmark.tags.contains { $0.lowercased().contains(searchLower) }
+                }
+            }
+            
+            // Sıralama
+            switch currentSort {
+            case .newest:
+                bookmarks.sort { $0.createdAt > $1.createdAt }
+            case .oldest:
+                bookmarks.sort { $0.createdAt < $1.createdAt }
+            case .alphabetical:
+                bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
+            case .source:
+                bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
+            }
+            
+            return bookmarks
+        }.value
+        
+        // Update UI on main thread
+        withAnimation {
+            self.filteredResults = results
         }
     }
     
@@ -105,133 +167,84 @@ struct AllBookmarksView: View {
     
     private var bookmarkList: some View {
         List {
-            // Stats header
-            Section {
-                statsHeader
-            }
+            // Stats Section
+            statsSection
             
-            // Source filter chips
-            Section {
-                sourceFilterChips
-            }
+            // Source Filter Chips
+            sourceFilterSection
             
-            // Bookmarks
+            // Bookmarks Section
             if sortOrder == .source {
-                // Kaynak bazlı gruplu liste
-                ForEach(BookmarkSource.allCases.filter { groupedBookmarks[$0] != nil }, id: \.self) { source in
-                    Section {
-                        ForEach(groupedBookmarks[source] ?? []) { bookmark in
-                            bookmarkRow(bookmark)
-                        }
-                    } header: {
-                        HStack {
-                            Text(source.emoji)
-                            Text(source.displayName)
-                            Spacer()
-                            Text("\(groupedBookmarks[source]?.count ?? 0)")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
+                sourceGroupedSection
             } else {
-                // Düz liste
-                Section {
-                    ForEach(filteredBookmarks) { bookmark in
-                        bookmarkRow(bookmark)
-                    }
-                } header: {
-                    Text("all.section.bookmarks")
-                }
+                flatListSection
+            }
+            
+            // Load More Section
+            if hasMorePages {
+                loadMoreSection
             }
         }
         .listStyle(.insetGrouped)
     }
     
-    // MARK: - Stats Header
+    // MARK: - Stats Section
     
-    private var statsHeader: some View {
-        HStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(filteredBookmarks.count)")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .contentTransition(.numericText())
-                
-                Text("all.stats.total")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
-            Divider()
-                .frame(height: 40)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(filteredBookmarks.filter { !$0.isRead }.count)")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.orange)
-                    .contentTransition(.numericText())
-                
-                Text("all.stats.unread")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-            
-            // Sort indicator
-            Menu {
-                ForEach(SortOrder.allCases) { order in
-                    Button {
-                        withAnimation {
-                            sortOrder = order
-                        }
-                    } label: {
-                        Label(order.title, systemImage: order.icon)
-                    }
-                }
-            } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: sortOrder.icon)
-                    Text(sortOrder.title)
+    private var statsSection: some View {
+        Section {
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(filteredBookmarks.count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Text("all.stats.total")
                         .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color(.systemGray6))
-                .clipShape(Capsule())
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(filteredBookmarks.filter { !$0.isRead }.count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.orange)
+                    Text("all.stats.unread")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
             }
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 8)
     }
     
-    // MARK: - Source Filter Chips
+    // MARK: - Source Filter Section
     
-    private var sourceFilterChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // All sources
-                FilterChip(
-                    title: String(localized: "all.filter.all"),
-                    icon: "square.grid.2x2",
-                    isSelected: selectedSource == nil
-                ) {
-                    withAnimation {
+    private var sourceFilterSection: some View {
+        Section {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    // All
+                    FilterChip(
+                        title: String(localized: "all.filter.all"),
+                        icon: "square.grid.2x2",
+                        isSelected: selectedSource == nil
+                    ) {
                         selectedSource = nil
                     }
-                }
-                
-                // Individual sources
-                ForEach(BookmarkSource.allCases) { source in
-                    let count = viewModel.allBookmarks.filter { $0.source == source }.count
-                    if count > 0 {
-                        FilterChip(
-                            title: source.displayName,
-                            emoji: source.emoji,
-                            count: count,
-                            isSelected: selectedSource == source
-                        ) {
-                            withAnimation {
+                    
+                    // Individual sources
+                    ForEach(BookmarkSource.allCases) { source in
+                        let count = viewModel.allBookmarks.filter { $0.source == source }.count
+                        if count > 0 {
+                            FilterChip(
+                                title: source.displayName,
+                                emoji: source.emoji,
+                                count: count,
+                                isSelected: selectedSource == source
+                            ) {
                                 selectedSource = selectedSource == source ? nil : source
                             }
                         }
@@ -241,6 +254,75 @@ struct AllBookmarksView: View {
             .padding(.horizontal, 4)
         }
         .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+    }
+    
+    // MARK: - Flat List Section
+    
+    private var flatListSection: some View {
+        Section {
+            ForEach(displayedBookmarks) { bookmark in
+                bookmarkRow(bookmark)
+                    .onAppear {
+                        // Infinite scroll trigger
+                        if bookmark.id == displayedBookmarks.last?.id {
+                            loadMoreIfNeeded()
+                        }
+                    }
+            }
+        }
+    }
+    
+    // MARK: - Source Grouped Section
+    
+    private var sourceGroupedSection: some View {
+        ForEach(BookmarkSource.allCases.filter { groupedBookmarks[$0] != nil }, id: \.self) { source in
+            Section {
+                ForEach(groupedBookmarks[source] ?? []) { bookmark in
+                    bookmarkRow(bookmark)
+                }
+            } header: {
+                HStack {
+                    Text(source.emoji)
+                    Text(source.displayName)
+                    Spacer()
+                    Text("\(groupedBookmarks[source]?.count ?? 0)")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Load More Section
+    
+    private var loadMoreSection: some View {
+        Section {
+            if isLoadingMore {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Text("common.loading")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 8)
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+            } else {
+                Button {
+                    loadMoreBookmarks()
+                } label: {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "arrow.down.circle")
+                        Text("all.action.load_more")
+                        Spacer()
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.blue)
+                }
+                .padding(.vertical, 8)
+            }
+        }
     }
     
     // MARK: - Bookmark Row
@@ -367,25 +449,69 @@ struct AllBookmarksView: View {
         .presentationDetents([.medium])
     }
     
+    // MARK: - Pagination Methods
+    
+    private func loadInitialPage() {
+        currentPage = 0
+        displayedBookmarks = []
+        loadMoreBookmarks()
+    }
+    
+    private func resetPagination() {
+        loadInitialPage()
+    }
+    
+    private func loadMoreBookmarks() {
+        guard !isLoadingMore else { return }
+        
+        let startIndex = currentPage * itemsPerPage
+        let endIndex = min(startIndex + itemsPerPage, filteredBookmarks.count)
+        
+        guard startIndex < filteredBookmarks.count else { return }
+        
+        isLoadingMore = true
+        
+        // Simulate async loading
+        Task {
+            try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
+            
+            await MainActor.run {
+                let newBookmarks = Array(filteredBookmarks[startIndex..<endIndex])
+                displayedBookmarks.append(contentsOf: newBookmarks)
+                currentPage += 1
+                isLoadingMore = false
+            }
+        }
+    }
+    
+    private func loadMoreIfNeeded() {
+        let threshold = 5
+        let remainingItems = filteredBookmarks.count - displayedBookmarks.count
+        
+        if remainingItems > 0 && remainingItems <= threshold && !isLoadingMore {
+            loadMoreBookmarks()
+        }
+    }
+    
     // MARK: - Actions
     
     private func deleteBookmark(_ bookmark: Bookmark) {
-        withAnimation {
-            viewModel.bookmarkRepository.delete(bookmark)
-            viewModel.refresh()
+        viewModel.bookmarkRepository.delete(bookmark)
+        viewModel.refresh()
+        
+        // Remove from displayed list
+        if let index = displayedBookmarks.firstIndex(where: { $0.id == bookmark.id }) {
+            displayedBookmarks.remove(at: index)
         }
     }
     
     private func toggleRead(_ bookmark: Bookmark) {
-        withAnimation {
-            bookmark.isRead.toggle()
-            viewModel.bookmarkRepository.update(bookmark)
-            viewModel.refresh()
-        }
+        bookmark.isRead.toggle()
+        viewModel.bookmarkRepository.update(bookmark)
     }
     
     private func markAllAsRead() {
-        for bookmark in filteredBookmarks where !bookmark.isRead {
+        for bookmark in displayedBookmarks where !bookmark.isRead {
             bookmark.isRead = true
             viewModel.bookmarkRepository.update(bookmark)
         }
@@ -432,73 +558,6 @@ struct FilterChip: View {
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
-    }
-}
-
-// MARK: - All Bookmarks Row
-
-struct AllBookmarksRow: View {
-    let bookmark: Bookmark
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Kaynak emoji
-            Text(bookmark.source.emoji)
-                .font(.title3)
-                .frame(width: 44, height: 44)
-                .background(bookmark.source.color.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(bookmark.title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(2)
-                
-                HStack(spacing: 8) {
-                    Text(bookmark.source.displayName)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    Text("•")
-                        .foregroundStyle(.tertiary)
-                    
-                    Text(bookmark.relativeDate)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    if bookmark.hasTags {
-                        Text("•")
-                            .foregroundStyle(.tertiary)
-                        
-                        HStack(spacing: 4) {
-                            Image(systemName: "tag.fill")
-                                .font(.caption2)
-                            Text("\(bookmark.tags.count)")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.blue)
-                    }
-                }
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
-                if !bookmark.isRead {
-                    Circle()
-                        .fill(.orange)
-                        .frame(width: 8, height: 8)
-                }
-                
-                if bookmark.isFavorite {
-                    Image(systemName: "star.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.yellow)
-                }
-            }
-        }
-        .padding(.vertical, 4)
     }
 }
 

@@ -36,7 +36,7 @@ final class HomeViewModel {
     }
     
     var allBookmarks: [Bookmark] {
-        bookmarkRepository.fetchAll()
+        bookmarks
     }
     
     /// Okunmamış bookmark sayısı

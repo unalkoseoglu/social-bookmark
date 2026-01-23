@@ -296,14 +296,8 @@ struct HomeView: View {
             .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 16)
             
-            // Popular Tags Widget
-            if !viewModel.popularTags.isEmpty {
-                PopularTagsWidget(
-                    tags: Array(viewModel.popularTags.prefix(8)),
-                    viewModel: viewModel
-                )
-                .padding(.horizontal, 16)
-            }
+        
+            
         }
     }
 }
