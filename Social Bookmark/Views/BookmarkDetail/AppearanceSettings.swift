@@ -64,7 +64,7 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
 struct AppearanceSettingsView: View {
     @AppStorage("readerFont") private var selectedFont: ReaderFont = .serif
     @AppStorage("readerFontSize") private var fontSize: Double = 18
-    @AppStorage("readerTheme") private var selectedTheme: ReaderTheme = .light // Default to light
+    @AppStorage("readerTheme") private var selectedTheme: ReaderTheme = .light
     
     // We treat 'system' as a conceptual default, but in this specific UI we force a choice for reader mode override
     // Or we strictly use the 4 themes defined.
@@ -139,7 +139,6 @@ struct AppearanceSettingsView: View {
             .foregroundColor(selectedTheme == .dark || selectedTheme == .black ? .white : .black)
         }
         .padding(.vertical, 24)
-        .background(Color(uiColor: .systemBackground)) // We might want this to match the theme too?
         .presentationDetents([.height(280)])
         .presentationDragIndicator(.visible)
     }

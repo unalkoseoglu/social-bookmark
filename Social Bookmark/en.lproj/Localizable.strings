@@ -264,6 +264,7 @@
 "categories.management.count %lld" = "Categories (%lld)";
 "categories.management.bookmark_count %lld" = "%lld bookmarks";
 "categories.management.delete_confirmation %@" = "Are you sure you want to delete the '%@' category?";
+"categories.management.delete_with_bookmarks %lld %@" = "This category contains %lld bookmarks. Deleting '%@' will categorize its bookmarks as Uncategorized. Continue?";
 "categories.management.editing_status" = "Editing";
 
 "category_picker.title" = "Category";
@@ -651,40 +652,7 @@
 "source.blog.description" = "Blog posts";
 "source.documentation.description" = "Technical documentation";
 
-// MARK: - Add Bookmark - New Keys
 
-// Category Picker
-"addBookmark.category.no_category_hint" = "Save without category";
-
-// Cover Image Section
-"addBookmark.section.coverImage" = "Cover Image";
-"addBookmark.coverImage.add" = "Add Cover Image";
-"addBookmark.coverImage.hint" = "Choose a custom image for the bookmark";
-"addBookmark.coverImage.footer" = "Add a custom cover image that will appear in the list";
-"addBookmark.coverImage.edit" = "Crop";
-"addBookmark.coverImage.change" = "Change";
-"addBookmark.coverImage.remove" = "Remove";
-
-// OCR Section
-"addBookmark.section.ocr" = "Text Extraction (OCR)";
-"addBookmark.ocr.add" = "Extract Text from Image";
-"addBookmark.ocr.hint" = "Add text from photo to notes";
-"addBookmark.ocr.footer" = "Extract text from an image and automatically add it to notes";
-"addBookmark.ocr.processing" = "Extracting text...";
-"addBookmark.ocr.completed" = "Text extracted";
-"addBookmark.ocr.completedHint" = "Text added to notes";
-"addBookmark.ocr.recrop" = "Recrop";
-"addBookmark.ocr.remove" = "Remove";
-
-// Source Descriptions
-"source.twitter.description" = "Twitter/X posts";
-"source.reddit.description" = "Reddit posts & comments";
-"source.linkedin.description" = "LinkedIn posts";
-"source.medium.description" = "Medium articles";
-"source.youtube.description" = "YouTube videos";
-"source.instagram.description" = "Instagram posts";
-"source.github.description" = "GitHub repositories";
-"source.article.description" = "Articles and blog posts";
 
 /* Encryption Key Backup View */
 

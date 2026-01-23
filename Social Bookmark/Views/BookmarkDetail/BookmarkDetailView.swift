@@ -1,25 +1,56 @@
 import SwiftUI
 
-/// Bookmark detay ekranı - Kitap okuma uygulaması tarzı tasarım
+/// Bookmark detay ekranı - Reader Mode Tasarımı
 struct BookmarkDetailView: View {
     // MARK: - Properties
     
     let bookmark: Bookmark
     
     @Environment(\.dismiss) private var dismiss
-
+    @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
     
     @Bindable var viewModel: HomeViewModel
     
+    // Reader Settings
+    @AppStorage("readerFont") private var selectedFont: ReaderFont = .serif
+    @AppStorage("readerFontSize") private var fontSize: Double = 18
+    @AppStorage("readerTheme") private var selectedTheme: ReaderTheme = .dark
+    
+    // UI State
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
     @State private var showingShareSheet = false
     @State private var showingFullScreenImage = false
+    @State private var isAppearanceMenuPresented = false
     @State private var selectedImageIndex = 0
     @State private var loadedImages: [UIImage] = []
     @State private var isLoadingImages = false
     
+    // Immersive Mode State
+    @State private var isMenuVisible = true
+    @State private var lastScrollOffset: CGFloat = 0
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isCopied = false
+    
     // MARK: - Computed Properties
+    
+    // Theme Resolvers
+    private var currentBackgroundColor: Color {
+        selectedTheme.backgroundColor
+    }
+    
+    private var currentTextColor: Color {
+        selectedTheme.textColor
+    }
+    
+    private var currentSecondaryTextColor: Color {
+        selectedTheme.secondaryTextColor
+    }
+    
+    private var currentFontDesign: Font.Design {
+        selectedFont.design
+    }
     
     private var allImages: [UIImage] {
         let localImages = bookmark.allImagesData.compactMap { UIImage(data: $0) }
@@ -33,75 +64,139 @@ struct BookmarkDetailView: View {
         !allImages.isEmpty || isLoadingImages
     }
     
+    private var wordCount: Int {
+        bookmark.note.split(separator: " ").count
+    }
+    
+    private var readingTime: String {
+        let wpm = 200
+        let minutes = max(1, wordCount / wpm)
+        return "\(minutes) \(String(localized: "common.min_read"))"
+    }
+    
     // MARK: - Body
     
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            currentBackgroundColor.ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Scrollable Content
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        // Cover Image Section
+                        // 1. Cover Image (Hero)
                         if hasImages {
                             coverImageSection
-                                .padding(.bottom, 24)
                         }
                         
                         VStack(alignment: .leading, spacing: 24) {
-                            // Title + Metadata
-                            titleMetadataSection
+                            // 2. Header (Title & Meta)
+                            headerSection
                             
-                            Divider()
-                                .padding(.vertical, 8)
-                            
-                            // Main Content (Note/Description)
-                            if bookmark.hasNote {
-                                contentSection
-                            }
-                            
-                            // URL Section
-                            if bookmark.hasURL {
-                                Divider()
-                                    .padding(.vertical, 8)
-                                linkSection
-                            }
-                            
-                            // Tags
+                            // 3. Tags
                             if bookmark.hasTags {
-                                Divider()
-                                    .padding(.vertical, 8)
                                 tagsSection
                             }
+                            
+                            Divider()
+                                .overlay(currentSecondaryTextColor.opacity(0.2))
+                            
+                            // 4. Content Body
+                            if bookmark.hasNote {
+                                contentBodySection
+                            } else {
+                                emptyContentPlaceholder
+                            }
+                            
+                            // 5. Source Link
+                            if bookmark.hasURL {
+                                sourceLinkCard
+                            }
+                            
+                            // Bottom padding for scroll
+                            Color.clear.frame(height: 100)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 24)
+                        .padding(.horizontal, 24)
+                        .padding(.top, hasImages ? 24 : 16)
                     }
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .preference(
+                                    key: ScrollOffsetPreferenceKey.self,
+                                    value: geo.frame(in: .named("scroll")).minY
+                                )
+                        }
+                    )
+                }
+                .coordinateSpace(name: "scroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    handleScroll(offset: value)
                 }
                 
-                // Bottom Action Bar
-                bottomActionBar
+                // Sticky Action Bar
+                stickyActionBar
+                    .offset(y: isMenuVisible ? 0 : 200) // Hide by sliding down
+                    .opacity(isMenuVisible ? 1 : 0)
             }
+        }
+        // edgesIgnoringSafeArea removed to respect Home Indicator
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isMenuVisible)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // Appearance Menu
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { isAppearanceMenuPresented = true }) {
+                    Image(systemName: "textformat.size")
+                }
+            }
+            
+            // Actions Menu
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(action: { showingEditSheet = true }) {
+                        Label("common.edit", systemImage: "pencil")
+                    }
+                    
+                    Button(action: { showingShareSheet = true }) {
+                        Label("bookmarkDetail.share", systemImage: "square.and.arrow.up")
+                    }
+                    
+                    Divider()
+                    
+                    Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                        Label("common.delete", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        // Sheets & Alerts
+        .toolbar(.hidden, for: .tabBar) // Hide TabBar to prevent overlap
+        .sheet(isPresented: $isAppearanceMenuPresented) {
+            AppearanceSettingsView()
         }
         .sheet(isPresented: $showingEditSheet) {
             EditBookmarkView(
                 bookmark: bookmark,
-                repository: viewModel.bookmarkRepository, categoryRepository: viewModel.categoryRepository
+                repository: viewModel.bookmarkRepository,
+                categoryRepository: viewModel.categoryRepository
             )
         }
-        .alert("bookmarkDetail.delete_title", isPresented: $showingDeleteAlert) {
-            Button("common.cancel", role: .cancel) {}
-            Button("common.delete", role: .destructive)  {
-                Task {
-                       await deleteBookmark()
-                   }
+        .alert(String(localized: "bookmarkDetail.delete_title"), isPresented: $showingDeleteAlert) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "common.delete"), role: .destructive) {
+                Task { await deleteBookmark() }
             }
         } message: {
-            Text("bookmarkDetail.delete_confirmation")
+            Text(String(localized: "bookmarkDetail.delete_confirmation"))
         }
         .sheet(isPresented: $showingShareSheet) {
-            if let url = bookmark.url {
-                ShareSheet(items: [url])
+            if let url = bookmark.url, let link = URL(string: url) {
+                ShareSheet(items: [link])
+            } else {
+                ShareSheet(items: [bookmark.title, bookmark.note])
             }
         }
         .fullScreenCover(isPresented: $showingFullScreenImage) {
@@ -110,353 +205,308 @@ struct BookmarkDetailView: View {
                 selectedIndex: $selectedImageIndex
             )
         }
-        .navigationTitle(bookmark.source.displayName)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showingShareSheet = true }) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 16, weight: .semibold))
-                }
-                .disabled(!bookmark.hasURL)
-            }
-        }
         .task {
             await loadImagesFromStorage()
         }
     }
     
-    // MARK: - Image Loading
+    // MARK: - Sections
+    
+    private var coverImageSection: some View {
+        TabView(selection: $selectedImageIndex) {
+            if isLoadingImages {
+                ZStack {
+                    Color(.systemGray6)
+                    ProgressView()
+                }
+                .frame(height: 300)
+                .tag(0)
+            } else {
+                ForEach(0..<allImages.count, id: \.self) { index in
+                    Image(uiImage: allImages[index])
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 300)
+                        .clipped()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            showingFullScreenImage = true
+                        }
+                        .tag(index)
+                }
+            }
+        }
+        .tabViewStyle(.page)
+        .frame(height: 300)
+    }
+    
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Meta Row: Source | Date
+            HStack(spacing: 8) {
+                Label {
+                    Text(bookmark.source.displayName)
+                        .font(.custom("System", size: 14).weight(.medium)) // Fixed size for meta
+                        .fontWeight(.medium)
+                } icon: {
+                    Text(bookmark.source.emoji)
+                }
+                .foregroundStyle(currentSecondaryTextColor)
+                
+                Text("•")
+                    .foregroundStyle(currentSecondaryTextColor.opacity(0.6))
+                
+                Text(bookmark.relativeDate)
+                    .font(.custom("System", size: 14))
+                    .foregroundStyle(currentSecondaryTextColor)
+            }
+            .fontDesign(currentFontDesign)
+            
+            // Title
+            Text(bookmark.title)
+                .font(.system(size: fontSize * 1.5, weight: .bold, design: currentFontDesign))
+                .lineSpacing(4)
+                .foregroundStyle(currentTextColor)
+            
+            // Reading stats
+            if bookmark.hasNote {
+                HStack(spacing: 6) {
+                    Image(systemName: "clock")
+                    Text(readingTime)
+                    
+                    Text("•")
+                        .padding(.horizontal, 4)
+                    
+                    Image(systemName: "text.alignleft")
+                    Text("\(wordCount) \(String(localized: "common.words"))")
+                }
+                .font(.caption)
+                .foregroundStyle(currentSecondaryTextColor)
+                .textCase(.uppercase)
+                .fontDesign(currentFontDesign)
+            }
+        }
+    }
+    
+    private var tagsSection: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(bookmark.tags, id: \.self) { tag in
+                Text("#\(tag)")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(currentSecondaryTextColor.opacity(0.1))
+                    .foregroundStyle(currentSecondaryTextColor)
+                    .clipShape(Capsule())
+            }
+        }
+    }
+    
+    private var contentBodySection: some View {
+        Text(bookmark.note)
+            .font(.system(size: fontSize, weight: .regular, design: currentFontDesign))
+            .lineSpacing(fontSize * 0.6) // Dynamic line spacing based on font size
+            .foregroundStyle(currentTextColor)
+            .textSelection(.enabled)
+    }
+    
+    private var emptyContentPlaceholder: some View {
+        HStack {
+            Spacer()
+            VStack(spacing: 12) {
+                Image(systemName: "text.justify.left")
+                    .font(.largeTitle)
+                    .foregroundStyle(currentSecondaryTextColor.opacity(0.3))
+                Text(String(localized: "bookmark.no_content"))
+                    .font(.body)
+                    .foregroundStyle(currentSecondaryTextColor)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 40)
+    }
+    
+    private var sourceLinkCard: some View {
+        Button {
+            if let urlString = bookmark.url, let url = URL(string: urlString) {
+                openURL(url)
+            }
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(selectedTheme.accentColor.opacity(0.1))
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: "link")
+                        .font(.headline)
+                        .foregroundStyle(selectedTheme.accentColor)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "bookmarkDetail.openInBrowser"))
+                        .font(.headline)
+                        .foregroundStyle(currentTextColor)
+                    
+                    if let url = bookmark.url {
+                        Text(url)
+                            .font(.caption)
+                            .foregroundStyle(currentSecondaryTextColor)
+                            .lineLimit(1)
+                    }
+                }
+                
+                Spacer()
+                
+                Image(systemName: "arrow.up.right")
+                    .font(.subheadline)
+                    .foregroundStyle(currentSecondaryTextColor)
+            }
+            .padding(16)
+            .background(currentSecondaryTextColor.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+    
+    // MARK: - Sticky Action Bar
+    
+    private var stickyActionBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+                .overlay(currentSecondaryTextColor.opacity(0.2))
+            
+            HStack {
+                // Read/Unread Toggle
+                Button(action: toggleReadStatus) {
+                    HStack(spacing: 8) {
+                        Image(systemName: bookmark.isRead ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                        Text(bookmark.isRead ? String(localized: "bookmarkDetail.status.read") : String(localized: "bookmarkDetail.markRead"))
+                            .fontWeight(.medium)
+                    }
+                    .foregroundStyle(bookmark.isRead ? .green : currentTextColor)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 20)
+                    .background(bookmark.isRead ? Color.green.opacity(0.1) : currentSecondaryTextColor.opacity(0.1))
+                    .clipShape(Capsule())
+                }
+                
+                Spacer()
+                
+                // Favorite Toggle
+                Button(action: toggleFavorite) {
+                    Image(systemName: bookmark.isFavorite ? "star.fill" : "star")
+                        .font(.title3)
+                        .foregroundStyle(bookmark.isFavorite ? .yellow : currentSecondaryTextColor)
+                        .frame(width: 44, height: 44)
+                        .background(currentSecondaryTextColor.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                
+                // Copy Button
+                Button(action: copyContent) {
+                    Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                        .font(.title3)
+                        .foregroundStyle(isCopied ? .green : currentSecondaryTextColor)
+                        .frame(width: 44, height: 44)
+                        .background(currentSecondaryTextColor.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .sensoryFeedback(.success, trigger: isCopied)
+                
+                // Share
+                Button(action: { showingShareSheet = true }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.title3)
+                        .foregroundStyle(.blue)
+                        .frame(width: 44, height: 44)
+                        .background(currentSecondaryTextColor.opacity(0.1))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            // Removed hardcoded bottom padding 32, system will handle it
+            .background(selectedTheme == .light ? .regularMaterial : .thickMaterial)
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: -4)
+        }
+    }
+    
+    // MARK: - Logic
+    
+    private func handleScroll(offset: CGFloat) {
+        // Detect scroll direction
+        let diff = offset - lastScrollOffset
+        
+        // Tolerance for small movements
+        if abs(diff) < 10 { return }
+        
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            if diff < 0 && offset < -50 {
+                // Scrolling down -> Hide menu
+                isMenuVisible = false
+            } else if diff > 0 {
+                // Scrolling up -> Show menu
+                isMenuVisible = true
+            }
+        }
+        
+        lastScrollOffset = offset
+        scrollOffset = offset
+    }
+    
+    private func copyContent() {
+        let textToCopy = bookmark.note.isEmpty ? bookmark.title : bookmark.note
+        UIPasteboard.general.string = textToCopy
+        
+        withAnimation {
+            isCopied = true
+        }
+        
+        // Reset after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                isCopied = false
+            }
+        }
+    }
+    
+    private func toggleReadStatus() {
+        withAnimation {
+            viewModel.toggleReadStatus(bookmark)
+        }
+    }
+    
+    private func toggleFavorite() {
+        withAnimation {
+            viewModel.toggleFavorite(bookmark)
+        }
+    }
+    
+    private func deleteBookmark() async {
+        viewModel.deleteBookmark(bookmark)
+        dismiss()
+    }
     
     private func loadImagesFromStorage() async {
-        print("🖼️ [BookmarkDetailView] loadImagesFromStorage called")
-        print("   - Local images count: \(bookmark.allImagesData.count)")
-        print("   - imageUrls: \(bookmark.imageUrls ?? [])")
+        guard bookmark.allImagesData.isEmpty,
+              let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else { return }
         
-        // Eğer local'de görsel varsa yükleme yapma
-        guard bookmark.allImagesData.isEmpty else {
-            print("   - Using local images")
-            return
-        }
-        
-        // Cloud'dan yüklenmiş image_urls varsa onları yükle
-        guard let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else {
-            print("   - No imageUrls to load")
-            return
-        }
-        
-        print("   - Loading \(imageUrls.count) images from Storage...")
         await MainActor.run { isLoadingImages = true }
         
         var images: [UIImage] = []
-        for (index, path) in imageUrls.enumerated() {
-            print("   - Loading image \(index): \(path.prefix(50))...")
+        for path in imageUrls {
             if let image = await ImageUploadService.shared.loadImage(from: path) {
                 images.append(image)
-                print("   - ✅ Image \(index) loaded")
-            } else {
-                print("   - ❌ Image \(index) failed to load")
             }
         }
         
         await MainActor.run {
             loadedImages = images
             isLoadingImages = false
-            print("   - Total loaded: \(images.count) images")
         }
-    }
-    
-    // MARK: - Cover Image Section
-    
-    private var coverImageSection: some View {
-        ZStack(alignment: .bottom) {
-            Color(.systemGray6)
-            
-            if isLoadingImages {
-                // Loading state
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 280)
-            } else if allImages.count == 1 {
-                // Tek görsel
-                if let image = allImages.first {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 280)
-                        .clipped()
-                }
-            } else if allImages.count > 1 {
-                // Birden fazla görsel - Slider
-                TabView(selection: $selectedImageIndex) {
-                    ForEach(0..<allImages.count, id: \.self) { index in
-                        Image(uiImage: allImages[index])
-                            .resizable()
-                            .scaledToFill()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 280)
-                            .clipped()
-                            .tag(index)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-            }
-            
-            // Shadow overlay for better readability
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.clear,
-                    Color.black.opacity(0.4)
-                ]),
-                startPoint: .center,
-                endPoint: .bottom
-            )
-            .allowsHitTesting(false)
-            
-            // Custom Page Indicator (birden fazla görsel varsa)
-            if allImages.count > 1 {
-                HStack(spacing: 6) {
-                    ForEach(0..<allImages.count, id: \.self) { index in
-                        Circle()
-                            .fill(selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
-                            .frame(width: selectedImageIndex == index ? 8 : 6, height: selectedImageIndex == index ? 8 : 6)
-                            .animation(.easeInOut(duration: 0.2), value: selectedImageIndex)
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-                .padding(.bottom, 12)
-            }
-        }
-        .frame(height: 280)
-        .clipped()
-        .onTapGesture {
-            if !allImages.isEmpty {
-                showingFullScreenImage = true
-            }
-        }
-    }
-    
-    // MARK: - Title & Metadata Section
-    
-    private var titleMetadataSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Title
-            Text(bookmark.title)
-                .font(.system(size: 24, weight: .bold, design: .default))
-                .lineLimit(nil)
-                .tracking(0.2)
-            
-            // Metadata Row
-            HStack(spacing: 12) {
-                HStack(spacing: 6) {
-                    Text(bookmark.source.emoji)
-                    Text(bookmark.source.rawValue.capitalized)
-                        .font(.caption)
-                }
-                .foregroundStyle(.secondary)
-                
-                Text("•")
-                    .foregroundStyle(.tertiary)
-                
-                Text(bookmark.relativeDate)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                
-                Spacer()
-            }
-            
-            // Read Status Badge
-            if bookmark.isRead {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption2)
-                    Text("bookmarkDetail.status.read")
-                        .font(.caption2)
-                }
-                .foregroundStyle(.green)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.green.opacity(0.1))
-                .clipShape(Capsule())
-            }
-        }
-    }
-    
-    // MARK: - Content Section (Main Text)
-    
-    private var contentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("bookmarkDetail.section.content")
-                    .font(.system(size: 16, weight: .semibold))
-                    .tracking(0.4)
-                    .textCase(.uppercase)
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                Text("bookmarkDetail.word_count \(bookmark.note.split(separator: " ").count)")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            Text(bookmark.note)
-                .font(.system(.body, design: .default))
-                .lineSpacing(1.6)
-                .tracking(0.2)
-                .foregroundStyle(.primary)
-        }
-    }
-    
-    // MARK: - Link Section
-    
-    private var linkSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("bookmarkDetail.section.source")
-                .font(.system(size: 16, weight: .semibold))
-                .tracking(0.4)
-                .textCase(.uppercase)
-                .foregroundStyle(.secondary)
-            
-            if let urlString = bookmark.url, let url = URL(string: urlString) {
-                VStack(spacing: 8) {
-                    Link(destination: url) {
-                        HStack(spacing: 12) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(url.host ?? "Link")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Text("bookmarkDetail.openInBrowser")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(.blue)
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "arrow.up.right")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                    
-                    Button(action: {
-                        UIPasteboard.general.string = urlString
-                    }) {
-                        HStack(spacing: 12) {
-                            Text("bookmarkDetail.copyUrl")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "doc.on.doc")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(12)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-        }
-    }
-    
-    // MARK: - Tags Section
-    
-    private var tagsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("bookmarkDetail.section.tags")
-                .font(.system(size: 16, weight: .semibold))
-                .tracking(0.4)
-                .textCase(.uppercase)
-                .foregroundStyle(.secondary)
-            
-            FlowLayout(spacing: 8) {
-                ForEach(bookmark.tags, id: \.self) { tag in
-                    Text(tag)
-                        .font(.caption)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(.systemGray6))
-                        .foregroundStyle(.secondary)
-                        .clipShape(Capsule())
-                }
-            }
-        }
-    }
-    
-    // MARK: - Bottom Action Bar
-    
-    private var bottomActionBar: some View {
-        VStack(spacing: 0) {
-            Divider()
-            
-            HStack(spacing: 12) {
-                Button(action: toggleReadStatus) {
-                    VStack(spacing: 4) {
-                        Image(systemName: bookmark.isRead ? "circle" : "checkmark.circle.fill")
-                            .font(.system(size: 18))
-                        Text(bookmark.isRead ? "bookmarkDetail.markUnread" : "bookmarkDetail.markRead")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(bookmark.isRead ? .orange : .green)
-                    .frame(maxWidth: .infinity)
-                }
-                
-                Divider()
-                    .frame(height: 32)
-                
-                Button(action: { showingEditSheet = true }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 18))
-                        Text("common.edit")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.blue)
-                    .frame(maxWidth: .infinity)
-                }
-                
-                Divider()
-                    .frame(height: 32)
-                
-                Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 18))
-                        Text("common.delete")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.red)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-        }
-        .background(Color(.systemBackground))
-    }
-    
-    // MARK: - Actions
-    
-    private func toggleReadStatus() {
-        withAnimation {
-            bookmark.isRead.toggle()
-            let repository = viewModel.bookmarkRepository
-            repository.update(bookmark)
-        }
-    }
-    
-    private func deleteBookmark() async {
-      await  viewModel.deleteBookmark(bookmark)
-        dismiss()
     }
 }
 
@@ -571,4 +621,13 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+// MARK: - Preference Keys
+
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
 }

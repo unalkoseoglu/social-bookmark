@@ -48,9 +48,6 @@ final class Bookmark {
     
     /// Cloud storage'daki görsel URL/path'leri (sync için)
     var imageUrls: [String]?
-
-    /// Metin vurgulamaları (Highlighting System)
-    @Relationship(deleteRule: .cascade) var highlights: [Highlight] = []
     
     // MARK: - Initialization
     
@@ -67,8 +64,7 @@ final class Bookmark {
             imageData: Data? = nil,
             imagesData: [Data]? = nil,
             extractedText: String? = nil,
-            imageUrls: [String]? = nil,
-            highlights: [Highlight] = []
+            imageUrls: [String]? = nil
         ) {
             self.id = UUID()
             self.title = title
@@ -84,7 +80,6 @@ final class Bookmark {
             self.imagesData = imagesData
             self.extractedText = extractedText
             self.imageUrls = imageUrls
-            self.highlights = highlights
         }
 }
 
@@ -150,31 +145,5 @@ extension Bookmark {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: createdAt, relativeTo: Date())
-    }
-}
-
-// MARK: - Highlight Model
-// Defined here to ensure it shares target membership with Bookmark
-
-@Model
-final class Highlight {
-    var id: UUID
-    var rangeLocation: Int
-    var rangeLength: Int
-    var colorHex: String
-    var createdAt: Date
-    
-    init(
-        id: UUID = UUID(),
-        rangeLocation: Int,
-        rangeLength: Int,
-        colorHex: String = "FFE082", // Default yellow-ish
-        createdAt: Date = Date()
-    ) {
-        self.id = id
-        self.rangeLocation = rangeLocation
-        self.rangeLength = rangeLength
-        self.colorHex = colorHex
-        self.createdAt = createdAt
     }
 }

@@ -208,7 +208,8 @@ final class SyncService: ObservableObject {
         // 🔑 Category'nin cloud ID'sini bul
         var cloudCategoryId: String? = nil
         if let localCategoryId = bookmark.categoryId {
-            let catResponse: [CloudCategory] = try await client
+            // 1. Önce local_id'ye göre ara (Yeni oluşturulmuş ve henüz sync edilmemiş olabilir)
+            let catResponseLocal: [CloudCategory] = try await client
                 .from("categories")
                 .select("id")
                 .eq("user_id", value: userId.uuidString)
@@ -216,7 +217,26 @@ final class SyncService: ObservableObject {
                 .execute()
                 .value
             
-            cloudCategoryId = catResponse.first?.id
+            if let id = catResponseLocal.first?.id {
+                cloudCategoryId = id
+                print("   ✅ Found category by local_id: \(id)")
+            } else {
+                // 2. Bulunamazsa ID'ye göre ara (Cloud'dan gelmiş olabilir)
+                let catResponseId: [CloudCategory] = try await client
+                    .from("categories")
+                    .select("id")
+                    .eq("user_id", value: userId.uuidString)
+                    .eq("id", value: localCategoryId.uuidString)
+                    .execute()
+                    .value
+                
+                if let id = catResponseId.first?.id {
+                    cloudCategoryId = id
+                    print("   ✅ Found category by id: \(id)")
+                } else {
+                    print("   ⚠️ Category not found for ID: \(localCategoryId)")
+                }
+            }
         }
 
         // Mevcut kayıt var mı kontrol et
@@ -363,15 +383,34 @@ final class SyncService: ObservableObject {
 
         let localCategories = try context.fetch(FetchDescriptor<Category>())
         let localIdSet = Set(localCategories.map { $0.id.uuidString })
+        
+        // İsim kontrolü için map
+        var localNameMap: [String: Category] = [:]
+        for cat in localCategories {
+            localNameMap[cat.name] = cat
+        }
+        
         for cloud in cloudCategories {
             let targetId = cloud.localId ?? cloud.id
             guard let targetUUID = UUID(uuidString: targetId) else { continue }
+            
+            // İsim şifresini çöz
+            let isEnc = (cloud.isEncrypted == true)
+            let name = decryptIfNeeded(cloud.name ?? "Unnamed", isEncrypted: isEnc)
+            
+            // 1. ID kontrolü - zaten varsa atla
             if localIdSet.contains(targetId) || localIdSet.contains(cloud.id) || localIdSet.contains(targetUUID.uuidString) {
                 continue
             }
-
-            let isEnc = (cloud.isEncrypted == true)
-            let name = decryptIfNeeded(cloud.name ?? "Unnamed", isEncrypted: isEnc)
+            
+            // 2. İsim kontrolü - ID farklı ama isim aynı ise (Duplicate Default Category sorunu)
+            if let existingLocal = localNameMap[name] {
+                print("⚠️ [SYNC] Found duplicate category by name: '\(name)'. Deleting local request to prefer Cloud version.")
+                // Local'i sil ki Cloud versiyonu (doğru ID ile) yerine geçsin
+                context.delete(existingLocal)
+                // Map'ten çıkar ki bir sonraki döngüde karışıklık olmasın (gerçi loop cloud üzerinde)
+                localNameMap.removeValue(forKey: name)
+            }
 
             let newCategory = Category(
                 id: UUID(uuidString: targetId) ?? UUID(),
@@ -386,6 +425,7 @@ final class SyncService: ObservableObject {
             }
 
             context.insert(newCategory)
+            print("➕ [SYNC] Inserted category: \(name) (ID: \(targetId))")
         }
     }
 
@@ -415,9 +455,9 @@ final class SyncService: ObservableObject {
         
         var cloudToLocalCategoryMap: [String: String] = [:]
         for cat in cloudCategories {
-            if let localId = cat.localId {
-                cloudToLocalCategoryMap[cat.id] = localId
-            }
+            // ✅ DÜZELTME: Eğer local_id yoksa cloud ID'yi kullan (downloadCategories mantığı ile uyumlu)
+            let targetId = cat.localId ?? cat.id
+            cloudToLocalCategoryMap[cat.id] = targetId
         }
         
         for cloud in cloudBookmarks {
@@ -515,10 +555,22 @@ final class SyncService: ObservableObject {
             }
 
             // Category mapping
-            if let cloudCategoryId = cloud.categoryId,
-               let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId],
-               let uuid = UUID(uuidString: localCategoryId) {
-                newBookmark.categoryId = uuid
+            if let cloudCategoryId = cloud.categoryId {
+                print("   ❓ [DOWNLOAD] Checking category for bookmark: cloud_cat_id=\(cloudCategoryId)")
+                
+                if let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId] {
+                    if let uuid = UUID(uuidString: localCategoryId) {
+                        newBookmark.categoryId = uuid
+                        print("   ✅ [DOWNLOAD] Assigned to category: local_id=\(uuid)")
+                    } else {
+                        print("   ❌ [DOWNLOAD] Invalid UUID string for category: \(localCategoryId)")
+                    }
+                } else {
+                    print("   ⚠️ [DOWNLOAD] Category not found in map for ID: \(cloudCategoryId)")
+                    print("       Map keys: \(cloudToLocalCategoryMap.keys)")
+                }
+            } else {
+                 print("   ℹ️ [DOWNLOAD] No category_id for this bookmark")
             }
 
             context.insert(newBookmark)
@@ -553,9 +605,9 @@ final class SyncService: ObservableObject {
         // local_id → cloud_id map oluştur
         var categoryIdMap: [String: String] = [:]
         for cat in cloudCategories {
-            if let localId = cat.localId {
-                categoryIdMap[localId] = cat.id
-            }
+            // ✅ DÜZELTME: local_id yoksa cloud Id, local Id olarak kullanılmıştır
+            let targetLocalId = cat.localId ?? cat.id
+            categoryIdMap[targetLocalId] = cat.id
         }
         
         Logger.sync.info("📦 Category ID map created with \(categoryIdMap.count) entries")
