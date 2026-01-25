@@ -49,6 +49,11 @@ struct ShareExtensionView: View {
     @FocusState private var focusedField: Field?
     @Environment(\.openURL) private var openURL
     
+    // IAP State
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @State private var showingPaywall = false
+    @State private var paywallReason: String? = nil
+    
     // MARK: - Computed Properties
     
     private var tweetImages: [UIImage] {
@@ -125,8 +130,14 @@ struct ShareExtensionView: View {
             .toolbar { toolbarContent }
             .disabled(isSaving)
             .task {
+                subscriptionManager.configure()
                 loadCategories()
                 await fetchContent()
+                // Abonelik durumunu güncelle
+                subscriptionManager.checkSubscriptionStatus()
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView(reason: paywallReason)
             }
         }
     }
@@ -1167,6 +1178,16 @@ extension ShareExtensionView {
 extension ShareExtensionView {
     
     private func saveBookmark() {
+        // PRO Kontrolü - Bookmark Sınırı (Free: 50)
+        if !subscriptionManager.isPro {
+            let count = repository.fetchAll().count
+            if count >= 50 {
+                paywallReason = String(localized: "pro.limit.message")
+                showingPaywall = true
+                return
+            }
+        }
+        
         isSaving = true
         
         let parsedTags = tagsInput

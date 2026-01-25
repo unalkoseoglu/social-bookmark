@@ -66,6 +66,9 @@ struct Social_BookmarkApp: App {
 
         // Supabase başlat
         initializeSupabase()
+        
+        // RevenueCat IAP başlat
+        SubscriptionManager.shared.configure()
     }
     
     // MARK: - Body

@@ -18,6 +18,7 @@ struct SyncSettingsView: View {
     
     @State private var showingSyncConfirmation = false
     @State private var showingClearCacheConfirmation = false
+    @State private var showingPaywall = false
     @State private var cacheSize: String = "Hesaplanıyor..."
     
     var body: some View {
@@ -39,6 +40,9 @@ struct SyncSettingsView: View {
         .navigationTitle(String(localized: "sync.settings.title"))
         .onAppear {
             calculateCacheSize()
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
     }
     
@@ -111,8 +115,12 @@ struct SyncSettingsView: View {
         Section {
             // Manuel sync
             Button {
-                Task {
-                    await syncService.performFullSync()
+                if SubscriptionManager.shared.isPro {
+                    Task {
+                        await syncService.performFullSync()
+                    }
+                } else {
+                    showingPaywall = true
                 }
             } label: {
                 HStack {
@@ -129,7 +137,11 @@ struct SyncSettingsView: View {
             
             // Cloud'dan indir
             Button {
-                showingSyncConfirmation = true
+                if SubscriptionManager.shared.isPro {
+                    showingSyncConfirmation = true
+                } else {
+                    showingPaywall = true
+                }
             } label: {
                 Label(String(localized: "sync.download_from_cloud"), systemImage: "icloud.and.arrow.down")
             }

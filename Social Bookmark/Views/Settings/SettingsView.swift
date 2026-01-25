@@ -11,6 +11,7 @@ import SwiftUI
 import SwiftData
 internal import PostgREST
 import Supabase
+import RevenueCat
 
 struct SettingsView: View {
     
@@ -19,6 +20,8 @@ struct SettingsView: View {
     @StateObject private var syncService = SyncService.shared
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.modelContext) private var modelContext  // ✅ BU SATIRI EKLE
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @State private var showingPaywall = false
     
     @State private var showingRestartAlert = false
     @State private var pendingLanguage: AppLanguage?
@@ -26,6 +29,11 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                // Pro Banner (Eğer Pro değilse)
+                if !subscriptionManager.isPro {
+                    proBannerSection
+                }
+                
                 // Hesap bölümü
                 accountSection
                 
@@ -58,6 +66,9 @@ struct SettingsView: View {
             }
         }
         .id(languageManager.refreshID)
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
+        }
     }
     
     // Fonksiyonlar:
@@ -88,6 +99,10 @@ struct SettingsView: View {
                             .font(.body)
                             .fontWeight(.medium)
                         
+                        if subscriptionManager.isPro {
+                            ProBadge()
+                        }
+                        
                         Spacer()
                         
                         
@@ -102,6 +117,45 @@ struct SettingsView: View {
             }
         } header: {
             Text(languageManager.localized("settings.account"))
+        }
+    }
+    
+    // MARK: - Pro Banner
+    
+    private var proBannerSection: some View {
+        Section {
+            Button {
+                showingPaywall = true
+            } label: {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(colors: [.yellow, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: 48, height: 48)
+                        
+                        Image(systemName: "crown.fill")
+                            .foregroundStyle(.white)
+                            .font(.title3)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Social Bookmark PRO")
+                            .font(.headline)
+                        
+                        Text("Tüm sınırları kaldırın ve her yerden erişin.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 8)
+            }
+            .buttonStyle(.plain)
         }
     }
     

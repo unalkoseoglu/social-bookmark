@@ -200,6 +200,36 @@
             endingLineNumber = "356"
             landmarkName = "downloadCategories(context:userId:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "A193CF05-64EC-46C5-B287-63D4BCBA2681 - 539b6503c799a252"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for BookmarkShareExtension.SyncService.deleteCategory(BookmarkShareExtension.Category) async throws -&gt; ()"
+                  moduleName = "BookmarkShareExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "356"
+                  endingLineNumber = "356">
+               </Location>
+               <Location
+                  uuid = "A193CF05-64EC-46C5-B287-63D4BCBA2681 - eb49cdebf53eae50"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for BookmarkShareExtension.SyncService.deleteCategory(BookmarkShareExtension.Category) async throws -&gt; ()"
+                  moduleName = "BookmarkShareExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "356"
+                  endingLineNumber = "356">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

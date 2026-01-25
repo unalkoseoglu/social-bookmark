@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// Yeni bookmark ekleme ekranı (Modal sheet olarak açılır)
 struct AddBookmarkView: View {
@@ -8,6 +9,10 @@ struct AddBookmarkView: View {
     @Binding var selectedTab: AppTab
     private let onSaved: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @State private var showingPaywall = false
+    @State private var paywallReason: String? = nil
     @FocusState private var focusedField: Field?
     
     // OCR Image States
@@ -139,6 +144,9 @@ struct AddBookmarkView: View {
                     }
                 )
                 .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView(reason: paywallReason)
             }
         }
     }
@@ -756,7 +764,11 @@ struct AddBookmarkView: View {
             } else {
                 // OCR ekleme butonu
                 Button {
-                    showingOCRImagePicker = true
+                    if subscriptionManager.isPro {
+                        showingOCRImagePicker = true
+                    } else {
+                        showingPaywall = true
+                    }
                 } label: {
                     HStack(spacing: 14) {
                         Image(systemName: "doc.text.viewfinder")
@@ -837,6 +849,16 @@ struct AddBookmarkView: View {
     // MARK: - Actions
     
     private func saveBookmark() {
+        // PRO Kontrolü - Bookmark Sınırı (Free: 50)
+        if !subscriptionManager.isPro {
+            let count = (try? modelContext.fetchCount(FetchDescriptor<Bookmark>())) ?? 0
+            if count >= 50 {
+                paywallReason = String(localized: "pro.limit.message")
+                showingPaywall = true
+                return
+            }
+        }
+        
         // Cover image öncelikli, yoksa tweet/platform görseli
         let coverImageData = coverImage?.jpegData(compressionQuality: 0.8)
         let finalImageData = coverImageData ?? viewModel.tweetImagesData.first
