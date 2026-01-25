@@ -11,6 +11,8 @@ struct HomeView: View {
     @State private var selectedCategory: Category?
     @State private var selectedFilter: QuickFilter?
     @State private var showingAddCategory = false
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @State private var showingPaywall = false
     
     // MARK: - Time-based Greeting
     // MARK: - Time-based Greeting
@@ -46,6 +48,12 @@ struct HomeView: View {
                 headerSection
                     .padding(.horizontal, 16)
                 
+                // Pro Limit Uyarısı (Eğer free kullanıcı ve limit dolmak üzereyse)
+                if !subscriptionManager.isPro && viewModel.totalCount >= 40 {
+                    limitWarningCard
+                        .padding(.horizontal, 16)
+                }
+                
                 // Kategoriler (max 6, 3x2 grid)
                 categoriesSection
                 
@@ -78,6 +86,9 @@ struct HomeView: View {
         .refreshable {
           await viewModel.refresh()
         }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
+        }
         .id(languageManager.refreshID)
     }
     
@@ -97,14 +108,84 @@ struct HomeView: View {
             
             Spacer()
             
-            NavigationLink {
-                SettingsView().environmentObject(sessionStore)
-            } label: {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 30))
-                    .foregroundStyle(.secondary)
+            HStack(spacing: 16) {
+                if !subscriptionManager.isPro {
+                    Button {
+                        showingPaywall = true
+                    } label: {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.yellow, .orange],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .padding(8)
+                            .background(Color.orange.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                }
+                
+                NavigationLink {
+                    SettingsView().environmentObject(sessionStore)
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 30))
+                        .foregroundStyle(.secondary)
+                }
             }
         }
+    }
+    
+    // MARK: - Limit Warning Card
+    
+    private var limitWarningCard: some View {
+        Button {
+            showingPaywall = true
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.1))
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: "info.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.orange)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "home.limit.approaching"))
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                    
+                    Text(String(localized: "home.limit.approaching_desc"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                Text(String(localized: "home.action.upgrade"))
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.blue)
+                    .clipShape(Capsule())
+            }
+            .padding(12)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
     
     // MARK: - Categories Section (max 6, 3x2)

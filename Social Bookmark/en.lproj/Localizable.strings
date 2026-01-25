@@ -23,6 +23,11 @@
 "common.this_week" = "This Week";
 "common.favorites" = "Favorites";
 "common.uncategorized" = "Uncategorized";
+"common.skip" = "Skip";
+"common.continue" = "Continue";
+"common.getStarted" = "Get Started";
+"common.min_read" = "min read";
+"common.words" = "words";
 
 // MARK: - Auth
 "auth.welcome_title" = "Social Bookmark";
@@ -98,6 +103,9 @@
 "home.empty.no_bookmarks_desc" = "Add content using the share button or start by adding your first bookmark.";
 "home.empty.add_category" = "Add Category";
 "home.empty.add_category_desc" = "Create categories to organize your bookmarks";
+"home.limit.approaching" = "Limit approaching";
+"home.limit.approaching_desc" = "Upgrade to Pro for unlimited space and features.";
+"home.action.upgrade" = "Upgrade";
 
 // MARK: - Library View
 "library.title" = "Library";
@@ -243,6 +251,7 @@
 "bookmarkDetail.delete_title" = "Delete Bookmark?";
 "bookmarkDetail.delete_confirmation" = "Are you sure you want to delete this bookmark? This action cannot be undone.";
 "bookmarkDetail.word_count %lld" = "%lld words";
+"bookmark.no_content" = "No content available";
 
 // MARK: - Categories Management
 "categories.title" = "Categories";
@@ -277,6 +286,7 @@
 "source.linkedin" = "LinkedIn";
 "source.medium" = "Medium";
 "source.youtube" = "YouTube";
+"source.instagram" = "Instagram";
 "source.github" = "GitHub";
 "source.article" = "Article";
 "source.blog" = "Blog";
@@ -370,6 +380,18 @@
 "settings.language" = "Language";
 "settings.autoDetectSource" = "Auto-detect Source";
 "settings.showReadingTime" = "Show Reading Time";
+"settings.pro_banner_title" = "Link Bookmark PRO";
+"settings.pro_banner_subtitle" = "Remove all limits and access from anywhere.";
+
+"appearance.font.system" = "System";
+"appearance.font.serif" = "Serif";
+"appearance.font.mono" = "Mono";
+"appearance.font.rounded" = "Rounded";
+
+"appearance.theme.light" = "Light";
+"appearance.theme.sepia" = "Sepia";
+"appearance.theme.dark" = "Dark";
+"appearance.theme.black" = "Black";
 
 "settings.account" = "Account";
 "settings.account_info" = "Account Information";
@@ -701,3 +723,13 @@
 "encryption.error.decryption_failed" = "Decryption failed";
 "encryption.error.invalid_ciphertext" = "Invalid encrypted data";
 "encryption.error.keychain_error" = "Keychain error: %d";
+
+// MARK: - Onboarding
+"onboarding.welcome.title" = "Welcome to Social Bookmark";
+"onboarding.welcome.subtitle" = "Collect and organize all your content in one place";
+"onboarding.features.title" = "Save from Anywhere";
+"onboarding.features.subtitle" = "Safari, Twitter, Reddit, Medium, LinkedIn. Extract text from images with OCR.";
+"onboarding.organize.title" = "Organize with Categories";
+"onboarding.organize.subtitle" = "Colorful labels, easy search, and automatic tag suggestions.";
+"onboarding.privacy.title" = "Your Data is Secure";
+"onboarding.privacy.subtitle" = "End-to-end encryption. Anonymous use or Sign in with Apple.";

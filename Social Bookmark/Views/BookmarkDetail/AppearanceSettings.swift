@@ -18,6 +18,15 @@ enum ReaderFont: String, CaseIterable, Identifiable {
         case .rounded: return .rounded
         }
     }
+    
+    var displayName: String {
+        switch self {
+        case .system: return String(localized: "appearance.font.system")
+        case .serif: return String(localized: "appearance.font.serif")
+        case .mono: return String(localized: "appearance.font.mono")
+        case .rounded: return String(localized: "appearance.font.rounded")
+        }
+    }
 }
 
 enum ReaderTheme: String, CaseIterable, Identifiable {
@@ -27,6 +36,15 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
     case black = "Black"
     
     var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .light: return String(localized: "appearance.theme.light")
+        case .sepia: return String(localized: "appearance.theme.sepia")
+        case .dark: return String(localized: "appearance.theme.dark")
+        case .black: return String(localized: "appearance.theme.black")
+        }
+    }
     
     var backgroundColor: Color {
         switch self {
@@ -102,7 +120,7 @@ struct AppearanceSettingsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(ReaderFont.allCases) { font in
-                        Text(font.rawValue)
+                        Text(font.displayName)
                             .font(.system(size: 16, design: font.design))
                             .padding(.vertical, 8)
                             .padding(.horizontal, 16)

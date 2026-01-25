@@ -65,6 +65,12 @@ struct RootView: View {
     /// İlk açılışta sync yapıldı mı?
     @State private var hasPerformedInitialSync = false
     @State private var showSplash = false
+    
+    // Onboarding
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @State private var showOnboarding = false
+    @State private var showPaywall = false
+    @State private var justFinishedOnboarding = false
 
     // MARK: - Body
     
@@ -82,10 +88,32 @@ struct RootView: View {
                 AdaptiveMainTabView(viewModel: homeViewModel)
                     .environmentObject(sessionStore)
                     .offlineBanner()
+                    .fullScreenCover(isPresented: $showOnboarding) {
+                        OnboardingView(isPresented: $showOnboarding)
+                            .onDisappear {
+                                // Onboarding kapandığında eğer yeni tamamlandıysa paywall göster
+                                if justFinishedOnboarding {
+                                    showPaywall = true
+                                    justFinishedOnboarding = false
+                                }
+                            }
+                    }
+                    .sheet(isPresented: $showPaywall) {
+                        PaywallView()
+                    }
             }
         }
         .task {
+            // Onboarding kontrolü
+            // TEST İÇİN: '|| true' ekleyerek her açılışta görebilirsin
+            if !hasCompletedOnboarding || true {
+                showOnboarding = true
+                hasCompletedOnboarding = true
+                justFinishedOnboarding = true
+            }
             await initializeAuth()
+            
+           
         }
         .onReceive(NotificationCenter.default.publisher(for: .appShouldRestart)) { _ in
             showSplash = true

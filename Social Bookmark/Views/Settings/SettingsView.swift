@@ -139,10 +139,10 @@ struct SettingsView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Social Bookmark PRO")
+                        Text(languageManager.localized("settings.pro_banner_title"))
                             .font(.headline)
                         
-                        Text("Tüm sınırları kaldırın ve her yerden erişin.")
+                        Text(languageManager.localized("settings.pro_banner_subtitle"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

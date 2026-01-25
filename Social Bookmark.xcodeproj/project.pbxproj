@@ -26,6 +26,9 @@
 		C0D7B8542F25530D00560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8532F25530D00560E34 /* RevenueCat */; };
 		C0D7B8582F25741500560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8572F25741500560E34 /* RevenueCat */; };
 		C0D7B85A2F25741A00560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8592F25741A00560E34 /* RevenueCat */; };
+		C0D7B86A2F2674AB00560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8692F2674AB00560E34 /* RevenueCatUI */; };
+		C0D7B86C2F2674EC00560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B86B2F2674EC00560E34 /* RevenueCatUI */; };
+		C0D7B86E2F2674F200560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B86D2F2674F200560E34 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -233,6 +236,7 @@
 			files = (
 				C0D7B85A2F25741A00560E34 /* RevenueCat in Frameworks */,
 				C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */,
+				C0D7B86A2F2674AB00560E34 /* RevenueCatUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +246,7 @@
 			files = (
 				C0035CE92EF065DA005158EF /* Supabase in Frameworks */,
 				C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */,
+				C0D7B86C2F2674EC00560E34 /* RevenueCatUI in Frameworks */,
 				C0D7B8542F25530D00560E34 /* RevenueCat in Frameworks */,
 				C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */,
 				C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */,
@@ -269,6 +274,7 @@
 			files = (
 				C05B51152EF06C49007DF808 /* Supabase in Frameworks */,
 				C05B51122EF06B3E007DF808 /* Storage in Frameworks */,
+				C0D7B86E2F2674F200560E34 /* RevenueCatUI in Frameworks */,
 				C0D7B8582F25741500560E34 /* RevenueCat in Frameworks */,
 				C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */,
 				C05B510E2EF06B3E007DF808 /* Auth in Frameworks */,
@@ -342,6 +348,7 @@
 			name = BookmarkActionExtension;
 			packageProductDependencies = (
 				C0D7B8592F25741A00560E34 /* RevenueCat */,
+				C0D7B8692F2674AB00560E34 /* RevenueCatUI */,
 			);
 			productName = BookmarkActionExtension;
 			productReference = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */;
@@ -373,6 +380,7 @@
 				C0035CE82EF065DA005158EF /* Supabase */,
 				C0D7B70B2F2551A900560E34 /* ReceiptParser */,
 				C0D7B8532F25530D00560E34 /* RevenueCat */,
+				C0D7B86B2F2674EC00560E34 /* RevenueCatUI */,
 			);
 			productName = "Social Bookmark";
 			productReference = C0867EFB2EE9A86D000C8D7D /* Social Bookmark.app */;
@@ -446,6 +454,7 @@
 				C05B51112EF06B3E007DF808 /* Storage */,
 				C05B51142EF06C49007DF808 /* Supabase */,
 				C0D7B8572F25741500560E34 /* RevenueCat */,
+				C0D7B86D2F2674F200560E34 /* RevenueCatUI */,
 			);
 			productName = BookmarkShareExtension;
 			productReference = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */;
@@ -1214,6 +1223,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
+		};
+		C0D7B8692F2674AB00560E34 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
+		};
+		C0D7B86B2F2674EC00560E34 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
+		};
+		C0D7B86D2F2674F200560E34 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -155,17 +155,17 @@ struct BookmarkDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(action: { showingEditSheet = true }) {
-                        Label("common.edit", systemImage: "pencil")
+                        Label(String(localized: "common.edit"), systemImage: "pencil")
                     }
                     
                     Button(action: { showingShareSheet = true }) {
-                        Label("bookmarkDetail.share", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "bookmarkDetail.share"), systemImage: "square.and.arrow.up")
                     }
                     
                     Divider()
                     
                     Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                        Label("common.delete", systemImage: "trash")
+                        Label(String(localized: "common.delete"), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

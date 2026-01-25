@@ -17,7 +17,17 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
     
     /// Görünen isim
     var displayName: String {
-        rawValue
+        switch self {
+        case .twitter: return String(localized: "source.twitter")
+        case .reddit: return String(localized: "source.reddit")
+        case .linkedin: return String(localized: "source.linkedin")
+        case .medium: return String(localized: "source.medium")
+        case .youtube: return String(localized: "source.youtube")
+        case .instagram: return String(localized: "source.instagram")
+        case .github: return String(localized: "source.github")
+        case .article: return String(localized: "source.article")
+        case .other: return String(localized: "source.other")
+        }
     }
     
     /// Platform emoji'si

@@ -30,10 +30,9 @@ final class SubscriptionManager: NSObject, ObservableObject {
     /// Hata mesajı
     @Published var errorMessage: String?
     
-    // MARK: - Configuration
     
     // ⚠️ TODO: RevenueCat Dashboard'dan alacağınız Public API Key'i buraya yapıştırın
-    private let apiKey = "appl_REVENUECAT_PUBLIC_API_KEY_HERE"
+    private let apiKey = "appl_zXzlBUBIVVvxlZhOewDkpDRkUXh"
     
     
     override private init() {
@@ -81,13 +80,22 @@ final class SubscriptionManager: NSObject, ObservableObject {
             
             if let error = error {
                 print("❌ [IAP] Error fetching offerings: \(error.localizedDescription)")
+                print("   - Error Code: \(error._code)")
+                print("   - Underlying Error: \(String(describing: error.userInfo))")
                 self.errorMessage = error.localizedDescription
                 return
             }
             
-            if let current = offerings?.current {
-                self.packages = current.availablePackages
-                print("✅ [IAP] Fetched \(self.packages.count) packages")
+            if let offerings = offerings {
+                if let current = offerings.current {
+                    self.packages = current.availablePackages
+                    print("✅ [IAP] Fetched \(self.packages.count) packages from CURRENT offering: \(current.identifier)")
+                } else {
+                    print("⚠️ [IAP] No 'current' offering found. Available offerings: \(offerings.all.keys)")
+                    self.errorMessage = "RevenueCat Dashboard'da bir 'Offering' oluşturduğunuzdan ve bunu 'Current' (aktif) olarak işaretlediğinizden emin olun."
+                }
+            } else {
+                print("⚠️ [IAP] Offerings object is nil")
             }
         }
     }
