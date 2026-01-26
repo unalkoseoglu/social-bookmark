@@ -169,14 +169,16 @@ struct FilteredBookmarksView: View {
         case .favorites: return "filtered.empty.favorites.desc"
         case .today: return "filtered.empty.today.desc"
         }
-    }
+    }  
 
     // MARK: - Actions
 
     private func deleteBookmark(_ bookmark: Bookmark) {
         withAnimation {
             viewModel.bookmarkRepository.delete(bookmark)
-            viewModel.refresh()
+        }
+        Task {
+            await viewModel.refresh()
         }
     }
 
@@ -184,7 +186,9 @@ struct FilteredBookmarksView: View {
         withAnimation {
             bookmark.isRead = true
             viewModel.bookmarkRepository.update(bookmark)
-            viewModel.refresh()
+        }
+        Task {
+            await viewModel.refresh()
         }
     }
 
@@ -192,7 +196,9 @@ struct FilteredBookmarksView: View {
         withAnimation {
             bookmark.isFavorite.toggle()
             viewModel.bookmarkRepository.update(bookmark)
-            viewModel.refresh()
+        }
+        Task {
+            await viewModel.refresh()
         }
     }
 }

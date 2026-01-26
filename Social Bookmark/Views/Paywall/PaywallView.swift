@@ -3,24 +3,32 @@ import RevenueCat
 import RevenueCatUI
 
 struct PaywallView: View {
+    @EnvironmentObject private var sessionStore: SessionStore
     @Environment(\.dismiss) var dismiss
     
     /// Paywall'ın gösterilme nedeni (örn: "Bookmark sınırı doldu")
-    /// Not: RevenueCat Paywalls'da bu metni dinamik olarak göstermek için 
-    /// Dashboard'daki paywall metinlerini kullanabilir veya Footer/Header ekleyebilirsiniz.
     var reason: String?
     
     var body: some View {
-        // RevenueCat'in Dashboard'dan yönetilen Paywall bileşeni
-        RevenueCatUI.PaywallView(displayCloseButton: true)
-            .onPurchaseCompleted { customerInfo in
-                print("✅ Satın alma tamamlandı: \(customerInfo.entitlements.active.keys)")
-                dismiss()
-            }
-            .onRestoreCompleted { customerInfo in
-                if customerInfo.entitlements["pro"]?.isActive == true {
+        if sessionStore.isAuthenticated && !sessionStore.isAnonymous {
+            // Kullanıcı login ise Paywall'ı göster
+            RevenueCatUI.PaywallView(displayCloseButton: true)
+                .onPurchaseCompleted { customerInfo in
+                    print("✅ Satın alma tamamlandı: \(customerInfo.entitlements.active.keys)")
+                    // 🔄 Hemen SubscriptionManager'ı güncelle
+                    SubscriptionManager.shared.checkSubscriptionStatus()
                     dismiss()
                 }
-            }
+                .onRestoreCompleted { customerInfo in
+                    // 🔄 Hemen SubscriptionManager'ı güncelle
+                    SubscriptionManager.shared.checkSubscriptionStatus()
+                    if SubscriptionManager.shared.isPro {
+                        dismiss()
+                    }
+                }
+        } else {
+            // Kullanıcı login değilse Login ekranını göster
+            SignInView(isPresented: true, isFromPaywall: true, reason: reason)
+        }
     }
 }

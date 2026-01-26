@@ -29,6 +29,12 @@
 		C0D7B86A2F2674AB00560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8692F2674AB00560E34 /* RevenueCatUI */; };
 		C0D7B86C2F2674EC00560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B86B2F2674EC00560E34 /* RevenueCatUI */; };
 		C0D7B86E2F2674F200560E34 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B86D2F2674F200560E34 /* RevenueCatUI */; };
+		C0D7B87A2F26976600560E34 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8792F26976600560E34 /* Supabase */; };
+		C0D7B87C2F26976800560E34 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B87B2F26976800560E34 /* Auth */; };
+		C0D7B88E2F269A3A00560E34 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B88D2F269A3A00560E34 /* Realtime */; };
+		C0D7B8902F269A3F00560E34 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B88F2F269A3F00560E34 /* Realtime */; };
+		C0D7B8922F269A7400560E34 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8912F269A7400560E34 /* PostgREST */; };
+		C0D7B8942F269A7B00560E34 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8932F269A7B00560E34 /* Storage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,7 +106,15 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"/Localized: Localizable.strings",
+				Core/AppConfig.swift,
+				Core/Auth/AuthError.swift,
+				Core/Auth/AuthRepositoryProtocol.swift,
+				Core/Auth/AuthService.swift,
+				Core/Auth/MigrationState.swift,
+				Core/Auth/SessionStore.swift,
 				"Core/Logging/Logger+Extensions.swift",
+				Core/Supabase/SessionStorageProtocol.swift,
+				Core/Supabase/SupabaseClientFactory.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -109,13 +123,24 @@
 				Repositories/CategoryRepository.swift,
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
 				Repositories/Protocol/CategoryRepositoryProtocol.swift,
+				Supabase/Config/NetworkMonitor.swift,
+				Supabase/Config/SupabaseConfig.swift,
+				Supabase/Models/SupabaseBookmark.swift,
+				Supabase/Models/SupabaseProfile.swift,
+				Supabase/Models/UserProfile.swift,
+				Supabase/Services/EncryptionService.swift,
+				Supabase/Services/ImageUploadService.swift,
 				Supabase/Services/SupabaseServiceError.swift,
+				Supabase/Services/SyncService.swift,
+				Supabase/SupabaseManager.swift,
+				Utilities/Constants/RandomNameGenerator.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
 				Utilities/Services/RedditService.swift,
 				Utilities/Services/TwitterService.swift,
 				Utilities/Services/URLMetadataService.swift,
+				Views/Auth/SignInView.swift,
 				Views/Paywall/PaywallView.swift,
 			);
 			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
@@ -144,8 +169,13 @@
 				Content/PreviewMockRepository.swift,
 				Core/AppConfig.swift,
 				Core/Auth/AuthError.swift,
+				Core/Auth/AuthRepositoryProtocol.swift,
+				Core/Auth/AuthService.swift,
+				Core/Auth/MigrationState.swift,
+				Core/Auth/SessionStore.swift,
 				"Core/Logging/Logger+Extensions.swift",
 				Core/Supabase/SessionStorageProtocol.swift,
+				Core/Supabase/SupabaseClientFactory.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -160,6 +190,7 @@
 				Supabase/Config/SupabaseConfig.swift,
 				Supabase/Models/SupabaseBookmark.swift,
 				Supabase/Models/SupabaseCategory.swift,
+				Supabase/Models/SupabaseProfile.swift,
 				Supabase/Models/UserProfile.swift,
 				Supabase/Services/EncryptionService.swift,
 				Supabase/Services/ImageUploadService.swift,
@@ -175,6 +206,7 @@
 				Utilities/Services/TwitterService.swift,
 				Utilities/Services/URLMetadataService.swift,
 				ViewModels/AddBookmarkViewModel.swift,
+				Views/Auth/SignInView.swift,
 				Views/Paywall/PaywallView.swift,
 			);
 			target = C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */;
@@ -234,8 +266,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0D7B87A2F26976600560E34 /* Supabase in Frameworks */,
 				C0D7B85A2F25741A00560E34 /* RevenueCat in Frameworks */,
+				C0D7B8922F269A7400560E34 /* PostgREST in Frameworks */,
 				C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */,
+				C0D7B8942F269A7B00560E34 /* Storage in Frameworks */,
+				C0D7B8902F269A3F00560E34 /* Realtime in Frameworks */,
+				C0D7B87C2F26976800560E34 /* Auth in Frameworks */,
 				C0D7B86A2F2674AB00560E34 /* RevenueCatUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,6 +309,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0D7B88E2F269A3A00560E34 /* Realtime in Frameworks */,
 				C05B51152EF06C49007DF808 /* Supabase in Frameworks */,
 				C05B51122EF06B3E007DF808 /* Storage in Frameworks */,
 				C0D7B86E2F2674F200560E34 /* RevenueCatUI in Frameworks */,
@@ -349,6 +387,11 @@
 			packageProductDependencies = (
 				C0D7B8592F25741A00560E34 /* RevenueCat */,
 				C0D7B8692F2674AB00560E34 /* RevenueCatUI */,
+				C0D7B8792F26976600560E34 /* Supabase */,
+				C0D7B87B2F26976800560E34 /* Auth */,
+				C0D7B88F2F269A3F00560E34 /* Realtime */,
+				C0D7B8912F269A7400560E34 /* PostgREST */,
+				C0D7B8932F269A7B00560E34 /* Storage */,
 			);
 			productName = BookmarkActionExtension;
 			productReference = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */;
@@ -455,6 +498,7 @@
 				C05B51142EF06C49007DF808 /* Supabase */,
 				C0D7B8572F25741500560E34 /* RevenueCat */,
 				C0D7B86D2F2674F200560E34 /* RevenueCatUI */,
+				C0D7B88D2F269A3A00560E34 /* Realtime */,
 			);
 			productName = BookmarkShareExtension;
 			productReference = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */;
@@ -1238,6 +1282,36 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCatUI;
+		};
+		C0D7B8792F26976600560E34 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		C0D7B87B2F26976800560E34 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C0D7B88D2F269A3A00560E34 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		C0D7B88F2F269A3F00560E34 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		C0D7B8912F269A7400560E34 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		C0D7B8932F269A7B00560E34 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -45,5 +45,11 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).ActionViewController</string>
 	</dict>
+	<key>SUPABASE_URL</key>
+	<string>https://lfcbohdsmlokehpmmsav.supabase.co</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmY2JvaGRzbWxva2VocG1tc2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NDE4NjEsImV4cCI6MjA4MTMxNzg2MX0.ZhUC4r7Mxb5ZehhfoPZe6MrQ-A4tFeETRiRp2WADCEc</string>
+	<key>REVENUECAT_API_KEY</key>
+	<string>$(REVENUECAT_API_KEY)</string>
 </dict>
 </plist>

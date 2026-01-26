@@ -6,5 +6,9 @@
 	<array>
 		<string>group.com.unal.socialbookmark</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.unal.socialbookmark</string>
+	</array>
 </dict>
 </plist>

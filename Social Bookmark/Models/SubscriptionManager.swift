@@ -31,13 +31,37 @@ final class SubscriptionManager: NSObject, ObservableObject {
     @Published var errorMessage: String?
     
     
-    // ⚠️ TODO: RevenueCat Dashboard'dan alacağınız Public API Key'i buraya yapıştırın
-    private let apiKey = "appl_zXzlBUBIVVvxlZhOewDkpDRkUXh"
-    
+    /// RevenueCat API Key (Info.plist üzerinden alınır)
+    private var apiKey: String {
+        Bundle.main.object(forInfoDictionaryKey: "REVENUECAT_API_KEY") as? String ?? ""
+    }
+    private var cancellables = Set<AnyCancellable>()
     
     override private init() {
         super.init()
-        // Singleton
+        setupSupabaseObserver()
+    }
+    
+    private func setupSupabaseObserver() {
+        SupabaseManager.shared.$userProfile
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] profile in
+                guard let self = self else { return }
+                let newProStatus = profile?.is_pro ?? false
+                if self.isPro != newProStatus {
+                    print("🔄 [IAP] Supabase Profile Sync - IS_PRO: \(newProStatus)")
+                    self.isPro = newProStatus
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// Oturum kapatıldığında durumu sıfırla
+    func reset() {
+        print("🧹 [IAP] Resetting subscription status...")
+        isPro = false
+        errorMessage = nil
+        isLoading = false
     }
     
     // MARK: - Setup
@@ -154,13 +178,37 @@ final class SubscriptionManager: NSObject, ObservableObject {
     // MARK: - Helpers
     
     private func updateProStatus(from customerInfo: CustomerInfo) {
-        // "pro" entitlement tanımladığınızdan emin olun (RevenueCat Dashboard'da)
-        if customerInfo.entitlements["pro"]?.isActive == true {
-            print("✅ [IAP] User is PRO")
-            self.isPro = true
-        } else {
-            print("ℹ️ [IAP] User is FREE")
-            self.isPro = false
+        let activeEntitlements = customerInfo.entitlements.active.keys
+        print("📦 [IAP] Active Entitlements: \(activeEntitlements)")
+        
+        // "pro" veya "premium" gibi yaygın isimleri kontrol edelim
+        // ⚠️ En doğrusu Dashboard'daki ID ile tam eşleşmedir
+        // RevenueCat Entitlement ID'leri
+        let proActive = customerInfo.entitlements["pro"]?.isActive == true || 
+                        customerInfo.entitlements["premium"]?.isActive == true ||
+                        customerInfo.entitlements["all_features"]?.isActive == true ||
+                        customerInfo.entitlements["com.unal.Social-Bookmark"]?.isActive == true
+        
+        DispatchQueue.main.async {
+            if proActive {
+                print("✅ [IAP] User status updated to: PRO (via RevenueCat)")
+                self.isPro = true
+                
+                // ✅ Supabase'i de güncelle (Webhook yedeği olarak)
+                Task {
+                    await SupabaseManager.shared.updateProStatus(isPro: true)
+                }
+            } else {
+                // Eğer RevenueCat FREE diyorsa, Supabase'e son bir kez daha soralım
+                let supabasePro = SupabaseManager.shared.userProfile?.is_pro == true
+                if supabasePro {
+                    print("🔄 [IAP] RevenueCat says FREE, but Supabase says PRO. Keeping PRO status.")
+                    self.isPro = true
+                } else {
+                    print("ℹ️ [IAP] User status updated to: FREE")
+                    self.isPro = false
+                }
+            }
         }
     }
 }

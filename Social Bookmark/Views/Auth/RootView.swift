@@ -90,6 +90,7 @@ struct RootView: View {
                     .offlineBanner()
                     .fullScreenCover(isPresented: $showOnboarding) {
                         OnboardingView(isPresented: $showOnboarding)
+                            .environmentObject(sessionStore)
                             .onDisappear {
                                 // Onboarding kapandığında eğer yeni tamamlandıysa paywall göster
                                 if justFinishedOnboarding {
@@ -100,13 +101,13 @@ struct RootView: View {
                     }
                     .sheet(isPresented: $showPaywall) {
                         PaywallView()
+                            .environmentObject(sessionStore)
                     }
             }
         }
         .task {
             // Onboarding kontrolü
-            // TEST İÇİN: '|| true' ekleyerek her açılışta görebilirsin
-            if !hasCompletedOnboarding || true {
+            if !hasCompletedOnboarding || true{
                 showOnboarding = true
                 hasCompletedOnboarding = true
                 justFinishedOnboarding = true
@@ -127,6 +128,13 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: .userDidSignOut)) { _ in
             showSplash = true
             hasPerformedInitialSync = false
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidSignIn)) { _ in
+            print("🔐 [RootView] User signed in - triggering initial sync")
+            hasPerformedInitialSync = false
+            Task {
+                await initializeAuth()
+            }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)

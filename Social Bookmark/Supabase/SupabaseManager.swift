@@ -30,6 +30,7 @@ final class SupabaseManager: ObservableObject {
     @Published private(set) var connectionState: ConnectionState = .disconnected
     @Published private(set) var lastError: SupabaseError?
     @Published private(set) var isSessionRestored = false
+    @Published private(set) var userProfile: SupabaseProfile?
     
     // MARK: - Properties
     
@@ -45,14 +46,13 @@ final class SupabaseManager: ObservableObject {
     var isAuthenticated: Bool { currentUser != nil }
     var userId: UUID? { currentUser?.id }
     
-    func hasValidSession() async -> Bool {
-        do {
-            let session = try await client.auth.session
+    func hasValidSession() -> Bool {
+        if let session = client.auth.currentSession {
             let isValid = !session.isExpired
             print("🔍 [SESSION] Valid: \(isValid), Expires: \(session.expiresAt)")
             return isValid
-        } catch {
-            print("🔍 [SESSION] No session: \(error.localizedDescription)")
+        } else {
+            print("🔍 [SESSION] No session")
             return false
         }
     }
@@ -154,9 +154,13 @@ final class SupabaseManager: ObservableObject {
             
         case .signedOut:
             currentUser = nil
+            userProfile = nil // ✅ Profil bilgisini temizle
             authState = .unauthenticated
             print("👋 [SIGN OUT] Session cleared")
             NotificationCenter.default.post(name: .userDidSignOut, object: nil)
+            
+            // 🧹 Subscription durumunu da sıfırla
+            SubscriptionManager.shared.reset()
             
         case .tokenRefreshed:
             if let session {
@@ -172,11 +176,20 @@ final class SupabaseManager: ObservableObject {
             
         case .userDeleted:
             currentUser = nil
+            userProfile = nil
             authState = .unauthenticated
             print("🗑️ [DELETE] User deleted")
             
         default:
             print("ℹ️ [OTHER] Event: \(event)")
+        }
+        
+        // Giriş yapıldığında veya oturum geri yüklendiğinde profili çek
+        if session != nil {
+            Task {
+                await fetchProfile()
+                await subscribeToProfile()
+            }
         }
     }
     
@@ -208,15 +221,27 @@ final class SupabaseManager: ObservableObject {
     
     func signOut() async throws {
         print("👋 [SIGNOUT] Signing out...")
+        
+        // Önce Realtime kanalını kapat
+        if let channel = realtimeChannel {
+            await client.realtimeV2.removeChannel(channel)
+            realtimeChannel = nil
+        }
+        
         try await client.auth.signOut()
         currentUser = nil
+        userProfile = nil // ✅ Profil bilgisini temizle
         authState = .unauthenticated
         lastError = nil
+        
+        // 🧹 Subscription durumunu da sıfırla
+        SubscriptionManager.shared.reset()
+        
         print("✅ [SIGNOUT] Complete")
     }
     
-    func getCurrentSession()async -> Session? {
-        try? await client.auth.session
+    func getCurrentSession() -> Session? {
+        client.auth.currentSession
     }
     
     func printSessionDebugInfo()async {
@@ -256,6 +281,83 @@ final class SupabaseManager: ObservableObject {
     
     func clearError() {
         lastError = nil
+    }
+    
+    // MARK: - Profile & PRO Sync
+    
+    func fetchProfile() async {
+        guard let userId = currentUser?.id else { return }
+        
+        print("🔍 [PROFILE] Fetching profile for \(userId)...")
+        
+        do {
+            let response = try await client
+                .from("user_profiles")
+                .select()
+                .eq("id", value: userId.uuidString)
+                .single()
+                .execute()
+            
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            self.userProfile = try decoder.decode(SupabaseProfile.self, from: response.data)
+            print("✅ [PROFILE] Fetched: isPro = \(self.userProfile?.is_pro ?? false)")
+        } catch {
+            print("❌ [PROFILE] Fetch error: \(error.localizedDescription)")
+            // Profil henüz oluşturulmamış olabilir (Trigger henüz çalışmamış olabilir)
+        }
+    }
+    
+    private var realtimeChannel: RealtimeChannelV2?
+    
+    func subscribeToProfile() async {
+        guard let userId = currentUser?.id else { return }
+        
+        // Varsa eski kanalı sil
+        if let existing = realtimeChannel {
+            await client.realtimeV2.removeChannel(existing)
+        }
+        
+        print("📡 [REALTIME] Subscribing to profile changes for \(userId)...")
+        
+        // V2 syntax'ı
+        let channel = client.realtimeV2.channel("user_profile_sync")
+        
+        _ = channel.onPostgresChange(
+            AnyAction.self,
+            schema: "public",
+            table: "user_profiles",
+            filter: "id=eq.\(userId.uuidString)"
+        ) { [weak self] status in
+            print("🔄 [REALTIME] Profile updated status: \(status)")
+            Task { await self?.fetchProfile() }
+        }
+        
+        Task {
+            try? await channel.subscribeWithError()
+            self.realtimeChannel = channel
+        }
+    }
+    
+    /// Pro durumunu manuel olarak güncelle (RevenueCat webhook yedeği olarak)
+    func updateProStatus(isPro: Bool) async {
+        guard let userId = currentUser?.id else { return }
+        
+        print("🔄 [PROFILE] Updating Pro status for \(userId) to \(isPro)...")
+        
+        do {
+            try await client
+                .from("user_profiles")
+                .update(["is_pro": AnyEncodable(isPro)])
+                .eq("id", value: userId.uuidString)
+                .execute()
+            
+            print("✅ [PROFILE] Pro status updated in Supabase")
+            // Profil bilgisini hemen yenile
+            await fetchProfile()
+        } catch {
+            print("❌ [PROFILE] Update error: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -326,5 +428,9 @@ extension SupabaseClient {
     
     var categories: PostgrestQueryBuilder {
         from(SupabaseConfig.Tables.categories)
+    }
+    
+    var profiles: PostgrestQueryBuilder {
+        from("user_profiles")
     }
 }

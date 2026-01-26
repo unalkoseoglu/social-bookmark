@@ -251,6 +251,22 @@ struct SettingsView: View {
     
     private var aboutSection: some View {
         Section {
+            Button {
+                ReviewManager.shared.requestReviewManually()
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(languageManager.localized("settings.rate_app"))
+                        Text(languageManager.localized("settings.rate_app_desc"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
+                }
+            }
+            
             HStack {
                 Text(languageManager.localized("settings.version"))
                 Spacer()
@@ -265,11 +281,14 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             
-            Link(destination: URL(string: "https://github.com")!) {
-                Label(languageManager.localized("settings.source_code"), systemImage: "chevron.left.forwardslash.chevron.right")
-            }
-            
-            Link(destination: URL(string: "mailto:support@example.com")!) {
+            Button {
+                let url = URL(string: "mailto:softaideveloper@gmail.com")!
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else {
+                    print("❌ Error: Mail app not available (common in simulator)")
+                }
+            } label: {
                 Label(languageManager.localized("settings.contact"), systemImage: "envelope")
             }
         } header: {

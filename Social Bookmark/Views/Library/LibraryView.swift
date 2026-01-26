@@ -14,6 +14,7 @@ struct LibraryView: View {
     
     @Bindable var viewModel: HomeViewModel
     @Binding var selectedTab: AppTab
+    @EnvironmentObject private var sessionStore: SessionStore
     
     @State private var selectedSegment: LibrarySegment = .all
     @State private var selectedCategory: Category?
@@ -84,10 +85,12 @@ struct LibraryView: View {
         }
         .sheet(item: $selectedCategory) { category in
             CategoryDetailView(category: category, viewModel: viewModel)
+                .environmentObject(sessionStore)
         }
         .sheet(isPresented: $showingCategoryManagement) {
             NavigationStack {
                 CategoriesManagementView(viewModel: viewModel)
+                    .environmentObject(sessionStore)
             }
         }
     }
@@ -115,19 +118,14 @@ struct LibraryView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                
-                                Task {
-                                 await   viewModel.deleteBookmark(bookmark)
-                                }
+                                viewModel.deleteBookmark(bookmark)
                             } label: {
                                 Label(String(localized: "common.delete"), systemImage: "trash")
                             }
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                Task{
-                                  await  viewModel.toggleReadStatus(bookmark)
-                                }
+                                viewModel.toggleReadStatus(bookmark)
                                
                             } label: {
                                 Label(

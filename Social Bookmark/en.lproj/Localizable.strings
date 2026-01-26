@@ -7,6 +7,9 @@
 // MARK: - Common
 "common.ok" = "OK";
 "common.offline" = "Offline";
+"common.error" = "Error";
+"common.unknown_error" = "Unknown error";
+"common.offline_save_info" = "Changes will be saved";
 "common.cancel" = "Cancel";
 "common.done" = "Done";
 "common.delete" = "Delete";
@@ -14,7 +17,6 @@
 "common.save" = "Save";
 "common.copy" = "Copy";
 "common.go_back" = "Go Back";
-"common.error" = "Error";
 "common.loading" = "Loading...";
 "common.success" = "Success";
 "common.retry" = "Retry";
@@ -181,6 +183,8 @@
 "search.no_results.desc %@" = "No results found for \"%@\".";
 "search.try_again" = "Try Again";
 "search.empty" = "No results found";
+"search.searching" = "Searching...";
+"search.mockup.query" = "SwiftUI";
 
 // MARK: - Bookmark Add / Edit
 "addBookmark.title" = "New Bookmark";
@@ -428,11 +432,15 @@
 "sync.status_section" = "Sync Status";
 "sync.network_status" = "Network Status";
 "sync.connected" = "Connected";
+"sync.disconnected" = "Disconnected";
 "sync.status" = "Status";
 "sync.state.idle" = "Idle";
-"sync.state.syncing" = "Syncing";
+"sync.state.syncing" = "Syncing...";
+"sync.state.uploading" = "Uploading...";
+"sync.state.downloading" = "Downloading...";
 "sync.state.offline" = "Offline";
 "sync.state.error" = "Error";
+"sync.calculating" = "Calculating...";
 "sync.sync_now" = "Sync Now";
 "sync.every_5_minutes" = "Every 5 minutes";
 "sync.download_from_cloud" = "Download from Cloud";
@@ -483,6 +491,8 @@
 "settings.github" = "GitHub";
 "settings.feedback" = "Feedback";
 "settings.about" = "About";
+"settings.rate_app" = "Rate App";
+"settings.rate_app_desc" = "If you like Social Bookmark, please give us a rating!";
 
 // MARK: - Danger Zone
 "settings.deleteAll" = "Delete All Data";
@@ -725,11 +735,83 @@
 "encryption.error.keychain_error" = "Keychain error: %d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "Welcome to Social Bookmark";
-"onboarding.welcome.subtitle" = "Collect and organize all your content in one place";
-"onboarding.features.title" = "Save from Anywhere";
-"onboarding.features.subtitle" = "Safari, Twitter, Reddit, Medium, LinkedIn. Extract text from images with OCR.";
-"onboarding.organize.title" = "Organize with Categories";
-"onboarding.organize.subtitle" = "Colorful labels, easy search, and automatic tag suggestions.";
-"onboarding.privacy.title" = "Your Data is Secure";
-"onboarding.privacy.subtitle" = "End-to-end encryption. Anonymous use or Sign in with Apple.";
+"onboarding.welcome.title" = "Welcome to Social Bookmark!";
+"onboarding.welcome.subtitle" = "Save, organize, and access your content from anywhere";
+
+"onboarding.sources.title" = "All Your Favorites in One Place";
+"onboarding.sources.subtitle" = "Save content from Twitter, Reddit, LinkedIn, Medium and more";
+"onboarding.sources.features.smart" = "✨ Smart content extraction";
+"onboarding.sources.features.ocr" = "📸 Read text in images (OCR)";
+"onboarding.sources.features.web" = "🔗 Save web pages with full content";
+
+"onboarding.share.title" = "Save with One Tap, Anywhere";
+"onboarding.share.subtitle" = "Use the share menu from any app like Safari, Twitter, Reddit...";
+"onboarding.share.step1" = "Tap the share button in any app";
+"onboarding.share.step2" = "Select Social Bookmark";
+"onboarding.share.step3" = "Content is automatically saved and categorized";
+"onboarding.share.reminder" = "Don't forget to enable the Share Extension on first use!";
+
+"onboarding.search.title" = "Find Anything Instantly";
+"onboarding.search.subtitle" = "Search across all your content, titles, descriptions and full texts with powerful search";
+"onboarding.search.features.fulltext" = "📝 Full-text search - search in all content";
+"onboarding.search.features.filter" = "🏷️ Filter by categories";
+"onboarding.search.features.sync" = "☁️ Sync across all your devices";
+"onboarding.search.features.secure" = "🔐 Secure with end-to-end encryption";
+
+"onboarding.action.login" = "Have an account? Sign In";
+"common.skip" = "Skip";
+
+// MARK: - Paywall
+"paywall.unauthenticated_title" = "Sign In First";
+"paywall.unauthenticated_subtitle" = "Please sign in to use Pro features and backup your data.";
+"paywall.pro_features_title" = "What's in Pro?";
+"paywall.feature.unlimited_bookmarks" = "Unlimited Bookmarks";
+"paywall.feature.custom_categories" = "Create Custom Categories";
+"paywall.feature.ocr" = "Image Text Search (OCR)";
+"paywall.feature.multi_image" = "Multiple Image Support";
+"paywall.feature.cloud_sync" = "Cross-Device Sync";
+"paywall.feature.ad_free" = "Ad-free Experience";
+
+// MARK: - Settings - Advanced
+"settings.advanced.cleanup" = "Data Cleanup";
+"settings.advanced.encryption_debug" = "Encryption Debug";
+
+// MARK: - Data Cleanup
+"cleanup.title" = "Data Cleanup";
+"cleanup.status.label" = "Status";
+"cleanup.status.ready" = "Ready";
+"cleanup.action.delete_all" = "Clear All Data and Re-sync";
+"cleanup.section.danger" = "⚠️ Dangerous Operations";
+"cleanup.footer.danger" = "This operation will delete all local bookmarks and categories and re-download them from Supabase. Encrypted data will be correctly decrypted.";
+"cleanup.alert.title" = "Are you sure?";
+"cleanup.alert.cancel" = "Cancel";
+"cleanup.alert.confirm" = "Yes, Clear";
+"cleanup.alert.message" = "All local data will be deleted and re-downloaded from Supabase.";
+"cleanup.status.deleting" = "🗑️ Deleting local data...";
+"cleanup.status.deleted_count %lld %lld" = "✅ %lld bookmarks, %lld categories deleted";
+"cleanup.status.preparing" = "⚙️ Preparing sync service...";
+"cleanup.status.downloading" = "📥 Downloading from Supabase...";
+"cleanup.status.completed_count %lld %lld" = "✅ Completed! %lld categories, %lld bookmarks downloaded.";
+"cleanup.status.error %@" = "❌ Error: %@";
+
+// MARK: - Encryption Debug
+"encryption.debug.title" = "Encryption Debug";
+"encryption.debug.key_status" = "Encryption Key Status";
+"encryption.debug.has_key" = "Key Exists?";
+"encryption.debug.yes" = "✅ YES";
+"encryption.debug.no" = "❌ NO";
+"encryption.debug.check_key" = "Check Key";
+"encryption.debug.test_section" = "Test Encryption";
+"encryption.debug.run_test" = "Run Encryption Test";
+"encryption.debug.export_section" = "Key Export";
+"encryption.debug.export_button" = "Export Key";
+"encryption.debug.import_section" = "Key Import";
+"encryption.debug.import_placeholder" = "Paste key here...";
+"encryption.debug.import_button" = "Import Key";
+"encryption.debug.import_footer" = "Paste the key you exported from your iPhone here to import it.";
+"encryption.debug.test_success" = "✅ Encryption key loaded successfully";
+"encryption.debug.test_fail %@" = "❌ Encryption key load failed: %@";
+"encryption.debug.test_run_success %@" = "✅ Encryption/Decryption successful!\nOriginal: %@";
+"encryption.debug.test_run_fail %@" = "❌ Decryption failed!\nOriginal: %@";
+"encryption.debug.copy_success %@" = "✅ Key copied! First 20 characters: %@...";
+"encryption.debug.import_success" = "✅ Key imported successfully!";

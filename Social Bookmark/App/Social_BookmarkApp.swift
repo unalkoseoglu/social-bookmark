@@ -69,6 +69,9 @@ struct Social_BookmarkApp: App {
         
         // RevenueCat IAP başlat
         SubscriptionManager.shared.configure()
+        
+        // Review Manager başlat
+        ReviewManager.shared.logLaunch()
     }
     
     // MARK: - Body

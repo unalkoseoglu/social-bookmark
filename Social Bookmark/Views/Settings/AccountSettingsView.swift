@@ -22,9 +22,6 @@ struct AccountSettingsView: View {
     @State private var showingLinkAccountSheet = false
     @State private var showingError = false
     
-    // Apple Sign In için
-    @State private var currentNonce: String?
-    @State private var currentHashedNonce: String?
     @StateObject private var syncService = SyncService.shared
     
     var body: some View {
@@ -144,7 +141,6 @@ struct AccountSettingsView: View {
             
             // Apple ile Bağla Butonu
             Button {
-                prepareNonce()
                 showingLinkAccountSheet = true
             } label: {
                 HStack {
@@ -252,7 +248,7 @@ struct AccountSettingsView: View {
                 
                 // Apple Sign In Button
                 SignInWithAppleButton(.signIn) { request in
-                    AuthService.shared.configureAppleRequest(request)
+                    sessionStore.configureAppleRequest(request)
                 } onCompletion: { result in
                     switch result {
                     case .success(let auth):
@@ -308,11 +304,6 @@ struct AccountSettingsView: View {
     
     // MARK: - Private Methods
     
-    private func prepareNonce() {
-        let prepared = sessionStore.prepareAppleSignIn()
-        currentNonce = prepared.nonce
-        currentHashedNonce = prepared.hashedNonce
-    }
     
     private func handleLinkApple(_ result: Result<ASAuthorization, Error>) {
         switch result {

@@ -178,9 +178,17 @@ final class SyncService: ObservableObject {
         print("🔄 [SYNC] Downloading from cloud for user: \(userId.uuidString)")
 
         try await downloadCategories(context: context, userId: userId)
+        
+        // ✅ Kategorileri hemen kaydet ve bildir
+        try context.save()
+        print("✅ [SYNC] Categories saved - notifying UI")
+        NotificationCenter.default.post(name: .categoriesDidSync, object: nil)
+
         try await downloadBookmarks(context: context, userId: userId)
 
         try context.save()
+        print("✅ [SYNC] All bookmarks saved - notifying UI")
+        NotificationCenter.default.post(name: .bookmarksDidSync, object: nil)
     }
 
     /// Local'den cloud'a yükle
@@ -212,8 +220,8 @@ final class SyncService: ObservableObject {
             let catResponseLocal: [CloudCategory] = try await client
                 .from("categories")
                 .select("id")
-                .eq("user_id", value: userId.uuidString)
-                .eq("local_id", value: localCategoryId.uuidString)
+                .eq("user_id", value: userId.uuidString.lowercased())
+                .eq("local_id", value: localCategoryId.uuidString.lowercased())
                 .execute()
                 .value
             
@@ -225,8 +233,8 @@ final class SyncService: ObservableObject {
                 let catResponseId: [CloudCategory] = try await client
                     .from("categories")
                     .select("id")
-                    .eq("user_id", value: userId.uuidString)
-                    .eq("id", value: localCategoryId.uuidString)
+                    .eq("user_id", value: userId.uuidString.lowercased())
+                    .eq("id", value: localCategoryId.uuidString.lowercased())
                     .execute()
                     .value
                 
@@ -244,7 +252,7 @@ final class SyncService: ObservableObject {
             .from("bookmarks")
             .select("id", head: true, count: .exact)
             .eq("user_id", value: userId.uuidString)
-            .eq("local_id", value: bookmark.id.uuidString)
+            .eq("local_id", value: bookmark.id.uuidString.lowercased())
             .execute()
         
         let existingCount = countResponse.count ?? 0
@@ -285,7 +293,7 @@ final class SyncService: ObservableObject {
                 .from("bookmarks")
                 .update(payload)
                 .eq("user_id", value: userId.uuidString)
-                .eq("local_id", value: bookmark.id.uuidString)
+                .eq("local_id", value: bookmark.id.uuidString.lowercased())
                 .execute()
         }
         print("✅ [SYNC] Bookmark sync done")
@@ -304,7 +312,7 @@ final class SyncService: ObservableObject {
             .from("categories")
             .select("id", head: true, count: .exact)
             .eq("user_id", value: userId.uuidString)
-            .eq("local_id", value: category.id.uuidString)
+            .eq("local_id", value: category.id.uuidString.lowercased())
             .execute()
         
         let existingCount = countResponse.count ?? 0
@@ -322,7 +330,7 @@ final class SyncService: ObservableObject {
                 .from("categories")
                 .update(payload)
                 .eq("user_id", value: userId.uuidString)
-                .eq("local_id", value: category.id.uuidString)
+                .eq("local_id", value: category.id.uuidString.lowercased())
                 .execute()
         }
         print("✅ [SYNC] Done")
@@ -334,8 +342,8 @@ final class SyncService: ObservableObject {
         try await client
             .from("bookmarks")
             .delete()
-            .eq("user_id", value: userId.uuidString)
-            .eq("local_id", value: bookmark.id.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
+            .eq("local_id", value: bookmark.id.uuidString.lowercased())
             .execute()
 
         print("🗑️ [SYNC] Deleted bookmark from cloud")
@@ -348,8 +356,8 @@ final class SyncService: ObservableObject {
         try await client
             .from("categories")
             .delete()
-            .eq("user_id", value: userId.uuidString)
-            .eq("local_id", value: category.id.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
+            .eq("local_id", value: category.id.uuidString.lowercased())
             .execute()
 
         print("🗑️ [SYNC] Deleted category from cloud")
@@ -377,12 +385,12 @@ final class SyncService: ObservableObject {
         let cloudCategories: [CloudCategory] = try await client
             .from("categories")
             .select()
-            .eq("user_id", value: userId.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
             .execute()
             .value
 
         let localCategories = try context.fetch(FetchDescriptor<Category>())
-        let localIdSet = Set(localCategories.map { $0.id.uuidString })
+        let localIdSet = Set(localCategories.map { $0.id.uuidString.lowercased() })
         
         // İsim kontrolü için map
         var localNameMap: [String: Category] = [:]
@@ -398,8 +406,8 @@ final class SyncService: ObservableObject {
             let isEnc = (cloud.isEncrypted == true)
             let name = decryptIfNeeded(cloud.name ?? "Unnamed", isEncrypted: isEnc)
             
-            // 1. ID kontrolü - zaten varsa atla
-            if localIdSet.contains(targetId) || localIdSet.contains(cloud.id) || localIdSet.contains(targetUUID.uuidString) {
+            let targetIdLow = targetId.lowercased()
+            if localIdSet.contains(targetIdLow) || localIdSet.contains(cloud.id.lowercased()) {
                 continue
             }
             
@@ -433,23 +441,25 @@ final class SyncService: ObservableObject {
         let cloudBookmarks: [CloudBookmark] = try await client
             .from("bookmarks")
             .select()
-            .eq("user_id", value: userId.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
             .execute()
             .value
+
+        print("📊 [DOWNLOAD] Found \(cloudBookmarks.count) bookmarks in cloud")
 
         let localBookmarks = try context.fetch(FetchDescriptor<Bookmark>())
         
         // Local bookmark'ları ID'ye göre map'le
         var localBookmarkMap: [String: Bookmark] = [:]
         for bookmark in localBookmarks {
-            localBookmarkMap[bookmark.id.uuidString] = bookmark
+            localBookmarkMap[bookmark.id.uuidString.lowercased()] = bookmark
         }
         
         // Cloud category ID → local ID mapping
         let cloudCategories: [CloudCategory] = try await client
             .from("categories")
             .select("id, local_id")
-            .eq("user_id", value: userId.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
             .execute()
             .value
         
@@ -457,15 +467,16 @@ final class SyncService: ObservableObject {
         for cat in cloudCategories {
             // ✅ DÜZELTME: Eğer local_id yoksa cloud ID'yi kullan (downloadCategories mantığı ile uyumlu)
             let targetId = cat.localId ?? cat.id
-            cloudToLocalCategoryMap[cat.id] = targetId
+            cloudToLocalCategoryMap[cat.id.lowercased()] = targetId.lowercased()
         }
+        print("🔗 [DOWNLOAD] Category mapping created with \(cloudToLocalCategoryMap.count) entries")
         
-        for cloud in cloudBookmarks {
+        for (index, cloud) in cloudBookmarks.enumerated() {
             let targetId = cloud.localId ?? cloud.id
             guard let targetUUID = UUID(uuidString: targetId) else { continue }
             
-            // ✅ DÜZELTME: Mevcut bookmark varsa güncelle, yoksa oluştur
-            if let existingBookmark = localBookmarkMap[targetUUID.uuidString] {
+            let targetIdLow = targetId.lowercased()
+            if let existingBookmark = localBookmarkMap[targetIdLow] {
                 print("🔄 [DOWNLOAD] Updating existing bookmark: \(cloud.title)")
                 
                 // Title, note, tags vs. güncelle
@@ -479,27 +490,21 @@ final class SyncService: ObservableObject {
                 
                 // 🖼️ Resimleri güncelle
                 if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
-                    print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for existing bookmark")
+                    print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for existing bookmark '\(cloud.title)'")
                     
-                    // İlk resmi indir
+                    // İlk resmi indir (Arka planda indirip güncellemek daha iyi olur ama şimdilik hızlı geçelim)
                     if let firstImagePath = imageUrls.first {
-                        print("   📥 Downloading image from: \(firstImagePath)")
-                        
                         if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
                             if let imageData = image.jpegData(compressionQuality: 0.8) {
                                 existingBookmark.imageData = imageData
-                                print("   ✅ Image downloaded and saved")
                             }
-                        } else {
-                            print("   ❌ Failed to download image")
                         }
                     }
-                    
                     existingBookmark.imageUrls = imageUrls
                 }
                 
                 // Category güncelle
-                if let cloudCategoryId = cloud.categoryId,
+                if let cloudCategoryId = cloud.categoryId?.lowercased(),
                    let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId],
                    let uuid = UUID(uuidString: localCategoryId) {
                     existingBookmark.categoryId = uuid
@@ -536,45 +541,46 @@ final class SyncService: ObservableObject {
 
             // 🖼️ Resimleri indir
             if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
-                print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for new bookmark")
-                
                 if let firstImagePath = imageUrls.first {
-                    print("   📥 Downloading image from: \(firstImagePath)")
-                    
-                    if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
-                        if let imageData = image.jpegData(compressionQuality: 0.8) {
-                            newBookmark.imageData = imageData
-                            print("   ✅ Image downloaded and saved")
+                    // Resim indirme hatası bookmark oluşumunu ENGELEMEMELİ
+                    do {
+                        if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
+                            if let imageData = image.jpegData(compressionQuality: 0.8) {
+                                newBookmark.imageData = imageData
+                            }
                         }
-                    } else {
-                        print("   ❌ Failed to download image")
+                    } catch {
+                        print("⚠️ [DOWNLOAD] Image download failed, skipping image for \(cloud.title)")
                     }
                 }
-                
                 newBookmark.imageUrls = imageUrls
             }
 
             // Category mapping
-            if let cloudCategoryId = cloud.categoryId {
-                print("   ❓ [DOWNLOAD] Checking category for bookmark: cloud_cat_id=\(cloudCategoryId)")
-                
+            if let cloudCategoryId = cloud.categoryId?.lowercased() {
                 if let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId] {
                     if let uuid = UUID(uuidString: localCategoryId) {
                         newBookmark.categoryId = uuid
                         print("   ✅ [DOWNLOAD] Assigned to category: local_id=\(uuid)")
-                    } else {
-                        print("   ❌ [DOWNLOAD] Invalid UUID string for category: \(localCategoryId)")
                     }
                 } else {
                     print("   ⚠️ [DOWNLOAD] Category not found in map for ID: \(cloudCategoryId)")
-                    print("       Map keys: \(cloudToLocalCategoryMap.keys)")
                 }
             } else {
                  print("   ℹ️ [DOWNLOAD] No category_id for this bookmark")
             }
 
             context.insert(newBookmark)
+            
+            // Periyodik save (her 20 bookmarkta bir) - UI'ı canlı tutmak için
+            if index % 20 == 19 {
+                try? context.save()
+                print("💾 [DOWNLOAD] Intermediate save at bookmark \(index + 1) - notifying UI")
+                NotificationCenter.default.post(name: .bookmarksDidSync, object: nil)
+            }
         }
+        
+        print("✅ [DOWNLOAD] All bookmarks processed and inserted")
     }
 
     // MARK: - Upload
@@ -598,7 +604,7 @@ final class SyncService: ObservableObject {
         let cloudCategories: [CloudCategory] = try await client
             .from("categories")
             .select("id, local_id")
-            .eq("user_id", value: userId.uuidString)
+            .eq("user_id", value: userId.uuidString.lowercased())
             .execute()
             .value
         
@@ -606,8 +612,8 @@ final class SyncService: ObservableObject {
         var categoryIdMap: [String: String] = [:]
         for cat in cloudCategories {
             // ✅ DÜZELTME: local_id yoksa cloud Id, local Id olarak kullanılmıştır
-            let targetLocalId = cat.localId ?? cat.id
-            categoryIdMap[targetLocalId] = cat.id
+            let targetLocalId = (cat.localId ?? cat.id).lowercased()
+            categoryIdMap[targetLocalId] = cat.id.lowercased()
         }
         
         Logger.sync.info("📦 Category ID map created with \(categoryIdMap.count) entries")
@@ -652,7 +658,7 @@ final class SyncService: ObservableObject {
             }
             
             // 🔑 Category ID'yi cloud ID ile değiştir
-            if let localCategoryId = bookmark.categoryId?.uuidString,
+            if let localCategoryId = bookmark.categoryId?.uuidString.lowercased(),
                let cloudCategoryId = categoryIdMap[localCategoryId] {
                 payload["category_id"] = AnyEncodable(cloudCategoryId)
                 Logger.sync.debug("🔗 Mapped category \(localCategoryId) → \(cloudCategoryId)")
@@ -690,8 +696,8 @@ final class SyncService: ObservableObject {
 
     private func createBookmarkPayload(_ bookmark: Bookmark, userId: UUID) -> [String: AnyEncodable] {
         var payload: [String: AnyEncodable] = [
-            "user_id": AnyEncodable(userId.uuidString),
-            "local_id": AnyEncodable(bookmark.id.uuidString),
+            "user_id": AnyEncodable(userId.uuidString.lowercased()),
+            "local_id": AnyEncodable(bookmark.id.uuidString.lowercased()),
             "source": AnyEncodable(bookmark.source.rawValue),
             "is_read": AnyEncodable(bookmark.isRead),
             "is_favorite": AnyEncodable(bookmark.isFavorite),
@@ -744,8 +750,8 @@ final class SyncService: ObservableObject {
 
     private func createCategoryPayload(_ category: Category, userId: UUID) -> [String: AnyEncodable] {
         var payload: [String: AnyEncodable] = [
-            "user_id": AnyEncodable(userId.uuidString),
-            "local_id": AnyEncodable(category.id.uuidString),
+            "user_id": AnyEncodable(userId.uuidString.lowercased()),
+            "local_id": AnyEncodable(category.id.uuidString.lowercased()),
             "icon": AnyEncodable(category.icon),
             "color": AnyEncodable(category.colorHex),
             "order": AnyEncodable(category.order),
@@ -775,4 +781,10 @@ final class SyncService: ObservableObject {
             return nil
         }
     }
+}
+
+// MARK: - Notification Names
+extension Notification.Name {
+    static let categoriesDidSync = Notification.Name("categoriesDidSync")
+    static let bookmarksDidSync = Notification.Name("bookmarksDidSync")
 }

@@ -19,7 +19,7 @@ struct SyncSettingsView: View {
     @State private var showingSyncConfirmation = false
     @State private var showingClearCacheConfirmation = false
     @State private var showingPaywall = false
-    @State private var cacheSize: String = "Hesaplanıyor..."
+    @State private var cacheSize: String = String(localized: "sync.calculating")
     
     var body: some View {
         List {

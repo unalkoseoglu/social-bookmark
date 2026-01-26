@@ -24,10 +24,10 @@ final class KeychainSessionStorage: AuthLocalStorage, @unchecked Sendable {
     private let accessGroup: String?
     
     init() {
-        // Bundle ID'yi service olarak kullan
-        self.service = Bundle.main.bundleIdentifier ?? "com.unal.socialbookmark"
+        // ✅ DÜZELTME: Ana uygulama ile aynı service ID'yi kullan (Share Extension ile paylaşım için)
+        self.service = "com.unal.Social-Bookmark"
         
-        // App Group kullan (Share Extension ile paylaşım için)
+        // App Group kullan
         self.accessGroup = "group.com.unal.socialbookmark"
         
         print("🔑 [KEYCHAIN] Initialized")

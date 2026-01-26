@@ -314,7 +314,7 @@ struct AllBookmarksView: View {
                     HStack {
                         Spacer()
                         Image(systemName: "arrow.down.circle")
-                        Text("all.action.load_more")
+                        Text("category.icons.show_more")
                         Spacer()
                     }
                     .font(.subheadline)
@@ -338,7 +338,12 @@ struct AllBookmarksView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
-                deleteBookmark(bookmark)
+                Task {
+                    await deleteBookmark(bookmark)
+                }
+               
+                
+              
             } label: {
                 Label("common.delete", systemImage: "trash")
             }
@@ -402,7 +407,10 @@ struct AllBookmarksView: View {
                 
                 // Mark all as read
                 Button {
-                    markAllAsRead()
+                    Task {
+                        await  markAllAsRead()
+                    }
+                   
                 } label: {
                     Label("all.action.mark_all_read", systemImage: "checkmark.circle.fill")
                 }
@@ -495,9 +503,9 @@ struct AllBookmarksView: View {
     
     // MARK: - Actions
     
-    private func deleteBookmark(_ bookmark: Bookmark) {
+    private func deleteBookmark(_ bookmark: Bookmark) async {
         viewModel.bookmarkRepository.delete(bookmark)
-        viewModel.refresh()
+        await viewModel.refresh()
         
         // Remove from displayed list
         if let index = displayedBookmarks.firstIndex(where: { $0.id == bookmark.id }) {
@@ -510,12 +518,12 @@ struct AllBookmarksView: View {
         viewModel.bookmarkRepository.update(bookmark)
     }
     
-    private func markAllAsRead() {
+    private func markAllAsRead() async {
         for bookmark in displayedBookmarks where !bookmark.isRead {
             bookmark.isRead = true
             viewModel.bookmarkRepository.update(bookmark)
         }
-        viewModel.refresh()
+        await viewModel.refresh()
     }
 }
 

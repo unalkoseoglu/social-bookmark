@@ -66,64 +66,6 @@
             endingLineNumber = "174"
             landmarkName = "downloadFromCloud()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "DC1FAC90-E4C1-4A9C-93E0-AE881D621523 - bdc6da49f10f8503"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for BookmarkShareExtension.SyncService.downloadFromCloud() async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "174"
-                  endingLineNumber = "174">
-               </Location>
-               <Location
-                  uuid = "DC1FAC90-E4C1-4A9C-93E0-AE881D621523 - 6cef639e2ecfe31e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for BookmarkShareExtension.SyncService.downloadFromCloud() async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "174"
-                  endingLineNumber = "174">
-               </Location>
-               <Location
-                  uuid = "DC1FAC90-E4C1-4A9C-93E0-AE881D621523 - 7f273b5795e53d1f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(5) suspend resume partial function for BookmarkShareExtension.SyncService.downloadFromCloud() async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "174"
-                  endingLineNumber = "174">
-               </Location>
-               <Location
-                  uuid = "DC1FAC90-E4C1-4A9C-93E0-AE881D621523 - 4f5f136ffcf85f18"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(6) suspend resume partial function for BookmarkShareExtension.SyncService.downloadFromCloud() async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "174"
-                  endingLineNumber = "174">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -140,50 +82,6 @@
             endingLineNumber = "151"
             landmarkName = "performFullSync()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "48459162-8765-40DF-B9C9-F76D320649C6 - be1835801eda157a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for BookmarkShareExtension.SyncService.performFullSync() async -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "151"
-                  endingLineNumber = "151">
-               </Location>
-               <Location
-                  uuid = "48459162-8765-40DF-B9C9-F76D320649C6 - b8cfabae604e9990"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for BookmarkShareExtension.SyncService.performFullSync() async -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "151"
-                  endingLineNumber = "151">
-               </Location>
-               <Location
-                  uuid = "48459162-8765-40DF-B9C9-F76D320649C6 - 9b7704c6dc932e7d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(6) suspend resume partial function for BookmarkShareExtension.SyncService.performFullSync() async -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "151"
-                  endingLineNumber = "151">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -198,38 +96,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "356"
             endingLineNumber = "356"
-            landmarkName = "downloadCategories(context:userId:)"
+            landmarkName = "deleteCategory(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A193CF05-64EC-46C5-B287-63D4BCBA2681 - 539b6503c799a252"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for BookmarkShareExtension.SyncService.deleteCategory(BookmarkShareExtension.Category) async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "356"
-                  endingLineNumber = "356">
-               </Location>
-               <Location
-                  uuid = "A193CF05-64EC-46C5-B287-63D4BCBA2681 - eb49cdebf53eae50"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for BookmarkShareExtension.SyncService.deleteCategory(BookmarkShareExtension.Category) async throws -&gt; ()"
-                  moduleName = "BookmarkShareExtension.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social%20Bookmark/Supabase/Services/SyncService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "356"
-                  endingLineNumber = "356">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

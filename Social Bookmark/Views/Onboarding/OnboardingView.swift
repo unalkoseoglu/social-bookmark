@@ -4,85 +4,100 @@ struct OnboardingView: View {
     @Binding var isPresented: Bool
     @State private var currentPage = 0
     
-    let pages: [OnboardingPage] = [
-        OnboardingPage(
-            titleKey: "onboarding.welcome.title",
-            subtitleKey: "onboarding.welcome.subtitle",
-            systemImage: "bookmark.fill",
-            accentColor: .blue
-        ),
-        OnboardingPage(
-            titleKey: "onboarding.features.title",
-            subtitleKey: "onboarding.features.subtitle",
-            systemImage: "plus.square.on.square",
-            accentColor: .orange
-        ),
-        OnboardingPage(
-            titleKey: "onboarding.organize.title",
-            subtitleKey: "onboarding.organize.subtitle",
-            systemImage: "tag.fill",
-            accentColor: .green
-        ),
-        OnboardingPage(
-            titleKey: "onboarding.privacy.title",
-            subtitleKey: "onboarding.privacy.subtitle",
-            systemImage: "shield.checkered",
-            accentColor: .purple
-        )
-    ]
-    
     var body: some View {
         ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
+            Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack {
-                // Skip Button
+                // Header (Skip Button)
                 HStack {
                     Spacer()
-                    Button(action: { isPresented = false }) {
-                        Text(LocalizedStringKey("common.skip"))
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(.secondary.opacity(0.1))
-                            .clipShape(Capsule())
+                    if currentPage < 3 {
+                        Button(action: { isPresented = false }) {
+                            Text(LocalizedStringKey("common.skip"))
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(.secondary.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                        .transition(.opacity)
                     }
-                    .padding()
                 }
+                .padding()
+                .zIndex(1)
                 
                 // Content
                 TabView(selection: $currentPage) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        OnboardingPageView(page: pages[index])
-                            .tag(index)
-                    }
+                    WelcomePage()
+                        .tag(0)
+                    
+                    SourcesPage()
+                        .tag(1)
+                    
+                    ShareExtensionPage()
+                        .tag(2)
+                    
+                    SearchFeaturesPage()
+                        .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 
                 // Footer
                 VStack(spacing: 24) {
-                    PageIndicator(
-                        numberOfPages: pages.count,
-                        currentPage: currentPage,
-                        color: pages[currentPage].accentColor
-                    )
+                    // Page Indicator (Dots)
+                    HStack(spacing: 8) {
+                        ForEach(0..<4) { index in
+                            Circle()
+                                .fill(currentPage == index ? Color.blue : Color.secondary.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                                .scaleEffect(currentPage == index ? 1.2 : 1.0)
+                                .animation(.spring(), value: currentPage)
+                        }
+                    }
                     
-                    OnboardingButton(
-                        title: String(localized: currentPage == pages.count - 1 ? "common.getStarted" : "common.continue"),
-                        action: {
-                            if currentPage < pages.count - 1 {
-                                withAnimation {
-                                    currentPage += 1
-                                }
-                            } else {
-                                isPresented = false
+                    if currentPage < 3 {
+                        // Regular "Continue" button for first 3 pages
+                        Button(action: {
+                            withAnimation {
+                                currentPage += 1
                             }
-                        },
-                        color: pages[currentPage].accentColor
-                    )
-                    .padding(.horizontal, 32)
+                        }) {
+                            Text(LocalizedStringKey("common.continue"))
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(Color.blue)
+                                .cornerRadius(16)
+                                .padding(.horizontal, 32)
+                        }
+                    } else {
+                        // Final CTA for the last page
+                        VStack(spacing: 16) {
+                            Button(action: { isPresented = false }) {
+                                Text(LocalizedStringKey("common.getStarted"))
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(Color.blue)
+                                    .cornerRadius(16)
+                                    .padding(.horizontal, 32)
+                            }
+                            
+                            Button(action: { 
+                                // In a real app, this might trigger a login flow
+                                // For now, we follow the current behavior of closing onboarding
+                                isPresented = false 
+                            }) {
+                                Text(LocalizedStringKey("onboarding.action.login"))
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
                 }
                 .padding(.bottom, 40)
             }

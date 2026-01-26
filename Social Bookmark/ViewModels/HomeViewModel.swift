@@ -18,6 +18,7 @@ final class HomeViewModel {
     private(set) var bookmarks: [Bookmark] = []
     private(set) var categories: [Category] = []
     private(set) var isLoading = false
+    var refreshID = UUID() // ✅ UI'ı yenilemeye zorlamak için
     
     let bookmarkRepository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
@@ -98,7 +99,7 @@ final class HomeViewModel {
     
     // MARK: - Private Setup
     
-    /// ✅ YENİ: Sync completion observer
+    /// ✅ YENİ: Sync ve Auth change observers
     private func setupSyncObserver() {
         NotificationCenter.default.addObserver(
             forName: .syncDidComplete,
@@ -108,19 +109,55 @@ final class HomeViewModel {
             print("🔄 [HomeViewModel] Sync completed, refreshing data...")
             self?.loadData()
         }
+        
+        NotificationCenter.default.addObserver(
+            forName: .categoriesDidSync,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 [HomeViewModel] Categories synced, refreshing data...")
+            self?.loadData()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .bookmarksDidSync,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 [HomeViewModel] Bookmarks synced, refreshing data...")
+            self?.loadData()
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .userDidSignIn,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔐 [HomeViewModel] User signed in, refreshing and syncing...")
+            Task {
+                await self?.refresh()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .userDidSignOut,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("👋 [HomeViewModel] User signed out, clearing data...")
+            self?.loadData()
+        }
     }
     
     // MARK: - Public Methods
     
     /// Verileri yenile
-    func refresh()  {  // ← async ekle
+    func refresh() async {
         isLoading = true
         
         print("🔄 [HomeViewModel] Manual refresh - triggering sync...")
-        Task{
-            await SyncService.shared.performFullSync()
-            loadData()
-        }
+        await SyncService.shared.performFullSync()
+        loadData()
 
         isLoading = false
     }
@@ -211,18 +248,27 @@ final class HomeViewModel {
     // MARK: - Private Methods
     
     func loadData() {
+        print("📥 [HomeViewModel] loadData called")
         isLoading = true
         loadBookmarks()
         loadCategories()
-        isLoading = false
+        
+        // Context'in yerleşmesi için çok kısa bir bekleme ve UI yenileme
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.refreshID = UUID()
+            self.isLoading = false
+            print("✅ [HomeViewModel] loadData completed, refreshID updated")
+        }
     }
     
     private func loadBookmarks() {
         bookmarks = bookmarkRepository.fetchAll()
+        print("📚 [HomeViewModel] Loaded \(bookmarks.count) bookmarks")
     }
     
     private func loadCategories() {
         categories = categoryRepository.fetchAll()
+        print("🗂️ [HomeViewModel] Loaded \(categories.count) categories")
     }
     
     deinit {

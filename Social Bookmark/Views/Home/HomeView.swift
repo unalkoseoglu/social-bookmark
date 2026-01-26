@@ -67,29 +67,42 @@ struct HomeView: View {
             }
             .padding(.top, 8)
         }
+        .id(viewModel.refreshID) // ✅ refreshID değiştikçe tüm view hiyerarşisini yenilemeye zorla
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
        
         .sheet(item: $selectedCategory) { category in
             CategoryDetailView(category: category, viewModel: viewModel)
+                .environmentObject(sessionStore)
         }
         .sheet(item: $selectedFilter) { filter in
             FilteredBookmarksView(filter: filter, viewModel: viewModel)
+                .environmentObject(sessionStore)
         }
         .sheet(isPresented: $showingAddCategory) {
             AddCategoryView { category in
-
                  viewModel.addCategory(category)
-                
             }
+            .environmentObject(sessionStore)
         }
         .refreshable {
           await viewModel.refresh()
         }
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
+                .environmentObject(sessionStore)
         }
         .id(languageManager.refreshID)
+        .onAppear {
+            print("🏠 [HomeView] onAppear - loading data")
+            viewModel.loadData()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .userDidSignIn)) { _ in
+            print("🔐 [HomeView] User signed in - triggering explicit refresh")
+            Task {
+                await viewModel.refresh()
+            }
+        }
     }
     
     // MARK: - Header Section
@@ -126,6 +139,8 @@ struct HomeView: View {
                             .background(Color.orange.opacity(0.1))
                             .clipShape(Circle())
                     }
+                }else if subscriptionManager.isPro {
+                    ProBadge()
                 }
                 
                 NavigationLink {

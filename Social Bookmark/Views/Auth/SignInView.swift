@@ -15,11 +15,15 @@ struct SignInView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     @State private var showingError = false
-    @State private var currentNonce: String?
-    @State private var currentHashedNonce: String?
     
     /// Ayarlardan mı açıldı?
     var isPresented: Bool = false
+    
+    /// Paywall'dan mı açıldı? (Özel içerik için)
+    var isFromPaywall: Bool = false
+    
+    /// Paywall nedeni (örn: "Sınır doldu")
+    var reason: String?
     
     var body: some View {
         NavigationStack {
@@ -74,9 +78,6 @@ struct SignInView: View {
                     dismiss()
                 }
             }
-            .onAppear {
-                prepareNonce()
-            }
         }
     }
     
@@ -84,19 +85,68 @@ struct SignInView: View {
     
     private var headerSection: some View {
         VStack(spacing: 16) {
-            Image(systemName: "bookmark.fill")
-                .font(.system(size: 60))
-                .foregroundStyle(.blue)
+            if isFromPaywall {
+                // Paywall'a özel içerik
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.yellow)
+                
+                Text("paywall.unauthenticated_title")
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                if let reason = reason {
+                    Text(reason)
+                        .font(.headline)
+                        .foregroundStyle(.yellow)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+
+                Text("paywall.unauthenticated_subtitle")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                
+                // Pro Özellikleri Listesi
+                VStack(alignment: .leading, spacing: 12) {
+                    featureRow(icon: "star.fill", text: "paywall.feature.unlimited_bookmarks")
+                    featureRow(icon: "folder.fill", text: "paywall.feature.custom_categories")
+                    featureRow(icon: "text.viewfinder", text: "paywall.feature.ocr")
+                    featureRow(icon: "photo.stack.fill", text: "paywall.feature.multi_image")
+                    featureRow(icon: "cloud.fill", text: "paywall.feature.cloud_sync")
+                    featureRow(icon: "nosign", text: "paywall.feature.ad_free")
+                }
+                .padding(.top, 8)
+            } else {
+                // Normal karşılama
+                Image(systemName: "bookmark.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
+                
+                Text("auth.welcome_title")
+                    .font(.title)
+                    .fontWeight(.bold)
+                
+                Text("auth.welcome_subtitle")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+        }
+    }
+    
+    private func featureRow(icon: String, text: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(.yellow)
+                .font(.system(size: 16, weight: .semibold))
             
-            Text("auth.welcome_title")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("auth.welcome_subtitle")
+            Text(LocalizedStringKey(text))
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                .foregroundStyle(.primary)
         }
     }
     
@@ -106,54 +156,15 @@ struct SignInView: View {
         VStack(spacing: 16) {
             // Apple Sign In
             SignInWithAppleButton(.signIn) { request in
-                request.requestedScopes = [.email, .fullName]
-                request.nonce = currentHashedNonce
+                sessionStore.configureAppleRequest(request)
             } onCompletion: { result in
                 handleAppleSignIn(result)
             }
             .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
             .frame(height: 50)
             .cornerRadius(12)
-            
-            // Divider
-            dividerSection
-            
-            // Anonymous Sign In
-            Button {
-                Task {
-                        await sessionStore.signInAnonymously()
-                    }
-            } label: {
-                HStack {
-                    Image(systemName: "person.crop.circle.badge.questionmark")
-                    Text("auth.continue_anonymously")
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color(.systemGray5))
-                .foregroundStyle(.primary)
-                .cornerRadius(12)
-            }
-            .disabled(sessionStore.isLoading)
         }
         .padding(.horizontal, 24)
-    }
-    
-    private var dividerSection: some View {
-        HStack {
-            Rectangle()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(height: 1)
-            
-            Text("auth.or_divider")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            Rectangle()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(height: 1)
-        }
-        .padding(.vertical, 8)
     }
     
     // MARK: - Footer
@@ -182,11 +193,6 @@ struct SignInView: View {
     
     // MARK: - Private Methods
     
-    private func prepareNonce() {
-        let prepared = sessionStore.prepareAppleSignIn()
-        currentNonce = prepared.nonce
-        currentHashedNonce = prepared.hashedNonce
-    }
     
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
         switch result {

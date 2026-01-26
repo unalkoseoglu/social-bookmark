@@ -99,25 +99,19 @@ struct CategoriesManagementView: View {
         }
         .sheet(isPresented: $showingAddCategory) {
             AddCategoryView { category in
-                Task {
-                    await viewModel.addCategory(category)
-                }
+                viewModel.addCategory(category)
             }
         }
         .sheet(item: $editingCategory) { category in
             EditCategoryView(category: category) { updatedCategory in
-                Task {
-                    await viewModel.updateCategory(updatedCategory)
-                }
+                viewModel.updateCategory(updatedCategory)
             }
         }
         .alert("category.delete.title", isPresented: $showingDeleteAlert) {
             Button("common.cancel", role: .cancel) {}
             Button("common.delete", role: .destructive) {
                 if let category = categoryToDelete {
-                    Task {
-                        await viewModel.deleteCategory(category)
-                    }
+                    viewModel.deleteCategory(category)
                 }
             }
         } message: {
@@ -156,12 +150,12 @@ struct CategoriesManagementView: View {
         
         for (index, category) in categories.enumerated() {
             category.order = index
-            Task {
-                 viewModel.updateCategory(category)
-            }
+            viewModel.updateCategory(category)
         }
         
-        viewModel.refresh()
+        Task {
+            await viewModel.refresh()
+        }
     }
 }
 

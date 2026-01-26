@@ -35,7 +35,6 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Apple Sign In State
     
-    private var currentNonce: String?
     
     // MARK: - Dependencies
     
@@ -161,12 +160,9 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Apple Sign In
     
-    /// Apple Sign In için nonce hazırla
-    func prepareAppleSignIn() -> (nonce: String, hashedNonce: String) {
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        let hashedNonce = sha256(nonce)
-        return (nonce, hashedNonce)
+    /// Apple Sign In için request'i konfigüre et
+    func configureAppleRequest(_ request: ASAuthorizationAppleIDRequest) {
+        authService.configureAppleRequest(request)
     }
     
     /// Apple Sign In tamamla (ASAuthorization ile)
@@ -430,31 +426,6 @@ final class SessionStore: ObservableObject {
         }
     }
     
-    // MARK: - Crypto Helpers (Apple Sign In)
-    
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
-        }
-        
-        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        let nonce = randomBytes.map { byte in
-            charset[Int(byte) % charset.count]
-        }
-        return String(nonce)
-    }
-    
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        let hashString = hashedData.compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-        return hashString
-    }
 }
 
 extension SessionStore {

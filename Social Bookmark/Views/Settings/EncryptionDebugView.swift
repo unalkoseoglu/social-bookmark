@@ -17,21 +17,21 @@ struct EncryptionDebugView: View {
         List {
             Section {
                 HStack {
-                    Text("Key Mevcut mu?")
+                    Text(String(localized: "encryption.debug.has_key"))
                     Spacer()
-                    Text(hasKey ? "✅ EVET" : "❌ HAYIR")
+                    Text(hasKey ? String(localized: "encryption.debug.yes") : String(localized: "encryption.debug.no"))
                         .foregroundStyle(hasKey ? .green : .red)
                 }
                 
-                Button("Key'i Kontrol Et") {
+                Button(String(localized: "encryption.debug.check_key")) {
                     checkKey()
                 }
             } header: {
-                Text("Encryption Key Durumu")
+                Text(String(localized: "encryption.debug.key_status"))
             }
             
             Section {
-                Button("Şifreleme Testi Yap") {
+                Button(String(localized: "encryption.debug.run_test")) {
                     testEncryption()
                 }
                 
@@ -41,34 +41,34 @@ struct EncryptionDebugView: View {
                         .foregroundStyle(testResult.contains("✅") ? .green : .red)
                 }
             } header: {
-                Text("Test Encryption")
+                Text(String(localized: "encryption.debug.test_section"))
             }
             
             Section {
-                Button("Key'i Export Et") {
+                Button(String(localized: "encryption.debug.export_button")) {
                     exportKey()
                 }
             } header: {
-                Text("Key Export")
+                Text(String(localized: "encryption.debug.export_section"))
             }
             
             // ✅ IMPORT SECTION EKLENDI
             Section {
-                TextField("Key'i buraya yapıştır...", text: $importKey, axis: .vertical)
+                TextField(String(localized: "encryption.debug.import_placeholder"), text: $importKey, axis: .vertical)
                     .font(.system(.caption, design: .monospaced))
                     .lineLimit(3...6)
                 
-                Button("Anahtarı İçe Aktar") {
+                Button(String(localized: "encryption.debug.import_button")) {
                     importKeyAction()
                 }
                 .disabled(importKey.isEmpty)
             } header: {
-                Text("Key Import")
+                Text(String(localized: "encryption.debug.import_section"))
             } footer: {
-                Text("iPhone'dan export ettiğiniz key'i buraya yapıştırıp import edin.")
+                Text(String(localized: "encryption.debug.import_footer"))
             }
         }
-        .navigationTitle("Encryption Debug")
+        .navigationTitle(String(localized: "encryption.debug.title"))
         .onAppear {
             checkKey()
         }
@@ -78,10 +78,10 @@ struct EncryptionDebugView: View {
         do {
             let _ = try encryptionService.getOrCreateKey()
             hasKey = true
-            testResult = "✅ Encryption key başarıyla yüklendi"
+            testResult = String(localized: "encryption.debug.test_success")
         } catch {
             hasKey = false
-            testResult = "❌ Encryption key yüklenemedi: \(error.localizedDescription)"
+            testResult = String(localized: "encryption.debug.test_fail \(error.localizedDescription)")
         }
     }
     
@@ -99,12 +99,12 @@ struct EncryptionDebugView: View {
             print("🔓 Decrypted: \(decrypted)")
             
             if decrypted == original {
-                testResult = "✅ Encryption/Decryption başarılı!\nOriginal: \(original)\nDecrypted: \(decrypted)"
+                testResult = String(localized: "encryption.debug.test_run_success \(original)")
             } else {
-                testResult = "❌ Decryption başarısız!\nOriginal: \(original)\nDecrypted: \(decrypted)"
+                testResult = String(localized: "encryption.debug.test_run_fail \(original)")
             }
         } catch {
-            testResult = "❌ Test başarısız: \(error.localizedDescription)"
+            testResult = String(localized: "encryption.debug.test_run_fail \(error.localizedDescription)")
         }
     }
     
@@ -112,10 +112,10 @@ struct EncryptionDebugView: View {
         do {
             let key = try encryptionService.exportKey()
             UIPasteboard.general.string = key
-            testResult = "✅ Key kopyalandı! İlk 20 karakter: \(String(key.prefix(20)))..."
+            testResult = String(localized: "encryption.debug.copy_success \(String(key.prefix(20)))")
             print("🔐 Encrypted: \(key)")
         } catch {
-            testResult = "❌ Key export başarısız: \(error.localizedDescription)"
+            testResult = String(localized: "encryption.debug.test_run_fail \(error.localizedDescription)")
         }
     }
     
@@ -123,11 +123,11 @@ struct EncryptionDebugView: View {
     private func importKeyAction() {
         do {
             try encryptionService.importKey(base64String: importKey.trimmingCharacters(in: .whitespacesAndNewlines))
-            testResult = "✅ Key başarıyla import edildi!"
+            testResult = String(localized: "encryption.debug.import_success")
             hasKey = true
             importKey = ""
         } catch {
-            testResult = "❌ Key import başarısız: \(error.localizedDescription)"
+            testResult = String(localized: "encryption.debug.test_run_fail \(error.localizedDescription)")
         }
     }
 }

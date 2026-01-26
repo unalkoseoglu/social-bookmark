@@ -24,8 +24,6 @@ struct LinkAccountSheet: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     
-    @State private var currentNonce: String = ""
-    @State private var currentHashedNonce: String = ""
     @State private var showingConfirmation = false
     
     var body: some View {
@@ -54,9 +52,6 @@ struct LinkAccountSheet: View {
             }
         }
         .interactiveDismissDisabled(migrationService.state.isInProgress)
-        .onAppear {
-            prepareNonce()
-        }
     }
     
     // MARK: - Link Account Content
@@ -117,8 +112,7 @@ struct LinkAccountSheet: View {
             
             // Apple Sign In Butonu
             SignInWithAppleButton(.continue) { request in
-                request.requestedScopes = [.fullName, .email]
-                request.nonce = currentHashedNonce
+                sessionStore.configureAppleRequest(request)
             } onCompletion: { result in
                 handleAppleSignIn(result)
             }
@@ -400,11 +394,6 @@ struct LinkAccountSheet: View {
     
     // MARK: - Private Methods
     
-    private func prepareNonce() {
-        let prepared = sessionStore.prepareAppleSignIn()
-        currentNonce = prepared.nonce
-        currentHashedNonce = prepared.hashedNonce
-    }
     
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
         switch result {

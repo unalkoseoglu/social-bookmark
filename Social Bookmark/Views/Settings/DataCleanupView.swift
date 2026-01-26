@@ -19,42 +19,42 @@ struct DataCleanupView: View {
     var body: some View {
         List {
             Section {
-                Text(status.isEmpty ? "Hazır" : status)
+                Text(status.isEmpty ? String(localized: "cleanup.status.ready") : status)
                     .font(.caption)
             } header: {
-                Text("Durum")
+                Text(String(localized: "cleanup.status.label"))
             }
             
             Section {
                 Button(role: .destructive) {
                     showConfirmation = true
                 } label: {
-                    Label("Tüm Verileri Temizle ve Yeniden Sync Et", systemImage: "trash.circle")
+                    Label(String(localized: "cleanup.action.delete_all"), systemImage: "trash.circle")
                 }
                 .disabled(isProcessing)
             } header: {
-                Text("⚠️ Tehlikeli İşlemler")
+                Text(String(localized: "cleanup.section.danger"))
             } footer: {
-                Text("Bu işlem lokal tüm bookmark ve kategorileri silip Supabase'den yeniden indirecek. Şifreli veriler düzgün şekilde decrypt edilecek.")
+                Text(String(localized: "cleanup.footer.danger"))
             }
         }
-        .navigationTitle("Data Cleanup")
-        .alert("Emin misiniz?", isPresented: $showConfirmation) {
-            Button("İptal", role: .cancel) { }
-            Button("Evet, Temizle", role: .destructive) {
+        .navigationTitle(String(localized: "cleanup.title"))
+        .alert(String(localized: "cleanup.alert.title"), isPresented: $showConfirmation) {
+            Button(String(localized: "cleanup.alert.cancel"), role: .cancel) { }
+            Button(String(localized: "cleanup.alert.confirm"), role: .destructive) {
                 Task {
                     await cleanupAndResync()
                 }
             }
         } message: {
-            Text("Tüm lokal veriler silinip Supabase'den yeniden indirilecek.")
+            Text(String(localized: "cleanup.alert.message"))
         }
     }
     
     @MainActor
     private func cleanupAndResync() async {
         isProcessing = true
-        status = "🗑️ Lokal veriler siliniyor..."
+        status = String(localized: "cleanup.status.deleting")
         
         do {
             // 1. Tüm bookmarkları sil
@@ -75,7 +75,7 @@ struct DataCleanupView: View {
             
             // 3. Değişiklikleri kaydet
             try modelContext.save()
-            status = "✅ \(bookmarkCount) bookmark, \(categoryCount) kategori silindi"
+            status = String(localized: "cleanup.status.deleted_count \(bookmarkCount) \(categoryCount)")
             
             print("🗑️ [CLEANUP] Deleted \(bookmarkCount) bookmarks, \(categoryCount) categories")
             
@@ -83,13 +83,13 @@ struct DataCleanupView: View {
             try await Task.sleep(nanoseconds: 2_000_000_000) // 2 saniye
             
             // 4. SyncService'i configure et
-            status = "⚙️ Sync servisi hazırlanıyor..."
+            status = String(localized: "cleanup.status.preparing")
             syncService.configure(modelContext: modelContext)
             
             print("⚙️ [CLEANUP] SyncService configured")
             
             // 5. Supabase'den yeniden indir
-            status = "📥 Supabase'den indiriliyor..."
+            status = String(localized: "cleanup.status.downloading")
             
             try await syncService.downloadFromCloud()
             
@@ -109,11 +109,11 @@ struct DataCleanupView: View {
                 print("📂 [CLEANUP] Is encrypted: \(firstCat.name.count > 50)")
             }
             
-            status = "✅ Tamamlandı! \(newCategories.count) kategori, \(newBookmarks.count) bookmark indirildi."
+            status = String(localized: "cleanup.status.completed_count \(newCategories.count) \(newBookmarks.count)")
             
         } catch {
             print("❌ [CLEANUP] Error: \(error)")
-            status = "❌ Hata: \(error.localizedDescription)"
+            status = String(localized: "cleanup.status.error \(error.localizedDescription)")
         }
         
         isProcessing = false

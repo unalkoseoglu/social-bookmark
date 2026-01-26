@@ -128,7 +128,7 @@ struct OfflineBannerModifier: ViewModifier {
                     Image(systemName: "wifi.slash")
                     Text("common.offline")
                     Spacer()
-                    Text("Değişiklikler kaydedilecek")
+                    Text("common.offline_save_info")
                         .font(.caption)
                 }
                 .font(.subheadline)
@@ -192,12 +192,12 @@ struct AuthErrorAlertModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .alert("Hata", isPresented: $showAlert) {
+            .alert(String(localized: "common.error"), isPresented: $showAlert) {
                 Button("common.ok", role: .cancel) {
                     authService.errorMessage = nil
                 }
             } message: {
-                Text(authService.errorMessage ?? "Bilinmeyen hata")
+                Text(authService.errorMessage ?? String(localized: "common.unknown_error"))
             }
             .onChange(of: authService.errorMessage) { _, newValue in
                 showAlert = newValue != nil
