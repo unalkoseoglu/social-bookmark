@@ -25,6 +25,9 @@ final class Bookmark {
     /// Oluşturulma tarihi - otomatik set edilir
     var createdAt: Date
     
+    /// Güncellenme tarihi (YENİ - Sync için) - Migration için opsiyonel yaptık
+    var updatedAt: Date?
+    
     /// Okundu mu? - Reading tracker için
     var isRead: Bool
     
@@ -72,6 +75,7 @@ final class Bookmark {
             self.note = note
             self.source = source
             self.createdAt = Date()
+            self.updatedAt = Date()
             self.isRead = isRead
             self.isFavorite = isFavorite
             self.categoryId = categoryId
@@ -145,5 +149,10 @@ extension Bookmark {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: createdAt, relativeTo: Date())
+    }
+    
+    /// ✅ Sync için güvenli tarih (nil ise createdAt döner)
+    var lastUpdated: Date {
+        updatedAt ?? createdAt
     }
 }

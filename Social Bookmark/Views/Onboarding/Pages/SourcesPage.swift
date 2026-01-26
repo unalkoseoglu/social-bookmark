@@ -1,55 +1,71 @@
 import SwiftUI
 
+enum PlatformAsset {
+    case system(String)
+    case image(String)
+}
+
+struct Platform {
+    let id: String
+    let name: String
+    let color: Color
+    let asset: PlatformAsset
+}
+
 struct SourcesPage: View {
     @State private var animateIcons = false
     
     let platforms = [
-        ("twitter", "X", Color.primary),
-        ("reddit", "Reddit", Color.orange),
-        ("linkedin", "LinkedIn", Color.blue),
-        ("medium", "Medium", Color.primary),
-        ("globe", "Web", Color.gray),
-        ("photo", "Images", Color.green)
+        Platform(id: "x", name: "X", color: .primary, asset: .image("logo_x")),
+        Platform(id: "reddit", name: "Reddit", color: .orange, asset: .image("logo_reddit")),
+        Platform(id: "facebook", name: "Facebook", color: .blue, asset: .image("logo_facebook")),
+        Platform(id: "linkedin", name: "LinkedIn", color: .blue, asset: .image("logo_linkedin")),
+        Platform(id: "instagram", name: "Instagram", color: .pink, asset: .image("logo_instagram")),
+        Platform(id: "youtube", name: "YouTube", color: .red, asset: .image("logo_youtube")),
+        Platform(id: "medium", name: "Medium", color: .primary, asset: .image("logo_medium")),
+        Platform(id: "wordpress", name: "WP", color: .blue, asset: .image("logo_wp"))
     ]
     
     var body: some View {
-        VStack(spacing: 40) {
+        VStack(spacing: 30) {
             Spacer()
             
             // Icon Grid
             ZStack {
                 Circle()
-                    .stroke(LinearGradient(colors: [.blue.opacity(0.1), .purple.opacity(0.1)], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                    .stroke(Color.secondary.opacity(0.1), lineWidth: 1)
                     .frame(width: 300, height: 300)
                 
                 ForEach(0..<platforms.count, id: \.self) { index in
-                    PlatformIcon(
-                        systemName: platforms[index].0,
-                        name: platforms[index].1,
-                        color: platforms[index].2
-                    )
-                    .offset(
-                        x: 100 * cos(CGFloat(index) * 2 * .pi / CGFloat(platforms.count)),
-                        y: 100 * sin(CGFloat(index) * 2 * .pi / CGFloat(platforms.count))
-                    )
-                    .scaleEffect(animateIcons ? 1.0 : 0.0)
-                    .opacity(animateIcons ? 1.0 : 0.0)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.6).delay(Double(index) * 0.1), value: animateIcons)
+                    let platform = platforms[index]
+                    PlatformIcon(platform: platform)
+                        .offset(
+                            x: 100 * cos(CGFloat(index) * 2 * .pi / CGFloat(platforms.count) - .pi/2),
+                            y: 100 * sin(CGFloat(index) * 2 * .pi / CGFloat(platforms.count) - .pi/2)
+                        )
+                        .scaleEffect(animateIcons ? 1.0 : 0.0)
+                        .opacity(animateIcons ? 1.0 : 0.0)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.7).delay(Double(index) * 0.1), value: animateIcons)
                 }
                 
-                // Central Icon
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.blue)
-                    .background(Circle().fill(.white).frame(width: 50, height: 50))
-                    .shadow(radius: 10)
-                    .scaleEffect(animateIcons ? 1.2 : 0.8)
-                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: animateIcons)
+                // Simplified Central Icon (Black & White)
+                ZStack {
+                    Circle()
+                        .fill(Color.primary)
+                        .frame(width: 64, height: 64)
+                    
+                    Image(systemName: "plus")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(Color(UIColor.systemBackground))
+                }
+                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                .scaleEffect(animateIcons ? 1.05 : 0.95)
+                .animation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: animateIcons)
             }
             .frame(height: 320)
             
             // Text Content
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 Text(LocalizedStringKey("onboarding.sources.title"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
@@ -59,10 +75,11 @@ struct SourcesPage: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
             // Bullet Points
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 FeatureRow(text: "onboarding.sources.features.smart")
                 FeatureRow(text: "onboarding.sources.features.ocr")
                 FeatureRow(text: "onboarding.sources.features.web")
@@ -78,23 +95,31 @@ struct SourcesPage: View {
 }
 
 struct PlatformIcon: View {
-    let systemName: String
-    let name: String
-    let color: Color
+    let platform: Platform
     
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             ZStack {
                 Circle()
-                    .fill(color.opacity(0.1))
-                    .frame(width: 50, height: 50)
+                    .fill(Color(UIColor.secondarySystemBackground))
+                    .frame(width: 54, height: 54)
+                    .shadow(color: Color.black.opacity(0.05), radius: 5)
                 
-                Image(systemName: systemName == "twitter" ? "xmark" : systemName)
-                    .font(.system(size: 24))
-                    .foregroundStyle(color)
+                switch platform.asset {
+                case .system(let name):
+                    Image(systemName: name)
+                        .font(.system(size: 40, weight: .medium))
+                        .foregroundStyle(platform.color)
+                        .background(Color.white)
+                case .image(let name):
+                    Image(name)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                }
             }
-            Text(name)
-                .font(.caption2.bold())
+            Text(platform.name)
+                .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
         }
     }
@@ -107,6 +132,8 @@ struct FeatureRow: View {
         HStack(spacing: 12) {
             Text(LocalizedStringKey(text))
                 .font(.subheadline)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

@@ -60,6 +60,7 @@ final class CategoryRepository: CategoryRepositoryProtocol {
     }
     
     func update(_ category: Category) {
+        category.updatedAt = Date()
         save()
         Logger.repository.info("Updated category: \(category.name)")
     }

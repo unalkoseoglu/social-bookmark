@@ -216,15 +216,6 @@ struct SyncSettingsView: View {
                         .font(.caption.monospaced())
                 }
             }
-            
-            HStack {
-                Label(String(localized: "sync.auto_sync"), systemImage: "repeat")
-                
-                Spacer()
-                
-                Text(String(localized: "sync.every_5_minutes"))
-                    .foregroundStyle(.secondary)
-            }
         } header: {
             Text(String(localized: "settings.account_info"))
         }

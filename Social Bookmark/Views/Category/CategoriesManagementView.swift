@@ -217,18 +217,6 @@ struct AddCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("category.field.name") {
-                    TextField("category.field.name_placeholder", text: $name)
-                }
-                
-                Section("category.field.icon") {
-                    IconPickerGrid(selectedIcon: $selectedIcon)
-                }
-                
-                Section("category.field.color") {
-                    ColorPickerGrid(selectedColor: $selectedColor)
-                }
-                
                 Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
@@ -250,6 +238,19 @@ struct AddCategoryView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                Section("category.field.name") {
+                    TextField("category.field.name_placeholder", text: $name)
+                }
+                
+                Section("category.field.icon") {
+                    IconPickerGrid(selectedIcon: $selectedIcon)
+                }
+                
+                Section("category.field.color") {
+                    ColorPickerGrid(selectedColor: $selectedColor)
+                }
+                
+                
             }
             .navigationTitle("category.new.title")
             .navigationBarTitleDisplayMode(.inline)

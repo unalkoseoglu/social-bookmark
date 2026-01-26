@@ -121,8 +121,6 @@ final class SyncService: ObservableObject {
     private var client: SupabaseClient { SupabaseManager.shared.client }
     private var modelContext: ModelContext?
 
-    private var autoSyncTimer: Timer?
-    private let autoSyncInterval: TimeInterval = 300 // 5 dakika
 
     private var deviceId: String {
         UIDevice.current.identifierForVendor?.uuidString ?? "unknown"
@@ -365,19 +363,6 @@ final class SyncService: ObservableObject {
 
     // MARK: - Auto Sync
 
-    func startAutoSync() {
-        stopAutoSync()
-        autoSyncTimer = Timer.scheduledTimer(withTimeInterval: autoSyncInterval, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                await self?.performFullSync()
-            }
-        }
-    }
-
-    func stopAutoSync() {
-        autoSyncTimer?.invalidate()
-        autoSyncTimer = nil
-    }
 
     // MARK: - Download
 
@@ -411,13 +396,9 @@ final class SyncService: ObservableObject {
                 continue
             }
             
-            // 2. İsim kontrolü - ID farklı ama isim aynı ise (Duplicate Default Category sorunu)
             if let existingLocal = localNameMap[name] {
-                print("⚠️ [SYNC] Found duplicate category by name: '\(name)'. Deleting local request to prefer Cloud version.")
-                // Local'i sil ki Cloud versiyonu (doğru ID ile) yerine geçsin
-                context.delete(existingLocal)
-                // Map'ten çıkar ki bir sonraki döngüde karışıklık olmasın (gerçi loop cloud üzerinde)
-                localNameMap.removeValue(forKey: name)
+                print("⚠️ [SYNC] Skipping cloud category '\(name)' - local category with same name already exists (ID: \(existingLocal.id))")
+                continue
             }
 
             let newCategory = Category(
@@ -430,6 +411,9 @@ final class SyncService: ObservableObject {
 
             if let createdAt = cloud.createdAt, let created = ISO8601DateFormatter().date(from: createdAt) {
                 newCategory.createdAt = created
+            }
+            if let updatedAt = cloud.updatedAt, let updated = ISO8601DateFormatter().date(from: updatedAt) {
+                newCategory.updatedAt = updated
             }
 
             context.insert(newCategory)
@@ -477,6 +461,13 @@ final class SyncService: ObservableObject {
             
             let targetIdLow = targetId.lowercased()
             if let existingBookmark = localBookmarkMap[targetIdLow] {
+                // 🕒 Timestamp kontrolü - Cloud daha yeniyse güncelle
+                let cloudUpdatedAt = ISO8601DateFormatter().date(from: cloud.updatedAt) ?? Date.distantPast
+                if existingBookmark.lastUpdated >= cloudUpdatedAt {
+                    print("⏭️ [DOWNLOAD] Skipping update for '\(cloud.title)' - local is up to date or newer")
+                    continue
+                }
+
                 print("🔄 [DOWNLOAD] Updating existing bookmark: \(cloud.title)")
                 
                 // Title, note, tags vs. güncelle
@@ -487,21 +478,10 @@ final class SyncService: ObservableObject {
                 existingBookmark.tags = (cloud.tags ?? []).map { decryptIfNeeded($0, isEncrypted: isEnc) }
                 existingBookmark.isRead = cloud.isRead
                 existingBookmark.isFavorite = cloud.isFavorite
+                existingBookmark.updatedAt = cloudUpdatedAt // Sync timestamp
                 
-                // 🖼️ Resimleri güncelle
-                if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
-                    print("🖼️ [DOWNLOAD] Found \(imageUrls.count) images for existing bookmark '\(cloud.title)'")
-                    
-                    // İlk resmi indir (Arka planda indirip güncellemek daha iyi olur ama şimdilik hızlı geçelim)
-                    if let firstImagePath = imageUrls.first {
-                        if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
-                            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                                existingBookmark.imageData = imageData
-                            }
-                        }
-                    }
-                    existingBookmark.imageUrls = imageUrls
-                }
+                // 🖼️ Resimleri artık SYNC SIRASINDA İNDİRMİYORUZ
+                existingBookmark.imageUrls = cloud.imageUrls
                 
                 // Category güncelle
                 if let cloudCategoryId = cloud.categoryId?.lowercased(),
@@ -511,6 +491,8 @@ final class SyncService: ObservableObject {
                 }
                 
                 continue  // Next bookmark
+            } else {
+                 print("🆕 [DOWNLOAD] No local bookmark found for ID: \(targetIdLow) - will create new")
             }
             
             // ✅ YENİ BOOKMARK OLUŞTUR
@@ -538,23 +520,12 @@ final class SyncService: ObservableObject {
             if let createdDate = ISO8601DateFormatter().date(from: cloud.createdAt) {
                 newBookmark.createdAt = createdDate
             }
-
-            // 🖼️ Resimleri indir
-            if let imageUrls = cloud.imageUrls, !imageUrls.isEmpty {
-                if let firstImagePath = imageUrls.first {
-                    // Resim indirme hatası bookmark oluşumunu ENGELEMEMELİ
-                    do {
-                        if let image = await ImageUploadService.shared.loadImage(from: firstImagePath) {
-                            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                                newBookmark.imageData = imageData
-                            }
-                        }
-                    } catch {
-                        print("⚠️ [DOWNLOAD] Image download failed, skipping image for \(cloud.title)")
-                    }
-                }
-                newBookmark.imageUrls = imageUrls
+            if let updatedDate = ISO8601DateFormatter().date(from: cloud.updatedAt) {
+                newBookmark.updatedAt = updatedDate
             }
+
+            // 🖼️ Resimleri artık SYNC SIRASINDA İNDİRMİYORUZ (Lazy loading için sadece URL kaydediyoruz)
+            newBookmark.imageUrls = cloud.imageUrls
 
             // Category mapping
             if let cloudCategoryId = cloud.categoryId?.lowercased() {
@@ -622,39 +593,46 @@ final class SyncService: ObservableObject {
             // ✅ DÜZELTME: Önce payload oluştur, sonra image_urls ekle
             var payload = createBookmarkPayload(bookmark, userId: userId)
             
-            // 🖼️ Image upload
-            var imageUrls: [String] = []
+            // 🖼️ Image upload (Sadece bulutta görsel yoksa veya local'de olup bulutta yoksa)
+            let hasCloudImages = !(bookmark.imageUrls?.isEmpty ?? true)
+            var imageUrls: [String] = bookmark.imageUrls ?? []
             
-            // Tek resim varsa (imageData)
-            if let imageData = bookmark.imageData, let image = UIImage(data: imageData) {
-                do {
-                    let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0)
-                    imageUrls.append(uploaded)
-                    print("📤 [SYNC] Uploaded image: \(uploaded)")
-                } catch {
-                    print("❌ [SYNC] Image upload failed: \(error)")
+            if !hasCloudImages {
+                // Tek resim varsa (imageData)
+                if let imageData = bookmark.imageData, let image = UIImage(data: imageData) {
+                    do {
+                        let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: 0)
+                        imageUrls.append(uploaded)
+                        print("📤 [SYNC] Uploaded image: \(uploaded)")
+                    } catch {
+                        print("❌ [SYNC] Image upload failed: \(error)")
+                    }
                 }
-            }
-            
-            // Çoklu resimler varsa (imagesData) - BONUS
-            if let imagesData = bookmark.imagesData {
-                for (index, imageData) in imagesData.enumerated() {
-                    if let image = UIImage(data: imageData) {
-                        do {
-                            let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: index)
-                            imageUrls.append(uploaded)
-                            print("📤 [SYNC] Uploaded image \(index): \(uploaded)")
-                        } catch {
-                            print("❌ [SYNC] Image \(index) upload failed: \(error)")
+                
+                // Çoklu resimler varsa (imagesData) - BONUS
+                if let imagesData = bookmark.imagesData {
+                    for (index, imageData) in imagesData.enumerated() {
+                        if let image = UIImage(data: imageData) {
+                            do {
+                                let uploaded = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: index)
+                                imageUrls.append(uploaded)
+                                print("📤 [SYNC] Uploaded image \(index): \(uploaded)")
+                            } catch {
+                                print("❌ [SYNC] Image \(index) upload failed: \(error)")
+                            }
                         }
                     }
                 }
-            }
-            
-            // ✅ DÜZELTME: image_urls'i payload'a ekle (override değil!)
-            if !imageUrls.isEmpty {
-                payload["image_urls"] = AnyEncodable(imageUrls)
-                print("✅ [SYNC] Added \(imageUrls.count) image URLs to payload")
+                
+                if !imageUrls.isEmpty {
+                    payload["image_urls"] = AnyEncodable(imageUrls)
+                    print("✅ [SYNC] Added \(imageUrls.count) image URLs to payload")
+                    
+                    // Local bookmark'ı da güncelle ki bir sonraki sync'te tekrar yüklemesin
+                    bookmark.imageUrls = imageUrls
+                }
+            } else {
+                print("⏭️ [SYNC] Skipping image upload for '\(bookmark.title)' - already in cloud")
             }
             
             // 🔑 Category ID'yi cloud ID ile değiştir
@@ -702,7 +680,7 @@ final class SyncService: ObservableObject {
             "is_read": AnyEncodable(bookmark.isRead),
             "is_favorite": AnyEncodable(bookmark.isFavorite),
             "created_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.lastUpdated)),
             "sync_version": AnyEncodable(1),
             "is_encrypted": AnyEncodable(true)
         ]
@@ -756,7 +734,7 @@ final class SyncService: ObservableObject {
             "color": AnyEncodable(category.colorHex),
             "order": AnyEncodable(category.order),
             "created_at": AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: Date())),
+            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: category.lastUpdated)),
             "sync_version": AnyEncodable(1),
             "is_encrypted": AnyEncodable(true)
         ]

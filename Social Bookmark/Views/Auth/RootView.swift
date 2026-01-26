@@ -56,6 +56,7 @@ struct RootView: View {
     @StateObject private var sessionStore = SessionStore()
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var syncService = SyncService.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     @Environment(\.scenePhase) private var scenePhase
     
@@ -92,9 +93,12 @@ struct RootView: View {
                         OnboardingView(isPresented: $showOnboarding)
                             .environmentObject(sessionStore)
                             .onDisappear {
-                                // Onboarding kapandığında eğer yeni tamamlandıysa paywall göster
-                                if justFinishedOnboarding {
+                                // Onboarding kapandığında eğer yeni tamamlandıysa ve PRO değilse paywall göster
+                                if justFinishedOnboarding && !subscriptionManager.isPro {
                                     showPaywall = true
+                                    justFinishedOnboarding = false
+                                } else if justFinishedOnboarding {
+                                    // Pro ise sadece flag'i sıfırla, paywall gösterme
                                     justFinishedOnboarding = false
                                 }
                             }
@@ -107,7 +111,7 @@ struct RootView: View {
         }
         .task {
             // Onboarding kontrolü
-            if !hasCompletedOnboarding || true{
+            if !hasCompletedOnboarding{
                 showOnboarding = true
                 hasCompletedOnboarding = true
                 justFinishedOnboarding = true
@@ -200,10 +204,13 @@ struct RootView: View {
             await sessionStore.ensureAuthenticated()
         }
         
-        // İlk açılışta sync yap
+        // İlk açılışta sync yap (MANUAL ONLY)
+        /*
         if sessionStore.isAuthenticated && !hasPerformedInitialSync {
             await performInitialSync()
         }
+        */
+        Logger.sync.info("Initial sync disabled - manual sync required.")
     }
     
     // MARK: - Scene Phase Handling
@@ -215,9 +222,7 @@ struct RootView: View {
             Logger.app.info("Scene became active")
             
             if sessionStore.isAuthenticated && networkMonitor.isConnected {
-                Task {
-                    await performSyncOnAppActive()
-                }
+                // Do nothing - manual sync only
             }
             
         case .inactive:
@@ -241,9 +246,6 @@ struct RootView: View {
         Logger.sync.info("Performing initial sync...")
         hasPerformedInitialSync = true
         
-        // Auto-sync'i başlat
-        SyncService.shared.startAutoSync()
-        
         // Tam sync yap (önce download, sonra upload)
         await syncService.performFullSync()
         
@@ -251,32 +253,6 @@ struct RootView: View {
        await homeViewModel.refresh()
     }
     
-    /// Uygulama aktif olduğunda sync
-    private func performSyncOnAppActive() async {
-        // Zaten sync yapılıyorsa atla
-        guard syncService.syncState != .syncing else {
-            Logger.sync.debug("Sync already in progress, skipping")
-            return
-        }
-        
-        // Son sync'ten bu yana 1 dakika geçtiyse sync yap
-        if let lastSync = syncService.lastSyncDate {
-            let timeSinceLastSync = Date().timeIntervalSince(lastSync)
-            
-            if timeSinceLastSync < 60 {
-                Logger.sync.debug("Last sync was \(Int(timeSinceLastSync))s ago, skipping")
-                return
-            }
-        }
-        
-        Logger.sync.info("Syncing on app active...")
-        await syncService.performFullSync()
-        
-        // ViewModel'i yenile
-        
-           await homeViewModel.refresh()
-        
-    }
 }
 
 // MARK: - Preview

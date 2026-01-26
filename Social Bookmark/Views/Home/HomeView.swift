@@ -67,7 +67,7 @@ struct HomeView: View {
             }
             .padding(.top, 8)
         }
-        .id(viewModel.refreshID) // ✅ refreshID değiştikçe tüm view hiyerarşisini yenilemeye zorla
+        
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
        

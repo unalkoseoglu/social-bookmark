@@ -61,7 +61,7 @@ struct BookmarkDetailView: View {
     }
     
     private var hasImages: Bool {
-        !allImages.isEmpty || isLoadingImages
+        !bookmark.allImagesData.isEmpty || !(bookmark.imageUrls?.isEmpty ?? true)
     }
     
     private var wordCount: Int {
@@ -214,14 +214,14 @@ struct BookmarkDetailView: View {
     
     private var coverImageSection: some View {
         TabView(selection: $selectedImageIndex) {
-            if isLoadingImages {
+            if isLoadingImages && loadedImages.isEmpty {
                 ZStack {
                     Color(.systemGray6)
                     ProgressView()
                 }
                 .frame(height: 300)
                 .tag(0)
-            } else {
+            } else if !allImages.isEmpty {
                 ForEach(0..<allImages.count, id: \.self) { index in
                     Image(uiImage: allImages[index])
                         .resizable()

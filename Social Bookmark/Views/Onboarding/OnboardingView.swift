@@ -3,30 +3,16 @@ import SwiftUI
 struct OnboardingView: View {
     @Binding var isPresented: Bool
     @State private var currentPage = 0
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         ZStack {
+           
             Color(UIColor.systemBackground).ignoresSafeArea()
             
             VStack {
                 // Header (Skip Button)
-                HStack {
-                    Spacer()
-                    if currentPage < 3 {
-                        Button(action: { isPresented = false }) {
-                            Text(LocalizedStringKey("common.skip"))
-                                .font(.subheadline.bold())
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(.secondary.opacity(0.1))
-                                .clipShape(Capsule())
-                        }
-                        .transition(.opacity)
-                    }
-                }
-                .padding()
-                .zIndex(1)
+                
                 
                 // Content
                 TabView(selection: $currentPage) {
@@ -50,7 +36,7 @@ struct OnboardingView: View {
                     HStack(spacing: 8) {
                         ForEach(0..<4) { index in
                             Circle()
-                                .fill(currentPage == index ? Color.blue : Color.secondary.opacity(0.3))
+                                .fill(currentPage == index ? (colorScheme == .dark ? .white : .black ): Color.secondary.opacity(0.3))
                                 .frame(width: 8, height: 8)
                                 .scaleEffect(currentPage == index ? 1.2 : 1.0)
                                 .animation(.spring(), value: currentPage)
@@ -66,10 +52,10 @@ struct OnboardingView: View {
                         }) {
                             Text(LocalizedStringKey("common.continue"))
                                 .font(.headline)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(colorScheme == .dark ? .black : .white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 56)
-                                .background(Color.blue)
+                                .background(colorScheme == .dark ? .white : .black)
                                 .cornerRadius(16)
                                 .padding(.horizontal, 32)
                         }
@@ -79,10 +65,10 @@ struct OnboardingView: View {
                             Button(action: { isPresented = false }) {
                                 Text(LocalizedStringKey("common.getStarted"))
                                     .font(.headline)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(colorScheme == .dark ? .black : .white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 56)
-                                    .background(Color.blue)
+                                    .background(colorScheme == .dark ? .white : .black)
                                     .cornerRadius(16)
                                     .padding(.horizontal, 32)
                             }
@@ -94,14 +80,16 @@ struct OnboardingView: View {
                             }) {
                                 Text(LocalizedStringKey("onboarding.action.login"))
                                     .font(.subheadline.bold())
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(.black)
                             }
                         }
                     }
                 }
                 .padding(.bottom, 40)
             }
+            
         }
+       
     }
 }
 

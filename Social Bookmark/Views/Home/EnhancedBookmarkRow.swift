@@ -116,6 +116,25 @@ struct EnhancedBookmarkRow: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color(.systemGray5), lineWidth: 0.5)
                 )
+        } else if let imageUrl = bookmark.imageUrls?.first {
+            // Cloud-only image - lazy load
+            CachedAsyncImage(url: imageUrl) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                ZStack {
+                    Color(.systemGray6)
+                    ProgressView()
+                        .scaleEffect(0.6)
+                }
+            }
+            .frame(width: 72, height: 72)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color(.systemGray5), lineWidth: 0.5)
+            )
         } else {
             // Fallback - emoji
             ZStack {

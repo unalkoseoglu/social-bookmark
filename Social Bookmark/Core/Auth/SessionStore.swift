@@ -507,9 +507,6 @@ extension SessionStore {
         Logger.auth.info("🚪 [SessionStore] Signing out and clearing local data...")
         
         do {
-            // 1. Auto sync'i durdur
-            SyncService.shared.stopAutoSync()
-            
             // 2. Supabase'den çıkış
             try await authService.signOut()
             

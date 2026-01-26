@@ -25,11 +25,19 @@ final class Category {
     /// Oluşturulma tarihi
     var createdAt: Date
     
+    /// Güncellenme tarihi (YENİ - Sync için) - Migration için opsiyonel yaptık
+    var updatedAt: Date?
+    
     // MARK: - Computed Properties
     
     /// Hex'ten Color'a çevir
     var color: Color {
         Color(hex: colorHex) ?? .blue
+    }
+    
+    /// ✅ Sync için güvenli tarih (nil ise createdAt döner)
+    var lastUpdated: Date {
+        updatedAt ?? createdAt
     }
     
     // MARK: - Initialization
@@ -47,6 +55,7 @@ final class Category {
         self.colorHex = colorHex
         self.order = order
         self.createdAt = Date()
+        self.updatedAt = Date()
     }
     
     // MARK: - Static Methods

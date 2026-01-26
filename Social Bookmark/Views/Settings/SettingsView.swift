@@ -183,24 +183,7 @@ struct SettingsView: View {
                 }
             }
             
-            if sessionStore.isAuthenticated && networkMonitor.isConnected {
-                Button {
-                    Task {
-                        await syncService.syncChanges()
-                    }
-                } label: {
-                    HStack {
-                        Label(languageManager.localized("sync.sync_now"), systemImage: "arrow.clockwise")
-                        
-                        Spacer()
-                        
-                        if syncService.syncState == .syncing {
-                            ProgressView()
-                        }
-                    }
-                }
-                .disabled(syncService.syncState == .syncing)
-            }
+          
         } header: {
             Text(languageManager.localized("settings.sync_section"))
         } footer: {
@@ -255,16 +238,21 @@ struct SettingsView: View {
                 ReviewManager.shared.requestReviewManually()
             } label: {
                 Label {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(languageManager.localized("settings.rate_app"))
-                        Text(languageManager.localized("settings.rate_app_desc"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    Text(languageManager.localized("settings.rate_app"))
                 } icon: {
                     Image(systemName: "star.fill")
                         .foregroundStyle(.yellow)
                 }
+            }
+            Button {
+                let url = URL(string: "mailto:softaideveloper@gmail.com")!
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else {
+                    print("❌ Error: Mail app not available (common in simulator)")
+                }
+            } label: {
+                Label(languageManager.localized("settings.contact"), systemImage: "envelope")
             }
             
             HStack {
@@ -281,16 +269,7 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             
-            Button {
-                let url = URL(string: "mailto:softaideveloper@gmail.com")!
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else {
-                    print("❌ Error: Mail app not available (common in simulator)")
-                }
-            } label: {
-                Label(languageManager.localized("settings.contact"), systemImage: "envelope")
-            }
+            
         } header: {
             Text(languageManager.localized("settings.about"))
         }

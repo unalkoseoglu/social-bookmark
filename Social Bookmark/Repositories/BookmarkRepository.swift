@@ -53,9 +53,7 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
     }
     
     func update(_ bookmark: Bookmark) {
-        // SwiftData otomatik tracking yapar
-        // Bookmark nesnesinde değişiklik yapınca farkeder
-        // Explicit save çağrısı yapıyoruz güvenlik için
+        bookmark.updatedAt = Date()
         try? modelContext.save()
     }
     

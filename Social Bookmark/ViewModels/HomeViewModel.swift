@@ -18,7 +18,6 @@ final class HomeViewModel {
     private(set) var bookmarks: [Bookmark] = []
     private(set) var categories: [Category] = []
     private(set) var isLoading = false
-    var refreshID = UUID() // ✅ UI'ı yenilemeye zorlamak için
     
     let bookmarkRepository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
@@ -255,9 +254,8 @@ final class HomeViewModel {
         
         // Context'in yerleşmesi için çok kısa bir bekleme ve UI yenileme
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.refreshID = UUID()
             self.isLoading = false
-            print("✅ [HomeViewModel] loadData completed, refreshID updated")
+            print("✅ [HomeViewModel] loadData completed")
         }
     }
     

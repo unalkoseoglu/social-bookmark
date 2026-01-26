@@ -58,9 +58,9 @@
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
-         runnableDebuggingMode = "0"
+         runnableDebuggingMode = "1"
          BundleIdentifier = "com.unal.Social-Bookmark"
-         RemotePath = "/var/containers/Bundle/Application/67B6BEE7-05AD-4AD1-97BC-21723BDAF7F7/Social Bookmark.app">
+         RemotePath = "/Users/unalkoseoglu/Library/Developer/CoreSimulator/Devices/51A7A616-6F0B-4411-AD6F-8CD0F40945EF/data/Containers/Bundle/Application/DE8B604D-CBC2-449E-9315-F099D3CF42EA/Social Bookmark.app">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference

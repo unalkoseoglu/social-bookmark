@@ -17,8 +17,8 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     
     private let baseRepository: BookmarkRepositoryProtocol
     
-    /// Sync aktif mi?
-    var isSyncEnabled: Bool = true
+    /// Sync aktif mi? (Default: false - Manual sync only)
+    var isSyncEnabled: Bool = false
     
     // MARK: - Initialization
     
@@ -144,6 +144,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         )
         snapshot.id = bookmark.id
         snapshot.createdAt = bookmark.createdAt
+        snapshot.updatedAt = bookmark.lastUpdated
         return snapshot
     }
     
@@ -177,8 +178,8 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     
     private let baseRepository: CategoryRepositoryProtocol
     
-    /// Sync aktif mi?
-    var isSyncEnabled: Bool = true
+    /// Sync aktif mi? (Default: false - Manual sync only)
+    var isSyncEnabled: Bool = false
     
     // MARK: - Initialization
     
@@ -213,6 +214,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
             let categoryColorHex = category.colorHex
             let categoryOrder = category.order
             let categoryCreatedAt = category.createdAt
+            let categoryUpdatedAt = category.lastUpdated
             
             Task.detached { @MainActor in
                 do {
@@ -224,6 +226,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
                         order: categoryOrder
                     )
                     categorySnapshot.createdAt = categoryCreatedAt
+                    categorySnapshot.updatedAt = categoryUpdatedAt
                     
                     try await SyncService.shared.syncCategory(categorySnapshot)
                     Logger.sync.info("Synced new category: \(categoryName)")
@@ -261,6 +264,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
             let categoryColorHex = category.colorHex
             let categoryOrder = category.order
             let categoryCreatedAt = category.createdAt
+            let categoryUpdatedAt = category.lastUpdated
             
             Task.detached { @MainActor in
                 do {
@@ -272,6 +276,7 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
                         order: categoryOrder
                     )
                     categorySnapshot.createdAt = categoryCreatedAt
+                    categorySnapshot.updatedAt = categoryUpdatedAt
                     
                     try await SyncService.shared.deleteCategory(categorySnapshot)
                     Logger.sync.info("Deleted from cloud: \(categoryName)")
