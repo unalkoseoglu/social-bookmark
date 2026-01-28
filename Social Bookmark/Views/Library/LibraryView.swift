@@ -20,6 +20,13 @@ struct LibraryView: View {
     @State private var selectedCategory: Category?
     @State private var showingCategoryManagement = false
     
+    // MARK: - Pagination State
+    
+    @State private var displayedBookmarks: [Bookmark] = []
+    @State private var currentPage = 0
+    @State private var isLoadingMore = false
+    private let itemsPerPage = 20
+    
     enum LibrarySegment: String, CaseIterable {
         case all = "all"
         case categories = "categories"
@@ -93,6 +100,12 @@ struct LibraryView: View {
                     .environmentObject(sessionStore)
             }
         }
+        .task {
+            loadInitialPage()
+        }
+        .onChange(of: viewModel.bookmarks) { _, _ in
+            loadInitialPage()
+        }
     }
     
     // MARK: - All Bookmarks Content
@@ -107,14 +120,20 @@ struct LibraryView: View {
                 )
             } else {
                 List {
-                    ForEach(viewModel.bookmarks) { bookmark in
+                    ForEach(displayedBookmarks) { bookmark in
                         NavigationLink {
                             BookmarkDetailView(
                                 bookmark: bookmark,
                                 viewModel: viewModel
                             )
                         } label: {
-                            EnhancedBookmarkRow(bookmark: bookmark).padding()
+                            EnhancedBookmarkRow(
+                                bookmark: bookmark,
+                                category: viewModel.categories.first { $0.id == bookmark.categoryId }
+                            ).padding()
+                        }
+                        .onAppear {
+                            loadMoreIfNeeded(currentBookmark: bookmark)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
@@ -126,7 +145,7 @@ struct LibraryView: View {
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
                                 viewModel.toggleReadStatus(bookmark)
-                               
+                                
                             } label: {
                                 Label(
                                     bookmark.isRead ? String(localized: "bookmarkDetail.markUnread") : String(localized: "bookmarkDetail.markRead"),
@@ -135,6 +154,16 @@ struct LibraryView: View {
                             }
                             .tint(bookmark.isRead ? .orange : .green)
                         }
+                    }
+                    
+                    if isLoadingMore {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                        .listRowSeparator(.hidden)
                     }
                 }
                 .listStyle(.plain)
@@ -163,7 +192,10 @@ struct LibraryView: View {
                 }
             } else {
                 ScrollView {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    LazyVGrid(
+                        columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                        spacing: 12
+                    ) {
                         ForEach(viewModel.categories) { category in
                             LibraryCategoryCard(
                                 category: category,
@@ -190,7 +222,10 @@ struct LibraryView: View {
     
     private var sourcesContent: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                spacing: 12
+            ) {
                 ForEach(viewModel.sourcesWithCounts, id: \.source) { item in
                     SourceCard(source: item.source, count: item.count)
                 }
@@ -206,6 +241,41 @@ struct LibraryView: View {
             Label(title, systemImage: icon)
         } description: {
             Text(subtitle)
+        }
+    }
+    
+    // MARK: - Pagination Methods
+    
+    private func loadInitialPage() {
+        currentPage = 0
+        displayedBookmarks = []
+        loadMoreBookmarks()
+    }
+    
+    private func loadMoreBookmarks() {
+        guard !isLoadingMore else { return }
+        
+        let startIndex = currentPage * itemsPerPage
+        let endIndex = min(startIndex + itemsPerPage, viewModel.bookmarks.count)
+        
+        guard startIndex < viewModel.bookmarks.count else { return }
+        
+        isLoadingMore = true
+        
+        // Simüle edilmiş kısa gecikme (pürüzsüz görünüm için)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let newBookmarks = Array(viewModel.bookmarks[startIndex..<endIndex])
+            displayedBookmarks.append(contentsOf: newBookmarks)
+            currentPage += 1
+            isLoadingMore = false
+        }
+    }
+    
+    private func loadMoreIfNeeded(currentBookmark: Bookmark) {
+        guard let index = displayedBookmarks.firstIndex(where: { $0.id == currentBookmark.id }) else { return }
+        
+        if index >= displayedBookmarks.count - 5 {
+            loadMoreBookmarks()
         }
     }
 }

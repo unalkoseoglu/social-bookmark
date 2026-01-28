@@ -10,6 +10,7 @@ import SwiftUI
 
 struct EnhancedBookmarkRow: View {
     let bookmark: Bookmark
+    var category: Category? = nil
     
     // MARK: - Computed Properties
     
@@ -83,6 +84,15 @@ struct EnhancedBookmarkRow: View {
                                 .font(.caption2)
                         }
                         .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if let category = category {
+                        Text("•")
+                            .font(.caption2)
+                            .foregroundStyle(.primary)
+                        Text(category.name)
+                            .font(.caption2)
+                            .foregroundStyle(.primary)
                     }
                 }
             }

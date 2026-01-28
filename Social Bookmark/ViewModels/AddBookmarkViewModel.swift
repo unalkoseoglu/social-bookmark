@@ -289,7 +289,18 @@ final class AddBookmarkViewModel {
         }
 
         let parsedTags = parseTags(from: tagsInput)
-        let sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
+        var sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
+        var finalSource = selectedSource
+
+        // ✅ URL Extraction: Eğer URL boşsa ama title veya note içinde varsa onu al
+        if sanitizedURL == nil {
+            if let extractedURL = URLValidator.findFirstURL(in: title) ?? URLValidator.findFirstURL(in: note) {
+                sanitizedURL = URLValidator.sanitize(extractedURL)
+                // Kaynağı otomatik tespit et
+                finalSource = BookmarkSource.detect(from: sanitizedURL!)
+                print("🔗 [AddBookmarkViewModel] Extracted URL: \(sanitizedURL!) from content")
+            }
+        }
 
         let finalImageData: Data? = {
             if let first = tweetImagesData.first { return first }
@@ -309,7 +320,7 @@ final class AddBookmarkViewModel {
             title: title.trimmingCharacters(in: .whitespaces),
             url: sanitizedURL,
             note: note.trimmingCharacters(in: .whitespaces),
-            source: selectedSource,
+            source: finalSource,
             categoryId: selectedCategoryId,
             tags: parsedTags,
             imageData: finalImageData,
@@ -697,21 +708,3 @@ final class AddBookmarkViewModel {
     }
 }
 
-// MARK: - URLValidator
-
-struct URLValidator {
-    static func isValid(_ urlString: String) -> Bool {
-        guard let url = URL(string: urlString) else { return false }
-        return url.scheme != nil && url.host != nil
-    }
-    
-    static func sanitize(_ urlString: String) -> String {
-        var sanitized = urlString.trimmingCharacters(in: .whitespaces)
-        
-        if !sanitized.hasPrefix("http://") && !sanitized.hasPrefix("https://") {
-            sanitized = "https://" + sanitized
-        }
-        
-        return sanitized
-    }
-}

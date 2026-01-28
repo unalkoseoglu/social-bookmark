@@ -238,8 +238,22 @@ struct AddCategoryView: View {
                     }
                     .padding(.vertical, 4)
                 }
-                Section("category.field.name") {
+                Section {
                     TextField("category.field.name_placeholder", text: $name)
+                        .onChange(of: name) { _, newValue in
+                            if newValue.count > 20 {
+                                name = String(newValue.prefix(20))
+                            }
+                        }
+                } header: {
+                    Text("category.field.name")
+                } footer: {
+                    HStack {
+                        Spacer()
+                        Text("\(name.count)/20")
+                            .font(.caption2)
+                            .foregroundStyle(name.count >= 20 ? .red : .secondary)
+                    }
                 }
                 
                 Section("category.field.icon") {
@@ -328,8 +342,22 @@ struct EditCategoryView: View {
                     .padding(.vertical, 4)
                 }
                 
-                Section("category.field.name") {
+                Section {
                     TextField("category.field.name", text: $name)
+                        .onChange(of: name) { _, newValue in
+                            if newValue.count > 20 {
+                                name = String(newValue.prefix(20))
+                            }
+                        }
+                } header: {
+                    Text("category.field.name")
+                } footer: {
+                    HStack {
+                        Spacer()
+                        Text("\(name.count)/20")
+                            .font(.caption2)
+                            .foregroundStyle(name.count >= 20 ? .red : .secondary)
+                    }
                 }
                 
                 Section("category.field.icon") {

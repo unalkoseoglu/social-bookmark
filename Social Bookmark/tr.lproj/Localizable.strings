@@ -262,6 +262,10 @@
 "bookmarkDetail.word_count %lld" = "%lld kelime";
 "bookmarkDetail.document" = "Doküman";
 "bookmarkDetail.openDocument" = "Dosyayı Görüntüle";
+"bookmarkDetail.summarize" = "Yapay Zeka ile Özetle";
+"bookmarkDetail.summary_title" = "Yapay Zeka Özeti";
+"bookmarkDetail.search_in_text" = "Metin içinde ara";
+"bookmarkDetail.focus_mode" = "Odaklanma Modu";
 "bookmark.no_content" = "İçerik mevcut değil";
 
 // MARK: - Categories Management
@@ -678,6 +682,7 @@
 "source.blog.description" = "Blog yazıları";
 "source.documentation.description" = "Teknik dokümantasyon";
 "source.document.description" = "PDF ve Word dokümanları";
+"source.document" = "Dosya";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "Durum";

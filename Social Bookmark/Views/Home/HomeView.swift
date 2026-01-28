@@ -317,7 +317,7 @@ struct HomeView: View {
                     columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                     spacing: 12
                 ) {
-                    ForEach(Array(viewModel.categories.prefix(6))) { category in
+                    ForEach(Array(viewModel.sortedCategories.prefix(6))) { category in
                         CompactCategoryCard(
                             category: category,
                             count: viewModel.bookmarkCount(for: category)
@@ -408,7 +408,10 @@ struct HomeView: View {
                                 viewModel: viewModel
                             )
                         } label: {
-                            EnhancedBookmarkRow(bookmark: bookmark).padding(14)
+                            EnhancedBookmarkRow(
+                                bookmark: bookmark,
+                                category: viewModel.categories.first { $0.id == bookmark.categoryId }
+                            ).padding(14)
                         }
                         .buttonStyle(.plain)
                         
@@ -750,7 +753,10 @@ struct TaggedBookmarksView: View {
                         viewModel: viewModel
                     )
                 } label: {
-                    EnhancedBookmarkRow(bookmark: bookmark).padding(14)
+                    EnhancedBookmarkRow(
+                        bookmark: bookmark,
+                        category: viewModel.categories.first { $0.id == bookmark.categoryId }
+                    ).padding(14)
                 }
             }
         }
