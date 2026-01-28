@@ -9,9 +9,30 @@
 import SwiftUI
 import SwiftData
 
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        // UNUserNotificationCenterDelegate set et
+        UNUserNotificationCenter.current().delegate = NotificationManager.shared
+        
+        // Sadece teknik kayıt (Authorized ise token döner)
+        application.registerForRemoteNotifications()
+        
+        return true
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NotificationManager.shared.handleDeviceToken(deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NotificationManager.shared.handleRegistrationError(error)
+    }
+}
+
 @available(iOS 17.0, *)
 @main
 struct Social_BookmarkApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     // MARK: - Properties
 
     /// SwiftData container - veritabanı yöneticisi

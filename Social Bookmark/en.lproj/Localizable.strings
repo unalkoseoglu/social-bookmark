@@ -30,6 +30,7 @@
 "common.getStarted" = "Get Started";
 "common.min_read" = "min read";
 "common.words" = "words";
+"common.show_more" = "Show More";
 
 // MARK: - Auth
 "auth.welcome_title" = "Social Bookmark";
@@ -386,6 +387,9 @@
 "settings.showReadingTime" = "Show Reading Time";
 "settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "Remove all limits and access from anywhere.";
+"settings.notifications" = "Notifications";
+"settings.notifications_header" = "Notification Settings";
+"settings.notifications_footer" = "Stay informed about new features, reminders, and important updates.";
 
 "appearance.font.system" = "System";
 "appearance.font.serif" = "Serif";
@@ -757,6 +761,15 @@
 "onboarding.search.features.filter" = "🏷️ Filter by categories";
 "onboarding.search.features.sync" = "☁️ Sync across all your devices";
 "onboarding.search.features.secure" = "🔐 Secure with end-to-end encryption";
+"onboarding.notifications.title" = "Never Miss a Thing";
+"onboarding.notifications.subtitle" = "Use your bookmarks more efficiently with important updates and reading reminders.";
+"onboarding.notifications.feature1" = "Reading reminders";
+"onboarding.notifications.feature2" = "New feature announcements";
+"onboarding.notifications.feature3" = "Secure and private notifications";
+
+"home.notification_card.title" = "Enable Notifications";
+"home.notification_card.subtitle" = "Activate notifications for reminders and updates.";
+"home.notification_card.button" = "Enable Now";
 
 "onboarding.action.login" = "Have an account? Sign In";
 "common.skip" = "Skip";

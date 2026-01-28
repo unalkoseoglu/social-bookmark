@@ -314,7 +314,7 @@ struct AllBookmarksView: View {
                     HStack {
                         Spacer()
                         Image(systemName: "arrow.down.circle")
-                        Text("category.icons.show_more")
+                        Text("common.show_more")
                         Spacer()
                     }
                     .font(.subheadline)

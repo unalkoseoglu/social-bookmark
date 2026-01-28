@@ -21,6 +21,7 @@ struct SettingsView: View {
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.modelContext) private var modelContext  // ✅ BU SATIRI EKLE
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var showingPaywall = false
     
     @State private var showingRestartAlert = false
@@ -42,6 +43,9 @@ struct SettingsView: View {
                 
                 // Görünüm
                 appearanceSection
+                
+                // Bildirimler
+                notificationSection
                 
                 // Uygulama hakkında
                 aboutSection
@@ -227,6 +231,30 @@ struct SettingsView: View {
             Text(languageManager.localized("settings.language"))
         } footer: {
             Text(languageManager.localized("settings.language_footer"))
+        }
+    }
+    
+    // MARK: - Notification Section
+    
+    private var notificationSection: some View {
+        Section {
+            Toggle(languageManager.localized("settings.notifications"), isOn: Binding(
+                get: { notificationManager.isAuthorized },
+                set: { newValue in
+                    if newValue {
+                        notificationManager.requestAuthorization()
+                    } else {
+                        // Kullanıcıyı sistem ayarlarına yönlendir
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                }
+            ))
+        } header: {
+            Text(languageManager.localized("settings.notifications_header"))
+        } footer: {
+            Text(languageManager.localized("settings.notifications_footer"))
         }
     }
     

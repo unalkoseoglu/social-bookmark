@@ -8,8 +8,8 @@ struct ShareExtensionView: View {
     // MARK: - Properties
     
     let url: URL
-    let repository: BookmarkRepositoryProtocol
-    let categoryRepository: CategoryRepositoryProtocol
+    let repository: BookmarkRepositoryProtocol?
+    let categoryRepository: CategoryRepositoryProtocol?
     let onSave: () -> Void
     let onCancel: () -> Void
     
@@ -130,11 +130,11 @@ struct ShareExtensionView: View {
             .toolbar { toolbarContent }
             .disabled(isSaving)
             .task {
-                subscriptionManager.configure()
-                loadCategories()
+                subscriptionManager.configure(shouldFetch: false)
+                if repository != nil {
+                    loadCategories()
+                }
                 await fetchContent()
-                // Abonelik durumunu güncelle
-                subscriptionManager.checkSubscriptionStatus()
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(reason: paywallReason)
@@ -145,6 +145,7 @@ struct ShareExtensionView: View {
     // MARK: - Load Categories
     
     private func loadCategories() {
+        guard let categoryRepository = categoryRepository else { return }
         categories = categoryRepository.fetchAll()
     }
     
@@ -1178,6 +1179,12 @@ extension ShareExtensionView {
 extension ShareExtensionView {
     
     private func saveBookmark() {
+        guard let repository = repository else {
+            print("⚠️ Repository not ready, saving to App Group fallback...")
+            onSave() // Bu aşamada ShareViewController fallback'i tetiklemeli veya burada yapılmalı
+            return
+        }
+        
         // PRO Kontrolü - Bookmark Sınırı (Free: 50)
         if !subscriptionManager.isPro {
             let count = repository.fetchAll().count

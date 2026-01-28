@@ -55,7 +55,10 @@ struct CategoryDetailView: View {
         VStack(spacing: 20) {
             Image(systemName: category.icon)
                 .font(.system(size: 60))
-                .foregroundStyle(category.color.opacity(0.5))
+                .foregroundStyle(category.color)
+                .padding(30)
+                .background(category.color.opacity(0.1))
+                .clipShape(Circle())
             
             VStack(spacing: 8) {
                 Text("categoryDetail.empty_title")

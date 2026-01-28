@@ -27,6 +27,9 @@ struct OnboardingView: View {
                     
                     SearchFeaturesPage()
                         .tag(3)
+                    
+                    NotificationOnboardingPage()
+                        .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 
@@ -34,7 +37,7 @@ struct OnboardingView: View {
                 VStack(spacing: 24) {
                     // Page Indicator (Dots)
                     HStack(spacing: 8) {
-                        ForEach(0..<4) { index in
+                        ForEach(0..<5) { index in
                             Circle()
                                 .fill(currentPage == index ? (colorScheme == .dark ? .white : .black ): Color.secondary.opacity(0.3))
                                 .frame(width: 8, height: 8)
@@ -43,7 +46,7 @@ struct OnboardingView: View {
                         }
                     }
                     
-                    if currentPage < 3 {
+                    if currentPage < 4 {
                         // Regular "Continue" button for first 3 pages
                         Button(action: {
                             withAnimation {
@@ -62,7 +65,9 @@ struct OnboardingView: View {
                     } else {
                         // Final CTA for the last page
                         VStack(spacing: 16) {
-                            Button(action: { isPresented = false }) {
+                            Button(action: { 
+                                isPresented = false 
+                            }) {
                                 Text(LocalizedStringKey("common.getStarted"))
                                     .font(.headline)
                                     .foregroundStyle(colorScheme == .dark ? .black : .white)

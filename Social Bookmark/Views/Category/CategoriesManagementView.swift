@@ -171,9 +171,9 @@ struct CategoryManagementRow: View {
             Image(systemName: category.icon)
                 .font(.title3)
                 .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .background(category.color)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(category.name)
@@ -306,18 +306,6 @@ struct EditCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("category.field.name") {
-                    TextField("category.field.name", text: $name)
-                }
-                
-                Section("category.field.icon") {
-                    IconPickerGrid(selectedIcon: $selectedIcon)
-                }
-                
-                Section("category.field.color") {
-                    ColorPickerGrid(selectedColor: $selectedColor)
-                }
-                
                 Section("category.preview") {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
@@ -332,13 +320,27 @@ struct EditCategoryView: View {
                                 .font(.body)
                                 .fontWeight(.medium)
                             
-                            Text("categories.management.editing_status")
+                            Text("categories.management.bookmark_count \(2)")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                     .padding(.vertical, 4)
                 }
+                
+                Section("category.field.name") {
+                    TextField("category.field.name", text: $name)
+                }
+                
+                Section("category.field.icon") {
+                    IconPickerGrid(selectedIcon: $selectedIcon)
+                }
+                
+                Section("category.field.color") {
+                    ColorPickerGrid(selectedColor: $selectedColor)
+                }
+                
+                
             }
             .navigationTitle("category.edit.title")
             .navigationBarTitleDisplayMode(.inline)

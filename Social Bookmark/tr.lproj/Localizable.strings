@@ -29,6 +29,7 @@
 "common.getStarted" = "Başla";
 "common.min_read" = "dk okuma";
 "common.words" = "kelime";
+"common.show_more" = "Daha Fazla";
 
 // MARK: - Auth
 "auth.welcome_title" = "Social Bookmark";
@@ -385,6 +386,9 @@
 "settings.showReadingTime" = "Okuma Süresini Göster";
 "settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "Tüm sınırları kaldırın ve her yerden erişin.";
+"settings.notifications" = "Bildirimler";
+"settings.notifications_header" = "Bildirim Ayarları";
+"settings.notifications_footer" = "Yeni özellikler, hatırlatıcılar ve önemli güncellemeler hakkında haberdar olun.";
 
 "appearance.font.system" = "Sistem";
 "appearance.font.serif" = "Serif";
@@ -730,6 +734,15 @@
 "onboarding.search.features.filter" = "🏷️ Kategorilere göre filtrele";
 "onboarding.search.features.sync" = "☁️ Tüm cihazlarında senkronize";
 "onboarding.search.features.secure" = "🔐 End-to-end şifreleme ile güvende";
+"onboarding.notifications.title" = "Hiçbir Şeyi Kaçırma";
+"onboarding.notifications.subtitle" = "Önemli güncellemeler ve okuma hatırlatıcıları ile yer işaretlerini daha verimli kullan.";
+"onboarding.notifications.feature1" = "Okuma hatırlatıcıları";
+"onboarding.notifications.feature2" = "Yeni özellik duyuruları";
+"onboarding.notifications.feature3" = "Güvenli ve gizli bildirimler";
+
+"home.notification_card.title" = "Bildirimleri Açın";
+"home.notification_card.subtitle" = "Hatırlatıcılar ve güncellemeler için bildirimleri aktif edin.";
+"home.notification_card.button" = "Şimdi Etkinleştir";
 
 "onboarding.action.login" = "Hesabın var mı? Giriş Yap";
 "common.skip" = "Atla";

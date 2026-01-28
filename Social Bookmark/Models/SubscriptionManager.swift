@@ -68,10 +68,11 @@ final class SubscriptionManager: NSObject, ObservableObject {
     
     private var isConfigured = false
     
-    func configure() {
+    /// `shouldFetch`: Paketleri ve durumu hemen çeksin mi? (Extension'lar için false tercih edilebilir)
+    func configure(shouldFetch: Bool = true) {
         guard !isConfigured else { return }
         
-        Purchases.logLevel = .debug
+        Purchases.logLevel = .info // Debug loglarını azalttık
         
         // App Group desteği için UserDefaults yapılandırması
         let userDefaults = UserDefaults(suiteName: "group.com.unal.socialbookmark") ?? .standard
@@ -85,11 +86,12 @@ final class SubscriptionManager: NSObject, ObservableObject {
         // Dinleyiciyi başlat
         Purchases.shared.delegate = self
         
-        // Mevcut durumu kontrol et
-        checkSubscriptionStatus()
-        
-        // Paketleri getir
-        fetchOfferings()
+        if shouldFetch {
+            // Mevcut durumu kontrol et
+            checkSubscriptionStatus()
+            // Paketleri getir
+            fetchOfferings()
+        }
         
         isConfigured = true
     }

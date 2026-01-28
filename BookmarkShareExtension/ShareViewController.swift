@@ -56,32 +56,27 @@ class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 1. Hemen loading göster
-        showLoadingView()
+        // Temiz arka plan
+        view.backgroundColor = .clear
         
-        // 2. Tüm ağır işleri background'da yap
-        Task.detached(priority: .userInitiated) { [weak self] in
-            guard let self = self else { return }
+        // Tüm ağır işleri background'da yap
+        Task {
+            // 1. Önce URL'i bulmaya çalış (en hızlısı)
+            let payload = await collectPayloadSafe()
             
-            // Paralel olarak: Container oluştur + URL'leri topla
-            async let containerTask = self.createModelContainerAsync()
-            async let payloadTask = self.collectPayloadSafe()
+            // 2. URL bulunduysa UI'ı anında göster (ModelContainer henüz hazır değil)
+            await showUIWithPayload(payload)
             
-            let (container, payload) = await (containerTask, payloadTask)
+            // 3. Arka planda ModelContainer'ı oluştur
+            let container = await createModelContainerAsync()
             
             await MainActor.run {
                 self.modelContainer = container
+                // Eğer UI açıksa repository'leri enjekte et
+                if self.hostingController != nil, let payload = payload {
+                    self.updateUIWithContainer(container, payload: payload)
+                }
             }
-            
-            // UI'ı göster
-            await self.showUIWithPayload(payload)
-        }
-        
-        // 3. Global timeout
-        DispatchQueue.main.asyncAfter(deadline: .now() + loadingTimeoutSeconds) { [weak self] in
-            guard let self = self, self.hostingController == nil else { return }
-            print("⚠️ Share Extension timeout")
-            self.close()
         }
     }
     
@@ -480,40 +475,33 @@ class ShareViewController: UIViewController {
     private func setupSwiftUIView(with url: URL, payload: SharedInboxPayload? = nil) {
         print("🔧 Setting up SwiftUI view...")
         
-        // Loading view'ı temizle
+        // Eski view'ları temizle
         view.subviews.forEach { $0.removeFromSuperview() }
         
-        guard let container = modelContainer else {
-            print("❌ ModelContainer not available")
-            // Fallback: App Group'a kaydet ve ana uygulamaya yönlendir
-            if let payload = payload {
-                persistToAppGroup(payload: payload)
-            }
-            showFallbackAlert(url: url)
-            return
+        var bookmarkRepository: BookmarkRepositoryProtocol?
+        var categoryRepository: CategoryRepositoryProtocol?
+        
+        if let container = modelContainer {
+            bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
+            categoryRepository = CategoryRepository(modelContext: container.mainContext)
         }
-        
-        let bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
-        let categoryRepository = CategoryRepository(modelContext: container.mainContext)
-        
-        print("📂 Categories loaded: \(categoryRepository.fetchAll().count)")
         
         let swiftUIView = ShareExtensionView(
             url: url,
             repository: bookmarkRepository,
             categoryRepository: categoryRepository,
             onSave: { [weak self] in
-                print("💾 Bookmark saved from Share Extension")
+                if self?.modelContainer == nil, let payload = payload {
+                    self?.persistToAppGroup(payload: payload)
+                }
                 self?.close()
             },
             onCancel: { [weak self] in
-                print("❌ Share Extension cancelled")
                 self?.close()
             }
         )
-        .modelContainer(container)
         
-        let hosting = UIHostingController(rootView: swiftUIView)
+        let hosting = UIHostingController(rootView: AnyView(swiftUIView))
         self.hostingController = hosting
         
         addChild(hosting)
@@ -528,7 +516,53 @@ class ShareViewController: UIViewController {
         ])
         
         hosting.didMove(toParent: self)
+        
+        // Eğer container varsa bağla
+        if let container = modelContainer {
+            hosting.rootView = AnyView(swiftUIView.modelContainer(container))
+        }
+        
         print("✅ SwiftUI view setup complete")
+    }
+    
+    private func updateUIWithContainer(_ container: ModelContainer?, payload: SharedInboxPayload) {
+        guard let urlString = payload.urls.first, let url = URL(string: urlString) else { return }
+        
+        print("🔄 Updating UI with ModelContainer...")
+        
+        var bookmarkRepository: BookmarkRepositoryProtocol?
+        var categoryRepository: CategoryRepositoryProtocol?
+        
+        if let container = container {
+            bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
+            categoryRepository = CategoryRepository(modelContext: container.mainContext)
+        }
+        
+        let swiftUIView = ShareExtensionView(
+            url: url,
+            repository: bookmarkRepository,
+            categoryRepository: categoryRepository,
+            onSave: { [weak self] in
+                if self?.modelContainer == nil {
+                    self?.persistToAppGroup(payload: payload)
+                }
+                self?.close()
+            },
+            onCancel: { [weak self] in
+                self?.close()
+            }
+        )
+        
+        if let hosting = hostingController as? UIHostingController<AnyView> {
+            if let container = container {
+                hosting.rootView = AnyView(swiftUIView.modelContainer(container))
+            } else {
+                hosting.rootView = AnyView(swiftUIView)
+            }
+        } else {
+            // Re-setup if type mismatch
+            setupSwiftUIView(with: url, payload: payload)
+        }
     }
     
     // MARK: - Fallback Alert

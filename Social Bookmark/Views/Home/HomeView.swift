@@ -12,7 +12,9 @@ struct HomeView: View {
     @State private var selectedFilter: QuickFilter?
     @State private var showingAddCategory = false
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var showingPaywall = false
+    @AppStorage("hasDismissedNotificationCard") private var hasDismissedNotificationCard = false
     
     // MARK: - Time-based Greeting
     // MARK: - Time-based Greeting
@@ -43,7 +45,7 @@ struct HomeView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(alignment: .leading, spacing: 24) {
                 // Header: Greeting + Tarih
                 headerSection
                     .padding(.horizontal, 16)
@@ -54,7 +56,13 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                 }
                 
-                // Kategoriler (max 6, 3x2 grid)
+                // Bildirim Promosyon Kartı (Eğer izin verilmemişse ve dismiss edilmemişse)
+                if !notificationManager.isAuthorized && !hasDismissedNotificationCard {
+                    notificationPromotionalCard
+                        .padding(.horizontal, 16)
+                }
+                
+                // Kategoriler (max 6, 2x3 grid)
                 categoriesSection
                 
                 // Son Eklenenler (max 6)
@@ -65,6 +73,7 @@ struct HomeView: View {
                 
                 Spacer(minLength: 20)
             }
+            .frame(maxWidth: .infinity)
             .padding(.top, 8)
         }
         
@@ -203,6 +212,78 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
     
+    // MARK: - Notification Promotional Card
+    
+    private var notificationPromotionalCard: some View {
+        ZStack(alignment: .topTrailing) {
+            HStack(spacing: 12) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(Color.blue.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "bell.badge.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.blue)
+                }
+                
+                // Text
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "home.notification_card.title"))
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                    
+                    Text(String(localized: "home.notification_card.subtitle"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                Spacer()
+                
+                // Action Button
+                Button {
+                    notificationManager.requestAuthorization()
+                } label: {
+                    Text(String(localized: "common.ok"))
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.blue)
+                        .clipShape(Capsule())
+                }
+                
+               
+                
+            }
+            .padding(.leading, 12)
+            .padding(.vertical, 16)
+            .padding(.trailing, 16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.blue.opacity(0.1), lineWidth: 1)
+            )
+            
+            // Close Button
+            Button {
+                withAnimation {
+                    hasDismissedNotificationCard = true
+                }
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.secondary.opacity(0.4))
+                    .font(.system(size: 18))
+                    .padding(4)
+            }
+        }
+    }
+    
     // MARK: - Categories Section (max 6, 3x2)
     
     private var categoriesSection: some View {
@@ -233,7 +314,6 @@ struct HomeView: View {
             } else {
                 LazyVGrid(
                     columns: [
-                        GridItem(.flexible()),
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ],
@@ -334,7 +414,7 @@ struct HomeView: View {
                         
                         if index < min(5, viewModel.recentBookmarks.count - 1) {
                             Divider()
-                                .padding(.leading, 88)
+                                .padding(.leading, 98)
                         }
                     }
                 }
@@ -429,15 +509,12 @@ struct CompactCategoryCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(category.color.opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: category.icon)
-                        .font(.system(size: 20))
-                        .foregroundStyle(category.color)
-                }
+                Image(systemName: category.icon)
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(category.color)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 
                 Text(category.name)
                     .font(.caption)

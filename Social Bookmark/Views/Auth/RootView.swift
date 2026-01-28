@@ -111,7 +111,7 @@ struct RootView: View {
         }
         .task {
             // Onboarding kontrolü
-            if !hasCompletedOnboarding{
+            if !hasCompletedOnboarding {
                 showOnboarding = true
                 hasCompletedOnboarding = true
                 justFinishedOnboarding = true

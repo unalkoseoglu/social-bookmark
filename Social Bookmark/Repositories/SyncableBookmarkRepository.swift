@@ -18,7 +18,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     private let baseRepository: BookmarkRepositoryProtocol
     
     /// Sync aktif mi? (Default: false - Manual sync only)
-    var isSyncEnabled: Bool = false
+    var isSyncEnabled: Bool = true
     
     // MARK: - Initialization
     
@@ -178,8 +178,8 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
     
     private let baseRepository: CategoryRepositoryProtocol
     
-    /// Sync aktif mi? (Default: false - Manual sync only)
-    var isSyncEnabled: Bool = false
+    /// Sync aktif mi? (Default: true)
+    var isSyncEnabled: Bool = true
     
     // MARK: - Initialization
     
