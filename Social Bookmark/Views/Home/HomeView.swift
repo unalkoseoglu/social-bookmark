@@ -13,7 +13,9 @@ struct HomeView: View {
     @State private var showingAddCategory = false
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @Environment(\.modelContext) private var modelContext
     @State private var showingPaywall = false
+    @State private var showingAnalytics = false
     @AppStorage("hasDismissedNotificationCard") private var hasDismissedNotificationCard = false
     
     // MARK: - Time-based Greeting
@@ -102,6 +104,9 @@ struct HomeView: View {
             PaywallView()
                 .environmentObject(sessionStore)
         }
+        .sheet(isPresented: $showingAnalytics) {
+            AnalyticsView(modelContext: modelContext, homeViewModel: viewModel)
+        }
         .id(languageManager.refreshID)
         .onAppear {
             print("🏠 [HomeView] onAppear - loading data")
@@ -152,9 +157,9 @@ struct HomeView: View {
                 }else if subscriptionManager.isPro {
                     ProBadge()
                 }
-                
+
                 NavigationLink {
-                    SettingsView().environmentObject(sessionStore)
+                    SettingsView(homeViewModel: viewModel).environmentObject(sessionStore)
                 } label: {
                     Image(systemName: "gearshape")
                         .font(.system(size: 30))
@@ -456,21 +461,30 @@ struct HomeView: View {
         VStack(spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 // Reading Progress Widget
-                ReadingProgressWidget(
-                    readCount: viewModel.totalCount - viewModel.unreadCount,
-                    totalCount: viewModel.totalCount
-                )
-                .frame(maxWidth: .infinity)
+                Button{
+                    showingAnalytics = true
+                } label: {
+                    ReadingProgressWidget(
+                        readCount: viewModel.totalCount - viewModel.unreadCount,
+                        totalCount: viewModel.totalCount
+                    )
+                    .frame(maxWidth: .infinity)
+                }
                 
                 // Quick Stats Widget
-                QuickStatsWidget(
-                    todayCount: viewModel.todayCount,
-                    weekCount: viewModel.thisWeekCount,
-                    favoritesCount: viewModel.favoritesCount
-                ) { filter in
-                    selectedFilter = filter
+                Button {
+                    showingAnalytics = true
+                } label: {
+                    QuickStatsWidget(
+                        todayCount: viewModel.todayCount,
+                        weekCount: viewModel.thisWeekCount,
+                        favoritesCount: viewModel.favoritesCount
+                    ) { filter in
+                        selectedFilter = filter
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
             }
             .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 16)

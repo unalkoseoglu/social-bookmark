@@ -190,7 +190,7 @@ struct BookmarkListView: View {
             }
 
             NavigationLink {
-                SettingsView()
+                SettingsView(homeViewModel: homeViewModel)
             } label: {
                 Image(systemName: "gearshape")
             }

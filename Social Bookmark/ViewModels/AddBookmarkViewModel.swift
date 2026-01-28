@@ -453,9 +453,6 @@ final class AddBookmarkViewModel {
             await MainActor.run {
                 self.fetchedRedditPost = post
                 
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
                 if self.note.isEmpty {
                     // ✅ DÜZELTME: RedditPost'un summary computed property'si var
                     self.note = post.summary
@@ -491,9 +488,7 @@ final class AddBookmarkViewModel {
             await MainActor.run {
                 self.fetchedLinkedInContent = post
                 
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
+                
                 if self.note.isEmpty {
                     // ✅ DÜZELTME: LinkedInPost.content kullanılıyor (summary değil)
                     self.note = post.content
@@ -529,9 +524,7 @@ final class AddBookmarkViewModel {
             await MainActor.run {
                 self.fetchedMediumPost = post
                 
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
+                
                 if self.note.isEmpty {
                     // ✅ DÜZELTME: MediumPost.subtitle kullanılıyor (summary değil)
                     if !post.subtitle.isEmpty {
