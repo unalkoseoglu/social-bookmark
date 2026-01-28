@@ -63,6 +63,10 @@ private struct CloudBookmark: Codable {
     let categoryId: String?
     let tags: [String]?
     let imageUrls: [String]?
+    let fileURL: String?
+    let fileName: String?
+    let fileExtension: String?
+    let fileSize: Int64?
     let isEncrypted: Bool?
     let createdAt: String
     let updatedAt: String
@@ -77,6 +81,10 @@ private struct CloudBookmark: Codable {
         case categoryId = "category_id"
         case tags
         case imageUrls = "image_urls"
+        case fileURL = "file_url"
+        case fileName = "file_name"
+        case fileExtension = "file_extension"
+        case fileSize = "file_size"
         case isEncrypted = "is_encrypted"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
@@ -201,7 +209,7 @@ final class SyncService: ObservableObject {
     }
 
     /// Tek bookmark sync et
-    func syncBookmark(_ bookmark: Bookmark) async throws {
+    func syncBookmark(_ bookmark: Bookmark, fileData: Data? = nil) async throws {
         guard let userId = SupabaseManager.shared.userId else {
             print("❌ [SYNC] syncBookmark: Not authenticated")
             throw SyncError.notAuthenticated
@@ -273,6 +281,27 @@ final class SyncService: ObservableObject {
         // ✅ image_urls ekle
         if !imageUrls.isEmpty {
             payload["image_urls"] = AnyEncodable(imageUrls)
+        }
+        
+        // 📄 Document upload
+        if bookmark.source == .document, let fileName = bookmark.fileName {
+            if let fileData = fileData {
+                do {
+                    let uploadedPath = try await DocumentUploadService.shared.uploadDocument(fileData, fileName: fileName, for: bookmark.id)
+                    payload["file_url"] = AnyEncodable(uploadedPath)
+                    payload["file_name"] = AnyEncodable(fileName)
+                    payload["file_extension"] = AnyEncodable(bookmark.fileExtension)
+                    payload["file_size"] = AnyEncodable(bookmark.fileSize)
+                    print("📤 [SYNC] Uploaded document: \(uploadedPath)")
+                } catch {
+                    print("❌ [SYNC] Document upload failed: \(error)")
+                }
+            } else if let existingPath = bookmark.fileURL {
+                payload["file_url"] = AnyEncodable(existingPath)
+                payload["file_name"] = AnyEncodable(bookmark.fileName)
+                payload["file_extension"] = AnyEncodable(bookmark.fileExtension)
+                payload["file_size"] = AnyEncodable(bookmark.fileSize)
+            }
         }
         
         // 🔑 Cloud category ID'yi kullan
@@ -483,6 +512,12 @@ final class SyncService: ObservableObject {
                 // 🖼️ Resimleri artık SYNC SIRASINDA İNDİRMİYORUZ
                 existingBookmark.imageUrls = cloud.imageUrls
                 
+                // 📄 Doküman bilgilerini güncelle
+                existingBookmark.fileURL = cloud.fileURL
+                existingBookmark.fileName = cloud.fileName
+                existingBookmark.fileExtension = cloud.fileExtension
+                existingBookmark.fileSize = cloud.fileSize
+                
                 // Category güncelle
                 if let cloudCategoryId = cloud.categoryId?.lowercased(),
                    let localCategoryId = cloudToLocalCategoryMap[cloudCategoryId],
@@ -526,6 +561,12 @@ final class SyncService: ObservableObject {
 
             // 🖼️ Resimleri artık SYNC SIRASINDA İNDİRMİYORUZ (Lazy loading için sadece URL kaydediyoruz)
             newBookmark.imageUrls = cloud.imageUrls
+            
+            // 📄 Doküman bilgileri
+            newBookmark.fileURL = cloud.fileURL
+            newBookmark.fileName = cloud.fileName
+            newBookmark.fileExtension = cloud.fileExtension
+            newBookmark.fileSize = cloud.fileSize
 
             // Category mapping
             if let cloudCategoryId = cloud.categoryId?.lowercased() {
@@ -633,6 +674,21 @@ final class SyncService: ObservableObject {
                 }
             } else {
                 print("⏭️ [SYNC] Skipping image upload for '\(bookmark.title)' - already in cloud")
+            }
+            
+            // 📄 Document upload (Sadece local'de varsa ve bulutta yoksa)
+            if bookmark.hasFile && bookmark.fileURL == nil {
+                // Not: fileURL'in nil olması buluta yüklenmediği anlamına gelir
+                // Ancak local'de veri (selectedFileData vs.) varsa yüklenmeli
+                // FIXME: Bookmark modelinde raw data saklamıyoruz, Syncable wrapper'dan veya AddBookmarkViewModel'den gelmeli
+                // Şimdilik sadece payload'u hazırlıyoruz
+            }
+            
+            if let fileURL = bookmark.fileURL {
+                payload["file_url"] = AnyEncodable(fileURL)
+                payload["file_name"] = AnyEncodable(bookmark.fileName)
+                payload["file_extension"] = AnyEncodable(bookmark.fileExtension)
+                payload["file_size"] = AnyEncodable(bookmark.fileSize)
             }
             
             // 🔑 Category ID'yi cloud ID ile değiştir

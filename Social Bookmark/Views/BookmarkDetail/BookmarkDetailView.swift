@@ -1,4 +1,5 @@
 import SwiftUI
+import QuickLook
 
 /// Bookmark detay ekranı - Reader Mode Tasarımı
 struct BookmarkDetailView: View {
@@ -26,6 +27,11 @@ struct BookmarkDetailView: View {
     @State private var selectedImageIndex = 0
     @State private var loadedImages: [UIImage] = []
     @State private var isLoadingImages = false
+    
+    // Document State
+    @State private var signedURL: URL?
+    @State private var isLoadingDocument = false
+    @State private var showingQuickLook = false
     
     // Immersive Mode State
     @State private var isMenuVisible = true
@@ -108,7 +114,12 @@ struct BookmarkDetailView: View {
                                 emptyContentPlaceholder
                             }
                             
-                            // 5. Source Link
+                            // 5. Document Preview
+                            if bookmark.hasFile {
+                                documentPreviewSection
+                            }
+                            
+                            // 6. Source Link
                             if bookmark.hasURL {
                                 sourceLinkCard
                             }
@@ -207,7 +218,11 @@ struct BookmarkDetailView: View {
         }
         .task {
             await loadImagesFromStorage()
+            if bookmark.hasFile {
+                await loadSignedURL()
+            }
         }
+        .quickLookPreview($signedURL)
     }
     
     // MARK: - Sections
@@ -370,6 +385,68 @@ struct BookmarkDetailView: View {
         .buttonStyle(.plain)
     }
     
+    private var documentPreviewSection: some View {
+        Button {
+            if let _ = signedURL {
+                showingQuickLook = true
+            } else {
+                Task {
+                    await loadSignedURL()
+                    if signedURL != nil {
+                        showingQuickLook = true
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.emerald.opacity(0.1))
+                        .frame(width: 48, height: 48)
+                    
+                    if isLoadingDocument {
+                        ProgressView()
+                    } else {
+                        Image(systemName: bookmark.fileExtension == "pdf" ? "doc.richtext.fill" : "doc.fill")
+                            .font(.headline)
+                            .foregroundStyle(Color.emerald)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(bookmark.fileName ?? String(localized: "bookmarkDetail.document"))
+                        .font(.headline)
+                        .foregroundStyle(currentTextColor)
+                        .lineLimit(1)
+                    
+                    if let size = bookmark.fileSize {
+                        Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                            .font(.caption)
+                            .foregroundStyle(currentSecondaryTextColor)
+                    } else {
+                        Text(String(localized: "bookmarkDetail.openDocument"))
+                            .font(.caption)
+                            .foregroundStyle(currentSecondaryTextColor)
+                    }
+                }
+                
+                Spacer()
+                
+                Image(systemName: "hand.tap")
+                    .font(.subheadline)
+                    .foregroundStyle(currentSecondaryTextColor)
+            }
+            .padding(16)
+            .background(Color.emerald.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.emerald.opacity(0.1), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
     // MARK: - Sticky Action Bar
     
     private var stickyActionBar: some View {
@@ -506,6 +583,21 @@ struct BookmarkDetailView: View {
         await MainActor.run {
             loadedImages = images
             isLoadingImages = false
+        }
+    }
+    
+    private func loadSignedURL() async {
+        guard let path = bookmark.fileURL else { return }
+        
+        await MainActor.run { isLoadingDocument = true }
+        
+        if let url = await DocumentUploadService.shared.getSignedURL(for: path) {
+            await MainActor.run {
+                self.signedURL = url
+                self.isLoadingDocument = false
+            }
+        } else {
+            await MainActor.run { isLoadingDocument = false }
         }
     }
 }

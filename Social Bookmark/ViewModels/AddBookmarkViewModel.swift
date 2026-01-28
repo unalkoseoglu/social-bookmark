@@ -94,11 +94,26 @@ final class AddBookmarkViewModel {
     
     private(set) var fetchedMediumPost: MediumPost?
     private(set) var mediumImageData: Data?
-
+    
     var mediumImage: UIImage? {
         guard let data = mediumImageData else { return nil }
         return UIImage(data: data)
     }
+    
+    // MARK: - Document State (YENİ)
+    
+    var selectedFileURL: URL? {
+        didSet {
+            if let url = selectedFileURL {
+                processSelectedFile(url)
+            }
+        }
+    }
+    private(set) var selectedFileData: Data?
+    private(set) var fileName: String?
+    private(set) var fileExtension: String?
+    private(set) var fileSize: Int64?
+    private(set) var isProcessingFile = false
     
     // MARK: - Service Error
     
@@ -225,6 +240,13 @@ final class AddBookmarkViewModel {
         // Tags'i temizle
         tagsInput = ""
         
+        // Document state'i temizle
+        selectedFileURL = nil
+        selectedFileData = nil
+        fileName = nil
+        fileExtension = nil
+        fileSize = nil
+        
         // Validation errors'ı temizle
         validationErrors = []
     }
@@ -292,8 +314,13 @@ final class AddBookmarkViewModel {
             tags: parsedTags,
             imageData: finalImageData,
             imagesData: finalImagesData,
-            extractedText: extractedText
+            extractedText: extractedText,
+            fileURL: nil, // Bu sonra sync layer'da yüklenebilir veya burada yüklenebilir
+            fileName: fileName,
+            fileExtension: fileExtension,
+            fileSize: fileSize
         )
+        newBookmark.fileData = selectedFileData // Transient veriyi set et
 
         repository.create(newBookmark)
         
@@ -598,7 +625,75 @@ final class AddBookmarkViewModel {
         
         validationErrors = []
         serviceError = nil
+        validationErrors = []
+        serviceError = nil
         saveError = nil
+        
+        selectedFileURL = nil
+        selectedFileData = nil
+        fileName = nil
+        fileExtension = nil
+        fileSize = nil
+        isProcessingFile = false
+    }
+
+    // MARK: - Document Processing (YENİ)
+
+    private func processSelectedFile(_ url: URL) {
+        isProcessingFile = true
+        
+        Task {
+            // Güvenlik: URL'e erişim izni al
+            guard url.startAccessingSecurityScopedResource() else {
+                isProcessingFile = false
+                return
+            }
+            
+            defer { url.stopAccessingSecurityScopedResource() }
+            
+            do {
+                let data = try Data(contentsOf: url)
+                let name = url.lastPathComponent
+                let ext = url.pathExtension.lowercased()
+                let size = Int64(data.count)
+                
+                await MainActor.run {
+                    self.selectedFileData = data
+                    self.fileName = name
+                    self.fileExtension = ext
+                    self.fileSize = size
+                    self.selectedSource = .document
+                    
+                    if self.title.isEmpty {
+                        self.title = name
+                    }
+                }
+                
+                // PDF ise metin çıkar
+                if ext == "pdf" {
+                    let result = try await PDFService.shared.extractText(from: url)
+                    
+                    await MainActor.run {
+                        if !result.cleanText.isEmpty {
+                            if self.note.isEmpty {
+                                self.note = result.cleanText
+                            } else {
+                                self.note += "\n\n---\n\n" + result.cleanText
+                            }
+                        }
+                    }
+                }
+                
+                await MainActor.run {
+                    self.isProcessingFile = false
+                }
+            } catch {
+                print("❌ [AddBookmarkViewModel] File processing failed: \(error)")
+                await MainActor.run {
+                    self.isProcessingFile = false
+                }
+            }
+        }
     }
 }
 

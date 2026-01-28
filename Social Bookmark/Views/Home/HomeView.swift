@@ -73,9 +73,10 @@ struct HomeView: View {
                 
                 Spacer(minLength: 20)
             }
-            .frame(maxWidth: .infinity)
+            .containerRelativeFrame(.horizontal)
             .padding(.top, 8)
         }
+        .scrollIndicators(.hidden)
         
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
@@ -313,10 +314,7 @@ struct HomeView: View {
                     .padding(.horizontal, 16)
             } else {
                 LazyVGrid(
-                    columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ],
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                     spacing: 12
                 ) {
                     ForEach(Array(viewModel.categories.prefix(6))) { category in
@@ -328,6 +326,8 @@ struct HomeView: View {
                         }
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
             }
         }

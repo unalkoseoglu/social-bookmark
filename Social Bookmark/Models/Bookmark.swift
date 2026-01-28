@@ -52,6 +52,15 @@ final class Bookmark {
     /// Cloud storage'daki görsel URL/path'leri (sync için)
     var imageUrls: [String]?
     
+    /// Doküman bilgileri (YENİ)
+    var fileURL: String?      // Supabase Storage path
+    var fileName: String?     // Orijinal dosya adı
+    var fileExtension: String? // pdf, docx, etc.
+    var fileSize: Int64?      // Byte cinsinden boyut
+    
+    /// Transient data (sadece sync sırasında kullanılır, veritabanına kaydedilmez)
+    @Transient var fileData: Data?
+    
     // MARK: - Initialization
     
     /// Yeni bookmark oluştururken kullanılır
@@ -67,7 +76,11 @@ final class Bookmark {
             imageData: Data? = nil,
             imagesData: [Data]? = nil,
             extractedText: String? = nil,
-            imageUrls: [String]? = nil
+            imageUrls: [String]? = nil,
+            fileURL: String? = nil,
+            fileName: String? = nil,
+            fileExtension: String? = nil,
+            fileSize: Int64? = nil
         ) {
             self.id = UUID()
             self.title = title
@@ -84,6 +97,10 @@ final class Bookmark {
             self.imagesData = imagesData
             self.extractedText = extractedText
             self.imageUrls = imageUrls
+            self.fileURL = fileURL
+            self.fileName = fileName
+            self.fileExtension = fileExtension
+            self.fileSize = fileSize
         }
 }
 
@@ -108,6 +125,11 @@ extension Bookmark {
     /// Fotoğraf var mı kontrolü (tek veya çoklu)
     var hasImage: Bool {
         imageData != nil || (imagesData != nil && !imagesData!.isEmpty)
+    }
+    
+    /// Dosya var mı kontrolü
+    var hasFile: Bool {
+        fileURL != nil && !(fileURL?.isEmpty ?? true)
     }
     
     /// Toplam görsel sayısı

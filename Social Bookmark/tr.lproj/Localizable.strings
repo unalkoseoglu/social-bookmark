@@ -229,6 +229,11 @@
 "addBookmark.loading.images %lld" = "%lld görsel yükleniyor...";
 
 "addBookmark.ocr.processing" = "Metin çıkarılıyor (OCR)...";
+"addBookmark.section.file" = "Dosya / Doküman";
+"addBookmark.file.add" = "Dosya Ekle";
+"addBookmark.file.hint" = "PDF veya Word dokümanı seçin";
+"addBookmark.file.footer" = "Bir doküman ekleyerek içeriğini saklayabilir ve her yerden erişebilirsiniz.";
+"addBookmark.file.pdf_processed" = "PDF içeriği otomatik olarak taranıp notlara eklendi.";
 "addBookmark.errors" = "Hatalar";
 "addBookmark.error.invalid_url" = "Geçersiz URL formatı";
 "addBookmark.action.save" = "Kaydet";
@@ -255,6 +260,8 @@
 "bookmarkDetail.delete_title" = "Yer İşaretini Sil?";
 "bookmarkDetail.delete_confirmation" = "Bu yer işaretini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.";
 "bookmarkDetail.word_count %lld" = "%lld kelime";
+"bookmarkDetail.document" = "Doküman";
+"bookmarkDetail.openDocument" = "Dosyayı Görüntüle";
 "bookmark.no_content" = "İçerik mevcut değil";
 
 // MARK: - Categories Management
@@ -670,6 +677,7 @@
 "source.news.description" = "Haber makaleleri";
 "source.blog.description" = "Blog yazıları";
 "source.documentation.description" = "Teknik dokümantasyon";
+"source.document.description" = "PDF ve Word dokümanları";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "Durum";
@@ -757,6 +765,7 @@
 "paywall.feature.multi_image" = "Çoklu Görsel Desteği";
 "paywall.feature.cloud_sync" = "Cihazlar Arası Senkronizasyon";
 "paywall.feature.ad_free" = "Reklamsız Deneyim";
+"pro.document.message" = "Doküman yükleme ve metin çıkarma özellikleri sadece Pro kullanıcılar içindir.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "Veri Temizliği";

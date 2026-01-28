@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 /// Yeni bookmark ekleme ekranı (Modal sheet olarak açılır)
 struct AddBookmarkView: View {
@@ -29,6 +30,7 @@ struct AddBookmarkView: View {
     // Sheet states for pickers
     @State private var showingCategoryPicker = false
     @State private var showingSourcePicker = false
+    @State private var showingFileImporter = false
     
     // MARK: - Computed Properties
     
@@ -37,6 +39,7 @@ struct AddBookmarkView: View {
         !viewModel.url.isEmpty ||
         !viewModel.title.isEmpty ||
         !viewModel.note.isEmpty ||
+        viewModel.selectedFileData != nil ||
         viewModel.fetchedTweet != nil ||
         viewModel.fetchedRedditPost != nil ||
         viewModel.fetchedLinkedInContent != nil ||
@@ -63,6 +66,7 @@ struct AddBookmarkView: View {
                 detailsSection
                 organizationSection
                 tagsSection
+                fileSection
                 coverImageSection
                 ocrSection
                 
@@ -147,6 +151,20 @@ struct AddBookmarkView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(reason: paywallReason)
+            }
+            .fileImporter(
+                isPresented: $showingFileImporter,
+                allowedContentTypes: [.pdf, .text, .plainText, .rtf],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    if let url = urls.first {
+                        viewModel.selectedFileURL = url
+                    }
+                case .failure(let error):
+                    print("❌ [AddBookmarkView] File selection failed: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -701,6 +719,111 @@ struct AddBookmarkView: View {
         }
     }
     
+    // MARK: - File Section (Doküman Seçme)
+    
+    private var fileSection: some View {
+        Section {
+            if let fileName = viewModel.fileName {
+                VStack(spacing: 12) {
+                    HStack(spacing: 14) {
+                        Image(systemName: viewModel.fileExtension == "pdf" ? "doc.richtext.fill" : "doc.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(Color.emerald)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(fileName)
+                                .font(.body)
+                                .fontWeight(.medium)
+                                .lineLimit(1)
+                            
+                            if let fileSize = viewModel.fileSize {
+                                Text(ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        if viewModel.isProcessingFile {
+                            ProgressView()
+                        } else {
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    viewModel.selectedFileURL = nil
+                                }
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    
+                    if viewModel.fileExtension == "pdf" && !viewModel.isProcessingFile {
+                        Text(String(localized: "addBookmark.file.pdf_processed"))
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.vertical, 4)
+            } else {
+                Button {
+                    if subscriptionManager.isPro {
+                        showingFileImporter = true
+                    } else {
+                        paywallReason = String(localized: "pro.document.message")
+                        showingPaywall = true
+                    }
+                } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "doc.badge.plus")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color.emerald, .teal],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(String(localized: "addBookmark.file.add"))
+                                .font(.body)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.primary)
+                            
+                            Text(String(localized: "addBookmark.file.hint"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.emerald)
+                    }
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Label(String(localized: "addBookmark.section.file"), systemImage: "doc.on.doc")
+        } footer: {
+            if viewModel.fileName == nil {
+                Text(String(localized: "addBookmark.file.footer"))
+            }
+        }
+    }
+    
     // MARK: - OCR Section (Metin Çıkarma)
     
     private var ocrSection: some View {
@@ -1115,6 +1238,7 @@ extension BookmarkSource {
         case .instagram: return String(localized: "source.instagram.description")
         case .github: return String(localized: "source.github.description")
         case .article: return String(localized: "source.article.description")
+        case .document: return String(localized: "source.document.description")
         case .other: return nil
         }
     }
