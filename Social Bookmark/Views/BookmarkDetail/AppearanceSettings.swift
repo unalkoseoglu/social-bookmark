@@ -97,7 +97,7 @@ struct AppearanceSettingsView: View {
                         .frame(width: 44, height: 44)
                         .overlay(
                             Circle()
-                                .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                                .strokeBorder(selectedTheme == theme ? Color.blue : Color.gray.opacity(0.3), lineWidth: selectedTheme == theme ? 2 : 1)
                         )
                         .overlay(
                             Image(systemName: "checkmark")
@@ -115,6 +115,7 @@ struct AppearanceSettingsView: View {
             .padding(.horizontal)
             
             Divider()
+                .overlay(selectedTheme.secondaryTextColor.opacity(0.2))
             
             // Font Selector
             ScrollView(.horizontal, showsIndicators: false) {
@@ -126,13 +127,13 @@ struct AppearanceSettingsView: View {
                             .padding(.horizontal, 16)
                             .background(
                                 Capsule()
-                                    .fill(selectedFont == font ? Color.blue.opacity(0.1) : Color.clear)
+                                    .fill(selectedFont == font ? selectedTheme.backgroundColor.opacity(0.5) : Color.clear)
                             )
                             .overlay(
                                 Capsule()
-                                    .stroke(selectedFont == font ? Color.blue : Color.gray.opacity(0.3), lineWidth: 1)
+                                    .stroke(selectedFont == font ? selectedTheme.accentColor : selectedTheme.secondaryTextColor.opacity(0.3), lineWidth: 1)
                             )
-                            .foregroundColor(selectedTheme == .dark || selectedTheme == .black ? .white : .black)
+                            .foregroundColor(selectedTheme.textColor)
                             .onTapGesture {
                                 withAnimation {
                                     selectedFont = font
@@ -144,17 +145,19 @@ struct AppearanceSettingsView: View {
             }
             
             Divider()
+                .overlay(selectedTheme.secondaryTextColor.opacity(0.2))
             
             // Font Size
             HStack {
                 Text("A")
                     .font(.system(size: 14))
                 Slider(value: $fontSize, in: 14...32, step: 1)
+                    .tint(selectedTheme.accentColor)
                 Text("A")
                     .font(.system(size: 24))
             }
             .padding(.horizontal)
-            .foregroundColor(selectedTheme == .dark || selectedTheme == .black ? .white : .black)
+            .foregroundColor(selectedTheme.textColor)
         }
         .padding(.vertical, 24)
         .presentationDetents([.height(280)])

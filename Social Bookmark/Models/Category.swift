@@ -76,6 +76,8 @@ final class Category {
 // MARK: - Color Extension
 
 extension Color {
+    static var emerald: Color { Color(hex: "#10B981") ?? .green }
+
 
     /// Hex string'den Color oluştur (failable)
     /// Destek: RGB (#RRGGBB) ve ARGB (#AARRGGBB)

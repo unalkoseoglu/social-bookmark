@@ -687,7 +687,7 @@
 "source.news.description" = "News articles";
 "source.blog.description" = "Blog posts";
 "source.documentation.description" = "Technical documentation";
-
+"source.document" = "File";
 
 
 /* Encryption Key Backup View */

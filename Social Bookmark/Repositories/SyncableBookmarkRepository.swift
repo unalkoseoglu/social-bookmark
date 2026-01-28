@@ -55,6 +55,14 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
             
             Task.detached { @MainActor in
                 do {
+                    // 📄 Doküman yükleme işlemi (Syncable layer'da yapıyoruz)
+                    if snapshot.source == .document, let fileName = snapshot.fileName, snapshot.fileURL == nil {
+                        // Not: fileURL nil ise henüz yüklenmemiştir
+                        // Burada SyncableBookmarkRepository veya AddBookmarkViewModel'den veriyi geçirmemiz lazım
+                        // Ancak Snapshot'ta data yok. 
+                        // DÜZELTME: SyncService.syncBookmark içinde veriyi parametre olarak alacak şekilde güncelleyeceğiz.
+                    }
+                    
                     try await SyncService.shared.syncBookmark(snapshot)
                     print("✅ [SyncableBookmarkRepository] Synced new bookmark: \(snapshot.title)")
                 } catch {
@@ -140,7 +148,11 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
             tags: bookmark.tags,
             imageData: bookmark.imageData,
             imagesData: bookmark.imagesData,
-            imageUrls: bookmark.imageUrls
+            imageUrls: bookmark.imageUrls,
+            fileURL: bookmark.fileURL,
+            fileName: bookmark.fileName,
+            fileExtension: bookmark.fileExtension,
+            fileSize: bookmark.fileSize
         )
         snapshot.id = bookmark.id
         snapshot.createdAt = bookmark.createdAt

@@ -531,9 +531,23 @@ struct EditBookmarkView: View {
         
         // Bookmark verilerini güncelle
         bookmark.title = title.trimmingCharacters(in: .whitespaces)
-        bookmark.url = url.isEmpty ? nil : URLValidator.sanitize(url)
+        
+        var sanitizedURL = url.isEmpty ? nil : URLValidator.sanitize(url)
+        var finalSource = selectedSource
+        
+        // ✅ URL Extraction: Eğer URL boşsa ama title veya note içinde varsa onu al
+        if sanitizedURL == nil {
+            if let extractedURL = URLValidator.findFirstURL(in: title) ?? URLValidator.findFirstURL(in: note) {
+                sanitizedURL = URLValidator.sanitize(extractedURL)
+                // Kaynağı otomatik tespit et
+                finalSource = BookmarkSource.detect(from: sanitizedURL!)
+                print("🔗 [EditBookmark] Extracted URL: \(sanitizedURL!) from content")
+            }
+        }
+        
+        bookmark.url = sanitizedURL
         bookmark.note = note.trimmingCharacters(in: .whitespaces)
-        bookmark.source = selectedSource
+        bookmark.source = finalSource
         bookmark.tags = parseTags(from: tagsInput)
         bookmark.categoryId = selectedCategoryId
         

@@ -24,6 +24,13 @@ final class HomeViewModel {
     
     // MARK: - Computed Properties
     
+    /// Bookmark sayısına göre (azalan) sıralanmış kategoriler
+    var sortedCategories: [Category] {
+        categories.sorted { cat1, cat2 in
+            bookmarkCount(for: cat1) > bookmarkCount(for: cat2)
+        }
+    }
+    
     /// Toplam bookmark sayısı
     var totalCount: Int {
         bookmarkRepository.count

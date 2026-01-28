@@ -73,9 +73,10 @@ struct HomeView: View {
                 
                 Spacer(minLength: 20)
             }
-            .frame(maxWidth: .infinity)
+            .containerRelativeFrame(.horizontal)
             .padding(.top, 8)
         }
+        .scrollIndicators(.hidden)
         
         .background(Color(.systemGroupedBackground))
         .navigationBarTitleDisplayMode(.inline)
@@ -313,13 +314,10 @@ struct HomeView: View {
                     .padding(.horizontal, 16)
             } else {
                 LazyVGrid(
-                    columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ],
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                     spacing: 12
                 ) {
-                    ForEach(Array(viewModel.categories.prefix(6))) { category in
+                    ForEach(Array(viewModel.sortedCategories.prefix(6))) { category in
                         CompactCategoryCard(
                             category: category,
                             count: viewModel.bookmarkCount(for: category)
@@ -328,6 +326,8 @@ struct HomeView: View {
                         }
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
             }
         }
@@ -408,7 +408,10 @@ struct HomeView: View {
                                 viewModel: viewModel
                             )
                         } label: {
-                            EnhancedBookmarkRow(bookmark: bookmark).padding(14)
+                            EnhancedBookmarkRow(
+                                bookmark: bookmark,
+                                category: viewModel.categories.first { $0.id == bookmark.categoryId }
+                            ).padding(14)
                         }
                         .buttonStyle(.plain)
                         
@@ -750,7 +753,10 @@ struct TaggedBookmarksView: View {
                         viewModel: viewModel
                     )
                 } label: {
-                    EnhancedBookmarkRow(bookmark: bookmark).padding(14)
+                    EnhancedBookmarkRow(
+                        bookmark: bookmark,
+                        category: viewModel.categories.first { $0.id == bookmark.categoryId }
+                    ).padding(14)
                 }
             }
         }

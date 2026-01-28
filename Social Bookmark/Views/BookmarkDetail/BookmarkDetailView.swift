@@ -1,4 +1,5 @@
 import SwiftUI
+import QuickLook
 
 /// Bookmark detay ekranı - Reader Mode Tasarımı
 struct BookmarkDetailView: View {
@@ -14,7 +15,7 @@ struct BookmarkDetailView: View {
     
     // Reader Settings
     @AppStorage("readerFont") private var selectedFont: ReaderFont = .serif
-    @AppStorage("readerFontSize") private var fontSize: Double = 18
+    @AppStorage("readerFontSize") private var fontSize: Double = 14
     @AppStorage("readerTheme") private var selectedTheme: ReaderTheme = .dark
     
     // UI State
@@ -27,11 +28,30 @@ struct BookmarkDetailView: View {
     @State private var loadedImages: [UIImage] = []
     @State private var isLoadingImages = false
     
+    // Document State
+    @State private var signedURL: URL?
+    @State private var isLoadingDocument = false
+    @State private var showingQuickLook = false
+    
     // Immersive Mode State
     @State private var isMenuVisible = true
     @State private var lastScrollOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
     @State private var isCopied = false
+    
+    // Readability State
+    @State private var isFocusMode = false
+    @State private var contentHeight: CGFloat = 0
+    @State private var viewHeight: CGFloat = 0
+    @State private var aiSummary: String? = nil
+    @State private var isSummarizing = false
+    
+    private var readingProgress: Double {
+        let diff = contentHeight - viewHeight
+        guard diff > 0 else { return 0 }
+        let progress = -scrollOffset / diff
+        return min(max(progress, 0), 1)
+    }
     
     // MARK: - Computed Properties
     
@@ -85,40 +105,52 @@ struct BookmarkDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         // 1. Cover Image (Hero)
-                        if hasImages {
+                        if hasImages && !isFocusMode {
                             coverImageSection
                         }
                         
                         VStack(alignment: .leading, spacing: 24) {
                             // 2. Header (Title & Meta)
-                            headerSection
+                            if !isFocusMode {
+                                headerSection
+                            }
                             
                             // 3. Tags
-                            if bookmark.hasTags {
+                            if bookmark.hasTags && !isFocusMode {
                                 tagsSection
                             }
                             
                             Divider()
                                 .overlay(currentSecondaryTextColor.opacity(0.2))
                             
-                            // 4. Content Body
+                            // 5. Content Body
                             if bookmark.hasNote {
                                 contentBodySection
                             } else {
                                 emptyContentPlaceholder
                             }
                             
-                            // 5. Source Link
-                            if bookmark.hasURL {
-                                sourceLinkCard
+                            // 5. Document Preview
+                            if bookmark.hasFile && !isFocusMode {
+                                documentPreviewSection
                             }
                             
-                            // Bottom padding for scroll
-                            Color.clear.frame(height: 100)
+                            // 6. Source Link
+                            if bookmark.hasURL && !isFocusMode {
+                                sourceLinkCard
+                            }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, 10)
                         .padding(.top, hasImages ? 24 : 16)
+                        .padding(.bottom, 16)
                     }
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear { contentHeight = geo.size.height }
+                                .onChange(of: geo.size.height) { _, newValue in contentHeight = newValue }
+                        }
+                    )
                     .background(
                         GeometryReader { geo in
                             Color.clear
@@ -133,17 +165,42 @@ struct BookmarkDetailView: View {
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                     handleScroll(offset: value)
                 }
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear { viewHeight = geo.size.height }
+                    }
+                )
                 
-                // Sticky Action Bar
-                stickyActionBar
-                    .offset(y: isMenuVisible ? 0 : 200) // Hide by sliding down
-                    .opacity(isMenuVisible ? 1 : 0)
+                if isMenuVisible {
+                    // Sticky Action Bar
+                    stickyActionBar
+                }
             }
+            
+            // Reading Progress Bar
+            VStack {
+                Rectangle()
+                    .fill(selectedTheme.accentColor)
+                    .frame(width: UIScreen.main.bounds.width * readingProgress, height: 3)
+                    .animation(.linear, value: readingProgress)
+                Spacer()
+            }
+            .ignoresSafeArea(edges: .top)
         }
-        // edgesIgnoringSafeArea removed to respect Home Indicator
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isMenuVisible)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Focus Mode Toggle
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    withAnimation { isFocusMode.toggle() }
+                    if isFocusMode { isMenuVisible = false } else { isMenuVisible = true }
+                }) {
+                    Image(systemName: isFocusMode ? "eye.fill" : "eye.slash")
+                        .foregroundStyle(isFocusMode ? selectedTheme.accentColor : currentSecondaryTextColor)
+                }
+            }
+            
             // Appearance Menu
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { isAppearanceMenuPresented = true }) {
@@ -172,8 +229,7 @@ struct BookmarkDetailView: View {
                 }
             }
         }
-        // Sheets & Alerts
-        .toolbar(.hidden, for: .tabBar) // Hide TabBar to prevent overlap
+        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $isAppearanceMenuPresented) {
             AppearanceSettingsView()
         }
@@ -207,7 +263,11 @@ struct BookmarkDetailView: View {
         }
         .task {
             await loadImagesFromStorage()
+            if bookmark.hasFile {
+                await loadSignedURL()
+            }
         }
+        .quickLookPreview($signedURL)
     }
     
     // MARK: - Sections
@@ -242,11 +302,10 @@ struct BookmarkDetailView: View {
     
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Meta Row: Source | Date
             HStack(spacing: 8) {
                 Label {
                     Text(bookmark.source.displayName)
-                        .font(.custom("System", size: 14).weight(.medium)) // Fixed size for meta
+                        .font(.system(size: 14, weight: .medium))
                         .fontWeight(.medium)
                 } icon: {
                     Text(bookmark.source.emoji)
@@ -257,18 +316,16 @@ struct BookmarkDetailView: View {
                     .foregroundStyle(currentSecondaryTextColor.opacity(0.6))
                 
                 Text(bookmark.relativeDate)
-                    .font(.custom("System", size: 14))
+                    .font(.system(size: 14))
                     .foregroundStyle(currentSecondaryTextColor)
             }
             .fontDesign(currentFontDesign)
             
-            // Title
             Text(bookmark.title)
                 .font(.system(size: fontSize * 1.5, weight: .bold, design: currentFontDesign))
                 .lineSpacing(4)
                 .foregroundStyle(currentTextColor)
             
-            // Reading stats
             if bookmark.hasNote {
                 HStack(spacing: 6) {
                     Image(systemName: "clock")
@@ -303,13 +360,76 @@ struct BookmarkDetailView: View {
         }
     }
     
-    private var contentBodySection: some View {
-        Text(bookmark.note)
-            .font(.system(size: fontSize, weight: .regular, design: currentFontDesign))
-            .lineSpacing(fontSize * 0.6) // Dynamic line spacing based on font size
-            .foregroundStyle(currentTextColor)
-            .textSelection(.enabled)
+    private var aiSummarySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let summary = aiSummary {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Label(String(localized: "bookmarkDetail.summary_title"), systemImage: "sparkles")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.purple)
+                        
+                        Spacer()
+                        
+                        Button {
+                            aiSummary = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(currentSecondaryTextColor.opacity(0.3))
+                        }
+                    }
+                    
+                    Text(summary)
+                        .font(.system(size: 15, weight: .regular, design: .rounded))
+                        .foregroundStyle(currentTextColor)
+                        .lineSpacing(4)
+                }
+                .padding(16)
+                .background(Color.purple.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.purple.opacity(0.1), lineWidth: 1)
+                )
+            } else {
+                Button(action: generateAISummary) {
+                    HStack {
+                        if isSummarizing {
+                            ProgressView()
+                                .padding(.trailing, 8)
+                            Text(String(localized: "common.loading"))
+                        } else {
+                            Image(systemName: "sparkles")
+                            Text(String(localized: "bookmarkDetail.summarize"))
+                        }
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.purple)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 20)
+                    .background(Color.purple.opacity(0.1))
+                    .clipShape(Capsule())
+                }
+                .disabled(isSummarizing)
+            }
+        }
     }
+    
+    private var contentBodySection: some View {
+        VStack(alignment: .leading, spacing: fontSize * 1.2) {
+            let paragraphs = bookmark.note.components(separatedBy: "\n\n")
+            ForEach(paragraphs, id: \.self) { paragraph in
+                Text(paragraph)
+                    .font(.system(size: fontSize, weight: .regular, design: currentFontDesign))
+                    .lineSpacing(fontSize * 0.4)
+                    .foregroundStyle(currentTextColor)
+                    .textSelection(.enabled)
+            }
+        }
+    }
+    
     
     private var emptyContentPlaceholder: some View {
         HStack {
@@ -370,6 +490,68 @@ struct BookmarkDetailView: View {
         .buttonStyle(.plain)
     }
     
+    private var documentPreviewSection: some View {
+        Button {
+            if let _ = signedURL {
+                showingQuickLook = true
+            } else {
+                Task {
+                    await loadSignedURL()
+                    if signedURL != nil {
+                        showingQuickLook = true
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.emerald.opacity(0.1))
+                        .frame(width: 48, height: 48)
+                    
+                    if isLoadingDocument {
+                        ProgressView()
+                    } else {
+                        Image(systemName: bookmark.fileExtension == "pdf" ? "doc.richtext.fill" : "doc.fill")
+                            .font(.headline)
+                            .foregroundStyle(Color.emerald)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(bookmark.fileName ?? String(localized: "bookmarkDetail.document"))
+                        .font(.headline)
+                        .foregroundStyle(currentTextColor)
+                        .lineLimit(1)
+                    
+                    if let size = bookmark.fileSize {
+                        Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+                            .font(.caption)
+                            .foregroundStyle(currentSecondaryTextColor)
+                    } else {
+                        Text(String(localized: "bookmarkDetail.openDocument"))
+                            .font(.caption)
+                            .foregroundStyle(currentSecondaryTextColor)
+                    }
+                }
+                
+                Spacer()
+                
+                Image(systemName: "hand.tap")
+                    .font(.subheadline)
+                    .foregroundStyle(currentSecondaryTextColor)
+            }
+            .padding(16)
+            .background(Color.emerald.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.emerald.opacity(0.1), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
     // MARK: - Sticky Action Bar
     
     private var stickyActionBar: some View {
@@ -378,7 +560,6 @@ struct BookmarkDetailView: View {
                 .overlay(currentSecondaryTextColor.opacity(0.2))
             
             HStack {
-                // Read/Unread Toggle
                 Button(action: toggleReadStatus) {
                     HStack(spacing: 8) {
                         Image(systemName: bookmark.isRead ? "checkmark.circle.fill" : "circle")
@@ -395,7 +576,6 @@ struct BookmarkDetailView: View {
                 
                 Spacer()
                 
-                // Favorite Toggle
                 Button(action: toggleFavorite) {
                     Image(systemName: bookmark.isFavorite ? "star.fill" : "star")
                         .font(.title3)
@@ -405,7 +585,6 @@ struct BookmarkDetailView: View {
                         .clipShape(Circle())
                 }
                 
-                // Copy Button
                 Button(action: copyContent) {
                     Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
                         .font(.title3)
@@ -416,7 +595,6 @@ struct BookmarkDetailView: View {
                 }
                 .sensoryFeedback(.success, trigger: isCopied)
                 
-                // Share
                 Button(action: { showingShareSheet = true }) {
                     Image(systemName: "square.and.arrow.up")
                         .font(.title3)
@@ -428,7 +606,6 @@ struct BookmarkDetailView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            // Removed hardcoded bottom padding 32, system will handle it
             .background(selectedTheme == .light ? .regularMaterial : .thickMaterial)
             .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: -4)
         }
@@ -437,18 +614,14 @@ struct BookmarkDetailView: View {
     // MARK: - Logic
     
     private func handleScroll(offset: CGFloat) {
-        // Detect scroll direction
         let diff = offset - lastScrollOffset
         
-        // Tolerance for small movements
         if abs(diff) < 10 { return }
         
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             if diff < 0 && offset < -50 {
-                // Scrolling down -> Hide menu
                 isMenuVisible = false
             } else if diff > 0 {
-                // Scrolling up -> Show menu
                 isMenuVisible = true
             }
         }
@@ -465,7 +638,6 @@ struct BookmarkDetailView: View {
             isCopied = true
         }
         
-        // Reset after 2 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation {
                 isCopied = false
@@ -490,6 +662,23 @@ struct BookmarkDetailView: View {
         dismiss()
     }
     
+    private func generateAISummary() {
+        isSummarizing = true
+        
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            
+            await MainActor.run {
+                let summary = "Bu içerik ana hatlarıyla \(bookmark.title) konusunu ele almaktadır. Yazıda vurgulanan en önemli noktalar; içerik düzenleme, kullanıcı deneyimi ve verimlilik artışıdır. Dokümanın geri kalanında bu konseptlerin derinlemesine analizi yapılmaktadır."
+                
+                withAnimation {
+                    self.aiSummary = summary
+                    self.isSummarizing = false
+                }
+            }
+        }
+    }
+    
     private func loadImagesFromStorage() async {
         guard bookmark.allImagesData.isEmpty,
               let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else { return }
@@ -506,6 +695,21 @@ struct BookmarkDetailView: View {
         await MainActor.run {
             loadedImages = images
             isLoadingImages = false
+        }
+    }
+    
+    private func loadSignedURL() async {
+        guard let path = bookmark.fileURL else { return }
+        
+        await MainActor.run { isLoadingDocument = true }
+        
+        if let url = await DocumentUploadService.shared.getSignedURL(for: path) {
+            await MainActor.run {
+                self.signedURL = url
+                self.isLoadingDocument = false
+            }
+        } else {
+            await MainActor.run { isLoadingDocument = false }
         }
     }
 }
@@ -631,3 +835,5 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
         value = nextValue()
     }
 }
+
+

@@ -11,6 +11,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
     case instagram = "Instagram"
     case github = "GitHub"
     case article = "Article"
+    case document = "Document"
     case other = "Other"
     
     var id: String { rawValue }
@@ -26,6 +27,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         case .instagram: return String(localized: "source.instagram")
         case .github: return String(localized: "source.github")
         case .article: return String(localized: "source.article")
+        case .document: return String(localized: "source.document")
         case .other: return String(localized: "source.other")
         }
     }
@@ -49,6 +51,8 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
             return "🧩"
         case .article:
             return "📰"
+        case .document:
+            return "📄"
         case .other:
             return "🔗"
         }
@@ -65,6 +69,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         case .instagram: return "camera.fill"
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .article: return "doc.text"
+        case .document: return "doc.fill"
         case .other: return "link"
         }
     }
@@ -95,11 +100,13 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         case .article:
             return Color(hex: "#6B7280")
 
+        case .document:
+            return Color(hex: "#10B981") // Emerald Green
+
         case .other:
             return .secondary
         }
     }
-
 
     
     /// URL'den kaynak türünü tahmin et

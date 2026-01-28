@@ -263,10 +263,7 @@ struct AllBookmarksView: View {
             ForEach(displayedBookmarks) { bookmark in
                 bookmarkRow(bookmark)
                     .onAppear {
-                        // Infinite scroll trigger
-                        if bookmark.id == displayedBookmarks.last?.id {
-                            loadMoreIfNeeded()
-                        }
+                        loadMoreIfNeeded(currentBookmark: bookmark)
                     }
             }
         }
@@ -307,20 +304,6 @@ struct AllBookmarksView: View {
                     Spacer()
                 }
                 .padding(.vertical, 8)
-            } else {
-                Button {
-                    loadMoreBookmarks()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "arrow.down.circle")
-                        Text("common.show_more")
-                        Spacer()
-                    }
-                    .font(.subheadline)
-                    .foregroundStyle(.blue)
-                }
-                .padding(.vertical, 8)
             }
         }
     }
@@ -334,7 +317,10 @@ struct AllBookmarksView: View {
                 viewModel: viewModel
             )
         } label: {
-            EnhancedBookmarkRow(bookmark: bookmark)
+            EnhancedBookmarkRow(
+                bookmark: bookmark,
+                category: viewModel.categories.first { $0.id == bookmark.categoryId }
+            )
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
@@ -492,11 +478,10 @@ struct AllBookmarksView: View {
         }
     }
     
-    private func loadMoreIfNeeded() {
-        let threshold = 5
-        let remainingItems = filteredBookmarks.count - displayedBookmarks.count
+    private func loadMoreIfNeeded(currentBookmark: Bookmark) {
+        guard let index = displayedBookmarks.firstIndex(where: { $0.id == currentBookmark.id }) else { return }
         
-        if remainingItems > 0 && remainingItems <= threshold && !isLoadingMore {
+        if index >= displayedBookmarks.count - 5 && !isLoadingMore {
             loadMoreBookmarks()
         }
     }

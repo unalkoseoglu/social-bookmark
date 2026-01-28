@@ -78,7 +78,7 @@ struct CategoryDetailView: View {
                 NavigationLink {
                     BookmarkDetailView(bookmark: bookmark, viewModel: viewModel)
                 } label: {
-                    EnhancedBookmarkRow(bookmark: bookmark)
+                    EnhancedBookmarkRow(bookmark: bookmark, category: category)
                 }
             }
             .onDelete(perform: deleteBookmarks)
