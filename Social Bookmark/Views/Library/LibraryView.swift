@@ -21,6 +21,7 @@ struct LibraryView: View {
     @State private var showingCategoryManagement = false
     @State private var showingAnalytics = false
     @State private var showingUncategorized = false
+    @State private var showingFavorites = false
     @Environment(\.modelContext) private var modelContext
     
     @State private var searchText = ""
@@ -89,7 +90,6 @@ struct LibraryView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
             
             // Content
             switch selectedSegment {
@@ -149,12 +149,15 @@ struct LibraryView: View {
                 }
             }
         }
-        .searchable(text: $searchText, isPresented: .constant(selectedSegment == .all), prompt: Text("all.search_prompt"))
         .sheet(isPresented: $showingAnalytics) {
             AnalyticsView(modelContext: modelContext, homeViewModel: viewModel)
         }
         .sheet(isPresented: $showingUncategorized) {
             UncategorizedBookmarksView(viewModel: viewModel)
+                .environmentObject(sessionStore)
+        }
+        .sheet(isPresented: $showingFavorites) {
+            FavoritesBookmarksView(viewModel: viewModel)
                 .environmentObject(sessionStore)
         }
         .sheet(item: $selectedCategory) { category in
@@ -168,13 +171,27 @@ struct LibraryView: View {
             }
         }
         .task {
-            await updateFilteredBookmarks()
-            loadInitialPage()
+            // Sadece ilk açılışta veya veriler boşsa yükle
+            if displayedBookmarks.isEmpty {
+                await updateFilteredBookmarks()
+                loadInitialPage()
+            }
         }
         .onChange(of: viewModel.bookmarks) { _, _ in
             Task {
                 await updateFilteredBookmarks()
-                loadInitialPage()
+                // Eğer liste zaten doluysa, agresif bir resetleme yapma
+                // Yeni veriler updateFilteredBookmarks ile filteredResults'a girdi
+                // displayedBookmarks'ı güncelle ama sayfa yapısını bozma
+                await MainActor.run {
+                    if !displayedBookmarks.isEmpty {
+                        // Basit bir güncelleme: Mevcut sayfa kadar veriyi yenile
+                        let count = displayedBookmarks.count
+                        displayedBookmarks = Array(filteredResults.prefix(count))
+                    } else {
+                        loadInitialPage()
+                    }
+                }
             }
         }
         .onChange(of: searchText) { _, newValue in
@@ -247,197 +264,21 @@ struct LibraryView: View {
     // MARK: - All Bookmarks Content
     
     private var allBookmarksContent: some View {
-        Group {
-            if filteredResults.isEmpty && !isLoadingMore {
-                emptyStateView(
-                    icon: "bookmark",
-                    title: String(localized: "library.empty.title"),
-                    subtitle: String(localized: "library.empty.subtitle")
-                )
-            } else {
-                List {
-                    // Stats Section
-                    statsSection
-                    
-                    // Source Filter Chips
-                    sourceFilterSection
-                    
-                    // Bookmarks Section
-                    if sortOrder == .source {
-                        sourceGroupedSection
-                    } else {
-                        flatListSection
-                    }
-                    
-                    if hasMorePages {
-                        loadMoreSection
-                    }
-                }
-                .listStyle(.insetGrouped)
-            }
-        }
+        UnifiedBookmarkList(
+            bookmarks: displayedBookmarks,
+            viewModel: viewModel,
+            isGroupedBySource: sortOrder == .source,
+            showStats: true,
+            hasMorePages: hasMorePages,
+            isLoadingMore: isLoadingMore,
+            onLoadMore: { loadMoreBookmarks() },
+            emptyTitle: String(localized: "library.empty.title"),
+            emptySubtitle: String(localized: "library.empty.subtitle"),
+            emptyIcon: "bookmark"
+        )
     }
     
-    private var flatListSection: some View {
-        Section {
-            ForEach(displayedBookmarks) { bookmark in
-                bookmarkRow(bookmark)
-                    .onAppear {
-                        loadMoreIfNeeded(currentBookmark: bookmark)
-                    }
-            }
-        }
-    }
-    
-    private var sourceGroupedSection: some View {
-        ForEach(BookmarkSource.allCases.filter { groupedBookmarks[$0] != nil }, id: \.self) { source in
-            Section {
-                ForEach(groupedBookmarks[source] ?? []) { bookmark in
-                    bookmarkRow(bookmark)
-                }
-            } header: {
-                HStack {
-                    Text(source.emoji)
-                    Text(source.displayName)
-                    Spacer()
-                    Text("\(groupedBookmarks[source]?.count ?? 0)")
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
-    
-    private func bookmarkRow(_ bookmark: Bookmark) -> some View {
-        NavigationLink {
-            BookmarkDetailView(
-                bookmark: bookmark,
-                viewModel: viewModel
-            )
-        } label: {
-            EnhancedBookmarkRow(
-                bookmark: bookmark,
-                category: viewModel.categories.first { $0.id == bookmark.categoryId }
-            )
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                viewModel.deleteBookmark(bookmark)
-            } label: {
-                Label(String(localized: "common.delete"), systemImage: "trash")
-            }
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-                viewModel.toggleReadStatus(bookmark)
-            } label: {
-                Label(
-                    bookmark.isRead ? String(localized: "bookmarkDetail.markUnread") : String(localized: "bookmarkDetail.markRead"),
-                    systemImage: bookmark.isRead ? "circle" : "checkmark.circle"
-                )
-            }
-            .tint(bookmark.isRead ? .orange : .green)
-        }
-    }
-    
-    private var statsSection: some View {
-        Section {
-            HStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(filteredResults.count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Text(String(localized: "all.stats.total"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Divider()
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(filteredResults.filter { $0.isRead }.count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.green)
-                    Text(String(localized: "all.stats.read"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Divider()
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(filteredResults.filter { !$0.isRead }.count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.orange)
-                    Text(String(localized: "all.stats.unread"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-    
-    private var sourceFilterSection: some View {
-        Section {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    FilterChip(
-                        title: String(localized: "all.filter.all"),
-                        icon: "square.grid.2x2",
-                        isSelected: selectedSource == nil
-                    ) {
-                        selectedSource = nil
-                    }
-                    
-                    ForEach(BookmarkSource.allCases) { source in
-                        let count = viewModel.allBookmarks.filter { $0.source == source }.count
-                        if count > 0 {
-                            FilterChip(
-                                title: source.displayName,
-                                emoji: source.emoji,
-                                count: count,
-                                isSelected: selectedSource == source
-                            ) {
-                                selectedSource = selectedSource == source ? nil : source
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 4)
-        }
-        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-    }
-    
-    private var loadMoreSection: some View {
-        Section {
-            if isLoadingMore {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Text(String(localized: "common.loading"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 8)
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-            }
-        }
-    }
-    
-    private var hasMorePages: Bool {
-        displayedBookmarks.count < filteredResults.count
-    }
-    
-    // Kaynak bazlı gruplama
-    private var groupedBookmarks: [BookmarkSource: [Bookmark]] {
-        Dictionary(grouping: displayedBookmarks, by: { $0.source })
-    }
+    // Kaynak bazlı gruplama silindi - UnifiedBookmarkList içinde yapılıyor
     
     // MARK: - Categories Content
     
@@ -464,6 +305,11 @@ struct LibraryView: View {
                         columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                         spacing: 12
                     ) {
+                        // Favoriler (Her zaman en başta)
+                        FavoritesCard(count: viewModel.favoritesCount) {
+                            showingFavorites = true
+                        }
+                        
                         ForEach(viewModel.categories) { category in
                             LibraryCategoryCard(
                                 category: category,
@@ -549,6 +395,10 @@ struct LibraryView: View {
             loadMoreBookmarks()
         }
     }
+
+    private var hasMorePages: Bool {
+        displayedBookmarks.count < filteredResults.count
+    }
 }
 
 
@@ -589,6 +439,67 @@ struct LibraryCategoryCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Favorites Card
+
+struct FavoritesCard: View {
+    let count: Int
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.yellow)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    Spacer()
+                    
+                    Text("\(count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .contentTransition(.numericText())
+                }
+                
+                Text(String(localized: "common.favorites"))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct FavoritesBookmarksView: View {
+    let viewModel: HomeViewModel
+    @EnvironmentObject private var sessionStore: SessionStore
+    
+    private var filteredBookmarks: [Bookmark] {
+        viewModel.bookmarks.filter { $0.isFavorite }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            UnifiedBookmarkList(
+                bookmarks: filteredBookmarks,
+                viewModel: viewModel,
+                emptyTitle: String(localized: "common.favorites"),
+                emptySubtitle: String(localized: "library.empty.subtitle"),
+                emptyIcon: "star"
+            )
+            .navigationTitle(String(localized: "common.favorites"))
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 
@@ -639,21 +550,13 @@ struct UncategorizedBookmarksView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(filteredBookmarks) { bookmark in
-                    NavigationLink {
-                        BookmarkDetailView(
-                            bookmark: bookmark,
-                            viewModel: viewModel
-                        )
-                    } label: {
-                        EnhancedBookmarkRow(
-                            bookmark: bookmark,
-                            category: nil
-                        ).padding(14)
-                    }
-                }
-            }
+            UnifiedBookmarkList(
+                bookmarks: filteredBookmarks,
+                viewModel: viewModel,
+                emptyTitle: String(localized: "common.uncategorized"),
+                emptySubtitle: String(localized: "library.empty.subtitle"),
+                emptyIcon: "tray"
+            )
             .navigationTitle(String(localized: "common.uncategorized"))
             .navigationBarTitleDisplayMode(.inline)
         }

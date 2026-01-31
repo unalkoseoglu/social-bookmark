@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Bookmark | Smart Archive for Social Media</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <img src="logo.png" alt="Link Bookmark Logo" class="logo-img">
+                <span class="logo-text">LINK BOOKMARK</span>
+            </div>
+            <a href="https://apps.apple.com/us/app/link-bookmark-save-search/id6756815228" class="nav-cta">DOWNLOAD</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <div class="hero-content">
+                <h1 class="fade-in">ARCHIVE SOCIAL MEDIA SMARTLY.</h1>
+                <p class="fade-in delay-1">Save more than just links. Keep context, images, and text all in one place.
+                </p>
+                <div class="hero-actions fade-in delay-2">
+                    <a href="https://apps.apple.com/us/app/link-bookmark-save-search/id6756815228"
+                        class="btn-black">DOWNLOAD ON THE APP STORE</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features container">
+            <div class="feature-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Smart Source Recognition</h3>
+                    <p>Automatically detects X, Reddit, and LinkedIn content, displaying it at its best.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">👁️</div>
+                    <h3>Advanced OCR</h3>
+                    <p>Automatically extracts text from screenshots and makes it searchable.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">☁️</div>
+                    <h3>Instant Synchronization</h3>
+                    <p>With our cloud infrastructure, all your data is ready on every device instantly.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works bg-black text-white">
+            <div class="container text-center">
+                <h2>HOW IT WORKS?</h2>
+                <div class="steps-grid">
+                    <div class="step">
+                        <span class="step-number">01</span>
+                        <p>Tap the Share button in any app.</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">02</span>
+                        <p>Select Link Bookmark.</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">03</span>
+                        <p>Done! Your content is ready with all the details.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section container text-center">
+            <h3>KEEP EVERYTHING IN ONE PLACE.</h3>
+            <p>Take your productivity to the next level.</p>
+            <a href="https://apps.apple.com/us/app/link-bookmark-save-search/id6756815228" class="btn-black">GET STARTED
+                NOW</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 LINK BOOKMARK. DESIGN: ÜNAL KÖSEOĞLU</p>
+            <div class="footer-links">
+                <a href="../support/index.html">SUPPORT</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Basit scroll animasyonu
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

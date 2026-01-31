@@ -61,83 +61,22 @@ struct FilteredBookmarksView: View {
     // MARK: - Bookmark List
 
     private var bookmarkList: some View {
-        List {
-            Section {
-                HStack(spacing: 16) {
-                    Image(systemName: filter.icon)
-                        .font(.title2)
-                        .foregroundStyle(filter.color)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(filteredBookmarks.count)")
-                            .font(.title)
-                            .fontWeight(.bold)
-
-                        Text(filterDescription)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-            }
-
-            Section {
-                ForEach(filteredBookmarks) { bookmark in
-                    NavigationLink {
-                        BookmarkDetailView(
-                            bookmark: bookmark,
-                            viewModel: viewModel
-                        )
-                    } label: {
-                        FilteredBookmarkRow(bookmark: bookmark, filter: filter)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            deleteBookmark(bookmark)
-                        } label: {
-                            Label("common.delete", systemImage: "trash")
-                        }
-                    }
-                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                        leadingActions(for: bookmark)
-                    }
-                }
-            } header: {
-                Text("filtered.section.bookmarks")
-            }
-        }
-        .listStyle(.insetGrouped)
-    }
-
-    @ViewBuilder
-    private func leadingActions(for bookmark: Bookmark) -> some View {
-        switch filter {
-        case .unread:
-            Button { markAsRead(bookmark) } label: {
-                Label("filtered.mark_read", systemImage: "checkmark.circle")
-            }
-            .tint(.green)
-
-        case .favorites:
-            Button { toggleFavorite(bookmark) } label: {
-                Label("filtered.unfavorite", systemImage: "star.slash")
-            }
-            .tint(.orange)
-
-        case .today:
-            EmptyView()
-        }
+        UnifiedBookmarkList(
+            bookmarks: filteredBookmarks,
+            viewModel: viewModel,
+            emptyTitle: String(localized: emptyTitle),
+            emptySubtitle: String(localized: emptyDescription),
+            emptyIcon: filter.icon
+        )
     }
 
     // MARK: - Empty State
 
     private var emptyStateView: some View {
         ContentUnavailableView {
-            Label(emptyTitle, systemImage: filter.icon)
+            Label(LocalizedStringKey(stringLiteral: String(localized: emptyTitle)), systemImage: filter.icon)
         } description: {
-            Text(emptyDescription)
+            Text(String(localized: emptyDescription))
         } actions: {
             Button { dismiss() } label: {
                 Text("common.go_back")
@@ -147,15 +86,7 @@ struct FilteredBookmarksView: View {
 
     // MARK: - Computed Properties
 
-    private var filterDescription: String {
-        switch filter {
-        case .unread: return String(localized: "filtered.desc.unread")
-        case .favorites: return String(localized: "filtered.desc.favorites")
-        case .today: return String(localized: "filtered.desc.today")
-        }
-    }
-
-    private var emptyTitle: LocalizedStringKey {
+    private var emptyTitle: String.LocalizationValue {
         switch filter {
         case .unread: return "filtered.empty.unread.title"
         case .favorites: return "filtered.empty.favorites.title"
@@ -163,104 +94,11 @@ struct FilteredBookmarksView: View {
         }
     }
 
-    private var emptyDescription: LocalizedStringKey {
+    private var emptyDescription: String.LocalizationValue {
         switch filter {
         case .unread: return "filtered.empty.unread.desc"
         case .favorites: return "filtered.empty.favorites.desc"
         case .today: return "filtered.empty.today.desc"
-        }
-    }  
-
-    // MARK: - Actions
-
-    private func deleteBookmark(_ bookmark: Bookmark) {
-        withAnimation {
-            viewModel.bookmarkRepository.delete(bookmark)
-        }
-        Task {
-            await viewModel.refresh()
-        }
-    }
-
-    private func markAsRead(_ bookmark: Bookmark) {
-        withAnimation {
-            bookmark.isRead = true
-            viewModel.bookmarkRepository.update(bookmark)
-        }
-        Task {
-            await viewModel.refresh()
-        }
-    }
-
-    private func toggleFavorite(_ bookmark: Bookmark) {
-        withAnimation {
-            bookmark.isFavorite.toggle()
-            viewModel.bookmarkRepository.update(bookmark)
-        }
-        Task {
-            await viewModel.refresh()
-        }
-    }
-}
-
-// MARK: - Filtered Bookmark Row
-
-struct FilteredBookmarkRow: View {
-    let bookmark: Bookmark
-    let filter: QuickFilter
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Text(bookmark.source.emoji)
-                .font(.title3)
-                .frame(width: 44, height: 44)
-                .background(bookmark.source.color.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(bookmark.title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(2)
-
-                HStack(spacing: 8) {
-                    Text(bookmark.source.displayName)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Text("•").foregroundStyle(.tertiary)
-
-                    Text(bookmark.relativeDate)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    if bookmark.hasTags {
-                        Text("•").foregroundStyle(.tertiary)
-
-                        Text(bookmark.tags.prefix(2).joined(separator: ", "))
-                            .font(.caption)
-                            .foregroundStyle(.blue)
-                            .lineLimit(1)
-                    }
-                }
-            }
-
-            Spacer()
-
-            statusIndicator
-        }
-        .padding(.vertical, 4)
-    }
-
-    @ViewBuilder
-    private var statusIndicator: some View {
-        switch filter {
-        case .unread:
-            Circle().fill(.orange).frame(width: 10, height: 10)
-        case .favorites:
-            Image(systemName: "star.fill").font(.caption).foregroundStyle(.yellow)
-        case .today:
-            Image(systemName: "clock.fill").font(.caption).foregroundStyle(.blue)
         }
     }
 }

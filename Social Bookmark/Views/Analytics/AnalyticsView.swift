@@ -335,22 +335,13 @@ struct AnalyticsFilteredListView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                if filteredBookmarks.isEmpty {
-                    ContentUnavailableView("İçerik Bulunamadı", systemImage: "tray")
-                } else {
-                    ForEach(filteredBookmarks) { bookmark in
-                        NavigationLink {
-                            BookmarkDetailView(bookmark: bookmark, viewModel: homeViewModel)
-                        } label: {
-                            EnhancedBookmarkRow(
-                                bookmark: bookmark,
-                                category: homeViewModel.categories.first { $0.id == bookmark.categoryId }
-                            ).padding(14)
-                        }
-                    }
-                }
-            }
+            UnifiedBookmarkList(
+                bookmarks: filteredBookmarks,
+                viewModel: homeViewModel,
+                emptyTitle: String(localized: "all.empty.no_results"),
+                emptySubtitle: "",
+                emptyIcon: "tray"
+            )
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
         }
