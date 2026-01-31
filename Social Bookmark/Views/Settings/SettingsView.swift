@@ -23,6 +23,8 @@ struct SettingsView: View {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @State private var showingPaywall = false
+    @State private var showingAnalytics = false
+    @Bindable var homeViewModel: HomeViewModel
     
     @State private var showingRestartAlert = false
     @State private var pendingLanguage: AppLanguage?
@@ -72,6 +74,9 @@ struct SettingsView: View {
         .id(languageManager.refreshID)
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
+        }
+        .sheet(isPresented: $showingAnalytics) {
+            AnalyticsView(modelContext: modelContext, homeViewModel: homeViewModel)
         }
     }
     
@@ -197,6 +202,21 @@ struct SettingsView: View {
                     Text(lastSync, style: .relative)
                 }
             }
+        }
+    }
+    
+    
+    // MARK: - Analytics Section
+    
+    private var analyticsSection: some View {
+        Section {
+            Button {
+                showingAnalytics = true
+            } label: {
+                Label(String(localized: "settings.analytics"), systemImage: "chart.bar.fill")
+            }
+        } header: {
+            Text(String(localized: "settings.analytics_header"))
         }
     }
     
@@ -327,6 +347,11 @@ struct SettingsView: View {
 // MARK: - Preview
 
 #Preview {
-    SettingsView()
-        .environmentObject(SessionStore())
+    SettingsView(
+        homeViewModel: HomeViewModel(
+            bookmarkRepository: PreviewMockRepository.shared,
+            categoryRepository: PreviewMockCategoryRepository.shared
+        )
+    )
+    .environmentObject(SessionStore())
 }

@@ -13,7 +13,10 @@ struct HomeView: View {
     @State private var showingAddCategory = false
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @Environment(\.modelContext) private var modelContext
+    @State private var showingFavorites = false
     @State private var showingPaywall = false
+    @State private var showingAnalytics = false
     @AppStorage("hasDismissedNotificationCard") private var hasDismissedNotificationCard = false
     
     // MARK: - Time-based Greeting
@@ -85,6 +88,10 @@ struct HomeView: View {
             CategoryDetailView(category: category, viewModel: viewModel)
                 .environmentObject(sessionStore)
         }
+        .sheet(isPresented: $showingFavorites) {
+            FavoritesBookmarksView(viewModel: viewModel)
+                .environmentObject(sessionStore)
+        }
         .sheet(item: $selectedFilter) { filter in
             FilteredBookmarksView(filter: filter, viewModel: viewModel)
                 .environmentObject(sessionStore)
@@ -101,6 +108,9 @@ struct HomeView: View {
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
                 .environmentObject(sessionStore)
+        }
+        .sheet(isPresented: $showingAnalytics) {
+            AnalyticsView(modelContext: modelContext, homeViewModel: viewModel)
         }
         .id(languageManager.refreshID)
         .onAppear {
@@ -152,9 +162,9 @@ struct HomeView: View {
                 }else if subscriptionManager.isPro {
                     ProBadge()
                 }
-                
+
                 NavigationLink {
-                    SettingsView().environmentObject(sessionStore)
+                    SettingsView(homeViewModel: viewModel).environmentObject(sessionStore)
                 } label: {
                     Image(systemName: "gearshape")
                         .font(.system(size: 30))
@@ -301,7 +311,7 @@ struct HomeView: View {
                     NavigationLink {
                         CategoriesManagementView(viewModel: viewModel)
                     } label: {
-                        Text(String(localized: "home.action.edit"))
+                        Text(String(localized: "home.action.see_all"))
                             .font(.subheadline)
                             .foregroundStyle(.blue)
                     }
@@ -317,7 +327,12 @@ struct HomeView: View {
                     columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                     spacing: 12
                 ) {
-                    ForEach(Array(viewModel.sortedCategories.prefix(6))) { category in
+                    // Favoriler (Her zaman en başta)
+                    FavoritesCard(count: viewModel.favoritesCount) {
+                        showingFavorites = true
+                    }
+                    
+                    ForEach(Array(viewModel.sortedCategories.prefix(5))) { category in
                         CompactCategoryCard(
                             category: category,
                             count: viewModel.bookmarkCount(for: category)
@@ -411,13 +426,42 @@ struct HomeView: View {
                             EnhancedBookmarkRow(
                                 bookmark: bookmark,
                                 category: viewModel.categories.first { $0.id == bookmark.categoryId }
-                            ).padding(14)
+                            )
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                bookmark.isFavorite.toggle()
+                                viewModel.bookmarkRepository.update(bookmark)
+                            } label: {
+                                Label(bookmark.isFavorite ? "all.action.unfavorite" : "all.action.favorite",
+                                      systemImage: bookmark.isFavorite ? "star.slash" : "star.fill")
+                            }
+                            
+                            Button {
+                                bookmark.isRead.toggle()
+                                viewModel.bookmarkRepository.update(bookmark)
+                            } label: {
+                                Label(bookmark.isRead ? "all.action.mark_unread" : "all.action.mark_read",
+                                      systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill")
+                            }
+                            
+                            Divider()
+                            
+                            Button(role: .destructive) {
+                                viewModel.bookmarkRepository.delete(bookmark)
+                                Task { await viewModel.refresh() }
+                            } label: {
+                                Label("common.delete", systemImage: "trash")
+                            }
+                        }
                         
                         if index < min(5, viewModel.recentBookmarks.count - 1) {
                             Divider()
-                                .padding(.leading, 98)
+                                .padding(.leading, 88)
                         }
                     }
                 }
@@ -456,21 +500,30 @@ struct HomeView: View {
         VStack(spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 // Reading Progress Widget
-                ReadingProgressWidget(
-                    readCount: viewModel.totalCount - viewModel.unreadCount,
-                    totalCount: viewModel.totalCount
-                )
-                .frame(maxWidth: .infinity)
+                Button{
+                    showingAnalytics = true
+                } label: {
+                    ReadingProgressWidget(
+                        readCount: viewModel.totalCount - viewModel.unreadCount,
+                        totalCount: viewModel.totalCount
+                    )
+                    .frame(maxWidth: .infinity)
+                }
                 
                 // Quick Stats Widget
-                QuickStatsWidget(
-                    todayCount: viewModel.todayCount,
-                    weekCount: viewModel.thisWeekCount,
-                    favoritesCount: viewModel.favoritesCount
-                ) { filter in
-                    selectedFilter = filter
+                Button {
+                    showingAnalytics = true
+                } label: {
+                    QuickStatsWidget(
+                        todayCount: viewModel.todayCount,
+                        weekCount: viewModel.thisWeekCount,
+                        favoritesCount: viewModel.favoritesCount
+                    ) { filter in
+                        selectedFilter = filter
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
             }
             .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 16)
@@ -745,22 +798,13 @@ struct TaggedBookmarksView: View {
     }
     
     var body: some View {
-        List {
-            ForEach(filteredBookmarks) { bookmark in
-                NavigationLink {
-                    BookmarkDetailView(
-                        bookmark: bookmark,
-                        viewModel: viewModel
-                    )
-                } label: {
-                    EnhancedBookmarkRow(
-                        bookmark: bookmark,
-                        category: viewModel.categories.first { $0.id == bookmark.categoryId }
-                    ).padding(14)
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
+        UnifiedBookmarkList(
+            bookmarks: filteredBookmarks,
+            viewModel: viewModel,
+            emptyTitle: "#\(tag)",
+            emptySubtitle: String(localized: "all.empty.no_results"),
+            emptyIcon: "tag"
+        )
         .navigationTitle("#\(tag)")
         .navigationBarTitleDisplayMode(.large)
     }

@@ -52,6 +52,7 @@ extension Social_BookmarkApp {
 
 struct RootView: View {
     // MARK: - Properties
+    @Environment(\.colorScheme) private var colorScheme
     
     @StateObject private var sessionStore = SessionStore()
     @StateObject private var networkMonitor = NetworkMonitor.shared
@@ -153,9 +154,10 @@ struct RootView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 16) {
-                Image(systemName: "bookmark.fill")
-                    .font(.system(size: 50))
-                    .foregroundStyle(.blue)
+                Image(colorScheme == .dark ? "logo_light_app_icon" : "logo_dark_app_icon")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 120)
                 
                 ProgressView()
                     .scaleEffect(1.2)

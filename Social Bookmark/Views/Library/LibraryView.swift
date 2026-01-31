@@ -19,6 +19,16 @@ struct LibraryView: View {
     @State private var selectedSegment: LibrarySegment = .all
     @State private var selectedCategory: Category?
     @State private var showingCategoryManagement = false
+    @State private var showingAnalytics = false
+    @State private var showingUncategorized = false
+    @State private var showingFavorites = false
+    @Environment(\.modelContext) private var modelContext
+    
+    @State private var searchText = ""
+    @State private var debouncedSearchText = ""
+    @State private var selectedSource: BookmarkSource?
+    @State private var sortOrder: SortOrder = .newest
+    @State private var filteredResults: [Bookmark] = []
     
     // MARK: - Pagination State
     
@@ -26,6 +36,33 @@ struct LibraryView: View {
     @State private var currentPage = 0
     @State private var isLoadingMore = false
     private let itemsPerPage = 20
+    
+    enum SortOrder: String, CaseIterable, Identifiable {
+        case newest = "newest"
+        case oldest = "oldest"
+        case alphabetical = "alphabetical"
+        case source = "source"
+        
+        var id: String { rawValue }
+        
+        var title: String {
+            switch self {
+            case .newest: return String(localized: "all.sort.newest")
+            case .oldest: return String(localized: "all.sort.oldest")
+            case .alphabetical: return String(localized: "all.sort.alphabetical")
+            case .source: return String(localized: "all.sort.source")
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .newest: return "arrow.down.circle"
+            case .oldest: return "arrow.up.circle"
+            case .alphabetical: return "textformat.abc"
+            case .source: return "square.grid.2x2"
+            }
+        }
+    }
     
     enum LibrarySegment: String, CaseIterable {
         case all = "all"
@@ -53,7 +90,6 @@ struct LibraryView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
             
             // Content
             switch selectedSegment {
@@ -79,16 +115,50 @@ struct LibraryView: View {
                 }
             }
             
-            // Category management button
-            if selectedSegment == .categories {
-                ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
+                HStack {
+                    if selectedSegment == .all {
+                        Menu {
+                            Section(String(localized: "all.menu.sort")) {
+                                ForEach(SortOrder.allCases) { order in
+                                    Button {
+                                        withAnimation { sortOrder = order }
+                                    } label: {
+                                        Label(order.title, systemImage: sortOrder == order ? "checkmark" : order.icon)
+                                    }
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        }
+                    }
+                    
                     Button {
-                        showingCategoryManagement = true
+                        showingAnalytics = true
                     } label: {
-                        Image(systemName: "folder.badge.gearshape")
+                        Image(systemName: "chart.bar.xaxis")
+                    }
+                    
+                    if selectedSegment == .categories {
+                        Button {
+                            showingCategoryManagement = true
+                        } label: {
+                            Image(systemName: "folder.badge.gearshape")
+                        }
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingAnalytics) {
+            AnalyticsView(modelContext: modelContext, homeViewModel: viewModel)
+        }
+        .sheet(isPresented: $showingUncategorized) {
+            UncategorizedBookmarksView(viewModel: viewModel)
+                .environmentObject(sessionStore)
+        }
+        .sheet(isPresented: $showingFavorites) {
+            FavoritesBookmarksView(viewModel: viewModel)
+                .environmentObject(sessionStore)
         }
         .sheet(item: $selectedCategory) { category in
             CategoryDetailView(category: category, viewModel: viewModel)
@@ -101,75 +171,114 @@ struct LibraryView: View {
             }
         }
         .task {
-            loadInitialPage()
+            // Sadece ilk açılışta veya veriler boşsa yükle
+            if displayedBookmarks.isEmpty {
+                await updateFilteredBookmarks()
+                loadInitialPage()
+            }
         }
         .onChange(of: viewModel.bookmarks) { _, _ in
-            loadInitialPage()
+            Task {
+                await updateFilteredBookmarks()
+                // Eğer liste zaten doluysa, agresif bir resetleme yapma
+                // Yeni veriler updateFilteredBookmarks ile filteredResults'a girdi
+                // displayedBookmarks'ı güncelle ama sayfa yapısını bozma
+                await MainActor.run {
+                    if !displayedBookmarks.isEmpty {
+                        // Basit bir güncelleme: Mevcut sayfa kadar veriyi yenile
+                        let count = displayedBookmarks.count
+                        displayedBookmarks = Array(filteredResults.prefix(count))
+                    } else {
+                        loadInitialPage()
+                    }
+                }
+            }
+        }
+        .onChange(of: searchText) { _, newValue in
+            Task {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                if searchText == newValue {
+                    debouncedSearchText = newValue
+                    await updateFilteredBookmarks()
+                    loadInitialPage()
+                }
+            }
+        }
+        .onChange(of: selectedSource) { _, _ in
+            Task {
+                await updateFilteredBookmarks()
+                loadInitialPage()
+            }
+        }
+        .onChange(of: sortOrder) { _, _ in
+            Task {
+                await updateFilteredBookmarks()
+                loadInitialPage()
+            }
+        }
+    }
+    
+    // MARK: - Logic
+    
+    private func updateFilteredBookmarks() async {
+        let currentBookmarks = viewModel.allBookmarks
+        let currentSearch = debouncedSearchText
+        let currentSource = selectedSource
+        let currentSort = sortOrder
+        
+        let results = await Task.detached(priority: .userInitiated) {
+            var bookmarks = currentBookmarks
+            
+            if let source = currentSource {
+                bookmarks = bookmarks.filter { $0.source == source }
+            }
+            
+            if !currentSearch.isEmpty {
+                let searchLower = currentSearch.lowercased()
+                bookmarks = bookmarks.filter { bookmark in
+                    bookmark.title.lowercased().contains(searchLower) ||
+                    bookmark.note.lowercased().contains(searchLower) ||
+                    bookmark.tags.contains { $0.lowercased().contains(searchLower) }
+                }
+            }
+            
+            switch currentSort {
+            case .newest:
+                bookmarks.sort { $0.createdAt > $1.createdAt }
+            case .oldest:
+                bookmarks.sort { $0.createdAt < $1.createdAt }
+            case .alphabetical:
+                bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
+            case .source:
+                bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
+            }
+            
+            return bookmarks
+        }.value
+        
+        await MainActor.run {
+            self.filteredResults = results
         }
     }
     
     // MARK: - All Bookmarks Content
     
     private var allBookmarksContent: some View {
-        Group {
-            if viewModel.bookmarks.isEmpty {
-                emptyStateView(
-                    icon: "bookmark",
-                    title: String(localized: "library.empty.title"),
-                    subtitle: String(localized: "library.empty.subtitle")
-                )
-            } else {
-                List {
-                    ForEach(displayedBookmarks) { bookmark in
-                        NavigationLink {
-                            BookmarkDetailView(
-                                bookmark: bookmark,
-                                viewModel: viewModel
-                            )
-                        } label: {
-                            EnhancedBookmarkRow(
-                                bookmark: bookmark,
-                                category: viewModel.categories.first { $0.id == bookmark.categoryId }
-                            ).padding()
-                        }
-                        .onAppear {
-                            loadMoreIfNeeded(currentBookmark: bookmark)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                viewModel.deleteBookmark(bookmark)
-                            } label: {
-                                Label(String(localized: "common.delete"), systemImage: "trash")
-                            }
-                        }
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            Button {
-                                viewModel.toggleReadStatus(bookmark)
-                                
-                            } label: {
-                                Label(
-                                    bookmark.isRead ? String(localized: "bookmarkDetail.markUnread") : String(localized: "bookmarkDetail.markRead"),
-                                    systemImage: bookmark.isRead ? "circle" : "checkmark.circle"
-                                )
-                            }
-                            .tint(bookmark.isRead ? .orange : .green)
-                        }
-                    }
-                    
-                    if isLoadingMore {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                        .listRowSeparator(.hidden)
-                    }
-                }
-                .listStyle(.plain)
-            }
-        }
+        UnifiedBookmarkList(
+            bookmarks: displayedBookmarks,
+            viewModel: viewModel,
+            isGroupedBySource: sortOrder == .source,
+            showStats: true,
+            hasMorePages: hasMorePages,
+            isLoadingMore: isLoadingMore,
+            onLoadMore: { loadMoreBookmarks() },
+            emptyTitle: String(localized: "library.empty.title"),
+            emptySubtitle: String(localized: "library.empty.subtitle"),
+            emptyIcon: "bookmark"
+        )
     }
+    
+    // Kaynak bazlı gruplama silindi - UnifiedBookmarkList içinde yapılıyor
     
     // MARK: - Categories Content
     
@@ -196,6 +305,11 @@ struct LibraryView: View {
                         columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
                         spacing: 12
                     ) {
+                        // Favoriler (Her zaman en başta)
+                        FavoritesCard(count: viewModel.favoritesCount) {
+                            showingFavorites = true
+                        }
+                        
                         ForEach(viewModel.categories) { category in
                             LibraryCategoryCard(
                                 category: category,
@@ -208,7 +322,7 @@ struct LibraryView: View {
                         // Kategorisiz
                         if viewModel.uncategorizedCount > 0 {
                             UncategorizedCard(count: viewModel.uncategorizedCount) {
-                                // TODO: Kategorisiz bookmarkları gösteren bir filtreleme eklenebilir
+                                showingUncategorized = true
                             }
                         }
                     }
@@ -256,18 +370,21 @@ struct LibraryView: View {
         guard !isLoadingMore else { return }
         
         let startIndex = currentPage * itemsPerPage
-        let endIndex = min(startIndex + itemsPerPage, viewModel.bookmarks.count)
+        let endIndex = min(startIndex + itemsPerPage, filteredResults.count)
         
-        guard startIndex < viewModel.bookmarks.count else { return }
+        guard startIndex < filteredResults.count else { return }
         
         isLoadingMore = true
         
-        // Simüle edilmiş kısa gecikme (pürüzsüz görünüm için)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let newBookmarks = Array(viewModel.bookmarks[startIndex..<endIndex])
-            displayedBookmarks.append(contentsOf: newBookmarks)
-            currentPage += 1
-            isLoadingMore = false
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            
+            await MainActor.run {
+                let newBookmarks = Array(filteredResults[startIndex..<endIndex])
+                displayedBookmarks.append(contentsOf: newBookmarks)
+                currentPage += 1
+                isLoadingMore = false
+            }
         }
     }
     
@@ -278,63 +395,13 @@ struct LibraryView: View {
             loadMoreBookmarks()
         }
     }
-}
 
-// MARK: - Bookmark List Row
-
-struct BookmarkListRow: View {
-    let bookmark: Bookmark
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            if let imageData = bookmark.imageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                Text(bookmark.source.emoji)
-                    .font(.title2)
-                    .frame(width: 56, height: 56)
-                    .background(bookmark.source.color.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(bookmark.title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(2)
-                
-                HStack(spacing: 6) {
-                    Text(bookmark.source.displayName)
-                    Text("•")
-                    Text(bookmark.relativeDate)
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-            
-            VStack(spacing: 4) {
-                if bookmark.isFavorite {
-                    Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundStyle(.yellow)
-                }
-                
-                if !bookmark.isRead {
-                    Circle()
-                        .fill(.orange)
-                        .frame(width: 8, height: 8)
-                }
-            }
-        }
-        .padding(.vertical, 4)
+    private var hasMorePages: Bool {
+        displayedBookmarks.count < filteredResults.count
     }
 }
+
+
 
 // MARK: - Library Category Card
 
@@ -375,6 +442,67 @@ struct LibraryCategoryCard: View {
     }
 }
 
+// MARK: - Favorites Card
+
+struct FavoritesCard: View {
+    let count: Int
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.yellow)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                    Spacer()
+                    
+                    Text("\(count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .contentTransition(.numericText())
+                }
+                
+                Text(String(localized: "common.favorites"))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+            }
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct FavoritesBookmarksView: View {
+    let viewModel: HomeViewModel
+    @EnvironmentObject private var sessionStore: SessionStore
+    
+    private var filteredBookmarks: [Bookmark] {
+        viewModel.bookmarks.filter { $0.isFavorite }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            UnifiedBookmarkList(
+                bookmarks: filteredBookmarks,
+                viewModel: viewModel,
+                emptyTitle: String(localized: "common.favorites"),
+                emptySubtitle: String(localized: "library.empty.subtitle"),
+                emptyIcon: "star"
+            )
+            .navigationTitle(String(localized: "common.favorites"))
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
 // MARK: - Uncategorized Card
 
 struct UncategorizedCard: View {
@@ -410,6 +538,28 @@ struct UncategorizedCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct UncategorizedBookmarksView: View {
+    let viewModel: HomeViewModel
+    
+    private var filteredBookmarks: [Bookmark] {
+        viewModel.bookmarks.filter { $0.categoryId == nil }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            UnifiedBookmarkList(
+                bookmarks: filteredBookmarks,
+                viewModel: viewModel,
+                emptyTitle: String(localized: "common.uncategorized"),
+                emptySubtitle: String(localized: "library.empty.subtitle"),
+                emptyIcon: "tray"
+            )
+            .navigationTitle(String(localized: "common.uncategorized"))
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 

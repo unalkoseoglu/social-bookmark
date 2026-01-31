@@ -68,51 +68,42 @@ struct AllBookmarksView: View {
         displayedBookmarks.count < filteredResults.count
     }
     
-    // MARK: - Body
-    
     var body: some View {
-        Group {
-            if filteredBookmarks.isEmpty && !isLoadingMore {
-                emptyStateView
-            } else {
-                bookmarkList
+        bookmarkList
+            .navigationTitle(Text("all.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: Text("all.search_prompt"))
+            .toolbar {
+                toolbarContent
             }
-        }
-        .navigationTitle(Text("all.title"))
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: Text("all.search_prompt"))
-        .toolbar {
-            toolbarContent
-        }
-        
-        .task {
-            // İlk açılışta hesapla
-            await updateFilteredBookmarks()
-            loadInitialPage()
-        }
-        .onChange(of: searchText) { _, newValue in
-            // Debounce logic inside the Task
-            Task {
-                try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
-                if searchText == newValue {
-                    debouncedSearchText = newValue
+            .task {
+                // İlk açılışta hesapla
+                await updateFilteredBookmarks()
+                loadInitialPage()
+            }
+            .onChange(of: searchText) { _, newValue in
+                // Debounce logic inside the Task
+                Task {
+                    try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+                    if searchText == newValue {
+                        debouncedSearchText = newValue
+                        await updateFilteredBookmarks()
+                        resetPagination()
+                    }
+                }
+            }
+            .onChange(of: selectedSource) { _, _ in
+                Task {
                     await updateFilteredBookmarks()
                     resetPagination()
                 }
             }
-        }
-        .onChange(of: selectedSource) { _, _ in
-            Task {
-                await updateFilteredBookmarks()
-                resetPagination()
+            .onChange(of: sortOrder) { _, _ in
+                Task {
+                    await updateFilteredBookmarks()
+                    resetPagination()
+                }
             }
-        }
-        .onChange(of: sortOrder) { _, _ in
-            Task {
-                await updateFilteredBookmarks()
-                resetPagination()
-            }
-        }
     }
     
     // MARK: - Optimization Methods
@@ -166,209 +157,21 @@ struct AllBookmarksView: View {
     // MARK: - Bookmark List
     
     private var bookmarkList: some View {
-        List {
-            // Stats Section
-            statsSection
-            
-            // Source Filter Chips
-            sourceFilterSection
-            
-            // Bookmarks Section
-            if sortOrder == .source {
-                sourceGroupedSection
-            } else {
-                flatListSection
-            }
-            
-            // Load More Section
-            if hasMorePages {
-                loadMoreSection
-            }
-        }
-        .listStyle(.insetGrouped)
+        UnifiedBookmarkList(
+            bookmarks: displayedBookmarks,
+            viewModel: viewModel,
+            isGroupedBySource: sortOrder == .source,
+            showStats: true,
+            hasMorePages: hasMorePages,
+            isLoadingMore: isLoadingMore,
+            onLoadMore: { loadMoreBookmarks() },
+            emptyTitle: String(localized: "all.empty.title"),
+            emptySubtitle: String(localized: "all.empty.desc"),
+            emptyIcon: "bookmark"
+        )
     }
     
-    // MARK: - Stats Section
-    
-    private var statsSection: some View {
-        Section {
-            HStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(filteredBookmarks.count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    Text("all.stats.total")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Divider()
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(filteredBookmarks.filter { !$0.isRead }.count)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.orange)
-                    Text("all.stats.unread")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Spacer()
-            }
-            .padding(.vertical, 4)
-        }
-    }
-    
-    // MARK: - Source Filter Section
-    
-    private var sourceFilterSection: some View {
-        Section {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    // All
-                    FilterChip(
-                        title: String(localized: "all.filter.all"),
-                        icon: "square.grid.2x2",
-                        isSelected: selectedSource == nil
-                    ) {
-                        selectedSource = nil
-                    }
-                    
-                    // Individual sources
-                    ForEach(BookmarkSource.allCases) { source in
-                        let count = viewModel.allBookmarks.filter { $0.source == source }.count
-                        if count > 0 {
-                            FilterChip(
-                                title: source.displayName,
-                                emoji: source.emoji,
-                                count: count,
-                                isSelected: selectedSource == source
-                            ) {
-                                selectedSource = selectedSource == source ? nil : source
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 4)
-        }
-        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-    }
-    
-    // MARK: - Flat List Section
-    
-    private var flatListSection: some View {
-        Section {
-            ForEach(displayedBookmarks) { bookmark in
-                bookmarkRow(bookmark)
-                    .onAppear {
-                        loadMoreIfNeeded(currentBookmark: bookmark)
-                    }
-            }
-        }
-    }
-    
-    // MARK: - Source Grouped Section
-    
-    private var sourceGroupedSection: some View {
-        ForEach(BookmarkSource.allCases.filter { groupedBookmarks[$0] != nil }, id: \.self) { source in
-            Section {
-                ForEach(groupedBookmarks[source] ?? []) { bookmark in
-                    bookmarkRow(bookmark)
-                }
-            } header: {
-                HStack {
-                    Text(source.emoji)
-                    Text(source.displayName)
-                    Spacer()
-                    Text("\(groupedBookmarks[source]?.count ?? 0)")
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
-    
-    // MARK: - Load More Section
-    
-    private var loadMoreSection: some View {
-        Section {
-            if isLoadingMore {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Text("common.loading")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 8)
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-            }
-        }
-    }
-    
-    // MARK: - Bookmark Row
-    
-    private func bookmarkRow(_ bookmark: Bookmark) -> some View {
-        NavigationLink {
-            BookmarkDetailView(
-                bookmark: bookmark,
-                viewModel: viewModel
-            )
-        } label: {
-            EnhancedBookmarkRow(
-                bookmark: bookmark,
-                category: viewModel.categories.first { $0.id == bookmark.categoryId }
-            )
-        }
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                Task {
-                    await deleteBookmark(bookmark)
-                }
-               
-                
-              
-            } label: {
-                Label("common.delete", systemImage: "trash")
-            }
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-                toggleRead(bookmark)
-            } label: {
-                Label(
-                    bookmark.isRead ? "all.action.mark_unread" : "all.action.mark_read",
-                    systemImage: bookmark.isRead ? "circle" : "checkmark.circle"
-                )
-            }
-            .tint(bookmark.isRead ? .orange : .green)
-        }
-    }
-    
-    // MARK: - Empty State
-    
-    private var emptyStateView: some View {
-        ContentUnavailableView {
-            Label("all.empty.title", systemImage: "bookmark")
-        } description: {
-            if searchText.isEmpty && selectedSource == nil {
-                Text("all.empty.desc")
-            } else {
-                Text("all.empty.no_results")
-            }
-        } actions: {
-            if selectedSource != nil || !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                    selectedSource = nil
-                } label: {
-                    Text("all.action.clear_filters")
-                }
-            }
-        }
-    }
+    // List item logic moved to UnifiedBookmarkList
     
     // MARK: - Toolbar
     
@@ -509,48 +312,6 @@ struct AllBookmarksView: View {
             viewModel.bookmarkRepository.update(bookmark)
         }
         await viewModel.refresh()
-    }
-}
-
-// MARK: - Filter Chip
-
-struct FilterChip: View {
-    let title: String
-    var icon: String? = nil
-    var emoji: String? = nil
-    var count: Int? = nil
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                if let emoji = emoji {
-                    Text(emoji)
-                        .font(.caption)
-                }
-                
-                if let icon = icon {
-                    Image(systemName: icon)
-                        .font(.caption)
-                }
-                
-                Text(title)
-                    .font(.subheadline)
-                
-                if let count = count {
-                    Text("\(count)")
-                        .font(.caption)
-                        .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(isSelected ? Color.blue : Color(.systemGray6))
-            .foregroundStyle(isSelected ? .white : .primary)
-            .clipShape(Capsule())
-        }
-        .buttonStyle(.plain)
     }
 }
 

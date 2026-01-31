@@ -126,6 +126,7 @@
 "all.search_prompt" = "Search title, notes or tags...";
 "all.section.bookmarks" = "Bookmarks";
 "all.stats.total" = "Total";
+"all.stats.read" = "Read";
 "all.stats.unread" = "Unread";
 
 "all.sort.newest" = "Newest";

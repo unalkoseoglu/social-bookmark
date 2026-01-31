@@ -392,18 +392,97 @@ final class AddBookmarkViewModel {
     // MARK: - Platform Detection
     
     func isRedditURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-        return lowercased.contains("reddit.com") || lowercased.contains("redd.it")
+        RedditService.shared.isRedditURL(urlString)
     }
     
     func isLinkedInURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-        return lowercased.contains("linkedin.com")
+        LinkedInService.shared.isLinkedInURL(urlString)
     }
     
     func isMediumURL(_ urlString: String) -> Bool {
-        let lowercased = urlString.lowercased()
-        return lowercased.contains("medium.com") || lowercased.contains("towardsdatascience.com")
+        MediumService.shared.isMediumURL(urlString)
+    }
+    
+    // MARK: - Metadata Helper
+    
+    /// Metinden akıllıca bir başlık çıkarır (ilk cümle veya satır)
+    private func smartTitle(from text: String, maxLength: Int = 100) -> String {
+        let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanText.isEmpty { return "" }
+        
+        // İlk satır sonunu veya cümle sonunu bul
+        let delimiters: Set<Character> = [".", "!", "?", "\n"]
+        var firstDelimiterIndex: String.Index? = nil
+        
+        for index in cleanText.indices {
+            if delimiters.contains(cleanText[index]) {
+                // Eğer "." ise ve sayıların arasındaysa (örn 1.5) ayırma
+                if cleanText[index] == "." {
+                    let nextIndex = cleanText.index(after: index)
+                    if nextIndex < cleanText.endIndex, cleanText[nextIndex].isNumber {
+                        continue
+                    }
+                }
+                firstDelimiterIndex = index
+                break
+            }
+        }
+        
+        if let delimiterIndex = firstDelimiterIndex {
+            let sentence = cleanText[...delimiterIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+            if sentence.count <= maxLength + 20 { // Biraz esneme payı
+                return String(sentence)
+            }
+        }
+        
+        // Eğer cümle çok uzunsa veya ayraç yoksa, kelime bazlı truncate et
+        if cleanText.count <= maxLength {
+            return cleanText
+        }
+        
+        let truncated = cleanText.prefix(maxLength)
+        if let lastSpace = truncated.lastIndex(of: " ") {
+            return String(truncated[..<lastSpace]) + "..."
+        }
+        
+        return String(truncated) + "..."
+    }
+    
+    /// Başlık ve not bilgilerini akıllıca ayarlar, dublikasyonu önler
+    @MainActor
+    private func updateMetadata(title: String, note: String) {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        var finalNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Başlığı ayarla
+        if self.title.isEmpty && !trimmedTitle.isEmpty {
+            self.title = trimmedTitle
+        }
+        
+        // Notu ayarla ve dublikasyonu önle
+        if self.note.isEmpty && !finalNote.isEmpty {
+            let currentTitle = self.title.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            // 1. Başlığı notun başından çıkar
+            if !currentTitle.isEmpty && finalNote.hasPrefix(currentTitle) {
+                finalNote = String(finalNote.dropFirst(currentTitle.count))
+            } 
+            // 1b. Başlık truncated ise (... ile bitiyorsa) stem kontrolü yap
+            else if currentTitle.hasSuffix("...") {
+                let stem = String(currentTitle.dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !stem.isEmpty && finalNote.hasPrefix(stem) {
+                    finalNote = String(finalNote.dropFirst(stem.count))
+                }
+            }
+            
+            // 2. Başta kalan ayraçları ve boşlukları TEMİZLE (Döngü ile ardışık olanları temizle)
+            let separators: Set<Character> = [":", "-", "—", "|", "•", "·", ".", " ", "\n", "\r"]
+            while !finalNote.isEmpty && separators.contains(finalNote.first!) {
+                finalNote.removeFirst()
+            }
+            
+            self.note = finalNote.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
     }
     
     // MARK: - Twitter Content
@@ -415,16 +494,19 @@ final class AddBookmarkViewModel {
             await MainActor.run {
                 self.fetchedTweet = tweet
                 
-                if self.title.isEmpty {
-                    // ✅ DÜZELTME: authorDisplayName -> "@username: summary" formatı
-                    self.title = "@\(tweet.authorUsername): \(tweet.shortSummary)"
-                }
-                if self.note.isEmpty {
-                    self.note = tweet.fullText
+                // 1. Akıllı başlık oluştur (ilk cümle)
+                let cleanTitle = self.smartTitle(from: tweet.text)
+                self.updateMetadata(title: cleanTitle, note: tweet.text)
+                
+                // 2. Kullanıcı adını EN ALTA ekle
+                if !self.note.isEmpty {
+                    self.note += "\n\n— @\(tweet.authorUsername)"
+                } else {
+                    self.note = "@\(tweet.authorUsername)"
                 }
             }
             
-            // ✅ DÜZELTME: imageURLs -> mediaURLs
+            // mediaURLs
             for mediaURL in tweet.mediaURLs {
                 if let data = try? await downloadImageData(from: mediaURL.absoluteString) {
                     await MainActor.run {
@@ -452,17 +534,10 @@ final class AddBookmarkViewModel {
             
             await MainActor.run {
                 self.fetchedRedditPost = post
-                
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
-                if self.note.isEmpty {
-                    // ✅ DÜZELTME: RedditPost'un summary computed property'si var
-                    self.note = post.summary
-                }
+                self.updateMetadata(title: post.title, note: post.summary)
             }
             
-            // ✅ DÜZELTME: RedditPost.imageURL tek URL (optional)
+            // RedditPost.imageURL tek URL (optional)
             if let imageURL = post.imageURL {
                 if let data = try? await downloadImageData(from: imageURL.absoluteString) {
                     await MainActor.run {
@@ -490,17 +565,10 @@ final class AddBookmarkViewModel {
             
             await MainActor.run {
                 self.fetchedLinkedInContent = post
-                
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
-                if self.note.isEmpty {
-                    // ✅ DÜZELTME: LinkedInPost.content kullanılıyor (summary değil)
-                    self.note = post.content
-                }
+                self.updateMetadata(title: post.title, note: post.content)
             }
             
-            // ✅ DÜZELTME: imageURL zaten URL? tipinde
+            // imageURL zaten URL? tipinde
             if let imageURL = post.imageURL {
                 if let data = try? await downloadImageData(from: imageURL.absoluteString) {
                     await MainActor.run {
@@ -529,23 +597,18 @@ final class AddBookmarkViewModel {
             await MainActor.run {
                 self.fetchedMediumPost = post
                 
-                if self.title.isEmpty {
-                    self.title = post.title
-                }
-                if self.note.isEmpty {
-                    // ✅ DÜZELTME: MediumPost.subtitle kullanılıyor (summary değil)
-                    if !post.subtitle.isEmpty {
-                        self.note = post.subtitle
-                        if post.hasFullContent {
-                            self.note += "\n\n" + post.fullContent
-                        }
-                    } else if post.hasFullContent {
-                        self.note = post.fullContent
+                var combinedNote = post.subtitle
+                if post.hasFullContent {
+                    if !combinedNote.isEmpty {
+                        combinedNote += "\n\n"
                     }
+                    combinedNote += post.fullContent
                 }
+                
+                self.updateMetadata(title: post.title, note: combinedNote)
             }
             
-            // ✅ DÜZELTME: imageURL zaten URL? tipinde
+            // imageURL zaten URL? tipinde
             if let imageURL = post.imageURL {
                 if let data = try? await downloadImageData(from: imageURL.absoluteString) {
                     await MainActor.run {
@@ -574,13 +637,7 @@ final class AddBookmarkViewModel {
         
         await MainActor.run {
             self.fetchedMetadata = metadata
-            
-            if self.title.isEmpty {
-                self.title = metadata.title ?? ""
-            }
-            if self.note.isEmpty {
-                self.note = metadata.description ?? ""
-            }
+            self.updateMetadata(title: metadata.title ?? "", note: metadata.description ?? "")
         }
     }
     

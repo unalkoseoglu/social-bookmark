@@ -125,6 +125,7 @@
 "all.search_prompt" = "Başlık, not veya etiketlerde ara...";
 "all.section.bookmarks" = "Yer İşaretleri";
 "all.stats.total" = "Toplam";
+"all.stats.read" = "Okundu";
 "all.stats.unread" = "Okunmamış";
 
 "all.sort.newest" = "En Yeni";

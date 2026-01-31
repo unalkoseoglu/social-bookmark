@@ -25,14 +25,22 @@ struct EditBookmarkView: View {
     @State private var selectedCategoryId: UUID?
     @State private var categories: [Category] = []
     
-    // Görsel Durumları
-    @State private var existingImagesData: [Data]
+    // IMAGE MANAGEMENT REFACTORED
+    struct ImageRecord: Identifiable {
+        let id = UUID()
+        var data: Data?
+        var cloudUrl: String?
+        var isNew: Bool = false
+    }
+    
+    @State private var imageRecords: [ImageRecord] = []
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
-    @State private var newImagesData: [Data] = []
     @State private var isLoadingImages = false
     @State private var showingImageOptions = false
-    @State private var selectedImageIndex: Int?
+    @State private var selectedImageId: UUID?
     @State private var showingFullScreenImage = false
+    
+    @State private var hasUserModifiedImages = false
     
     // ✅ YENİ: Kaydetme durumu
     @State private var isSaving = false
@@ -48,29 +56,21 @@ struct EditBookmarkView: View {
         categories.first { $0.id == selectedCategoryId }
     }
     
-    /// Tüm görseller (mevcut + yeni eklenenler)
+    /// Tüm görseller (UI için ImageItem formatında)
     private var allImages: [ImageItem] {
-        var items: [ImageItem] = []
-        
-        // Mevcut kayıtlı resimler
-        for (index, data) in existingImagesData.enumerated() {
-            if let image = UIImage(data: data) {
-                items.append(ImageItem(id: "existing_\(index)", image: image, isExisting: true, dataIndex: index))
-            }
+        imageRecords.compactMap { record in
+            guard let data = record.data, let image = UIImage(data: data) else { return nil }
+            return ImageItem(
+                id: record.id.uuidString,
+                image: image,
+                isExisting: !record.isNew,
+                dataIndex: 0 // Not strictly needed anymore but kept for compatibility
+            )
         }
-        
-        // Yeni seçilen resimler
-        for (index, data) in newImagesData.enumerated() {
-            if let image = UIImage(data: data) {
-                items.append(ImageItem(id: "new_\(index)", image: image, isExisting: false, dataIndex: index))
-            }
-        }
-        
-        return items
     }
     
     private var totalImageCount: Int {
-        existingImagesData.count + newImagesData.count
+        imageRecords.count
     }
     
     private var canAddMoreImages: Bool {
@@ -92,14 +92,37 @@ struct EditBookmarkView: View {
         _tagsInput = State(initialValue: bookmark.tags.joined(separator: ", "))
         _selectedCategoryId = State(initialValue: bookmark.categoryId)
         
-        // Görsel verilerini yükle
-        if let imagesData = bookmark.imagesData, !imagesData.isEmpty {
-            _existingImagesData = State(initialValue: imagesData)
-        } else if let imageData = bookmark.imageData {
-            _existingImagesData = State(initialValue: [imageData])
-        } else {
-            _existingImagesData = State(initialValue: [])
+        // Görsel verilerini yükle (ImageRecord olarak)
+        var initialRecords: [ImageRecord] = []
+        
+        // 1. Cloud URL'lerinden kayıt oluştur
+        if let urls = bookmark.imageUrls {
+            for url in urls {
+                initialRecords.append(ImageRecord(cloudUrl: url))
+            }
         }
+        
+        // 2. Eğer local'de resim verisi varsa, URL'lerle eşleştir veya yeni ekle
+        let localDataList: [Data]
+        if let imagesData = bookmark.imagesData, !imagesData.isEmpty {
+            localDataList = imagesData
+        } else if let imageData = bookmark.imageData {
+            localDataList = [imageData]
+        } else {
+            localDataList = []
+        }
+        
+        // Local datayı mevcut recordlara dağıt (URL sırasına göre)
+        for (index, data) in localDataList.enumerated() {
+            if index < initialRecords.count {
+                initialRecords[index].data = data
+            } else if initialRecords.count < 4 {
+                // Eğer URL yoksa ama data varsa (beklenmedik durum ama handle edelim)
+                initialRecords.append(ImageRecord(data: data))
+            }
+        }
+        
+        _imageRecords = State(initialValue: initialRecords)
     }
     
     // MARK: - Body
@@ -129,25 +152,33 @@ struct EditBookmarkView: View {
             }
             .onAppear {
                 loadCategories()
-            }
-            .onChange(of: selectedPhotoItems) { _, newItems in
                 Task {
-                    await loadNewImages(from: newItems)
+                    await loadExistingImagesFromCloud()
                 }
             }
-            .confirmationDialog(String(localized: "editBookmark.imageOptions"), isPresented: $showingImageOptions, presenting: selectedImageIndex) { index in
+            .onChange(of: selectedPhotoItems) { _, newItems in
+                if !newItems.isEmpty {
+                    hasUserModifiedImages = true
+                    Task {
+                        await loadNewImages(from: newItems)
+                    }
+                }
+            }
+            .confirmationDialog(String(localized: "editBookmark.imageOptions"), isPresented: $showingImageOptions, presenting: selectedImageId) { id in
                 Button(String(localized: "editBookmark.viewFullScreen")) {
                     showingFullScreenImage = true
                 }
                 
                 Button(String(localized: "common.delete"), role: .destructive) {
-                    deleteImage(at: index)
+                    print("⚠️ [EditBookmark] Delete triggered FROM DIALOG for ID: \(id)")
+                    deleteImage(with: id, source: "ConfirmationDialog")
                 }
                 
                 Button(String(localized: "common.cancel"), role: .cancel) {}
             }
             .fullScreenCover(isPresented: $showingFullScreenImage) {
-                if let index = selectedImageIndex, index < allImages.count {
+                if let id = selectedImageId, 
+                   let index = allImages.firstIndex(where: { $0.id == id.uuidString }) {
                     FullScreenImageViewer(images: allImages.map { $0.image }, initialIndex: index)
                 }
             }
@@ -192,7 +223,7 @@ struct EditBookmarkView: View {
     
     private var imagesSection: some View {
         Section {
-            if allImages.isEmpty {
+            if imageRecords.isEmpty {
                 // Resim yok - ekleme butonu
                 PhotosPicker(
                     selection: $selectedPhotoItems,
@@ -223,6 +254,7 @@ struct EditBookmarkView: View {
                             .foregroundStyle(.tertiary)
                     }
                 }
+                .buttonStyle(.plain) // Prevent form from hijacking tap
             } else {
                 // Görsel Listesi
                 VStack(alignment: .leading, spacing: 12) {
@@ -247,6 +279,7 @@ struct EditBookmarkView: View {
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
+                            .buttonStyle(.plain) // Prevent form from hijacking tap
                         }
                     }
                 }
@@ -266,7 +299,7 @@ struct EditBookmarkView: View {
         } header: {
             Text("editBookmark.section.images")
         } footer: {
-            if !allImages.isEmpty {
+            if !imageRecords.isEmpty {
                 Text("editBookmark.tapToEdit")
                     .font(.caption)
             }
@@ -280,38 +313,50 @@ struct EditBookmarkView: View {
         ]
         
         return LazyVGrid(columns: columns, spacing: 8) {
-            ForEach(Array(allImages.enumerated()), id: \.element.id) { index, item in
-                imageCell(for: item, at: index)
+            ForEach(imageRecords) { record in
+                imageCell(for: record)
             }
         }
     }
     
-    private func imageCell(for item: ImageItem, at index: Int) -> some View {
+    private func imageCell(for record: ImageRecord) -> some View {
         ZStack(alignment: .topTrailing) {
-            Image(uiImage: item.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 100)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .onTapGesture {
-                    selectedImageIndex = index
-                    showingImageOptions = true
+            if let data = record.data, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 100)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .onTapGesture {
+                        selectedImageId = record.id
+                        showingImageOptions = true
+                    }
+            } else {
+                // Yüklenme durumu
+                ZStack {
+                    Color.gray.opacity(0.1)
+                    ProgressView()
                 }
+                .frame(height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
             
             // Silme butonu
             Button {
-                deleteImage(at: index)
+                print("⚠️ [EditBookmark] Delete triggered FROM GRID 'X' for ID: \(record.id)")
+                deleteImage(with: record.id, source: "GridButton")
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title3)
                     .foregroundStyle(.white)
                     .background(Circle().fill(.black.opacity(0.5)))
             }
+            .buttonStyle(.plain) // CRITICAL: Stop Form/List from aggregating taps
             .padding(6)
             
             // Yeni eklenen rozeti
-            if !item.isExisting {
+            if record.isNew {
                 VStack {
                     Spacer()
                     HStack {
@@ -458,9 +503,12 @@ struct EditBookmarkView: View {
         
         await MainActor.run {
             // Toplam 4'ü geçmeyecek şekilde ekle
-            let remainingSlots = 4 - existingImagesData.count - newImagesData.count
-            let itemsToAdd = Array(loadedData.prefix(remainingSlots))
-            newImagesData.append(contentsOf: itemsToAdd)
+            let remainingSlots = 4 - imageRecords.count
+            let datasToAdd = Array(loadedData.prefix(remainingSlots))
+            
+            for data in datasToAdd {
+                imageRecords.append(ImageRecord(data: data, isNew: true))
+            }
             
             selectedPhotoItems = []
             isLoadingImages = false
@@ -492,15 +540,43 @@ struct EditBookmarkView: View {
         return resizedImage.jpegData(compressionQuality: 0.8)
     }
     
-    private func deleteImage(at index: Int) {
-        let item = allImages[index]
-        
+    private func deleteImage(with id: UUID, source: String = "Unknown") {
         withAnimation {
-            if item.isExisting {
-                existingImagesData.remove(at: item.dataIndex)
-            } else {
-                newImagesData.remove(at: item.dataIndex)
+            if let index = imageRecords.firstIndex(where: { $0.id == id }) {
+                imageRecords.remove(at: index)
+                hasUserModifiedImages = true
+                print("🗑️ [EditBookmark] Image removed: \(id) (Source: \(source))")
             }
+        }
+    }
+    
+    /// ✅ GÜVENLİ: Cloud'daki resimleri local'e çek
+    private func loadExistingImagesFromCloud() async {
+        // İhtiyaç duyulan kayıtların listesini al
+        let pendingTasks = imageRecords.compactMap { record in
+            record.data == nil && record.cloudUrl != nil ? (record.id, record.cloudUrl!) : nil
+        }
+        
+        guard !pendingTasks.isEmpty else { return }
+        
+        await MainActor.run { isLoadingImages = true }
+        
+        for (id, path) in pendingTasks {
+            if let image = await ImageUploadService.shared.loadImage(from: path) {
+                if let data = image.jpegData(compressionQuality: 0.8) {
+                    await MainActor.run {
+                        // ID üzerinden kontrol et, indeks kayması veya silme durumunda güvenlidir
+                        if let index = imageRecords.firstIndex(where: { $0.id == id }) {
+                            imageRecords[index].data = data
+                            print("✅ [EditBookmark] Loaded cloud image data for ID: \(id)")
+                        }
+                    }
+                }
+            }
+        }
+        
+        await MainActor.run {
+            isLoadingImages = false
         }
     }
     
@@ -551,54 +627,40 @@ struct EditBookmarkView: View {
         bookmark.tags = parseTags(from: tagsInput)
         bookmark.categoryId = selectedCategoryId
         
-        // ✅ YENİ: Görselleri Supabase Storage'a yükle
-        var uploadedImageUrls: [String] = []
+        // ✅ RESİM KAYDETME MANTIĞI ( ImageRecord ile GÜVENLİ HALE GETİRİLDİ )
         
-        // Mevcut cloud URL'lerini koru (eğer local görsel silinmediyse)
-        if let existingUrls = bookmark.imageUrls {
-            // Mevcut görseller hala varsa URL'leri koru
-            let existingCount = existingImagesData.count
-            uploadedImageUrls = Array(existingUrls.prefix(existingCount))
-        }
+        var finalCloudUrls: [String] = []
+        var finalLocalDatas: [Data] = []
         
-        // Yeni görselleri Supabase'e yükle
-        if !newImagesData.isEmpty {
-            print("📤 [EditBookmark] Uploading \(newImagesData.count) new images to Supabase...")
+        for (index, record) in imageRecords.enumerated() {
+            if let data = record.data {
+                finalLocalDatas.append(data)
+            }
             
-            for (index, imageData) in newImagesData.enumerated() {
-                if let image = UIImage(data: imageData) {
-                    do {
-                        let imageUrl = try await ImageUploadService.shared.uploadImage(
-                            image,
-                            for: bookmark.id,
-                            index: existingImagesData.count + index
-                        )
-                        uploadedImageUrls.append(imageUrl)
-                        print("✅ [EditBookmark] Image \(index + 1) uploaded: \(imageUrl.prefix(50))...")
-                    } catch {
-                        print("❌ [EditBookmark] Failed to upload image \(index + 1): \(error.localizedDescription)")
-                        // Hata olsa bile devam et, local kaydet
-                    }
+            if record.isNew, let data = record.data, let image = UIImage(data: data) {
+                // Yeni resmi yükle
+                do {
+                    print("📤 [EditBookmark] Uploading new image at index \(index)...")
+                    let newUrl = try await ImageUploadService.shared.uploadImage(image, for: bookmark.id, index: index)
+                    finalCloudUrls.append(newUrl)
+                } catch {
+                    print("❌ [EditBookmark] Failed to upload new image: \(error.localizedDescription)")
+                    // Hata olsa bile URL listesini bozma, varsa eski/null handle et
                 }
+            } else if let cloudUrl = record.cloudUrl {
+                // Mevcut cloud URL'ini koru
+                finalCloudUrls.append(cloudUrl)
             }
         }
         
-        // Local resimleri güncelle
-        let allImagesData = existingImagesData + newImagesData
+        // Bookmark verilerini güncelle
+        bookmark.imageData = finalLocalDatas.first
+        bookmark.imagesData = finalLocalDatas.count > 1 ? finalLocalDatas : nil
         
-        if allImagesData.isEmpty {
-            bookmark.imageData = nil
-            bookmark.imagesData = nil
-            bookmark.imageUrls = nil
-        } else {
-            bookmark.imageData = allImagesData.first
-            bookmark.imagesData = allImagesData.count > 1 ? allImagesData : nil
-            
-            // ✅ Cloud URL'lerini kaydet
-            if !uploadedImageUrls.isEmpty {
-                bookmark.imageUrls = uploadedImageUrls
-                print("✅ [EditBookmark] Saved \(uploadedImageUrls.count) image URLs to bookmark")
-            }
+        // Sadece bir değişiklik varsa veya fotoğraflar silindiyse güncelle
+        if hasUserModifiedImages || !finalCloudUrls.isEmpty || bookmark.imageUrls != nil {
+            bookmark.imageUrls = finalCloudUrls.isEmpty ? nil : finalCloudUrls
+            print("✅ [EditBookmark] Saved \(finalCloudUrls.count) image URLs to bookmark")
         }
         
         // Veritabanını güncelle (SyncableRepository otomatik sync yapacak)
