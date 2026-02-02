@@ -12,6 +12,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
     case github = "GitHub"
     case article = "Article"
     case document = "Document"
+    case manual = "Manual"
     case other = "Other"
     
     var id: String { rawValue }
@@ -28,6 +29,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         case .github: return String(localized: "source.github")
         case .article: return String(localized: "source.article")
         case .document: return String(localized: "source.document")
+        case .manual: return String(localized: "source.manual")
         case .other: return String(localized: "source.other")
         }
     }
@@ -53,6 +55,8 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
             return "📰"
         case .document:
             return "📄"
+        case .manual:
+            return "✍️"
         case .other:
             return "🔗"
         }
@@ -70,6 +74,7 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
         case .github: return "chevron.left.forwardslash.chevron.right"
         case .article: return "doc.text"
         case .document: return "doc.fill"
+        case .manual: return "square.and.pencil"
         case .other: return "link"
         }
     }
@@ -102,7 +107,8 @@ enum BookmarkSource: String, CaseIterable, Identifiable, Codable {
 
         case .document:
             return Color(hex: "#10B981") // Emerald Green
-
+        case .manual:
+            return .blue
         case .other:
             return .secondary
         }

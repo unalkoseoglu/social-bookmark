@@ -22,33 +22,14 @@ enum AppConfig {
         }
     }
     
-    /// Supabase project URL
-    static var supabaseURL: URL {
+    /// OneSignal App ID
+    static var onesignalAppID: String {
         get throws {
-            guard let urlString = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String,
-                  !urlString.isEmpty,
-                  !urlString.contains("YOUR_PROJECT") else {
-                logger.error("SUPABASE_URL not configured in Info.plist")
-                throw ConfigError.missingKey("SUPABASE_URL")
-            }
-            
-            guard let url = URL(string: urlString) else {
-                logger.error("SUPABASE_URL is not a valid URL: \(urlString)")
-                throw ConfigError.invalidValue("SUPABASE_URL")
-            }
-            
-            return url
-        }
-    }
-    
-    /// Supabase anonymous key
-    static var supabaseAnonKey: String {
-        get throws {
-            guard let key = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String,
+            guard let key = Bundle.main.object(forInfoDictionaryKey: "ONESIGNAL_APP_ID") as? String,
                   !key.isEmpty,
-                  !key.contains("YOUR_ANON") else {
-                logger.error("SUPABASE_ANON_KEY not configured in Info.plist")
-                throw ConfigError.missingKey("SUPABASE_ANON_KEY")
+                  !key.contains("YOUR_ONESIGNAL") else {
+                logger.error("ONESIGNAL_APP_ID not configured in Info.plist")
+                throw ConfigError.missingKey("ONESIGNAL_APP_ID")
             }
             
             return key

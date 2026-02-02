@@ -1,167 +1,143 @@
 
-
 import Foundation
 import OSLog
-import Auth
-import Supabase
+import Combine
+
+/// Auth event types (mirrors Supabase for compatibility)
+enum AuthEvent {
+    case initialSession
+    case signedIn
+    case signedOut
+    case tokenRefreshed
+    case userUpdated
+}
 
 /// Protocol for authentication operations (enables testing)
 protocol AuthRepositoryProtocol: Sendable {
-    func signInAnonymously() async throws -> User
-    func signInWithApple(idToken: String, nonce: String) async throws -> User
-    func linkIdentity(provider: Auth.Provider) async throws
+    func signInAnonymously() async throws -> AuthUser
+    func signInWithApple(idToken: String, nonce: String) async throws -> AuthUser
+    func signUp(email: String, password: String, fullName: String?) async throws -> AuthUser
+    func signIn(email: String, password: String) async throws -> AuthUser
     func signOut() async throws
-    func getCurrentSession() async throws -> Session?
-    func getCurrentUser() async -> User?
-    func refreshSession() async throws -> Session
+    func getCurrentUser() async -> AuthUser?
     
     /// Stream of auth state changes
-    var authStateChanges: AsyncStream<AuthChangeEvent> { get }
+    var authStateChanges: AsyncStream<AuthEvent> { get }
 }
 
-/// Supabase implementation of AuthRepository
+/// Laravel implementation of AuthRepository
 final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
-    private let client: SupabaseClient
+    private let network = NetworkManager.shared
+    private let authSubject = PassthroughSubject<AuthEvent, Never>()
     
-    init(client: SupabaseClient = SupabaseClientFactory.shared) {
-        self.client = client
-    }
+    init() {}
     
     // MARK: - Anonymous Sign In
     
-    func signInAnonymously() async throws -> User {
-        Logger.auth.info("Attempting anonymous sign in")
+    func signInAnonymously() async throws -> AuthUser {
+        Logger.auth.info("Attempting anonymous sign in with Laravel API")
         
-        do {
-            let response = try await client.auth.signInAnonymously()
-            Logger.auth.info("Anonymous sign in successful, user: \(response.user.id)")
-            return response.user
-        } catch let error as Auth.AuthError {
-            Logger.auth.error("Anonymous sign in failed: \(error.localizedDescription)")
-            throw mapSupabaseAuthError(error)
-        } catch {
-            Logger.auth.error("Anonymous sign in failed: \(error.localizedDescription)")
-            throw AuthError.unknown(error.localizedDescription)
-        }
+        let response: AuthResponse = try await network.request(
+            endpoint: APIConstants.Endpoints.register,
+            method: "POST",
+            body: try JSONEncoder().encode(["is_anonymous": true])
+        )
+        
+        saveToken(response.accessToken)
+        authSubject.send(.signedIn)
+        return response.user
     }
     
     // MARK: - Apple Sign In
     
-    func signInWithApple(idToken: String, nonce: String) async throws -> User {
-        Logger.auth.info("Attempting Apple sign in")
+    func signInWithApple(idToken: String, nonce: String) async throws -> AuthUser {
+        Logger.auth.info("Attempting Apple sign in with Laravel API")
         
-        do {
-            let response = try await client.auth.signInWithIdToken(
-                credentials: OpenIDConnectCredentials(
-                    provider: .apple,
-                    idToken: idToken,
-                    nonce: nonce
-                )
-            )
-            Logger.auth.info("Apple sign in successful, user: \(response.user.id)")
-            return response.user
-        } catch let error as AuthError {
-            Logger.auth.error("Apple sign in failed: \(error.localizedDescription)")
-            throw AuthError.appleSignInFailed(error.localizedDescription)
-        } catch {
-            Logger.auth.error("Apple sign in failed: \(error.localizedDescription)")
-            throw AuthError.appleSignInFailed(error.localizedDescription)
-        }
+        let response: AuthResponse = try await network.request(
+            endpoint: APIConstants.Endpoints.login,
+            method: "POST",
+            body: try JSONEncoder().encode([
+                "provider": "apple",
+                "id_token": idToken,
+                "nonce": nonce
+            ])
+        )
+        
+        saveToken(response.accessToken)
+        authSubject.send(.signedIn)
+        return response.user
     }
     
-    // MARK: - Link Identity (Upgrade Anonymous to Apple)
+    // MARK: - Email Auth
     
-    func linkIdentity(provider: Auth.Provider) async throws {
-        Logger.auth.info("Attempting to link identity with provider: \(String(describing: provider))")
+    func signUp(email: String, password: String, fullName: String?) async throws -> AuthUser {
+        let response: AuthResponse = try await network.request(
+            endpoint: APIConstants.Endpoints.register,
+            method: "POST",
+            body: try JSONEncoder().encode([
+                "email": email,
+                "password": password,
+                "full_name": fullName
+            ])
+        )
         
-        do {
-            // This opens a browser/ASWebAuthenticationSession for OAuth
-            try await client.auth.linkIdentity(provider: provider)
-            Logger.auth.info("Identity linking initiated")
-        } catch let error as AuthError {
-            Logger.auth.error("Identity linking failed: \(error.localizedDescription)")
-            throw AuthError.appleSignInFailed(error.localizedDescription)
-        } catch {
-            Logger.auth.error("Identity linking failed: \(error.localizedDescription)")
-            throw AuthError.appleSignInFailed(error.localizedDescription)
-        }
+        saveToken(response.accessToken)
+        authSubject.send(.signedIn)
+        return response.user
+    }
+    
+    func signIn(email: String, password: String) async throws -> AuthUser {
+        let response: AuthResponse = try await network.request(
+            endpoint: APIConstants.Endpoints.login,
+            method: "POST",
+            body: try JSONEncoder().encode([
+                "email": email,
+                "password": password
+            ])
+        )
+        
+        saveToken(response.accessToken)
+        authSubject.send(.signedIn)
+        return response.user
     }
     
     // MARK: - Sign Out
     
     func signOut() async throws {
-        Logger.auth.info("Attempting sign out")
-        
-        do {
-            try await client.auth.signOut()
-            Logger.auth.info("Sign out successful")
-        } catch {
-            Logger.auth.error("Sign out failed: \(error.localizedDescription)")
-            throw AuthError.unknown(error.localizedDescription)
-        }
+        _ = try? await network.request(endpoint: "/auth/logout", method: "POST") as EmptyResponse?
+        UserDefaults.standard.removeObject(forKey: APIConstants.Keys.token)
+        authSubject.send(.signedOut)
     }
     
-    // MARK: - Session Management
+    // MARK: - User Management
     
-    func getCurrentSession() async throws -> Session? {
-        do {
-            let session = try await client.auth.session
-            Logger.auth.debug("Current session retrieved, expires: \(session.expiresAt)")
-            return session
-        } catch {
-            Logger.auth.debug("No current session: \(error.localizedDescription)")
-            return nil
+    func getCurrentUser() async -> AuthUser? {
+        let profile: UserProfile? = try? await network.request(endpoint: APIConstants.Endpoints.profile)
+        if let profile {
+            return AuthUser(id: profile.id, email: profile.email, isAnonymous: profile.isAnonymous)
         }
-    }
-    
-    func getCurrentUser() async -> User? {
-        do {
-            return try await client.auth.session.user
-        } catch {
-            return nil
-        }
-    }
-    
-    func refreshSession() async throws -> Session {
-        Logger.auth.info("Refreshing session")
-        
-        do {
-            let session = try await client.auth.refreshSession()
-            Logger.auth.info("Session refreshed successfully")
-            return session
-        } catch {
-            Logger.auth.error("Session refresh failed: \(error.localizedDescription)")
-            throw AuthError.signUpFailed
-        }
+        return nil
     }
     
     // MARK: - Auth State Stream
     
-    var authStateChanges: AsyncStream<AuthChangeEvent> {
+    var authStateChanges: AsyncStream<AuthEvent> {
         AsyncStream { continuation in
-            let task = Task {
-                for await (event, _) in client.auth.authStateChanges {
-                    continuation.yield(event)
-                }
+            let cancellable = authSubject.sink { event in
+                continuation.yield(event)
             }
             
             continuation.onTermination = { _ in
-                task.cancel()
+                cancellable.cancel()
             }
         }
     }
     
-    // MARK: - Error Mapping
+    // MARK: - Helpers
     
-    private func mapSupabaseAuthError(_ error: Auth.AuthError) -> AuthError {
-
-        // Map Supabase AuthError to our typed AuthError
-        switch error {
-        case .sessionMissing:
-            return .notAuthenticated
-        default:
-            return .unknown(error.localizedDescription)
-        }
+    private func saveToken(_ token: String) {
+        UserDefaults.standard.set(token, forKey: APIConstants.Keys.token)
     }
 }
+

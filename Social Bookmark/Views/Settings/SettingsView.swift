@@ -9,8 +9,6 @@
 
 import SwiftUI
 import SwiftData
-internal import PostgREST
-import Supabase
 import RevenueCat
 
 struct SettingsView: View {

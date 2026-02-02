@@ -1,5 +1,5 @@
 import SwiftUI
-internal import Combine
+import Combine
 
 /// Bookmark arama ekranı
 /// Native iOS searchable modifier ile çalışır

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
-internal import Combine
+import Combine
 
 // MARK: - Sendable Helper Models
 

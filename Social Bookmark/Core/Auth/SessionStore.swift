@@ -1,19 +1,7 @@
-//
-//  SessionStore.swift
-//  Social Bookmark
-//
-//  Created by Ünal Köseoğlu on 15.12.2025.
-//
-//  ⚠️ GÜNCELLEME: UserProfile display_name desteği eklendi
-//  - Anonim kullanıcılar için "user_XXXXXX" formatında isim
-//  - Apple Sign In desteği
-//
-
 import Foundation
 import SwiftUI
-import Supabase
 import OSLog
-internal import Combine
+import Combine
 import AuthenticationServices
 import CryptoKit
 import SwiftData
@@ -33,12 +21,10 @@ final class SessionStore: ObservableObject {
     @Published private(set) var isLoading = true
     @Published private(set) var error: AuthError?
     
-    // MARK: - Apple Sign In State
-    
-    
     // MARK: - Dependencies
     
     private let authService: AuthService
+    private let repository: AuthRepositoryProtocol
     private var authStateTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     private var didInitialize = false
@@ -60,23 +46,14 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Initialization
     
-    init(authService: AuthService = .shared) {
+    init(authService: AuthService = .shared, repository: AuthRepositoryProtocol = AuthRepository()) {
         self.authService = authService
+        self.repository = repository
         startListeningToAuthChanges()
     }
     
     deinit {
         authStateTask?.cancel()
-    }
-    
-    // MARK: - Error Handling
-    
-    func setError(_ error: AuthError?) {
-        self.error = error
-    }
-    
-    func clearError() {
-        error = nil
     }
     
     // MARK: - Public Methods
@@ -86,15 +63,12 @@ final class SessionStore: ObservableObject {
         isLoading = true
         error = nil
         
-        // SupabaseManager'ın session restore'unu bekle
-        await SupabaseManager.shared.waitForSessionRestore()
-        
         // Mevcut kullanıcıyı kontrol et
-        if let user = SupabaseManager.shared.currentUser {
+        if let user = await authService.getCurrentUser() {
             updateUserState(from: user)
             // UserProfile'ı yükle
             await loadUserProfile()
-            os.Logger.auth.info("Session restored for user: \(user.id)")
+            os.Logger.auth.info("Session restored for user: \(user.id.uuidString)")
         } else {
             resetUserState()
         }
@@ -124,10 +98,7 @@ final class SessionStore: ObservableObject {
             updateUserState(from: user)
             // UserProfile'ı yükle
             await loadUserProfile()
-            Logger.auth.info("Authentication ensured for user: \(user.id)")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("ensureAuthenticated failed: \(authError.localizedDescription)")
+            Logger.auth.info("Authentication ensured for user: \(user.id.uuidString)")
         } catch {
             self.error = .unknown(error.localizedDescription)
             Logger.auth.error("ensureAuthenticated failed: \(error.localizedDescription)")
@@ -147,9 +118,6 @@ final class SessionStore: ObservableObject {
             // UserProfile'ı yükle
             await loadUserProfile()
             Logger.auth.info("Anonymous sign in successful")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Anonymous sign in failed: \(authError.localizedDescription)")
         } catch {
             self.error = .unknown(error.localizedDescription)
             Logger.auth.error("Anonymous sign in failed: \(error.localizedDescription)")
@@ -180,9 +148,6 @@ final class SessionStore: ObservableObject {
             updateUserState(from: user)
             await loadUserProfile()
             Logger.auth.info("Apple sign in successful")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Apple sign in failed: \(authError.localizedDescription)")
         } catch {
             self.error = .appleSignInFailed(error.localizedDescription)
             Logger.auth.error("Apple sign in failed: \(error.localizedDescription)")
@@ -197,14 +162,10 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            // Önce Apple ile giriş yap, hesap otomatik link olacak
-            let user = try await authService.signInWithApple(credential: credential)
-            updateUserState(from: user)
-            await loadUserProfile()
+            // Laravel tarafında apple token ile register/login aynı
+            _ = try await authService.signInWithApple(credential: credential)
+            await initialize()
             Logger.auth.info("Account linked to Apple successfully")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Account linking failed: \(authError.localizedDescription)")
         } catch {
             self.error = .unknown(error.localizedDescription)
         }
@@ -218,13 +179,9 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            let user = try await authService.linkEmail(email, password: password)
-            updateUserState(from: user)
-            await loadUserProfile()
+            _ = try await authService.linkEmail(email, password: password)
+            await initialize()
             Logger.auth.info("Account linked to email successfully")
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Account linking failed: \(authError.localizedDescription)")
         } catch {
             self.error = .unknown(error.localizedDescription)
         }
@@ -240,12 +197,9 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            let user = try await authService.signUp(email: email, password: password, fullName: fullName)
-            updateUserState(from: user)
-            await loadUserProfile()
+            _ = try await authService.signUp(email: email, password: password, fullName: fullName)
+            await initialize()
             Logger.auth.info("Sign up successful")
-        } catch let authError as AuthError {
-            error = authError
         } catch {
             self.error = .unknown(error.localizedDescription)
         }
@@ -259,12 +213,9 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            let user = try await authService.signIn(email: email, password: password)
-            updateUserState(from: user)
-            await loadUserProfile()
+            _ = try await authService.signIn(email: email, password: password)
+            await initialize()
             Logger.auth.info("Sign in successful")
-        } catch let authError as AuthError {
-            error = authError
         } catch {
             self.error = .unknown(error.localizedDescription)
         }
@@ -280,23 +231,17 @@ final class SessionStore: ObservableObject {
         error = nil
         
         do {
-            // ✅ Session varsa sign out yap
-            if isAuthenticated {
-                try await authService.signOut()
-            }
-            
-            // Local state'i temizle
+            try await authService.signOut()
             resetUserState()
             Logger.auth.info("✅ [SessionStore] Sign out successful")
-            
         } catch {
-            // ⚠️ Hata olsa bile local state'i temizle
             Logger.auth.warning("⚠️ [SessionStore] Sign out warning: \(error.localizedDescription)")
             resetUserState()
         }
         
         isLoading = false
     }
+    
     /// Deletes user account
     @MainActor
     func deleteAccount() async {
@@ -305,25 +250,17 @@ final class SessionStore: ObservableObject {
         do {
             try await authService.deleteAccount()
             Logger.auth.info("Account deleted successfully")
-            await AccountMigrationService.shared.clearAllLocalData()
-            ImageUploadService.shared.clearCache()
             resetUserState()
             NotificationCenter.default.post(name: .userDidSignOut, object: nil)
-            try await Task.sleep(nanoseconds: 500_000_000)
-            await signInAnonymously()
-            NotificationCenter.default.post(name: .appShouldRestart, object: nil)
-        } catch let authError as AuthError {
-            error = authError
-            Logger.auth.error("Account deletion failed: \(authError.localizedDescription)")
         } catch {
             self.error = .unknown(error.localizedDescription)
+            Logger.auth.error("Account deletion failed: \(error.localizedDescription)")
         }
         isLoading = false
     }
     
     // MARK: - User Profile Management
     
-    /// UserProfile'ı Supabase'den yükle
     func loadUserProfile() async {
         do {
             if let profile = try await authService.getCurrentUserProfile() {
@@ -333,14 +270,12 @@ final class SessionStore: ObservableObject {
             }
         } catch {
             Logger.auth.error("Failed to load user profile: \(error.localizedDescription)")
-            // Hata olursa fallback olarak UUID'den isim oluştur
             if let userId = userId, let uuid = UUID(uuidString: userId) {
                 self.displayName = RandomNameGenerator.generate(from: uuid)
             }
         }
     }
     
-    /// Display name güncelle
     func updateDisplayName(_ newName: String) async {
         do {
             try await authService.updateDisplayName(newName)
@@ -354,20 +289,16 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func updateUserState(from user: User) {
+    private func updateUserState(from user: AuthUser) {
         userId = user.id.uuidString
-        userEmail = user.email
         isAuthenticated = true
         isAnonymous = user.isAnonymous
         
-        // Geçici displayName (UserProfile yüklenene kadar)
         if displayName == nil {
-            if let email = user.email {
-                displayName = email
-            } else {
-                displayName = RandomNameGenerator.generate(from: user.id)
-            }
+            displayName = user.email ?? RandomNameGenerator.generate(from: user.id)
         }
+        
+        NotificationManager.shared.setExternalUserId(user.id.uuidString)
     }
     
     private func resetUserState() {
@@ -377,50 +308,27 @@ final class SessionStore: ObservableObject {
         userProfile = nil
         isAuthenticated = false
         isAnonymous = false
+        
+        NotificationManager.shared.logout()
     }
     
     private func startListeningToAuthChanges() {
         authStateTask = Task { [weak self] in
             guard let self = self else { return }
-            
-            // SupabaseManager'ın auth state değişikliklerini dinle
-            for await (event, session) in SupabaseManager.shared.client.auth.authStateChanges {
-                await self.handleAuthEvent(event, session: session)
+            for await event in repository.authStateChanges {
+                await self.handleAuthEvent(event)
             }
         }
     }
     
-    private func handleAuthEvent(_ event: AuthChangeEvent, session: Session?) async {
+    private func handleAuthEvent(_ event: AuthEvent) async {
         Logger.auth.debug("Auth event received: \(String(describing: event))")
         
         switch event {
-        case .initialSession:
-            if let session {
-                updateUserState(from: session.user)
-                await loadUserProfile()
-            } else {
-                resetUserState()
-            }
-            isLoading = false
-            
-        case .signedIn:
-            if let session {
-                updateUserState(from: session.user)
-                await loadUserProfile()
-            }
-            
+        case .initialSession, .signedIn, .userUpdated:
+            await initialize()
         case .signedOut:
             resetUserState()
-            
-        case .tokenRefreshed:
-            Logger.auth.debug("Token refreshed")
-            
-        case .userUpdated:
-            if let session {
-                updateUserState(from: session.user)
-                await loadUserProfile()
-            }
-            
         default:
             break
         }
@@ -438,7 +346,7 @@ extension SessionStore {
             return
         }
         
-        guard let currentUserId = SupabaseManager.shared.userId else {
+        guard let currentUserId = self.userId else {
             error = .notAuthenticated
             return
         }
@@ -447,7 +355,10 @@ extension SessionStore {
         error = nil
         
         // Anonim user ID'yi sakla (migration için)
-        let anonymousUserId = currentUserId
+        guard let anonymousUserId = UUID(uuidString: currentUserId) else {
+            error = .notAuthenticated
+            return
+        }
         
         Logger.auth.info("🔄 [SessionStore] Starting anonymous -> Apple migration")
         
@@ -466,7 +377,7 @@ extension SessionStore {
             }
             
             // 3. Verileri yeni hesaba taşı
-            Logger.auth.info("🔄 [SessionStore] Migrating data from \(anonymousUserId) to \(newUser.id)")
+            Logger.auth.info("🔄 [SessionStore] Migrating data from \(anonymousUserIdString) to \(newUser.id)")
             
             let result = try await AccountMigrationService.shared.migrateAnonymousDataToAppleAccount(
                 from: anonymousUserId,
@@ -507,7 +418,7 @@ extension SessionStore {
         Logger.auth.info("🚪 [SessionStore] Signing out and clearing local data...")
         
         do {
-            // 2. Supabase'den çıkış
+            // 2. Auth servisinden çıkış
             try await authService.signOut()
             
             // 3. Local SwiftData verilerini temizle
@@ -560,11 +471,15 @@ extension SessionStore {
 // MARK: - Notification Names
 
 extension Notification.Name {
+    /// Kullanıcı çıkış yaptı
+    static let userDidSignOut = Notification.Name("userDidSignOut")
+    
+    /// Kullanıcı giriş yaptı
+    static let userDidSignIn = Notification.Name("userDidSignIn")
+
     /// Hesap migrasyonu tamamlandı
     static let accountMigrationCompleted = Notification.Name("accountMigrationCompleted")
     
     /// App yeniden başlatılmalı (splash'ten)
     static let appShouldRestart = Notification.Name("appShouldRestart")
-    
-    // userDidSignOut zaten SupabaseManager.swift'te tanımlı
 }

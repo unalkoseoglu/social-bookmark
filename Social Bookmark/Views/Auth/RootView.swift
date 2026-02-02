@@ -9,30 +9,18 @@
 
 import SwiftUI
 import SwiftData
-import Supabase
 import OSLog
 
 // MARK: - App Initialization Extension
 
 extension Social_BookmarkApp {
     
-    /// Supabase servislerini başlat
-    /// init() içinde çağrılmalı
-    func initializeSupabase() {
-        // 1. Config doğrula
-        let configStatus = SupabaseConfig.validate()
-        
-        switch configStatus {
-        case .valid:
-            print("✅ Supabase config valid")
-        case .invalid(let issues):
-            print("⚠️ Supabase config issues: \(issues)")
-        }
-        
-        // 2. SyncService'i configure et
+    /// Uygulama servislerini başlat
+    func initializeApp() {
+        // 1. SyncService'i configure et
         SyncService.shared.configure(modelContext: modelContainer.mainContext)
         
-        // 3. Network değişikliklerini dinle
+        // 2. Network değişikliklerini dinle
         setupNetworkObserver()
     }
     
@@ -43,7 +31,7 @@ extension Social_BookmarkApp {
             object: nil,
             queue: .main
         ) { _ in
-            print("📡 [APP] Network connected - will sync on next app active")
+            print("📡 [APP] Network connected")
         }
     }
 }
@@ -200,6 +188,9 @@ struct RootView: View {
     // MARK: - Auth Initialization
     
     private func initializeAuth() async {
+        // SubscriptionManager'ı SessionStore ile bağla
+        SubscriptionManager.shared.setupObservers(sessionStore: sessionStore)
+        
         await sessionStore.initialize()
         
         if !requireExplicitSignIn && !sessionStore.isAuthenticated && networkMonitor.isConnected {

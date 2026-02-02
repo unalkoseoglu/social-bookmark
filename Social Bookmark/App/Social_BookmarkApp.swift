@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import OneSignalFramework
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -51,7 +52,7 @@ struct Social_BookmarkApp: App {
     
     // MARK: - Initialization
     
-    @available(iOS 17.6, *)
+    @available(iOS 17.0, *)
     init() {
         do {
             guard let containerURL = FileManager.default.containerURL(
@@ -85,8 +86,11 @@ struct Social_BookmarkApp: App {
         // ✅ AccountMigrationService'i ModelContext ile configure et
         AccountMigrationService.shared.configure(modelContext: modelContainer.mainContext)
 
-        // Supabase başlat
-        initializeSupabase()
+        // Uygulama servislerini başlat
+        initializeApp()
+        
+        // OneSignal başlat
+        initializeOneSignal(launchOptions: nil)
         
         // RevenueCat IAP başlat
         SubscriptionManager.shared.configure()
