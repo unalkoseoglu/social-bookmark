@@ -21,6 +21,9 @@ final class SessionStore: ObservableObject {
     @Published private(set) var isLoading = true
     @Published private(set) var error: AuthError?
     
+    // MARK: - Constants
+    
+    private let lastUserIdKey = "session_last_user_id"
     // MARK: - Dependencies
     
     private let authService: AuthService
@@ -46,8 +49,11 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Initialization
     
-    init(authService: AuthService = .shared, repository: AuthRepositoryProtocol = AuthRepository()) {
-        self.authService = authService
+    /// Shared singleton instance
+    static let shared = SessionStore()
+    
+    init(authService: AuthService? = nil, repository: AuthRepositoryProtocol = AuthRepository()) {
+        self.authService = authService ?? AuthService.shared
         self.repository = repository
         startListeningToAuthChanges()
     }
@@ -58,23 +64,82 @@ final class SessionStore: ObservableObject {
     
     // MARK: - Public Methods
     
+    /// Hata durumunu temizle
+    func clearError() {
+        self.error = nil
+    }
+    
     /// Attempts to restore an existing session
     func initialize() async {
         isLoading = true
         error = nil
         
+        Logger.auth.info("🔄 [SessionStore] Starting initialization...")
+        
+        let lastId = UserDefaults.standard.string(forKey: lastUserIdKey)
+        let hasToken = UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil
+        Logger.auth.info("🔑 [SessionStore] Token exists: \(hasToken), Last user ID: \(lastId ?? "none")")
+        
         // Mevcut kullanıcıyı kontrol et
         if let user = await authService.getCurrentUser() {
+            Logger.auth.info("✅ [SessionStore] User found: \(user.id.uuidString), isAnonymous: \(user.isAnonymous)")
+            
+            // Kullanıcı değişmiş mi kontrol et (Migration durumu hariç)
+            if let lastId = lastId, lastId != user.id.uuidString {
+                Logger.auth.warning("⚠️ [SessionStore] User ID mismatch (\(lastId) -> \(user.id.uuidString)). Wiping local data.")
+                await AccountMigrationService.shared.clearAllLocalData()
+            }
+            
             updateUserState(from: user)
-            // UserProfile'ı yükle
-            await loadUserProfile()
+            Logger.auth.info("📝 [SessionStore] User state updated, isAuthenticated: \(self.isAuthenticated)")
+            
+            // Only load profile if we haven't loaded it for this user yet
+            let shouldLoadProfile = userProfile == nil || userProfile?.id != user.id
+            if shouldLoadProfile {
+                Logger.auth.info("📥 Loading profile for user: \(user.id.uuidString)")
+                await loadUserProfile()
+            } else {
+                Logger.auth.debug("✓ Profile already loaded for user: \(user.id.uuidString), skipping")
+            }
+            
             os.Logger.auth.info("Session restored for user: \(user.id.uuidString)")
+            
+            // Son başarılı ID'yi kaydet
+            UserDefaults.standard.set(user.id.uuidString, forKey: lastUserIdKey)
         } else {
+            Logger.auth.warning("❌ [SessionStore] No user found from getCurrentUser()")
+            
+            // Hiçbir kullanıcı bulunamadı ve token yok
+            // Eğer lastId nil ise ve içeride veri kalmışsa (ghost data), temizle
+            if lastId == nil {
+                Logger.auth.warning("⚠️ [SessionStore] No session found and no lastUserId. Ensuring local data is wiped.")
+                await AccountMigrationService.shared.clearAllLocalData()
+            }
+            
             resetUserState()
         }
         
         isLoading = false
         os.Logger.auth.info("Session initialization complete, authenticated: \(self.isAuthenticated)")
+        
+        // ✅ PROD-READY: Otomatik geçiş kontrolü
+        if isAuthenticated {
+            Task {
+                await AccountMigrationService.shared.performMigrationIfNeeded()
+            }
+        }
+    }
+    
+    /// Initialize session and perform migration if needed
+    /// Should be called from app launch with modelContext
+    func initializeWithMigration(modelContext: ModelContext) async {
+        // First initialize session
+        await initialize()
+        
+        // Then perform migration if needed (only for authenticated users)
+        if isAuthenticated {
+            await AccountMigrationService.shared.performMigrationIfNeeded(modelContext: modelContext)
+        }
     }
     
     func initializeOnce() async {
@@ -262,16 +327,33 @@ final class SessionStore: ObservableObject {
     // MARK: - User Profile Management
     
     func loadUserProfile() async {
-        do {
-            if let profile = try await authService.getCurrentUserProfile() {
+        // Guard: Don't attempt to load profile if we don't have a token
+        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+            Logger.auth.warning("⚠️ [SessionStore] Skipping profile load - no auth token available")
+            return
+        }
+        
+        // Guard: Don't load if we're not authenticated
+        guard isAuthenticated else {
+            Logger.auth.warning("⚠️ [SessionStore] Skipping profile load - user not authenticated")
+            return
+        }
+        
+        // Fetch profile from cache or API
+        if let profile = await authService.getCurrentUserProfile() {
+            // Force UI update by triggering objectWillChange
+            await MainActor.run {
+                self.objectWillChange.send()
                 self.userProfile = profile
                 self.displayName = profile.displayName
-                Logger.auth.info("User profile loaded: \(profile.displayName)")
             }
-        } catch {
-            Logger.auth.error("Failed to load user profile: \(error.localizedDescription)")
+            Logger.auth.info("✅ User profile loaded: \(profile.displayName)")
+        } else {
+            Logger.auth.warning("⚠️ Failed to load user profile")
             if let userId = userId, let uuid = UUID(uuidString: userId) {
-                self.displayName = RandomNameGenerator.generate(from: uuid)
+                await MainActor.run {
+                    self.displayName = RandomNameGenerator.generate(from: uuid)
+                }
             }
         }
     }
@@ -290,15 +372,36 @@ final class SessionStore: ObservableObject {
     // MARK: - Private Methods
     
     private func updateUserState(from user: AuthUser) {
-        userId = user.id.uuidString
-        isAuthenticated = true
-        isAnonymous = user.isAnonymous
+        let lastId = UserDefaults.standard.string(forKey: lastUserIdKey)
+        
+        // GİZLİLİK KORUMASI:
+        // Eğer bir ID değişimi varsa VEYA ilk defa ID set ediliyorsa ve içeride veri varsa sil.
+        if let lastId = lastId, lastId != user.id.uuidString {
+            Logger.auth.warning("⚠️ [SessionStore] User ID mismatch (\(lastId) -> \(user.id.uuidString)). Wiping data.")
+            Task { await AccountMigrationService.shared.clearAllLocalData() }
+        } else if lastId == nil {
+            // İlk kez ID set ediliyor (taze kurulum değilse, yani içeride veri kalmışsa silinmeli)
+            // Bu senaryo genellikle "sign out olmuş ama veri temizlenmemiş" durumunda olur.
+            Logger.auth.info("ℹ️ [SessionStore] Connecting first user. Ensuring clean state.")
+            Task { await AccountMigrationService.shared.clearAllLocalData() }
+        }
+        
+        // CRITICAL: Explicitly trigger UI update
+        self.objectWillChange.send()
+        self.userId = user.id.uuidString
+        self.isAuthenticated = true
+        self.isAnonymous = user.isAnonymous
+        
+        Logger.auth.info("✅ [updateUserState] Set isAuthenticated=\(self.isAuthenticated), isAnonymous=\(self.isAnonymous)")
+        
+        // ID'yi kaydet
+        UserDefaults.standard.set(user.id.uuidString, forKey: lastUserIdKey)
         
         if displayName == nil {
             displayName = user.email ?? RandomNameGenerator.generate(from: user.id)
         }
         
-        NotificationManager.shared.setExternalUserId(user.id.uuidString)
+        // NotificationManager.shared.setExternalUserId(user.id.uuidString) // TODO: Re-enable when NotificationManager is available
     }
     
     private func resetUserState() {
@@ -309,7 +412,8 @@ final class SessionStore: ObservableObject {
         isAuthenticated = false
         isAnonymous = false
         
-        NotificationManager.shared.logout()
+        UserDefaults.standard.removeObject(forKey: lastUserIdKey)
+        // NotificationManager.shared.logout() // TODO: Re-enable when NotificationManager is available
     }
     
     private func startListeningToAuthChanges() {
@@ -325,8 +429,30 @@ final class SessionStore: ObservableObject {
         Logger.auth.debug("Auth event received: \(String(describing: event))")
         
         switch event {
-        case .initialSession, .signedIn, .userUpdated:
+        case .initialSession:
+            // Only initialize on initial session
             await initialize()
+        case .signedIn:
+            // User just signed in - update state and load profile WITHOUT full re-initialization
+            Logger.auth.info("🔑 [SessionStore] User signed in, updating state...")
+            if let user = await authService.getCurrentUser() {
+                updateUserState(from: user)
+                
+                // Only load profile if we don't have one yet
+                if userProfile == nil || userProfile?.id != user.id {
+                    Logger.auth.info("📥 Loading profile for newly signed in user: \(user.id.uuidString)")
+                    await loadUserProfile()
+                } else {
+                    Logger.auth.debug("✓ Profile already loaded for user, skipping fetch")
+                }
+            }
+        case .userUpdated:
+            // User data updated, but don't re-initialize (profile already loaded)
+            // Just refresh the current user state
+            if let user = await authService.getCurrentUser() {
+                updateUserState(from: user)
+                Logger.auth.debug("✓ User state updated without re-initializing")
+            }
         case .signedOut:
             resetUserState()
         default:
@@ -376,8 +502,7 @@ extension SessionStore {
                 return
             }
             
-            // 3. Verileri yeni hesaba taşı
-            Logger.auth.info("🔄 [SessionStore] Migrating data from \(anonymousUserIdString) to \(newUser.id)")
+
             
             let result = try await AccountMigrationService.shared.migrateAnonymousDataToAppleAccount(
                 from: anonymousUserId,

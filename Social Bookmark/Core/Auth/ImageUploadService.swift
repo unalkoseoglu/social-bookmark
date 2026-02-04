@@ -90,9 +90,12 @@ final class ImageUploadService: ObservableObject {
             
             let response: MediaUploadResponse = try await network.upload(
                 endpoint: APIConstants.Endpoints.upload,
-                fileData: optimizedData,
-                fileName: fileName,
-                mimeType: "image/jpeg"
+                files: [.init(
+                    data: optimizedData,
+                    fileName: fileName,
+                    mimeType: "image/jpeg",
+                    fieldName: "file"
+                )]
             )
             
             uploadProgress = 1.0
@@ -152,9 +155,12 @@ final class ImageUploadService: ObservableObject {
         
         let response: MediaUploadResponse = try await network.upload(
             endpoint: APIConstants.Endpoints.upload,
-            fileData: thumbnailData,
-            fileName: "thumbnail_\(bookmarkId.uuidString).jpg",
-            mimeType: "image/jpeg"
+            files: [.init(
+                data: thumbnailData,
+                fileName: "thumbnail_\(bookmarkId.uuidString).jpg",
+                mimeType: "image/jpeg",
+                fieldName: "file"
+            )]
         )
         
         Logger.network.info("Thumbnail uploaded: \(response.url)")
@@ -175,7 +181,11 @@ final class ImageUploadService: ObservableObject {
             return diskCached
         }
         
-        guard let url = URL(string: pathOrUrl) else { return nil }
+        // Validation: Must be a valid HTTP URL
+        guard pathOrUrl.lowercased().hasPrefix("http"),
+              let url = URL(string: pathOrUrl) else { 
+            return nil 
+        }
         
         do {
             let (data, response) = try await URLSession.shared.data(from: url)

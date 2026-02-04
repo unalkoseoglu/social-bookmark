@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 enum NetworkError: LocalizedError {
     case invalidURL
@@ -67,41 +68,73 @@ final class NetworkManager {
         
         print("🌐 [Network] \(method) \(url.absoluteString)")
         
-        let (data, response) = try await session.data(for: request)
+        let startTime = Date()
         
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NetworkError.serverError("Geçersiz yanıt")
-        }
-        
-        switch httpResponse.statusCode {
-        case 200...299:
-            if T.self is EmptyResponse.Type {
-                return EmptyResponse() as! T
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            NetworkLogger.shared.log(
+                url: url.absoluteString,
+                method: method,
+                requestHeaders: request.allHTTPHeaderFields,
+                requestBody: request.httpBody,
+                response: response,
+                responseBody: data,
+                error: nil,
+                duration: Date().timeIntervalSince(startTime)
+            )
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.serverError("Geçersiz yanıt")
             }
-            do {
-                return try decoder.decode(T.self, from: data)
-            } catch {
-                print("❌ [Network] Decoding Error: \(error)")
-                throw NetworkError.decodingError
+            
+            switch httpResponse.statusCode {
+            case 200...299:
+                if T.self is EmptyResponse.Type {
+                    return EmptyResponse() as! T
+                }
+                do {
+                    return try decoder.decode(T.self, from: data)
+                } catch {
+                    print("❌ [Network] Decoding Error: \(error)")
+                    throw NetworkError.decodingError
+                }
+            case 401:
+                throw NetworkError.unauthorized
+            case 403:
+                throw NetworkError.forbidden
+            default:
+                if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
+                    throw NetworkError.serverError(serverError.message)
+                }
+                throw NetworkError.unexpectedStatusCode(httpResponse.statusCode)
             }
-        case 401:
-            throw NetworkError.unauthorized
-        case 403:
-            throw NetworkError.forbidden
-        default:
-            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
-                throw NetworkError.serverError(serverError.message)
-            }
-            throw NetworkError.unexpectedStatusCode(httpResponse.statusCode)
+        } catch {
+            NetworkLogger.shared.log(
+                url: url.absoluteString,
+                method: method,
+                requestHeaders: request.allHTTPHeaderFields,
+                requestBody: request.httpBody,
+                response: nil,
+                responseBody: nil,
+                error: error,
+                duration: Date().timeIntervalSince(startTime)
+            )
+            throw error
         }
     }
     
+    struct FileUpload {
+        let data: Data
+        let fileName: String
+        let mimeType: String
+        let fieldName: String
+    }
+
     func upload<T: Decodable>(
         endpoint: String,
-        fileData: Data,
-        fileName: String,
-        mimeType: String,
-        fieldName: String = "file"
+        files: [FileUpload] = [],
+        additionalFields: [String: String] = [:]
     ) async throws -> T {
         guard let url = URL(string: APIConstants.baseURL.absoluteString + endpoint) else {
             throw NetworkError.invalidURL
@@ -112,40 +145,194 @@ final class NetworkManager {
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
-        // Auth token
         if let token = UserDefaults.standard.string(forKey: APIConstants.Keys.token) {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
         let body = NSMutableData()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"\(fieldName)\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
-        body.append(fileData)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         
-        request.httpBody = body as Data
-        
-        print("🌐 [Network] UPLOAD \(url.absoluteString) (\(fileData.count / 1024) KB)")
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NetworkError.serverError("Geçersiz yanıt")
+        for (key, value) in additionalFields {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(value)\r\n".data(using: .utf8)!)
         }
         
-        if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
-            return try decoder.decode(T.self, from: data)
-        } else {
-            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
-                throw NetworkError.serverError(serverError.message)
+        for file in files {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(file.fieldName)\"; filename=\"\(file.fileName)\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: \(file.mimeType)\r\n\r\n".data(using: .utf8)!)
+            body.append(file.data)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body as Data
+        
+        let totalSize = files.reduce(0) { $0 + $1.data.count }
+        let startTime = Date()
+        
+        print("🌐 [Network] MULTIPART UPLOAD \(url.absoluteString) (\(totalSize / 1024) KB, \(files.count) files)")
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            NetworkLogger.shared.log(
+                url: url.absoluteString,
+                method: "POST",
+                requestHeaders: request.allHTTPHeaderFields,
+                requestBody: nil, // Don't log full multipart body to save memory
+                response: response,
+                responseBody: data,
+                error: nil,
+                duration: Date().timeIntervalSince(startTime)
+            )
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.serverError("Geçersiz yanıt")
             }
-            throw NetworkError.unexpectedStatusCode(httpResponse.statusCode)
+            
+            if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                return try decoder.decode(T.self, from: data)
+            } else {
+                if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
+                    throw NetworkError.serverError(serverError.message)
+                }
+                throw NetworkError.unexpectedStatusCode(httpResponse.statusCode)
+            }
+        } catch {
+            NetworkLogger.shared.log(
+                url: url.absoluteString,
+                method: "POST",
+                requestHeaders: request.allHTTPHeaderFields,
+                requestBody: nil,
+                response: nil,
+                responseBody: nil,
+                error: error,
+                duration: Date().timeIntervalSince(startTime)
+            )
+            throw error
         }
     }
 }
 
 struct ServerErrorResponse: Decodable {
     let message: String
+}
+
+// MARK: - Network Logger
+
+/// Represents a single network request log
+struct NetworkLog: Identifiable, Sendable {
+    let id: UUID
+    let url: String
+    let method: String
+    let requestHeaders: [String: String]?
+    let requestBody: String?
+    let statusCode: Int?
+    let responseHeaders: [String: String]?
+    let responseBody: String?
+    let error: String?
+    let duration: TimeInterval
+    let date: Date
+    
+    var statusColor: Color {
+        if let code = statusCode {
+            switch code {
+            case 200...299: return .green
+            case 300...399: return .yellow
+            case 400...599: return .red
+            default: return .gray
+            }
+        }
+        return error != nil ? .red : .gray
+    }
+}
+
+/// Singleton logger to store network requests
+actor NetworkLogger {
+    static let shared = NetworkLogger()
+    
+    private(set) var logs: [NetworkLog] = []
+    
+    private init() {}
+    
+    nonisolated func log(
+        url: String,
+        method: String,
+        requestHeaders: [String: String]?,
+        requestBody: Data?,
+        response: URLResponse?,
+        responseBody: Data?,
+        error: Error?,
+        duration: TimeInterval
+    ) {
+        Task {
+            await addLog(
+                url: url,
+                method: method,
+                requestHeaders: requestHeaders,
+                requestBody: requestBody,
+                response: response,
+                responseBody: responseBody,
+                error: error,
+                duration: duration
+            )
+        }
+    }
+    
+    private func addLog(
+        url: String,
+        method: String,
+        requestHeaders: [String: String]?,
+        requestBody: Data?,
+        response: URLResponse?,
+        responseBody: Data?,
+        error: Error?,
+        duration: TimeInterval
+    ) {
+        let statusCode = (response as? HTTPURLResponse)?.statusCode
+        let responseHeaders = (response as? HTTPURLResponse)?.allHeaderFields as? [String: String]
+        
+        let reqBodyStr = requestBody.flatMap { String(data: $0, encoding: .utf8) } ?? (requestBody != nil ? "\(requestBody!.count) bytes" : nil)
+        
+        // Try pretty print JSON for response
+        var respBodyStr: String?
+        if let data = responseBody {
+            if let json = try? JSONSerialization.jsonObject(with: data),
+               let prettyData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
+                respBodyStr = String(data: prettyData, encoding: .utf8)
+            } else {
+                respBodyStr = String(data: data, encoding: .utf8) ?? "\(data.count) bytes"
+            }
+        }
+        
+        let newLog = NetworkLog(
+            id: UUID(),
+            url: url,
+            method: method,
+            requestHeaders: requestHeaders,
+            requestBody: reqBodyStr,
+            statusCode: statusCode,
+            responseHeaders: responseHeaders,
+            responseBody: respBodyStr,
+            error: error?.localizedDescription,
+            duration: duration,
+            date: Date()
+        )
+        
+        logs.insert(newLog, at: 0)
+        
+        // Limit logs to keep memory sane
+        if logs.count > 50 {
+            logs.removeLast()
+        }
+    }
+    
+    func clear() {
+        logs.removeAll()
+    }
+    
+    func getLogs() -> [NetworkLog] {
+        return logs
+    }
 }

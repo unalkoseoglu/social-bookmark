@@ -140,8 +140,8 @@ final class AuthService: ObservableObject {
 
     // MARK: - Profile Management
 
-    func getCurrentUserProfile() async throws -> UserProfile? {
-        return try await NetworkManager.shared.request(endpoint: APIConstants.Endpoints.profile)
+    func getCurrentUserProfile() async -> UserProfile? {
+        return await repository.getCurrentUserProfile()
     }
 
     func updateDisplayName(_ newName: String) async throws {
@@ -187,7 +187,27 @@ final class AuthService: ObservableObject {
         if let authError = error as? AuthError {
             return authError.localizationKey
         }
-        return "auth.error.unknown"
+        
+        if let networkError = error as? NetworkError {
+            switch networkError {
+            case .serverError(let message):
+                return message
+            case .invalidURL:
+                return "auth.error.invalid_url"
+            case .noData:
+                return "auth.error.no_data"
+            case .decodingError:
+                return "auth.error.decoding"
+            case .unauthorized:
+                return "auth.error.unauthorized"
+            case .forbidden:
+                return "auth.error.forbidden"
+            case .unexpectedStatusCode(let code):
+                return "Sunucu hatası: \(code)"
+            }
+        }
+        
+        return error.localizedDescription
     }
 
     // MARK: - Nonce helpers

@@ -24,7 +24,9 @@ struct AnyCodable: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
-        if let string = try? container.decode(String.self) {
+        if container.decodeNil() {
+            value = NSNull()
+        } else if let string = try? container.decode(String.self) {
             value = string
         } else if let int = try? container.decode(Int.self) {
             value = int
@@ -44,7 +46,9 @@ struct AnyCodable: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        if let string = value as? String {
+        if value is NSNull {
+            try container.encodeNil()
+        } else if let string = value as? String {
             try container.encode(string)
         } else if let int = value as? Int {
             try container.encode(int)
@@ -57,8 +61,7 @@ struct AnyCodable: Codable {
         } else if let dictionary = value as? [String: Any] {
             try container.encode(dictionary.mapValues { AnyCodable($0) })
         } else {
-            let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "AnyCodable value cannot be encoded")
-            throw EncodingError.invalidValue(value, context)
+            try container.encodeNil() // Fallback to nil for unknown types in sync responses
         }
     }
 }

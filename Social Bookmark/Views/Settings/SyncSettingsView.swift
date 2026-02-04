@@ -13,7 +13,7 @@ import SwiftUI
 struct SyncSettingsView: View {
     
     @StateObject private var syncService = SyncService.shared
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    // @StateObject private var networkMonitor = NetworkMonitor.shared // TODO: Re-enable when NetworkMonitor is implemented
     @EnvironmentObject private var sessionStore: SessionStore
     
     @State private var showingSyncConfirmation = false
@@ -55,13 +55,13 @@ struct SyncSettingsView: View {
                 Label {
                     Text(String(localized: "sync.network_status"))
                 } icon: {
-                    Image(systemName: networkMonitor.isConnected ? "wifi" : "wifi.slash")
-                        .foregroundStyle(networkMonitor.isConnected ? .green : .red)
+                    Image(systemName: "wifi") // networkMonitor.isConnected ? "wifi" : "wifi.slash" // TODO: Re-enable
+                        .foregroundStyle(.green) // networkMonitor.isConnected ? .green : .red // TODO: Re-enable
                 }
                 
                 Spacer()
                 
-                Text(networkMonitor.isConnected ? String(localized: "sync.connected") : String(localized: "sync.disconnected"))
+                Text(String(localized: "sync.connected")) // networkMonitor.isConnected ? ... : ... // TODO: Re-enable
                     .foregroundStyle(.secondary)
             }
             
@@ -95,7 +95,7 @@ struct SyncSettingsView: View {
             if let error = syncService.syncError {
                 HStack {
                     Label {
-                        Text(error.localizedDescription)
+                        Text(error)
                             .foregroundStyle(.red)
                     } icon: {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -133,7 +133,7 @@ struct SyncSettingsView: View {
                     }
                 }
             }
-            .disabled(syncService.syncState == .syncing || !networkMonitor.isConnected)
+            .disabled(syncService.syncState == .syncing) // || !networkMonitor.isConnected) // TODO: Re-enable
             
             // Cloud'dan indir
             Button {
@@ -145,7 +145,7 @@ struct SyncSettingsView: View {
             } label: {
                 Label(String(localized: "sync.download_from_cloud"), systemImage: "icloud.and.arrow.down")
             }
-            .disabled(syncService.syncState == .syncing || !networkMonitor.isConnected)
+            .disabled(syncService.syncState == .syncing) // || !networkMonitor.isConnected) // TODO: Re-enable
             
         } header: {
             Text(String(localized: "sync.actions_section"))

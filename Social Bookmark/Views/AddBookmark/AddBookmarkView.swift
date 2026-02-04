@@ -1239,6 +1239,7 @@ extension BookmarkSource {
         case .github: return String(localized: "source.github.description")
         case .article: return String(localized: "source.article.description")
         case .document: return String(localized: "source.document.description")
+        case .manual: return String(localized: "source.manual.description")
         case .other: return nil
         }
     }

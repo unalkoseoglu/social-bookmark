@@ -20,6 +20,7 @@ protocol AuthRepositoryProtocol: Sendable {
     func signIn(email: String, password: String) async throws -> AuthUser
     func signOut() async throws
     func getCurrentUser() async -> AuthUser?
+    func getCurrentUserProfile() async -> UserProfile?
     
     /// Stream of auth state changes
     var authStateChanges: AsyncStream<AuthEvent> { get }
@@ -44,7 +45,9 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
             body: try JSONEncoder().encode(["is_anonymous": true])
         )
         
+        
         saveToken(response.accessToken)
+        clearUserCache() // Clear cache for fresh user data
         authSubject.send(.signedIn)
         return response.user
     }
@@ -65,6 +68,11 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
         )
         
         saveToken(response.accessToken)
+        
+        // Small delay to ensure UserDefaults has persisted the token
+        try await Task.sleep(nanoseconds: 100_000_000) // 100ms
+        
+        clearUserCache() // Clear cache for fresh user data
         authSubject.send(.signedIn)
         return response.user
     }
@@ -98,6 +106,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
         )
         
         saveToken(response.accessToken)
+        clearUserCache() // Clear cache for fresh user data
         authSubject.send(.signedIn)
         return response.user
     }
@@ -105,19 +114,95 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     // MARK: - Sign Out
     
     func signOut() async throws {
-        _ = try? await network.request(endpoint: "/auth/logout", method: "POST") as EmptyResponse?
+        _ = try? await network.request(endpoint: APIConstants.Endpoints.logout, method: "POST") as EmptyResponse?
         UserDefaults.standard.removeObject(forKey: APIConstants.Keys.token)
+        clearUserCache() // Clear cached user on sign out
         authSubject.send(.signedOut)
     }
     
     // MARK: - User Management
     
+    private var cachedUser: AuthUser?
+    private var cachedProfile: UserProfile?
+    private var lastUserFetch: Date?
+    private let cacheValidityDuration: TimeInterval = 60 // 60 seconds
+    
     func getCurrentUser() async -> AuthUser? {
+        // Check if we have a valid token first
+        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+            Logger.auth.debug("🔒 No token found, user not authenticated")
+            cachedUser = nil
+            cachedProfile = nil
+            return nil
+        }
+        
+        // Return cached user if still valid
+        if let cached = cachedUser,
+           let lastFetch = lastUserFetch,
+           Date().timeIntervalSince(lastFetch) < cacheValidityDuration {
+            Logger.auth.debug("✓ Returning cached user: \(cached.id.uuidString)")
+            return cached
+        }
+        
+        // Fetch fresh user data
+        Logger.auth.debug("📡 Fetching user profile from API...")
         let profile: UserProfile? = try? await network.request(endpoint: APIConstants.Endpoints.profile)
         if let profile {
-            return AuthUser(id: profile.id, email: profile.email, isAnonymous: profile.isAnonymous)
+            let user = AuthUser(id: profile.id, email: profile.email, isAnonymous: profile.isAnonymous)
+            cachedUser = user
+            cachedProfile = profile // Cache the full profile too
+            lastUserFetch = Date()
+            Logger.auth.info("✅ User and profile fetched and cached: \(user.id.uuidString)")
+            return user
         }
+        
+        // No user found, clear cache
+        cachedUser = nil
+        cachedProfile = nil
+        lastUserFetch = nil
+        Logger.auth.warning("⚠️ Failed to fetch user profile")
         return nil
+    }
+    
+    func getCurrentUserProfile() async -> UserProfile? {
+        // Check if we have a valid token first
+        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+            Logger.auth.debug("🔒 No token found, clearing profile cache")
+            clearUserCache()
+            return nil
+        }
+        
+        // Return cached profile if available and valid
+        if let cached = cachedProfile,
+           let lastFetch = lastUserFetch,
+           Date().timeIntervalSince(lastFetch) < cacheValidityDuration {
+            Logger.auth.debug("✓ Returning cached profile: \(cached.displayName)")
+            return cached
+        }
+        
+        // Fetch fresh profile from API with error handling
+        Logger.auth.debug("📡 Fetching user profile from API...")
+        do {
+            let profile: UserProfile = try await network.request(endpoint: APIConstants.Endpoints.profile)
+            cachedProfile = profile
+            lastUserFetch = Date()
+            Logger.auth.info("✅ Profile fetched and cached: \(profile.displayName)")
+            return profile
+        } catch let error as NetworkError {
+            Logger.auth.error("❌ Failed to fetch profile (NetworkError): \(error.localizedDescription)")
+            // Don't clear cache on transient errors - return stale data if available
+            return cachedProfile
+        } catch {
+            Logger.auth.error("❌ Failed to fetch profile (Unknown): \(error.localizedDescription)")
+            return cachedProfile
+        }
+    }
+    
+    func clearUserCache() {
+        cachedUser = nil
+        cachedProfile = nil
+        lastUserFetch = nil
+        Logger.auth.debug("🧹 User and profile cache cleared")
     }
     
     // MARK: - Auth State Stream
@@ -137,6 +222,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     // MARK: - Helpers
     
     private func saveToken(_ token: String) {
+        Logger.auth.info("Saving auth token to UserDefaults, token: \(token)")
         UserDefaults.standard.set(token, forKey: APIConstants.Keys.token)
     }
 }

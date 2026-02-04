@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C0035CE92EF065DA005158EF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C0035CE82EF065DA005158EF /* Supabase */; };
+		433740C43F9FD8DBC84DDADA /* Pods_Social_Bookmark_Social_BookmarkUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */; };
+		6B052C5BCF33836306534FD0 /* Pods_BookmarkShareExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FC445CE5F50C84D9A9CADB5 /* Pods_BookmarkShareExtension.framework */; };
 		C05B510E2EF06B3E007DF808 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05B510D2EF06B3E007DF808 /* Auth */; };
 		C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05B510F2EF06B3E007DF808 /* PostgREST */; };
 		C05B51122EF06B3E007DF808 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05B51112EF06B3E007DF808 /* Storage */; };
@@ -15,14 +16,9 @@
 		C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */; };
 		C05B51392EF5FEED007DF808 /* BookmarkActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE4282EEF758E00EFC6B2 /* Auth */; };
-		C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42A2EEF758E00EFC6B2 /* PostgREST */; };
-		C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C05DE42C2EEF758E00EFC6B2 /* Storage */; };
-		C05DE4472EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */; };
-		C05DE4482EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */; };
 		C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
 		C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
 		C0867F8A2EEA2A73000C8D7D /* BookmarkShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C0D7B70C2F2551A900560E34 /* ReceiptParser in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B70B2F2551A900560E34 /* ReceiptParser */; };
 		C0D7B8542F25530D00560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8532F25530D00560E34 /* RevenueCat */; };
 		C0D7B8582F25741500560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8572F25741500560E34 /* RevenueCat */; };
 		C0D7B85A2F25741A00560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8592F25741A00560E34 /* RevenueCat */; };
@@ -35,6 +31,9 @@
 		C0D7B8902F269A3F00560E34 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B88F2F269A3F00560E34 /* Realtime */; };
 		C0D7B8922F269A7400560E34 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8912F269A7400560E34 /* PostgREST */; };
 		C0D7B8942F269A7B00560E34 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8932F269A7B00560E34 /* Storage */; };
+		ED9B8EC88D898BF38E4FD832 /* Pods_Social_BookmarkTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7F1F6589FB8AA355328E136 /* Pods_Social_BookmarkTests.framework */; };
+		F9CF11D402E207ACED6CBEEA /* Pods_Social_Bookmark.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4706D99C73DA9828B80279D9 /* Pods_Social_Bookmark.framework */; };
+		FF2630820719E205FE84149C /* Pods_BookmarkActionExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7A53E9A932E6B2EC462034E /* Pods_BookmarkActionExtension.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +83,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		006CA9FB4F47EEA91C0782B1 /* Pods-BookmarkShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookmarkShareExtension.release.xcconfig"; path = "Target Support Files/Pods-BookmarkShareExtension/Pods-BookmarkShareExtension.release.xcconfig"; sourceTree = "<group>"; };
+		309EEB1F89467173B1311FA3 /* Pods-Social BookmarkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social BookmarkTests.debug.xcconfig"; path = "Target Support Files/Pods-Social BookmarkTests/Pods-Social BookmarkTests.debug.xcconfig"; sourceTree = "<group>"; };
+		340CD783D25757B306C141BA /* Pods-Social Bookmark.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark.release.xcconfig"; path = "Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark.release.xcconfig"; sourceTree = "<group>"; };
+		3EB397C789D5CB19CCF93978 /* Pods-BookmarkActionExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookmarkActionExtension.release.xcconfig"; path = "Target Support Files/Pods-BookmarkActionExtension/Pods-BookmarkActionExtension.release.xcconfig"; sourceTree = "<group>"; };
+		4706D99C73DA9828B80279D9 /* Pods_Social_Bookmark.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Social_Bookmark.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig"; path = "Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig"; sourceTree = "<group>"; };
+		6FFB52CE080249EEB4437FBC /* Pods-Social Bookmark.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark.debug.xcconfig"; path = "Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark.debug.xcconfig"; sourceTree = "<group>"; };
+		7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Social_Bookmark_Social_BookmarkUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9FC445CE5F50C84D9A9CADB5 /* Pods_BookmarkShareExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BookmarkShareExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A53E9A932E6B2EC462034E /* Pods_BookmarkActionExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BookmarkActionExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7F1F6589FB8AA355328E136 /* Pods_Social_BookmarkTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Social_BookmarkTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9965EC19D5F7043E8A2F458 /* Pods-BookmarkActionExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookmarkActionExtension.debug.xcconfig"; path = "Target Support Files/Pods-BookmarkActionExtension/Pods-BookmarkActionExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookmarkActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Supabase.xcconfig; sourceTree = "<group>"; };
@@ -92,6 +103,9 @@
 		C0867F082EE9A86F000C8D7D /* Social BookmarkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookmarkShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE03FCBF980ABC9F1FDD6377 /* Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig"; path = "Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		EA7040BEFC1D7C94FF0C91B1 /* Pods-BookmarkShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BookmarkShareExtension.debug.xcconfig"; path = "Target Support Files/Pods-BookmarkShareExtension/Pods-BookmarkShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		FDF0DD2CFE483BC5BD6DFFA7 /* Pods-Social BookmarkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social BookmarkTests.release.xcconfig"; path = "Target Support Files/Pods-Social BookmarkTests/Pods-Social BookmarkTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -107,12 +121,18 @@
 			membershipExceptions = (
 				"/Localized: Localizable.strings",
 				Core/AppConfig.swift,
+				Core/Auth/APIConstants.swift,
 				Core/Auth/AuthError.swift,
 				Core/Auth/AuthRepositoryProtocol.swift,
 				Core/Auth/AuthService.swift,
 				Core/Auth/AuthUser.swift,
+				Core/Auth/DocumentUploadService.swift,
+				Core/Auth/ImageUploadService.swift,
 				Core/Auth/MigrationState.swift,
+				Core/Auth/NetworkingHelpers.swift,
+				Core/Auth/NetworkManager.swift,
 				Core/Auth/SessionStore.swift,
+				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
 				Models/Bookmark.swift,
@@ -161,12 +181,18 @@
 				Content/PreviewMockCategoryRepository.swift,
 				Content/PreviewMockRepository.swift,
 				Core/AppConfig.swift,
+				Core/Auth/APIConstants.swift,
 				Core/Auth/AuthError.swift,
 				Core/Auth/AuthRepositoryProtocol.swift,
 				Core/Auth/AuthService.swift,
 				Core/Auth/AuthUser.swift,
+				Core/Auth/DocumentUploadService.swift,
+				Core/Auth/ImageUploadService.swift,
 				Core/Auth/MigrationState.swift,
+				Core/Auth/NetworkingHelpers.swift,
+				Core/Auth/NetworkManager.swift,
 				Core/Auth/SessionStore.swift,
+				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
 				Models/Bookmark.swift,
@@ -225,11 +251,15 @@
 		};
 		C0867F0B2EE9A86F000C8D7D /* Social BookmarkTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "Social BookmarkTests";
 			sourceTree = "<group>";
 		};
 		C0867F152EE9A86F000C8D7D /* Social BookmarkUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "Social BookmarkUITests";
 			sourceTree = "<group>";
 		};
@@ -258,6 +288,7 @@
 				C0D7B8902F269A3F00560E34 /* Realtime in Frameworks */,
 				C0D7B87C2F26976800560E34 /* Auth in Frameworks */,
 				C0D7B86A2F2674AB00560E34 /* RevenueCatUI in Frameworks */,
+				FF2630820719E205FE84149C /* Pods_BookmarkActionExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,13 +296,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C0035CE92EF065DA005158EF /* Supabase in Frameworks */,
-				C05DE42D2EEF758E00EFC6B2 /* Storage in Frameworks */,
 				C0D7B86C2F2674EC00560E34 /* RevenueCatUI in Frameworks */,
 				C0D7B8542F25530D00560E34 /* RevenueCat in Frameworks */,
-				C05DE42B2EEF758E00EFC6B2 /* PostgREST in Frameworks */,
 				C05DE4292EEF758E00EFC6B2 /* Auth in Frameworks */,
-				C0D7B70C2F2551A900560E34 /* ReceiptParser in Frameworks */,
+				F9CF11D402E207ACED6CBEEA /* Pods_Social_Bookmark.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,6 +307,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED9B8EC88D898BF38E4FD832 /* Pods_Social_BookmarkTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +315,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				433740C43F9FD8DBC84DDADA /* Pods_Social_Bookmark_Social_BookmarkUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,12 +330,30 @@
 				C0D7B8582F25741500560E34 /* RevenueCat in Frameworks */,
 				C05B51102EF06B3E007DF808 /* PostgREST in Frameworks */,
 				C05B510E2EF06B3E007DF808 /* Auth in Frameworks */,
+				6B052C5BCF33836306534FD0 /* Pods_BookmarkShareExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		839593694249DF2F4CED2025 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B9965EC19D5F7043E8A2F458 /* Pods-BookmarkActionExtension.debug.xcconfig */,
+				3EB397C789D5CB19CCF93978 /* Pods-BookmarkActionExtension.release.xcconfig */,
+				EA7040BEFC1D7C94FF0C91B1 /* Pods-BookmarkShareExtension.debug.xcconfig */,
+				006CA9FB4F47EEA91C0782B1 /* Pods-BookmarkShareExtension.release.xcconfig */,
+				6FFB52CE080249EEB4437FBC /* Pods-Social Bookmark.debug.xcconfig */,
+				340CD783D25757B306C141BA /* Pods-Social Bookmark.release.xcconfig */,
+				DE03FCBF980ABC9F1FDD6377 /* Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig */,
+				6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */,
+				309EEB1F89467173B1311FA3 /* Pods-Social BookmarkTests.debug.xcconfig */,
+				FDF0DD2CFE483BC5BD6DFFA7 /* Pods-Social BookmarkTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		C05DE4402EEF79B300EFC6B2 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -319,6 +367,11 @@
 			isa = PBXGroup;
 			children = (
 				C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */,
+				A7A53E9A932E6B2EC462034E /* Pods_BookmarkActionExtension.framework */,
+				9FC445CE5F50C84D9A9CADB5 /* Pods_BookmarkShareExtension.framework */,
+				4706D99C73DA9828B80279D9 /* Pods_Social_Bookmark.framework */,
+				7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */,
+				A7F1F6589FB8AA355328E136 /* Pods_Social_BookmarkTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -334,6 +387,7 @@
 				C0867EFC2EE9A86D000C8D7D /* Products */,
 				C05DE4402EEF79B300EFC6B2 /* Config */,
 				C05DE4662EEF838E00EFC6B2 /* Frameworks */,
+				839593694249DF2F4CED2025 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -356,6 +410,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C05B513B2EF5FEED007DF808 /* Build configuration list for PBXNativeTarget "BookmarkActionExtension" */;
 			buildPhases = (
+				9BA6568594E1E6F3E41DB353 /* [CP] Check Pods Manifest.lock */,
 				C05B51272EF5FEED007DF808 /* Sources */,
 				C05B51282EF5FEED007DF808 /* Frameworks */,
 				C05B51292EF5FEED007DF808 /* Resources */,
@@ -385,10 +440,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0867F1C2EE9A86F000C8D7D /* Build configuration list for PBXNativeTarget "Social Bookmark" */;
 			buildPhases = (
+				9406F16F6894ED0924B460D7 /* [CP] Check Pods Manifest.lock */,
 				C0867EF72EE9A86D000C8D7D /* Sources */,
 				C0867EF82EE9A86D000C8D7D /* Frameworks */,
 				C0867EF92EE9A86D000C8D7D /* Resources */,
 				C0867F8F2EEA2A73000C8D7D /* Embed Foundation Extensions */,
+				35F57CD10F3A4CC60307F1D2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -402,10 +459,6 @@
 			name = "Social Bookmark";
 			packageProductDependencies = (
 				C05DE4282EEF758E00EFC6B2 /* Auth */,
-				C05DE42A2EEF758E00EFC6B2 /* PostgREST */,
-				C05DE42C2EEF758E00EFC6B2 /* Storage */,
-				C0035CE82EF065DA005158EF /* Supabase */,
-				C0D7B70B2F2551A900560E34 /* ReceiptParser */,
 				C0D7B8532F25530D00560E34 /* RevenueCat */,
 				C0D7B86B2F2674EC00560E34 /* RevenueCatUI */,
 			);
@@ -417,6 +470,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0867F1F2EE9A86F000C8D7D /* Build configuration list for PBXNativeTarget "Social BookmarkTests" */;
 			buildPhases = (
+				A06F3BAD41071F9DCF946C01 /* [CP] Check Pods Manifest.lock */,
 				C0867F042EE9A86F000C8D7D /* Sources */,
 				C0867F052EE9A86F000C8D7D /* Frameworks */,
 				C0867F062EE9A86F000C8D7D /* Resources */,
@@ -430,8 +484,6 @@
 				C0867F0B2EE9A86F000C8D7D /* Social BookmarkTests */,
 			);
 			name = "Social BookmarkTests";
-			packageProductDependencies = (
-			);
 			productName = "Social BookmarkTests";
 			productReference = C0867F082EE9A86F000C8D7D /* Social BookmarkTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -440,9 +492,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0867F222EE9A86F000C8D7D /* Build configuration list for PBXNativeTarget "Social BookmarkUITests" */;
 			buildPhases = (
+				C5765F8CED035E0063C15670 /* [CP] Check Pods Manifest.lock */,
 				C0867F0E2EE9A86F000C8D7D /* Sources */,
 				C0867F0F2EE9A86F000C8D7D /* Frameworks */,
 				C0867F102EE9A86F000C8D7D /* Resources */,
+				DC21EB294E84F34DAD3D56D1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -453,8 +507,6 @@
 				C0867F152EE9A86F000C8D7D /* Social BookmarkUITests */,
 			);
 			name = "Social BookmarkUITests";
-			packageProductDependencies = (
-			);
 			productName = "Social BookmarkUITests";
 			productReference = C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -463,6 +515,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0867F8C2EEA2A73000C8D7D /* Build configuration list for PBXNativeTarget "BookmarkShareExtension" */;
 			buildPhases = (
+				695194D7BA891C3CA2EE0DFF /* [CP] Check Pods Manifest.lock */,
 				C0867F7C2EEA2A72000C8D7D /* Sources */,
 				C0867F7D2EEA2A72000C8D7D /* Frameworks */,
 				C0867F7E2EEA2A72000C8D7D /* Resources */,
@@ -557,7 +610,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C05DE4482EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */,
 				C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -580,12 +632,158 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C05DE4472EEF7A5200EFC6B2 /* Supabase.xcconfig in Resources */,
 				C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		35F57CD10F3A4CC60307F1D2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		695194D7BA891C3CA2EE0DFF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BookmarkShareExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9406F16F6894ED0924B460D7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Social Bookmark-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9BA6568594E1E6F3E41DB353 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BookmarkActionExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A06F3BAD41071F9DCF946C01 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Social BookmarkTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C5765F8CED035E0063C15670 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Social Bookmark-Social BookmarkUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DC21EB294E84F34DAD3D56D1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C05B51272EF5FEED007DF808 /* Sources */ = {
@@ -651,6 +849,7 @@
 /* Begin XCBuildConfiguration section */
 		C05B513C2EF5FEED007DF808 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B9965EC19D5F7043E8A2F458 /* Pods-BookmarkActionExtension.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -687,6 +886,7 @@
 		};
 		C05B513D2EF5FEED007DF808 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3EB397C789D5CB19CCF93978 /* Pods-BookmarkActionExtension.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -728,6 +928,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -757,11 +958,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -780,6 +982,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -791,6 +994,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -820,11 +1024,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -836,12 +1041,14 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};
 		C0867F1D2EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6FFB52CE080249EEB4437FBC /* Pods-Social Bookmark.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -849,6 +1056,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -894,6 +1102,7 @@
 		};
 		C0867F1E2EE9A86F000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 340CD783D25757B306C141BA /* Pods-Social Bookmark.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -901,6 +1110,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -946,10 +1156,12 @@
 		};
 		C0867F202EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 309EEB1F89467173B1311FA3 /* Pods-Social BookmarkTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -972,10 +1184,12 @@
 		};
 		C0867F212EE9A86F000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FDF0DD2CFE483BC5BD6DFFA7 /* Pods-Social BookmarkTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -998,9 +1212,11 @@
 		};
 		C0867F232EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DE03FCBF980ABC9F1FDD6377 /* Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1023,9 +1239,11 @@
 		};
 		C0867F242EE9A86F000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1048,6 +1266,7 @@
 		};
 		C0867F8D2EEA2A73000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA7040BEFC1D7C94FF0C91B1 /* Pods-BookmarkShareExtension.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1083,6 +1302,7 @@
 		};
 		C0867F8E2EEA2A73000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 006CA9FB4F47EEA91C0782B1 /* Pods-BookmarkShareExtension.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1196,11 +1416,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C0035CE82EF065DA005158EF /* Supabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
-		};
 		C05B510D2EF06B3E007DF808 /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
@@ -1225,21 +1440,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Auth;
-		};
-		C05DE42A2EEF758E00EFC6B2 /* PostgREST */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = PostgREST;
-		};
-		C05DE42C2EEF758E00EFC6B2 /* Storage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C05DE4272EEF758E00EFC6B2 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Storage;
-		};
-		C0D7B70B2F2551A900560E34 /* ReceiptParser */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C0D7B70A2F2551A900560E34 /* XCRemoteSwiftPackageReference "purchases-ios" */;
-			productName = ReceiptParser;
 		};
 		C0D7B8532F25530D00560E34 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

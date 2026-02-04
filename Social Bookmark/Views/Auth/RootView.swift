@@ -26,13 +26,14 @@ extension Social_BookmarkApp {
     
     /// Network durumu değişikliklerini dinle
     private func setupNetworkObserver() {
-        NotificationCenter.default.addObserver(
-            forName: .networkDidConnect,
-            object: nil,
-            queue: .main
-        ) { _ in
-            print("📡 [APP] Network connected")
-        }
+        // TODO: Re-enable when NetworkMonitor is implemented
+        // NotificationCenter.default.addObserver(
+        //     forName: .networkDidConnect,
+        //     object: nil,
+        //     queue: .main
+        // ) { _ in
+        //     print("📡 [APP] Network connected")
+        // }
     }
 }
 
@@ -42,8 +43,8 @@ struct RootView: View {
     // MARK: - Properties
     @Environment(\.colorScheme) private var colorScheme
     
-    @StateObject private var sessionStore = SessionStore()
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var sessionStore = SessionStore.shared
+    // @StateObject private var networkMonitor = NetworkMonitor.shared // TODO: Re-enable when NetworkMonitor is implemented
     @StateObject private var syncService = SyncService.shared
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     
@@ -74,10 +75,10 @@ struct RootView: View {
                         .environmentObject(sessionStore)
                 }
             } else {
-                // Ana uygulama - NavigationStack YOK, her tab kendi yönetiyor
+                // Ana uygulama
                 AdaptiveMainTabView(viewModel: homeViewModel)
                     .environmentObject(sessionStore)
-                    .offlineBanner()
+                    // .offlineBanner() // TODO: Re-enable when NetworkMonitor is implemented
                     .fullScreenCover(isPresented: $showOnboarding) {
                         OnboardingView(isPresented: $showOnboarding)
                             .environmentObject(sessionStore)
@@ -193,7 +194,7 @@ struct RootView: View {
         
         await sessionStore.initialize()
         
-        if !requireExplicitSignIn && !sessionStore.isAuthenticated && networkMonitor.isConnected {
+        if !requireExplicitSignIn && !sessionStore.isAuthenticated { // && networkMonitor.isConnected { // TODO: Re-enable when NetworkMonitor is implemented
             await sessionStore.ensureAuthenticated()
         }
         
@@ -214,7 +215,7 @@ struct RootView: View {
             // Uygulama aktif olduğunda (açılış veya arka plandan dönüş)
             Logger.app.info("Scene became active")
             
-            if sessionStore.isAuthenticated && networkMonitor.isConnected {
+            if sessionStore.isAuthenticated { // && networkMonitor.isConnected { // TODO: Re-enable when NetworkMonitor is implemented
                 // Do nothing - manual sync only
             }
             

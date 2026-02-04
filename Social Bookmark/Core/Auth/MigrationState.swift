@@ -197,6 +197,70 @@ final class AccountMigrationService: ObservableObject {
         return result
     }
     
+    // MARK: - Supabase to Laravel Migration
+    
+    private let didMigrateToLaravelKey = "did_migrate_to_laravel_v1"
+    
+    /// Check if Supabase→Laravel migration is needed and perform it
+    /// This runs ONCE per user after app update to migrate from Supabase to Laravel backend
+    func performMigrationIfNeeded(modelContext: ModelContext? = nil) async {
+        let context = modelContext ?? self.modelContext
+        
+        guard let modelContext = context else {
+            Logger.auth.error("❌ [MIGRATION] Cannot perform migration: ModelContext is nil")
+            return
+        }
+        // Check if already migrated
+        guard !UserDefaults.standard.bool(forKey: didMigrateToLaravelKey) else {
+            Logger.auth.info("✅ [MIGRATION] Already migrated to Laravel")
+            return
+        }
+        
+        // Check if user is authenticated
+        guard await AuthService.shared.getCurrentUser() != nil else {
+            Logger.auth.info("⏭️ [MIGRATION] No authenticated user, skipping migration")
+            return
+        }
+        
+        Logger.auth.info("🔄 [MIGRATION] Starting Supabase → Laravel migration...")
+        
+        do {
+            // Configure self with modelContext
+            self.modelContext = modelContext
+            
+            // Get local data counts
+            let bookmarks = try modelContext.fetch(FetchDescriptor<Bookmark>())
+            let categories = try modelContext.fetch(FetchDescriptor<Category>())
+            
+            Logger.auth.info("📊 [MIGRATION] Found \\(bookmarks.count) bookmarks, \\(categories.count) categories locally")
+            
+            if bookmarks.isEmpty && categories.isEmpty {
+                Logger.auth.info("⚠️ [MIGRATION] No local data to migrate, will sync from server")
+                
+                // Force full sync to get server data
+                await SyncService.shared.forceFullSync()
+            } else {
+                Logger.auth.info("📤 [MIGRATION] Uploading local data to Laravel...")
+                
+                // Upload local data to Laravel
+                try await SyncService.shared.uploadToCloud()
+                
+                Logger.auth.info("✅ [MIGRATION] Upload complete, now syncing from server...")
+                
+                // Then sync down any server changes
+                await SyncService.shared.forceFullSync()
+            }
+            
+            // Mark migration as complete
+            UserDefaults.standard.set(true, forKey: didMigrateToLaravelKey)
+            Logger.auth.info("✅ [MIGRATION] Migration complete!")
+            
+        } catch {
+            Logger.auth.error("❌ [MIGRATION] Failed: \\(error.localizedDescription)")
+            // Don't mark as complete so we retry next time
+        }
+    }
+    
     /// Public: Tüm local verileri temizle
     func clearAllLocalData() async {
         guard let context = modelContext else {
@@ -213,7 +277,15 @@ final class AccountMigrationService: ObservableObject {
             for category in categories { context.delete(category) }
             
             try context.save()
-            Logger.auth.info("🧹 [MIGRATION] ✅ Local data cleared successfully")
+            
+            // Sync metadata'yı temizle
+            UserDefaults.standard.removeObject(forKey: APIConstants.Keys.lastSync)
+            
+            // Reset migration flag so it runs again for new user
+            UserDefaults.standard.removeObject(forKey: didMigrateToLaravelKey)
+            
+            Logger.auth.info("🧹 [MIGRATION] ✅ Local data and sync metadata cleared successfully")
+            NotificationCenter.default.post(name: .localDataCleared, object: nil)
         } catch {
             Logger.auth.error("🧹 [MIGRATION] Failed: \(error.localizedDescription)")
         }

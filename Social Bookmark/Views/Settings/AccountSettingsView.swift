@@ -26,67 +26,34 @@ struct AccountSettingsView: View {
     
     var body: some View {
         List {
-            // Kullanıcı Bilgileri
             userInfoSection
             
-            // Anonim kullanıcı için hesap bağlama (ayrı section - daha belirgin)
             if sessionStore.isAuthenticated && sessionStore.isAnonymous {
                 linkAccountSection
             }
             
-            // Hesap İşlemleri
             if sessionStore.isAuthenticated && !sessionStore.isAnonymous {
                 accountActionsSection
-                
                 dangerZoneSection
             }
-            
-          
         }
         .navigationTitle("settings.account")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingSignIn) {
-            SignInView(isPresented: true)
-                .environmentObject(sessionStore)
-        }
-        .sheet(isPresented: $showingLinkAccountSheet) {
-            linkAccountSheet
-        }
-        .alert("settings.sign_out_title", isPresented: $showingSignOutAlert) {
-            Button("common.cancel", role: .cancel) { }
-            Button("settings.sign_out", role: .destructive) {
-                Task {
-                    // Çıkış yap ve local verileri temizle
-                    await sessionStore.signOutAndClearData()
-                }
-            }
-        } message: {
-            Text("settings.sign_out_message")
-        }
-        .alert("settings.delete_account_title", isPresented: $showingDeleteAccountAlert) {
-            Button("common.cancel", role: .cancel) { }
-            Button("settings.delete_account", role: .destructive) {
-                Task {
-                    await sessionStore.deleteAccount()
-                }
-            }
-        } message: {
-            Text("settings.delete_account_message")
-        }
-        .alert(
-            Text("auth.error_title"),
-            isPresented: $showingError,
-            presenting: sessionStore.error
-        ) { _ in
-            Button("common.ok") {
-                sessionStore.clearError()
-            }
-        } message: { error in
-            Text(error.errorDescription ?? "")
-        }
-        .onChange(of: sessionStore.error) { _, newError in
-            showingError = newError != nil
-        }
+        .accountSettingsSheets(
+            showingSignIn: $showingSignIn,
+            showingLinkAccountSheet: $showingLinkAccountSheet,
+            sessionStore: sessionStore,
+            linkAccountSheet: AnyView(linkAccountSheet)
+        )
+        .accountSettingsAlerts(
+            showingSignOutAlert: $showingSignOutAlert,
+            showingDeleteAccountAlert: $showingDeleteAccountAlert,
+            sessionStore: sessionStore
+        )
+        .accountSettingsErrorAndSync(
+            showingError: $showingError,
+            sessionStore: sessionStore
+        )
     }
     
     // MARK: - User Info Section
@@ -321,8 +288,74 @@ struct AccountSettingsView: View {
                authError.code == .canceled {
                 return
             }
-            sessionStore.setError(.appleSignInFailed(error.localizedDescription))
+            // sessionStore.setError(.appleSignInFailed(error.localizedDescription)) // TODO: Re-enable when error handling is implemented
+            print("❌ Apple Sign In failed: \(error.localizedDescription)")
         }
+    }
+}
+
+// MARK: - View Modifiers Extension
+
+extension View {
+    func accountSettingsSheets(
+        showingSignIn: Binding<Bool>,
+        showingLinkAccountSheet: Binding<Bool>,
+        sessionStore: SessionStore,
+        linkAccountSheet: AnyView
+    ) -> some View {
+        self
+            .sheet(isPresented: showingSignIn) {
+                SignInView(isPresented: true)
+                    .environmentObject(sessionStore)
+            }
+            .sheet(isPresented: showingLinkAccountSheet) {
+                linkAccountSheet
+            }
+    }
+
+    func accountSettingsAlerts(
+        showingSignOutAlert: Binding<Bool>,
+        showingDeleteAccountAlert: Binding<Bool>,
+        sessionStore: SessionStore
+    ) -> some View {
+        self
+            .alert("settings.sign_out_title", isPresented: showingSignOutAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("settings.sign_out", role: .destructive) {
+                    Task { await sessionStore.signOutAndClearData() }
+                }
+            } message: {
+                Text("settings.sign_out_message")
+            }
+            .alert("settings.delete_account_title", isPresented: showingDeleteAccountAlert) {
+                Button("common.cancel", role: .cancel) { }
+                Button("settings.delete_account", role: .destructive) {
+                    Task { await sessionStore.deleteAccount() }
+                }
+            } message: {
+                Text("settings.delete_account_message")
+            }
+    }
+
+    func accountSettingsErrorAndSync(
+        showingError: Binding<Bool>,
+        sessionStore: SessionStore
+    ) -> some View {
+        self
+            .alert(
+                Text("auth.error_title"),
+                isPresented: showingError,
+                presenting: sessionStore.error
+            ) { _ in
+                Button("common.ok") {
+                    sessionStore.clearError()
+                }
+            } message: { error in
+                Text(error.errorDescription ?? "")
+            }
+            .onChange(of: sessionStore.error) { _, newError in
+                showingError.wrappedValue = newError != nil
+            }
     }
 }
 

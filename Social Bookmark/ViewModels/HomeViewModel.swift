@@ -153,6 +153,15 @@ final class HomeViewModel {
             print("👋 [HomeViewModel] User signed out, clearing data...")
             self?.loadData()
         }
+        
+        NotificationCenter.default.addObserver(
+            forName: .localDataCleared,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🧹 [HomeViewModel] Local data cleared, refreshing UI...")
+            self?.loadData()
+        }
     }
     
     // MARK: - Public Methods

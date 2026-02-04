@@ -1,10 +1,10 @@
 import Foundation
 
 /// Response from /sync/delta
-struct SyncDeltaResponse: Codable {
+struct DeltaSyncResponse: Codable {
     let updatedCategories: [CloudCategory]
     let updatedBookmarks: [CloudBookmark]
-    let deletedIds: DeletedIds
+    let deletedIds: [String: [String]] // categories, bookmarks
     let currentServerTime: String
     
     enum CodingKeys: String, CodingKey {
@@ -15,68 +15,55 @@ struct SyncDeltaResponse: Codable {
     }
 }
 
-struct DeletedIds: Codable {
-    let categories: [String]
-    let bookmarks: [String]
-}
-
-struct CloudCategory: Codable {
-    let id: String
-    let localId: String?
-    let name: String
-    let icon: String
-    let color: String
-    let order: Int
-    let isEncrypted: Bool?
-    let createdAt: String?
-    let updatedAt: String?
+struct DeltaSyncRequest: Codable {
+    let lastSyncTimestamp: String?
+    let bookmarks: [CloudBookmark]?
+    let categories: [CloudCategory]?
     
     enum CodingKeys: String, CodingKey {
-        case id
-        case localId = "local_id"
-        case name, icon, color, order
-        case isEncrypted = "is_encrypted"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case lastSyncTimestamp = "last_sync_timestamp"
+        case bookmarks, categories
     }
 }
 
-struct CloudBookmark: Codable {
-    let id: String
-    let localId: String?
-    let categoryId: String?
-    let title: String
-    let url: String?
-    let note: String?
-    let source: String
-    let isRead: Bool
-    let isFavorite: Bool
-    let tags: [String]?
-    let imageUrls: [String]?
-    let fileURL: String?
-    let fileName: String?
-    let fileExtension: String?
-    let fileSize: Int64?
-    let isEncrypted: Bool?
-    let createdAt: String
-    let updatedAt: String
+struct CloudCategory: Codable, Identifiable {
+    let id: UUID
+    var localId: UUID?
+    var name: String
+    var icon: String
+    var color: String
+    var order: Int
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case id, name, icon, color, order
+        case localId = "local_id"
+    }
+}
+
+struct CloudBookmark: Codable, Identifiable {
+    let id: UUID
+    var localId: UUID?
+    var categoryId: UUID?
+    var title: String
+    var url: String?
+    var note: String?
+    var source: String
+    var isRead: Bool
+    var isFavorite: Bool
+    var tags: [String]?
+    var imageUrls: [String]?
+    var fileUrl: String?
+    var syncVersion: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case id, title, url, note, source, tags
         case localId = "local_id"
         case categoryId = "category_id"
-        case title, url, note, source
         case isRead = "is_read"
         case isFavorite = "is_favorite"
-        case tags
         case imageUrls = "image_urls"
-        case fileURL = "file_url"
-        case fileName = "file_name"
-        case fileExtension = "file_extension"
-        case fileSize = "file_size"
-        case isEncrypted = "is_encrypted"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
+        case fileUrl = "file_url"
+        case syncVersion = "sync_version"
     }
 }
 
@@ -92,75 +79,51 @@ struct MediaUploadResponse: Codable {
 
 struct EmptyResponse: Codable {}
 
-struct UserProfile: Codable {
+struct UserProfile: Codable, Identifiable {
     let id: UUID
     var email: String?
-    var fullName: String?
     var displayName: String
     var isAnonymous: Bool
-    var isPro: Bool                // Added for Laravel API
-    let createdAt: Date
-    var avatarUrl: String?
+    var isPro: Bool
     var lastSyncAt: Date?
-    var deviceId: String?
-    var appVersion: String?
     
     enum CodingKeys: String, CodingKey {
-        case id
-        case email
-        case fullName = "full_name"
+        case id, email
         case displayName = "display_name"
         case isAnonymous = "is_anonymous"
         case isPro = "is_pro"
-        case createdAt = "created_at"
-        case avatarUrl = "avatar_url"
         case lastSyncAt = "last_sync_at"
-        case deviceId = "device_id"
-        case appVersion = "app_version"
     }
     
-    init(
-        id: UUID,
-        email: String? = nil,
-        fullName: String? = nil,
-        displayName: String,
-        isAnonymous: Bool,
-        isPro: Bool = false,
-        createdAt: Date = Date(),
-        avatarUrl: String? = nil,
-        lastSyncAt: Date? = nil,
-        deviceId: String? = nil,
-        appVersion: String? = nil
-    ) {
-        self.id = id
-        self.email = email
-        self.fullName = fullName
-        self.displayName = displayName
-        self.isAnonymous = isAnonymous
-        self.isPro = isPro
-        self.createdAt = createdAt
-        self.avatarUrl = avatarUrl
-        self.lastSyncAt = lastSyncAt
-        self.deviceId = deviceId
-        self.appVersion = appVersion
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        email = try container.decodeIfPresent(String.self, forKey: .email)
+        displayName = try container.decode(String.self, forKey: .displayName)
+        // Handle null values by defaulting to false
+        isAnonymous = try container.decodeIfPresent(Bool.self, forKey: .isAnonymous) ?? false
+        isPro = try container.decodeIfPresent(Bool.self, forKey: .isPro) ?? false
+        
+        // Gracefully handle date decoding - try Date first, then String fallback
+        if let date = try? container.decodeIfPresent(Date.self, forKey: .lastSyncAt) {
+            lastSyncAt = date
+        } else if let dateString = try? container.decodeIfPresent(String.self, forKey: .lastSyncAt),
+                  !dateString.isEmpty {
+            let formatter = ISO8601DateFormatter()
+            lastSyncAt = formatter.date(from: dateString)
+        } else {
+            lastSyncAt = nil
+        }
     }
 }
 
+
 extension UserProfile {
     var nameForDisplay: String {
-        if let fullName = fullName, !fullName.isEmpty {
-            return fullName
-        }
         return displayName
     }
     
     var initials: String {
-        if let fullName = fullName, !fullName.isEmpty {
-            let components = fullName.components(separatedBy: " ")
-            let initials = components.compactMap { $0.first }.prefix(2)
-            return String(initials).uppercased()
-        }
-        
         if displayName.hasPrefix("user_") {
             let suffix = displayName.dropFirst(5)
             if let firstChar = suffix.first {

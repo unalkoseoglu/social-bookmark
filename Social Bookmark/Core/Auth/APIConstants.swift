@@ -2,14 +2,15 @@ import Foundation
 
 enum APIConstants {
     #if DEBUG
-    static let baseURL = URL(string: "https://linkbookmark.tarikmaden.com/v1")!
+    static let baseURL = URL(string: "https://linkbookmark.tarikmaden.com/api/v1")!
     #else
-    static let baseURL = URL(string: "https://linkbookmark.tarikmaden.com/v1")!
+    static let baseURL = URL(string: "https://linkbookmark.tarikmaden.com/api/v1")!
     #endif
     
     enum Endpoints {
         static let login = "/auth/login"
         static let register = "/auth/register"
+        static let logout = "/auth/logout"
         static let profile = "/profile"
         static let bookmarks = "/bookmarks"
         static let bookmarksUpsert = "/bookmarks/upsert"

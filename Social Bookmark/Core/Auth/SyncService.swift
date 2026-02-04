@@ -41,7 +41,10 @@ final class SyncService: ObservableObject {
     // MARK: - Public Sync Methods
     
     func performFullSync() async {
-        guard canSync() else { return }
+        guard await canSync() else { 
+            Logger.sync.info("⚠️ [SYNC] Sync already in progress or cannot sync, skipping")
+            return 
+        }
         
         syncState = .syncing
         syncError = nil
@@ -55,8 +58,15 @@ final class SyncService: ObservableObject {
             
             syncState = .idle
             lastSyncDate = Date()
-            print("✅ [SYNC] Full sync complete")
+            print("✅ [SYNC] Full sync complete - notifying UI")
+            NotificationCenter.default.post(name: .syncDidComplete, object: nil)
         } catch {
+            if (error as NSError).code == NSURLErrorCancelled {
+                print("⚠️ [SYNC] Sync task was cancelled")
+                syncState = .idle
+                return
+            }
+            
             print("❌ [SYNC] Full sync failed: \(error)")
             syncError = error.localizedDescription
             syncState = .error
@@ -68,6 +78,18 @@ final class SyncService: ObservableObject {
         await performFullSync()
     }
     
+    /// Forces a full sync by clearing last sync timestamp
+    /// This will cause the server to return ALL bookmarks and categories
+    func forceFullSync() async {
+        Logger.sync.info("🔄 [SYNC] Force full sync requested - clearing last sync timestamp")
+        
+        // Clear last sync to force server to return ALL data
+        UserDefaults.standard.removeObject(forKey: APIConstants.Keys.lastSync)
+        
+        // Perform full sync
+        await performFullSync()
+    }
+    
     func downloadFromCloud() async throws {
         let user = await AuthService.shared.getCurrentUser()
         guard let context = modelContext,
@@ -76,21 +98,28 @@ final class SyncService: ObservableObject {
         }
         print("🔄 [SYNC] Downloading from cloud (sync/delta)")
 
-        let since = UserDefaults.standard.string(forKey: APIConstants.Keys.lastSync) ?? "1970-01-01T00:00:00Z"
+        let since = UserDefaults.standard.string(forKey: APIConstants.Keys.lastSync)
         
-        let delta: SyncDeltaResponse = try await network.request(
-            endpoint: APIConstants.Endpoints.syncDelta + "?since=\(since.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+        let requestBody = DeltaSyncRequest(
+            lastSyncTimestamp: since,
+            bookmarks: nil, // We'll handle outgoing changes in uploadToCloud for now, or we can integrate here
+            categories: nil
         )
         
-        try await processDeltaCategories(delta.updatedCategories, deletedIds: delta.deletedIds.categories, context: context)
-        try await processDeltaBookmarks(delta.updatedBookmarks, deletedIds: delta.deletedIds.bookmarks, context: context)
+        let delta: DeltaSyncResponse = try await network.request(
+            endpoint: APIConstants.Endpoints.syncDelta,
+            method: "POST",
+            body: try JSONEncoder().encode(requestBody)
+        )
+        
+        try await processDeltaCategories(delta.updatedCategories, deletedIds: delta.deletedIds["categories"] ?? [], context: context)
+        try await processDeltaBookmarks(delta.updatedBookmarks, deletedIds: delta.deletedIds["bookmarks"] ?? [], context: context)
 
         try context.save()
         
         UserDefaults.standard.set(delta.currentServerTime, forKey: APIConstants.Keys.lastSync)
         
-        print("✅ [SYNC] Delta sync complete - notifying UI")
-        NotificationCenter.default.post(name: .syncDidComplete, object: nil)
+        print("✅ [SYNC] Delta download complete")
     }
     
     func uploadToCloud() async throws {
@@ -109,35 +138,56 @@ final class SyncService: ObservableObject {
             throw SyncError.notAuthenticated
         }
 
-        var payload = createBookmarkPayload(bookmark)
-        
-        if let imageData = bookmark.imageData, (bookmark.imageUrls?.isEmpty ?? true) {
-            do {
-                let url = try await ImageUploadService.shared.uploadImage(UIImage(data: imageData) ?? UIImage(), for: bookmark.id)
-                payload["image_urls"] = AnyEncodable([url]) 
-                bookmark.imageUrls = [url]
-            } catch {
-                print("❌ [SYNC] Image upload failed: \(error)")
+        let payload = createBookmarkPayload(bookmark)
+        let jsonPayload = try JSONEncoder().encode(["bookmarks": [payload]])
+        let jsonString = String(data: jsonPayload, encoding: .utf8) ?? ""
+
+        var filesToUpload: [NetworkManager.FileUpload] = []
+
+        // Add multiple images if present
+        if let imagesData = bookmark.imagesData, !imagesData.isEmpty {
+            for (index, imageData) in imagesData.enumerated() {
+                filesToUpload.append(.init(
+                    data: imageData,
+                    fileName: "image_\(bookmark.id.uuidString)_\(index).jpg",
+                    mimeType: "image/jpeg",
+                    fieldName: "images[]" // Array format for multiple images
+                ))
             }
-        }
-        
-        // Document upload
-        if let data = fileData, let fileName = bookmark.fileName {
-             do {
-                 let mimeType = "application/octet-stream" 
-                 let url = try await DocumentUploadService.shared.uploadDocument(data: data, fileName: fileName, mimeType: mimeType, for: bookmark.id)
-                 bookmark.fileURL = url
-                 payload["file_url"] = AnyEncodable(url)
-             } catch {
-                 print("❌ [SYNC] Document upload failed: \(error)")
-             }
+        } else if let singleImage = bookmark.imageData {
+            filesToUpload.append(.init(
+                data: singleImage,
+                fileName: "image_\(bookmark.id.uuidString).jpg",
+                mimeType: "image/jpeg",
+                fieldName: "images[]"
+            ))
         }
 
-        let _: [String: AnyCodable] = try await network.request(
-            endpoint: APIConstants.Endpoints.bookmarksUpsert,
-            method: "POST",
-            body: try JSONEncoder().encode(["bookmarks": [payload]])
-        )
+        // Add document if present
+        if let data = fileData ?? bookmark.fileData, let fileName = bookmark.fileName {
+            filesToUpload.append(.init(
+                data: data,
+                fileName: fileName,
+                mimeType: "application/octet-stream",
+                fieldName: "file"
+            ))
+        }
+
+        if !filesToUpload.isEmpty {
+            // Multipart sync
+            let _: [String: AnyCodable] = try await network.upload(
+                endpoint: APIConstants.Endpoints.bookmarksUpsert,
+                files: filesToUpload,
+                additionalFields: ["payload": jsonString]
+            )
+        } else {
+            // Standard JSON sync
+            let _: [String: AnyCodable] = try await network.request(
+                endpoint: APIConstants.Endpoints.bookmarksUpsert,
+                method: "POST",
+                body: jsonPayload
+            )
+        }
     }
     
     func syncCategory(_ category: Category) async throws {
@@ -185,31 +235,23 @@ final class SyncService: ObservableObject {
         }
         
         for cloud in cloudCategories {
-            let targetId = cloud.localId ?? cloud.id
-            guard let targetUUID = UUID(uuidString: targetId) else { continue }
+            let targetUUID = cloud.localId ?? cloud.id
             
-            let isEnc = (cloud.isEncrypted == true)
             let descriptor = FetchDescriptor<Category>(predicate: #Predicate { $0.id == targetUUID })
             
             if let existing = try context.fetch(descriptor).first {
-                existing.name = decryptIfNeeded(cloud.name, isEncrypted: isEnc)
-                existing.icon = cloud.icon ?? "folder"
-                existing.colorHex = cloud.color ?? "#000000"
-                existing.order = cloud.order ?? 0
-                if let updatedAt = cloud.updatedAt, let date = ISO8601DateFormatter().date(from: updatedAt) {
-                    existing.updatedAt = date
-                }
+                existing.name = cloud.name
+                existing.icon = cloud.icon
+                existing.colorHex = cloud.color
+                existing.order = cloud.order
             } else {
                 let newCategory = Category(
                     id: targetUUID,
-                    name: decryptIfNeeded(cloud.name, isEncrypted: isEnc),
-                    icon: cloud.icon ?? "folder",
-                    colorHex: cloud.color ?? "#000000",
-                    order: cloud.order ?? 0
+                    name: cloud.name,
+                    icon: cloud.icon,
+                    colorHex: cloud.color,
+                    order: cloud.order
                 )
-                if let createdAt = cloud.createdAt, let date = ISO8601DateFormatter().date(from: createdAt) {
-                    newCategory.createdAt = date
-                }
                 context.insert(newCategory)
             }
         }
@@ -226,49 +268,44 @@ final class SyncService: ObservableObject {
         }
         
         for cloud in cloudBookmarks {
-            let targetId = cloud.localId ?? cloud.id
-            guard let targetUUID = UUID(uuidString: targetId) else { continue }
+            let targetUUID = cloud.localId ?? cloud.id
             
-            let isEnc = (cloud.isEncrypted == true)
             let descriptor = FetchDescriptor<Bookmark>(predicate: #Predicate { $0.id == targetUUID })
             
             if let existing = try context.fetch(descriptor).first {
-                updateBookmark(existing, with: cloud, isEncrypted: isEnc)
+                updateBookmark(existing, with: cloud)
             } else {
                 let newBookmark = Bookmark(
-                    title: decryptIfNeeded(cloud.title, isEncrypted: isEnc),
-                    url: cloud.url != nil ? decryptIfNeeded(cloud.url!, isEncrypted: isEnc) : nil,
-                    note: cloud.note != nil ? decryptIfNeeded(cloud.note!, isEncrypted: isEnc) : "",
+                    title: cloud.title,
+                    url: cloud.url,
+                    note: cloud.note ?? "",
                     source: BookmarkSource(rawValue: cloud.source) ?? .manual
                 )
                 newBookmark.id = targetUUID
-                updateBookmark(newBookmark, with: cloud, isEncrypted: isEnc)
+                updateBookmark(newBookmark, with: cloud)
                 context.insert(newBookmark)
             }
         }
     }
     
-    private func updateBookmark(_ bookmark: Bookmark, with cloud: CloudBookmark, isEncrypted: Bool) {
-        bookmark.title = decryptIfNeeded(cloud.title, isEncrypted: isEncrypted)
-        bookmark.url = cloud.url != nil ? decryptIfNeeded(cloud.url!, isEncrypted: isEncrypted) : nil
-        bookmark.note = cloud.note != nil ? decryptIfNeeded(cloud.note!, isEncrypted: isEncrypted) : ""
+    private func updateBookmark(_ bookmark: Bookmark, with cloud: CloudBookmark) {
+        bookmark.title = cloud.title
+        bookmark.url = cloud.url
+        bookmark.note = cloud.note ?? ""
         bookmark.isRead = cloud.isRead
         bookmark.isFavorite = cloud.isFavorite
         bookmark.imageUrls = cloud.imageUrls
-        bookmark.fileURL = cloud.fileURL
-        bookmark.fileName = cloud.fileName
-        bookmark.fileExtension = cloud.fileExtension
-        bookmark.fileSize = cloud.fileSize
+        bookmark.fileURL = cloud.fileUrl
         
         if let tags = cloud.tags {
-            bookmark.tags = tags.map { decryptIfNeeded($0, isEncrypted: isEncrypted) }
+            bookmark.tags = tags
         }
         
-        if let updatedAtAt = cloud.updatedAt, let date = ISO8601DateFormatter().date(from: updatedAtAt) {
-            bookmark.updatedAt = date
+        // Note: cloud model doesn't have updatedAt anymore
+        // Tag management and category mapping...
+        if let categoryId = cloud.categoryId {
+            bookmark.categoryId = categoryId
         }
-        
-        // Category mapping would go here if needed
     }
     
     // MARK: - Upload Helpers
@@ -295,95 +332,96 @@ final class SyncService: ObservableObject {
         for bookmark in localBookmarks {
             var payload = createBookmarkPayload(bookmark)
             
-            if let imageData = bookmark.imageData, (bookmark.imageUrls?.isEmpty ?? true) {
+            // Only try to upload if we have local image data and NO valid cloud URLs
+            let hasValidCloudImages = bookmark.imageUrls?.contains { $0.starts(with: "http") } ?? false
+            
+            if let imageData = bookmark.imageData, !hasValidCloudImages {
                 do {
                     let url = try await ImageUploadService.shared.uploadImage(UIImage(data: imageData) ?? UIImage(), for: bookmark.id)
                     payload["image_urls"] = AnyEncodable([url])
                     bookmark.imageUrls = [url]
                 } catch {
                     print("❌ [SYNC] Image upload failed for bookmark \(bookmark.id): \(error)")
+                    // Continue without images rather than failing the whole batch
                 }
             }
             payloads.append(payload)
         }
 
-        let _: [String: AnyCodable] = try await network.request(
-            endpoint: APIConstants.Endpoints.bookmarksUpsert,
-            method: "POST",
-            body: try JSONEncoder().encode(["bookmarks": payloads])
-        )
+        do {
+            let _: [String: AnyCodable] = try await network.request(
+                endpoint: APIConstants.Endpoints.bookmarksUpsert,
+                method: "POST",
+                body: try JSONEncoder().encode(["bookmarks": payloads])
+            )
+        } catch {
+            print("❌ [SYNC] Bookmarks upsert failed: \(error)")
+            throw error
+        }
     }
 
     // MARK: - Private Helpers
     
-    private func canSync() -> Bool {
+    private func canSync() async -> Bool {
         guard modelContext != nil else { return false }
         guard await AuthService.shared.getCurrentUser() != nil else { return false }
-        guard NetworkMonitor.shared.isConnected else { return false }
+        // guard NetworkMonitor.shared.isConnected else { return false } // TODO: Re-enable when NetworkMonitor is available
         return syncState == .idle
     }
 
     private func decryptIfNeeded(_ value: String, isEncrypted: Bool) -> String {
         guard isEncrypted else { return value }
-        return (try? EncryptionService.shared.decryptOptional(value)) ?? value
+        // return (try? EncryptionService.shared.decryptOptional(value)) ?? value // TODO: Re-enable when EncryptionService is available
+        return value // Temporarily return unencrypted value
     }
 
     private func createBookmarkPayload(_ bookmark: Bookmark) -> [String: AnyEncodable] {
         var payload: [String: AnyEncodable] = [
             "id": AnyEncodable(bookmark.id.uuidString.lowercased()),
             "local_id": AnyEncodable(bookmark.id.uuidString.lowercased()),
+            "title": AnyEncodable(bookmark.title),
             "source": AnyEncodable(bookmark.source.rawValue),
             "is_read": AnyEncodable(bookmark.isRead),
             "is_favorite": AnyEncodable(bookmark.isFavorite),
-            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: bookmark.lastUpdated)),
-            "is_encrypted": AnyEncodable(true)
+            "sync_version": AnyEncodable(0) // Default for new/updated
         ]
+
+        if let url = bookmark.url, !url.isEmpty {
+            payload["url"] = AnyEncodable(url)
+        }
+        
+        if !bookmark.note.isEmpty {
+            payload["note"] = AnyEncodable(bookmark.note)
+        }
+        
+        if !bookmark.tags.isEmpty {
+            payload["tags"] = AnyEncodable(bookmark.tags)
+        }
 
         if let categoryId = bookmark.categoryId {
             payload["category_id"] = AnyEncodable(categoryId.uuidString.lowercased())
         }
-
-        do {
-            let encryption = EncryptionService.shared
-            payload["title"] = AnyEncodable(try encryption.encrypt(bookmark.title).ciphertext)
-            if let url = bookmark.url, !url.isEmpty {
-                payload["url"] = AnyEncodable(try encryption.encrypt(url).ciphertext)
-            }
-            if !bookmark.note.isEmpty {
-                payload["note"] = AnyEncodable(try encryption.encrypt(bookmark.note).ciphertext)
-            }
-            if !bookmark.tags.isEmpty {
-                let encryptedTags = try bookmark.tags.map { try encryption.encrypt($0).ciphertext }
-                payload["tags"] = AnyEncodable(encryptedTags)
-            }
-        } catch {
-            payload["title"] = AnyEncodable(bookmark.title)
-            payload["is_encrypted"] = AnyEncodable(false)
+        
+        if let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty {
+            payload["image_urls"] = AnyEncodable(imageUrls)
+        }
+        
+        if let fileUrl = bookmark.fileURL {
+            payload["file_url"] = AnyEncodable(fileUrl)
         }
 
         return payload
     }
 
     private func createCategoryPayload(_ category: Category) -> [String: AnyEncodable] {
-        var payload: [String: AnyEncodable] = [
+        let payload: [String: AnyEncodable] = [
             "id": AnyEncodable(category.id.uuidString.lowercased()),
             "local_id": AnyEncodable(category.id.uuidString.lowercased()),
+            "name": AnyEncodable(category.name),
             "icon": AnyEncodable(category.icon),
-            "color_hex": AnyEncodable(category.colorHex),
-            "order": AnyEncodable(category.order),
-            "created_at": AnyEncodable(ISO8601DateFormatter().string(from: category.createdAt)),
-            "updated_at": AnyEncodable(ISO8601DateFormatter().string(from: category.lastUpdated)),
-            "is_encrypted": AnyEncodable(true)
+            "color": AnyEncodable(category.colorHex),
+            "order": AnyEncodable(category.order)
         ]
-
-        do {
-            let encryption = EncryptionService.shared
-            payload["name"] = AnyEncodable(try encryption.encrypt(category.name).ciphertext)
-        } catch {
-            payload["name"] = AnyEncodable(category.name)
-            payload["is_encrypted"] = AnyEncodable(false)
-        }
 
         return payload
     }
@@ -408,4 +446,5 @@ extension Notification.Name {
     static let syncDidFail = Notification.Name("syncDidFail")
     static let bookmarksDidSync = Notification.Name("bookmarksDidSync")
     static let categoriesDidSync = Notification.Name("categoriesDidSync")
+    static let localDataCleared = Notification.Name("localDataCleared")
 }

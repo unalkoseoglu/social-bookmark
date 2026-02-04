@@ -11,7 +11,7 @@ import UIKit
 import OneSignalFramework
 import Combine
 
-class NotificationManager: NSObject, ObservableObject {
+class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     
     static let shared = NotificationManager()
     
@@ -25,17 +25,25 @@ class NotificationManager: NSObject, ObservableObject {
     
     /// Bildirim izinlerini kontrol eder
     func checkAuthorizationStatus() {
-        self.isAuthorized = OneSignal.Notifications.permissionStatus == .authorized
+        Task {
+            let permission = await OneSignal.Notifications.permission
+            await MainActor.run {
+                self.isAuthorized = permission
+            }
+        }
     }
     
     /// Bildirim izni ister
     func requestAuthorization(completion: ((Bool) -> Void)? = nil) {
-        OneSignal.Notifications.requestPermission({ accepted in
-            DispatchQueue.main.async {
+        Task {
+            await OneSignal.Notifications.requestPermission()
+            // Check permission status after request
+            let accepted = await OneSignal.Notifications.permission
+            await MainActor.run {
                 self.isAuthorized = accepted
                 completion?(accepted)
             }
-        }, fallbackToSettings: true)
+        }
     }
     
     /// External User ID set eder (Böylece kullanıcıyı Supabase ID'si ile eşleştirebilirsiniz)
@@ -60,7 +68,20 @@ class NotificationManager: NSObject, ObservableObject {
     func handleRegistrationError(_ error: Error) {
         print("❌ Bildirim kaydı başarısız: \(error.localizedDescription)")
     }
+    
+    // MARK: - UNUserNotificationCenterDelegate
+    
+    /// Uygulama foreground'dayken bildirim geldiğinde çağrılır
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Bildirimi göster (banner, sound, badge)
+        completionHandler([.banner, .sound, .badge])
+    }
+    
+    /// Kullanıcı bildirime tıkladığında çağrılır
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Bildirim tıklama işlemlerini burada yönetin
+        print("📱 Bildirime tıklandı: \(response.notification.request.identifier)")
+        completionHandler()
+    }
 }
 
-// MARK: - OneSignal Notification Delegate
-// OneSignal kendi delegelerini yönetir ancak isterseniz ek özelleştirme yapabiliriz.

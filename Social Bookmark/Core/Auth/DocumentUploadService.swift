@@ -56,9 +56,12 @@ final class DocumentUploadService: ObservableObject {
             
             let response: MediaUploadResponse = try await network.upload(
                 endpoint: APIConstants.Endpoints.upload,
-                fileData: data,
-                fileName: fileName,
-                mimeType: mimeType
+                files: [.init(
+                    data: data,
+                    fileName: fileName,
+                    mimeType: mimeType,
+                    fieldName: "file"
+                )]
             )
             
             uploadProgress = 1.0
@@ -75,6 +78,11 @@ final class DocumentUploadService: ObservableObject {
     
     func deleteDocument(for bookmarkId: UUID) async throws {
          print("ℹ️ [DocumentUpload] deleteDocument called - server handles this on bookmark deletion")
+    }
+    
+    func getSignedURL(for path: String) async -> URL? {
+        // Laravel handles media access differently. For now, assume it returns direct URLs.
+        return URL(string: path)
     }
 }
 

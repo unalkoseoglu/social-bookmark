@@ -13,10 +13,10 @@ import RevenueCat
 
 struct SettingsView: View {
     
-    @EnvironmentObject private var sessionStore: SessionStore
+    @ObservedObject private var sessionStore = SessionStore.shared
     @ObservedObject private var languageManager = LanguageManager.shared
     @StateObject private var syncService = SyncService.shared
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    // @StateObject private var networkMonitor = NetworkMonitor.shared // TODO: Re-enable when NetworkMonitor is implemented
     @Environment(\.modelContext) private var modelContext  // ✅ BU SATIRI EKLE
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
@@ -40,6 +40,9 @@ struct SettingsView: View {
                 
                 // Senkronizasyon
                 syncSection
+                
+                // Developer / Debug
+                developerSection
                 
                 // Görünüm
                 appearanceSection
@@ -76,6 +79,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAnalytics) {
             AnalyticsView(modelContext: modelContext, homeViewModel: homeViewModel)
         }
+        .onAppear {
+            syncService.configure(modelContext: modelContext)
+        }
     }
     
     // Fonksiyonlar:
@@ -84,6 +90,9 @@ struct SettingsView: View {
     
     private var accountSection: some View {
         Section {
+            // DEBUG: Print state
+            let _ = print("🔍 [SettingsView] isAuthenticated: \(sessionStore.isAuthenticated), userId: \(sessionStore.userId ?? "nil"), displayName: \(sessionStore.displayName ?? "nil")")
+            
             if sessionStore.isAuthenticated {
                 NavigationLink {
                     AccountSettingsView()
@@ -203,6 +212,86 @@ struct SettingsView: View {
         }
     }
     
+    
+    // MARK: - Developer Section
+    
+    @Query private var allBookmarks: [Bookmark]
+    @Query private var allCategories: [Category]
+    
+    @State private var isForcingSyncTask = false
+    
+    private var developerSection: some View {
+        Section {
+            // Force Full Sync Button
+            Button {
+                Task {
+                    isForcingSyncTask = true
+                    await syncService.forceFullSync()
+                    isForcingSyncTask = false
+                }
+            } label: {
+                HStack {
+                    Label("Force Full Sync", systemImage: "arrow.triangle.2.circlepath.circle.fill")
+                    
+                    Spacer()
+                    
+                    if isForcingSyncTask {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    }
+                }
+            }
+            .disabled(isForcingSyncTask || syncService.syncState == .syncing)
+            
+            // Local Data Stats
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Local Data")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                HStack {
+                    Text("Bookmarks:")
+                    Spacer()
+                    Text("\(allBookmarks.count)")
+                        .foregroundStyle(.secondary)
+                }
+                
+                HStack {
+                    Text("Categories:")
+                    Spacer()
+                    Text("\(allCategories.count)")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .font(.footnote)
+            
+            // User Info
+            if let userId = sessionStore.userId {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("User ID")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(userId)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .textSelection(.enabled)
+                }
+            }
+            
+            // Network Logs
+            NavigationLink {
+                NetworkLogsView()
+            } label: {
+                Label("Network Logs", systemImage: "network")
+            }
+            
+        } header: {
+            Text("Developer")
+        } footer: {
+            Text("Force Full Sync clears the last sync timestamp and re-downloads all data from the server. Use this if bookmarks or categories are not appearing.")
+                .font(.caption)
+        }
+    }
     
     // MARK: - Analytics Section
     

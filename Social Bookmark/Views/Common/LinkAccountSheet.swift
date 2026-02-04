@@ -20,7 +20,7 @@ import AuthenticationServices
 
 struct LinkAccountSheet: View {
     @EnvironmentObject private var sessionStore: SessionStore
-    @StateObject private var migrationService = AccountMigrationService.shared
+    // @StateObject private var migrationService = AccountMigrationService.shared // TODO: Re-enable when AccountMigrationService is implemented
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     
@@ -29,29 +29,29 @@ struct LinkAccountSheet: View {
     var body: some View {
         NavigationStack {
             Group {
-                if migrationService.state.isInProgress {
-                    migrationProgressView
-                } else if migrationService.state == .completed {
-                    migrationCompletedView
-                } else if case .failed(let error) = migrationService.state {
-                    migrationFailedView(error: error)
-                } else {
-                    linkAccountContent
-                }
+                linkAccountContent
+                // TODO: Re-enable migration views when AccountMigrationService is implemented
+                // if migrationService.state.isInProgress {
+                //     migrationProgressView
+                // } else if migrationService.state == .completed {
+                //     migrationCompletedView
+                // } else if case .failed(let error) = migrationService.state {
+                //     migrationFailedView(error: error)
+                // } else {
+                //     linkAccountContent
+                // }
             }
             .navigationTitle(String(localized: "settings.link_account"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    if !migrationService.state.isInProgress {
-                        Button(String(localized: "common.cancel")) {
-                            dismiss()
-                        }
+                    Button(String(localized: "common.cancel")) {
+                        dismiss()
                     }
                 }
             }
         }
-        .interactiveDismissDisabled(migrationService.state.isInProgress)
+        // .interactiveDismissDisabled(migrationService.state.isInProgress) // TODO: Re-enable
     }
     
     // MARK: - Link Account Content
@@ -155,212 +155,49 @@ struct LinkAccountSheet: View {
         .padding(.horizontal, 24)
     }
     
-    // MARK: - Migration Progress View
+    // MARK: - Migration Progress View (Placeholder)
+    // TODO: Re-enable when AccountMigrationService is implemented
     
     private var migrationProgressView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            // Animasyonlu ikon
-            ZStack {
-                Circle()
-                    .fill(Color.blue.opacity(0.1))
-                    .frame(width: 120, height: 120)
-                
-                Circle()
-                    .trim(from: 0, to: migrationService.state.progress)
-                    .stroke(Color.blue, lineWidth: 4)
-                    .frame(width: 120, height: 120)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.easeInOut, value: migrationService.state.progress)
-                
-                Image(systemName: stateIcon)
-                    .font(.system(size: 40))
-                    .foregroundStyle(.blue)
-                    .symbolEffect(.pulse.wholeSymbol, options: .repeating)
-            }
-            
-            // Durum açıklaması
-            VStack(spacing: 8) {
-                Text("settings.migrating_data")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                
-                Text(migrationService.state.description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            
-            // Progress bar
-            VStack(spacing: 8) {
-                ProgressView(value: migrationService.state.progress)
-                    .progressViewStyle(.linear)
-                    .tint(.blue)
-                
-                Text("\(Int(migrationService.state.progress * 100))%")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 48)
-            
-            // Uyarı
-            Text("settings.do_not_close")
-                .font(.caption)
-                .foregroundStyle(.orange)
-            
-            Spacer()
+        VStack {
+            ProgressView()
+            Text("Migration in progress...")
         }
     }
     
     private var stateIcon: String {
-        switch migrationService.state {
-        case .migratingCategories:
-            return "folder.fill"
-        case .migratingBookmarks:
-            return "bookmark.fill"
-        case .uploadingImages:
-            return "photo.fill"
-        case .cleaningUp:
-            return "trash.fill"
-        default:
-            return "arrow.triangle.2.circlepath"
-        }
+        return "arrow.triangle.2.circlepath"
     }
     
-    // MARK: - Migration Completed View
+    // MARK: - Migration Completed View (Placeholder)
+    // TODO: Re-enable when AccountMigrationService is implemented
     
     private var migrationCompletedView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            // Başarı ikonu
-            ZStack {
-                Circle()
-                    .fill(Color.green.opacity(0.1))
-                    .frame(width: 120, height: 120)
-                
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.green)
-            }
-            
-            // Mesaj
-            VStack(spacing: 8) {
-                Text("settings.migration_complete")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Text("settings.migration_complete_desc")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
-            
-            // İstatistikler
-            if let result = migrationService.lastResult {
-                VStack(spacing: 12) {
-                    statisticRow(
-                        icon: "folder.fill",
-                        label: "settings.categories_migrated",
-                        value: "\(result.categoriesMigrated)"
-                    )
-                    statisticRow(
-                        icon: "bookmark.fill",
-                        label: "settings.bookmarks_migrated",
-                        value: "\(result.bookmarksMigrated)"
-                    )
-                    statisticRow(
-                        icon: "photo.fill",
-                        label: "settings.images_migrated",
-                        value: "\(result.imagesMigrated)"
-                    )
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
-                .padding(.horizontal, 24)
-            }
-            
-            Spacer()
-            
-            // Kapat butonu
-            Button {
-                migrationService.reset()
+        VStack {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundStyle(.green)
+            Text("Migration completed")
+            Button("Done") {
                 dismiss()
-            } label: {
-                Text("common.done")
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .cornerRadius(12)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
         }
     }
     
-    // MARK: - Migration Failed View
+    // MARK: - Migration Failed View (Placeholder)
+    // TODO: Re-enable when AccountMigrationService is implemented
     
     private func migrationFailedView(error: String) -> some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            // Hata ikonu
-            ZStack {
-                Circle()
-                    .fill(Color.red.opacity(0.1))
-                    .frame(width: 120, height: 120)
-                
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.red)
+        VStack {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 60))
+                .foregroundStyle(.red)
+            Text("Migration failed")
+            Text(error)
+                .font(.caption)
+            Button("Dismiss") {
+                dismiss()
             }
-            
-            // Mesaj
-            VStack(spacing: 8) {
-                Text("settings.migration_failed")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Text(error)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
-            
-            Spacer()
-            
-            // Butonlar
-            VStack(spacing: 12) {
-                Button {
-                    migrationService.reset()
-                    // Tekrar dene
-                } label: {
-                    Text("common.try_again")
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.blue)
-                        .foregroundStyle(.white)
-                        .cornerRadius(12)
-                }
-                
-                Button {
-                    migrationService.reset()
-                    dismiss()
-                } label: {
-                    Text("common.cancel")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
         }
     }
     
@@ -409,7 +246,8 @@ struct LinkAccountSheet: View {
                authError.code == .canceled {
                 return
             }
-            sessionStore.setError(.appleSignInFailed(error.localizedDescription))
+            // sessionStore.setError(.appleSignInFailed(error.localizedDescription)) // TODO: Re-enable when error handling is implemented
+            print("❌ Apple Sign In failed: \(error.localizedDescription)")
         }
     }
 }

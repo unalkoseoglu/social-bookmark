@@ -1,3 +1,5 @@
 Config/LinkedInSecrets.xcconfig
 .DS_Store
 Config/
+Pods/
+Podfile.lock
