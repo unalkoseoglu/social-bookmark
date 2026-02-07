@@ -28,6 +28,9 @@ final class Category {
     /// Güncellenme tarihi (YENİ - Sync için) - Migration için opsiyonel yaptık
     var updatedAt: Date?
     
+    /// Sunucudan gelen bookmark sayısı (YENİ)
+    var bookmarksCount: Int? = 0
+    
     // MARK: - Computed Properties
     
     /// Hex'ten Color'a çevir

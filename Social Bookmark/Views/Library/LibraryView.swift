@@ -267,6 +267,7 @@ struct LibraryView: View {
         UnifiedBookmarkList(
             bookmarks: displayedBookmarks,
             viewModel: viewModel,
+            totalBookmarks: filteredResults,
             isGroupedBySource: sortOrder == .source,
             showStats: true,
             hasMorePages: hasMorePages,
@@ -493,6 +494,7 @@ struct FavoritesBookmarksView: View {
             UnifiedBookmarkList(
                 bookmarks: filteredBookmarks,
                 viewModel: viewModel,
+                totalBookmarks: filteredBookmarks,
                 emptyTitle: String(localized: "common.favorites"),
                 emptySubtitle: String(localized: "library.empty.subtitle"),
                 emptyIcon: "star"
@@ -553,6 +555,7 @@ struct UncategorizedBookmarksView: View {
             UnifiedBookmarkList(
                 bookmarks: filteredBookmarks,
                 viewModel: viewModel,
+                totalBookmarks: filteredBookmarks,
                 emptyTitle: String(localized: "common.uncategorized"),
                 emptySubtitle: String(localized: "library.empty.subtitle"),
                 emptyIcon: "tray"

@@ -303,23 +303,34 @@ enum ImageUploadError: LocalizedError {
     }
 }
 
-struct CachedAsyncImage<Content: View, Placeholder: View>: View {
+struct CachedAsyncImage<Content: View, Placeholder: View, Failure: View>: View {
     let url: String?
     let content: (Image) -> Content
     let placeholder: () -> Placeholder
+    let failure: () -> Failure
+    
     @State private var image: UIImage?
     @State private var isLoading = false
+    @State private var hasFailed = false
     
-    init(url: String?, @ViewBuilder content: @escaping (Image) -> Content, @ViewBuilder placeholder: @escaping () -> Placeholder) {
+    init(
+        url: String?,
+        @ViewBuilder content: @escaping (Image) -> Content,
+        @ViewBuilder placeholder: @escaping () -> Placeholder,
+        @ViewBuilder failure: @escaping () -> Failure
+    ) {
         self.url = url
         self.content = content
         self.placeholder = placeholder
+        self.failure = failure
     }
     
     var body: some View {
         Group {
             if let image {
                 content(Image(uiImage: image))
+            } else if hasFailed {
+                failure()
             } else {
                 placeholder()
                     .task { await loadImage() }
@@ -330,12 +341,30 @@ struct CachedAsyncImage<Content: View, Placeholder: View>: View {
     private func loadImage() async {
         guard let url, !isLoading else { return }
         isLoading = true
-        image = await ImageUploadService.shared.loadImage(from: url)
+        hasFailed = false
+        
+        if let loadedImage = await ImageUploadService.shared.loadImage(from: url) {
+            image = loadedImage
+            hasFailed = false
+        } else {
+            hasFailed = true
+        }
+        
         isLoading = false
     }
 }
 
-extension CachedAsyncImage where Placeholder == ProgressView<EmptyView, EmptyView> {
+extension CachedAsyncImage where Failure == Placeholder {
+    init(
+        url: String?,
+        @ViewBuilder content: @escaping (Image) -> Content,
+        @ViewBuilder placeholder: @escaping () -> Placeholder
+    ) {
+        self.init(url: url, content: content, placeholder: placeholder, failure: placeholder)
+    }
+}
+
+extension CachedAsyncImage where Placeholder == ProgressView<EmptyView, EmptyView>, Failure == ProgressView<EmptyView, EmptyView> {
     init(url: String?, @ViewBuilder content: @escaping (Image) -> Content) {
         self.init(url: url, content: content) { ProgressView() }
     }

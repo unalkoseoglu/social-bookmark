@@ -27,6 +27,13 @@ struct CategoryDetailView: View {
             UnifiedBookmarkList(
                 bookmarks: filteredBookmarks,
                 viewModel: viewModel,
+                totalBookmarks: bookmarks,
+                onRefresh: {
+                    try? await SyncService.shared.fetchBookmarks(categoryId: category.id)
+                    await MainActor.run {
+                        loadBookmarks()
+                    }
+                },
                 emptyTitle: String(localized: "categoryDetail.empty_title"),
                 emptySubtitle: String(localized: "categoryDetail.empty_desc"),
                 emptyIcon: category.icon
@@ -43,6 +50,14 @@ struct CategoryDetailView: View {
             }
             .onAppear {
                 loadBookmarks()
+                
+                // ✅ Otomatik olarak sunucudan güncel verileri çek
+                Task {
+                    try? await SyncService.shared.fetchBookmarks(categoryId: category.id)
+                    await MainActor.run {
+                        loadBookmarks()
+                    }
+                }
             }
         }
     }
@@ -50,7 +65,15 @@ struct CategoryDetailView: View {
     // MARK: - Actions
     
     private func loadBookmarks() {
-        bookmarks = viewModel.bookmarks(for: category)
+        let result = viewModel.bookmarks(for: category)
+        print("📁 [CategoryDetailView] loadBookmarks for '\(category.name)' (ID: \(category.id))")
+        print("   - Found \(result.count) bookmarks locally")
+        if result.isEmpty {
+            print("   - ⚠️ LOCAL LIST IS EMPTY!")
+            let allCategories = viewModel.bookmarks.compactMap { $0.categoryId }
+            print("   - Local bookmarks have category IDs: \(Set(allCategories))")
+        }
+        bookmarks = result
     }
     
     // CategoryBookmarkRow and localized delete logic moved/handled by UnifiedBookmarkList

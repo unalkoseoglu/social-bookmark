@@ -58,6 +58,9 @@ final class Bookmark {
     var fileExtension: String? // pdf, docx, etc.
     var fileSize: Int64?      // Byte cinsinden boyut
     
+    /// Bağlantılı bookmark ID'leri (YENİ - MVP)
+    var linkedBookmarkIds: [UUID]? = []
+    
     /// Transient data (sadece sync sırasında kullanılır, veritabanına kaydedilmez)
     @Transient var fileData: Data?
     
@@ -80,7 +83,8 @@ final class Bookmark {
             fileURL: String? = nil,
             fileName: String? = nil,
             fileExtension: String? = nil,
-            fileSize: Int64? = nil
+            fileSize: Int64? = nil,
+            linkedBookmarkIds: [UUID]? = []
         ) {
             self.id = UUID()
             self.title = title
@@ -101,7 +105,14 @@ final class Bookmark {
             self.fileName = fileName
             self.fileExtension = fileExtension
             self.fileSize = fileSize
+            self.linkedBookmarkIds = linkedBookmarkIds ?? []
         }
+        
+    // MARK: - Helpers
+    
+    func isLinked(to bookmarkId: UUID) -> Bool {
+        return linkedBookmarkIds?.contains(bookmarkId) ?? false
+    }
 }
 
 // MARK: - Computed Properties

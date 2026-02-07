@@ -5,7 +5,7 @@ struct ActivityHeatmap: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Son 30 Gün Aktivite")
+            Text("analytics.last_30_days_activity")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -35,7 +35,7 @@ struct ActivityHeatmap: View {
             .frame(height: 100)
             
             if let mostActive = activity.max(by: { $0.count < $1.count }), mostActive.count > 0 {
-                Text("En aktif günün: \(formattedDate(mostActive.date))")
+                Text(String(localized: "analytics.most_active_day_template \(formattedDate(mostActive.date))"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -5,7 +5,7 @@ struct TimeOfDayCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Üretkenlik Saatleri")
+            Text("analytics.productivity_hours")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -42,7 +42,7 @@ struct TimeOfDayCard: View {
             .frame(height: 160)
             
             if let peak = breakdown.max(by: { $0.count < $1.count }), peak.count > 0 {
-                Text("En çok **\(peak.label)** vaktini seviyorsun.")
+                Text(String(localized: "analytics.peak_time_template \(peak.label)"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

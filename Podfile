@@ -1,16 +1,6 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
 
-target 'BookmarkActionExtension' do
-  use_frameworks!
-  # Extensions genelde OneSignal'e ihtiyaç duymaz
-end
-
-target 'BookmarkShareExtension' do
-  use_frameworks!
-  # Extensions genelde OneSignal'e ihtiyaç duymaz
-end
-
 target 'Social Bookmark' do
   use_frameworks!
 

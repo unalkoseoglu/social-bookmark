@@ -39,6 +39,10 @@ struct BookmarkDetailView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var isCopied = false
     
+    // Linking State
+    @State private var showingLinkSheet = false
+    @State private var selectedLinkedBookmark: Bookmark?
+    
     // Readability State
     @State private var isFocusMode = false
     @State private var contentHeight: CGFloat = 0
@@ -94,6 +98,42 @@ struct BookmarkDetailView: View {
         return "\(minutes) \(String(localized: "common.min_read"))"
     }
     
+    private var currentUIFont: UIFont {
+        let size = CGFloat(fontSize)
+        let descriptor = UIFont.systemFont(ofSize: size).fontDescriptor
+        let design: UIFontDescriptor.SystemDesign = {
+            switch selectedFont {
+            case .system: return .default
+            case .serif: return .serif
+            case .mono: return .monospaced
+            case .rounded: return .rounded
+            }
+        }()
+        
+        if let designDescriptor = descriptor.withDesign(design) {
+            return UIFont(descriptor: designDescriptor, size: size)
+        }
+        return UIFont.systemFont(ofSize: size)
+    }
+    
+    private var titleUIFont: UIFont {
+        let size = CGFloat(fontSize * 1.5)
+        let descriptor = UIFont.systemFont(ofSize: size, weight: .bold).fontDescriptor
+        let design: UIFontDescriptor.SystemDesign = {
+            switch selectedFont {
+            case .system: return .default
+            case .serif: return .serif
+            case .mono: return .monospaced
+            case .rounded: return .rounded
+            }
+        }()
+        
+        if let designDescriptor = descriptor.withDesign(design) {
+            return UIFont(descriptor: designDescriptor, size: size)
+        }
+        return UIFont.systemFont(ofSize: size, weight: .bold)
+    }
+    
     // MARK: - Body
     
     var body: some View {
@@ -105,7 +145,7 @@ struct BookmarkDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         // 1. Cover Image (Hero)
-                        if hasImages && !isFocusMode {
+                        if !allImages.isEmpty && !isFocusMode {
                             coverImageSection
                         }
                         
@@ -139,9 +179,23 @@ struct BookmarkDetailView: View {
                             if bookmark.hasURL && !isFocusMode {
                                 sourceLinkCard
                             }
+                            
+                            // 7. Linked Bookmarks
+                            if !isFocusMode {
+                                LinkedBookmarksSection(
+                                    linkedBookmarkIds: bookmark.linkedBookmarkIds ?? [],
+                                    onBookmarkSelected: { linkedBookmark in
+                                        // Use hidden navigation trigger
+                                        navigateToBookmark(linkedBookmark)
+                                    },
+                                    onAddLink: {
+                                        showingLinkSheet = true
+                                    }
+                                )
+                            }
                         }
                         .padding(.horizontal, 10)
-                        .padding(.top, hasImages ? 24 : 16)
+                        .padding(.top, allImages.isEmpty ? 16 : 24)
                         .padding(.bottom, 16)
                     }
                     .background(
@@ -189,6 +243,9 @@ struct BookmarkDetailView: View {
             .ignoresSafeArea(edges: .top)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(item: $selectedLinkedBookmark) { bookmark in
+            BookmarkDetailView(bookmark: bookmark, viewModel: viewModel)
+        }
         .toolbar {
             // Focus Mode Toggle
             ToolbarItem(placement: .topBarTrailing) {
@@ -249,16 +306,28 @@ struct BookmarkDetailView: View {
             Text(String(localized: "bookmarkDetail.delete_confirmation"))
         }
         .sheet(isPresented: $showingShareSheet) {
-            if let url = bookmark.url, let link = URL(string: url) {
-                ShareSheet(items: [link])
-            } else {
-                ShareSheet(items: [bookmark.title, bookmark.note])
-            }
+            ShareSheet(items: [
+                bookmark.title,
+                bookmark.note,
+                URL(string: bookmark.url ?? "") as Any
+            ].compactMap { $0 })
         }
         .fullScreenCover(isPresented: $showingFullScreenImage) {
             FullScreenImageGalleryView(
                 images: allImages,
                 selectedIndex: $selectedImageIndex
+            )
+        }
+        .sheet(isPresented: $showingLinkSheet) {
+            BookmarkSelectionSheet(
+                currentBookmark: bookmark,
+                selectedBookmarkIds: Binding(
+                    get: { bookmark.linkedBookmarkIds ?? [] },
+                    set: { newIds in
+                        bookmark.linkedBookmarkIds = newIds
+                        // Trigger save if needed (SwiftData autosaves usually)
+                    }
+                )
             )
         }
         .task {
@@ -321,10 +390,12 @@ struct BookmarkDetailView: View {
             }
             .fontDesign(currentFontDesign)
             
-            Text(bookmark.title)
-                .font(.system(size: fontSize * 1.5, weight: .bold, design: currentFontDesign))
-                .lineSpacing(4)
-                .foregroundStyle(currentTextColor)
+            SelectableTextView(
+                text: bookmark.title,
+                font: titleUIFont,
+                color: UIColor(currentTextColor),
+                lineSpacing: 4
+            )
             
             if bookmark.hasNote {
                 HStack(spacing: 6) {
@@ -418,16 +489,12 @@ struct BookmarkDetailView: View {
     }
     
     private var contentBodySection: some View {
-        VStack(alignment: .leading, spacing: fontSize * 1.2) {
-            let paragraphs = bookmark.note.components(separatedBy: "\n\n")
-            ForEach(paragraphs, id: \.self) { paragraph in
-                Text(paragraph)
-                    .font(.system(size: fontSize, weight: .regular, design: currentFontDesign))
-                    .lineSpacing(fontSize * 0.4)
-                    .foregroundStyle(currentTextColor)
-                    .textSelection(.enabled)
-            }
-        }
+        SelectableTextView(
+            text: bookmark.note,
+            font: currentUIFont,
+            color: UIColor(currentTextColor),
+            lineSpacing: fontSize * 0.4
+        )
     }
     
     
@@ -655,6 +722,10 @@ struct BookmarkDetailView: View {
         withAnimation {
             viewModel.toggleFavorite(bookmark)
         }
+    }
+    
+    private func navigateToBookmark(_ bookmark: Bookmark) {
+        selectedLinkedBookmark = bookmark
     }
     
     private func deleteBookmark() async {

@@ -7,6 +7,8 @@ enum APIConstants {
     static let baseURL = URL(string: "https://linkbookmark.tarikmaden.com/api/v1")!
     #endif
     
+    static let appGroupId = "group.com.unal.socialbookmark"
+    
     enum Endpoints {
         static let login = "/auth/login"
         static let register = "/auth/register"

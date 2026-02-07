@@ -19,14 +19,14 @@ struct AnalyticsView: View {
     }
     
     enum AnalyticsTab: String, CaseIterable {
-        case general = "Genel"
-        case time = "Zaman"
-        case categories = "Kategori"
+        case general = "analytics.tabs.general"
+        case time = "analytics.tabs.time"
+        case categories = "analytics.tabs.categories"
     }
     
     enum FilterType: String, Identifiable {
-        case read = "Okunmuş"
-        case stale = "Eskimiş"
+        case read = "analytics.filters.read"
+        case stale = "analytics.filters.stale"
         var id: String { rawValue }
     }
     
@@ -36,7 +36,7 @@ struct AnalyticsView: View {
                 // Custom Tab Picker
                 Picker("Tabs", selection: $selectedTab) {
                     ForEach(AnalyticsTab.allCases, id: \.self) { tab in
-                        Text(tab.rawValue).tag(tab)
+                        Text(LocalizedStringKey(tab.rawValue)).tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -48,7 +48,7 @@ struct AnalyticsView: View {
                             VStack(spacing: 12) {
                                 ProgressView()
                                     .scaleEffect(1.5)
-                                Text("İstatistikler hesaplanıyor...")
+                                Text("analytics.calculating")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -67,7 +67,7 @@ struct AnalyticsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Analiz")
+            .navigationTitle("analytics.title")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {
@@ -127,8 +127,8 @@ struct AnalyticsView: View {
     @ViewBuilder
     private var timeTabView: some View {
         Picker("Süre", selection: $viewModel.activityWindow) {
-            Text("30 Gün").tag(30)
-            Text("90 Gün").tag(90)
+            Text("analytics.window.30").tag(30)
+            Text("analytics.window.90").tag(90)
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
@@ -144,12 +144,12 @@ struct AnalyticsView: View {
         
         VStack(spacing: 16) {
             HStack(spacing: 16) {
-                StatCard(title: "Güncel Streak", value: "\(viewModel.currentStreak) Gün", icon: "flame.fill", color: .orange)
-                StatCard(title: "En Uzun Streak", value: "\(viewModel.longestStreak) Gün", icon: "trophy.fill", color: .yellow)
+                StatCard(title: String(localized: "analytics.current_streak"), value: "\(viewModel.currentStreak) \(String(localized: "common.days"))", icon: "flame.fill", color: .orange)
+                StatCard(title: String(localized: "analytics.longest_streak"), value: "\(viewModel.longestStreak) \(String(localized: "common.days"))", icon: "trophy.fill", color: .yellow)
             }
             
             if let activeDay = viewModel.mostActiveDay {
-                StatCard(title: "En Aktif Gün", value: activeDay, icon: "calendar.badge.clock", color: .blue)
+                StatCard(title: String(localized: "analytics.most_active_day"), value: activeDay, icon: "calendar.badge.clock", color: .blue)
             }
         }
     }
@@ -157,12 +157,12 @@ struct AnalyticsView: View {
     @ViewBuilder
     private var categoryTabView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Kategori Analizi")
+            Text("analytics.category_analysis")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
             if viewModel.categoryBreakdown.isEmpty {
-                Text("Henüz kategori verisi yok")
+                Text("analytics.no_categories")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -219,7 +219,7 @@ struct AnalyticsView: View {
                 BookmarkDetailView(bookmark: bookmark, viewModel: homeViewModel)
                     .environmentObject(sessionStore)
             } else {
-                Text("Bookmark bulunamadı")
+                Text("analytics.bookmark_not_found")
             }
         }
         .sheet(item: $selectedFilter) { filter in
@@ -231,7 +231,7 @@ struct AnalyticsView: View {
     @ViewBuilder
     private var highlightCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("🌟 Öne Çıkanlar")
+            Text("analytics.highlights")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -242,7 +242,7 @@ struct AnalyticsView: View {
                         selectedSnapshot = BookmarkSnapshot(id: bookmark.id, title: bookmark.title, url: bookmark.url)
                     }
                 } label: {
-                    HighlightRow(title: "En çok favorilenen", content: favoriteTitle, icon: "star.fill", color: .yellow)
+                    HighlightRow(title: String(localized: "analytics.most_favorited"), content: favoriteTitle, icon: "star.fill", color: .yellow)
                 }
             }
             
@@ -253,7 +253,7 @@ struct AnalyticsView: View {
                         selectedSnapshot = BookmarkSnapshot(id: bookmark.id, title: bookmark.title, url: bookmark.url)
                     }
                 } label: {
-                    HighlightRow(title: "En eski okunmamış", content: oldestTitle, icon: "clock.fill", color: .blue)
+                    HighlightRow(title: String(localized: "analytics.oldest_unread"), content: oldestTitle, icon: "clock.fill", color: .blue)
                 }
             }
         }
@@ -320,7 +320,7 @@ struct AnalyticsFilteredListView: View {
     @EnvironmentObject private var sessionStore: SessionStore
     
     private var title: String {
-        filterType == .read ? "Okunmuş Bookmarklar" : "Eskimiş Bookmarklar"
+        filterType == .read ? String(localized: "analytics.read_bookmarks") : String(localized: "analytics.stale_bookmarks")
     }
     
     private var filteredBookmarks: [Bookmark] {
@@ -338,6 +338,7 @@ struct AnalyticsFilteredListView: View {
             UnifiedBookmarkList(
                 bookmarks: filteredBookmarks,
                 viewModel: homeViewModel,
+                totalBookmarks: filteredBookmarks,
                 emptyTitle: String(localized: "all.empty.no_results"),
                 emptySubtitle: "",
                 emptyIcon: "tray"

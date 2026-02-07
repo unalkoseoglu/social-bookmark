@@ -32,6 +32,10 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     private let network = NetworkManager.shared
     private let authSubject = PassthroughSubject<AuthEvent, Never>()
     
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: APIConstants.appGroupId) ?? .standard
+    }
+    
     init() {}
     
     // MARK: - Anonymous Sign In
@@ -115,7 +119,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
     func signOut() async throws {
         _ = try? await network.request(endpoint: APIConstants.Endpoints.logout, method: "POST") as EmptyResponse?
-        UserDefaults.standard.removeObject(forKey: APIConstants.Keys.token)
+        defaults.removeObject(forKey: APIConstants.Keys.token)
         clearUserCache() // Clear cached user on sign out
         authSubject.send(.signedOut)
     }
@@ -129,7 +133,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
     func getCurrentUser() async -> AuthUser? {
         // Check if we have a valid token first
-        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+        guard defaults.string(forKey: APIConstants.Keys.token) != nil else {
             Logger.auth.debug("🔒 No token found, user not authenticated")
             cachedUser = nil
             cachedProfile = nil
@@ -144,7 +148,13 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
             return cached
         }
         
-        // Fetch fresh user data
+        // Fetch fresh user data (Skip in extension to speed up startup)
+        let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
+        if isExtension {
+             Logger.auth.info("⏭️ [AuthRepo] Extension mode: Skipping fresh profile fetch, returning nil user (will use SessionStore cache)")
+             return nil
+        }
+        
         Logger.auth.debug("📡 Fetching user profile from API...")
         let profile: UserProfile? = try? await network.request(endpoint: APIConstants.Endpoints.profile)
         if let profile {
@@ -166,7 +176,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
     func getCurrentUserProfile() async -> UserProfile? {
         // Check if we have a valid token first
-        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+        guard defaults.string(forKey: APIConstants.Keys.token) != nil else {
             Logger.auth.debug("🔒 No token found, clearing profile cache")
             clearUserCache()
             return nil
@@ -223,7 +233,7 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
     
     private func saveToken(_ token: String) {
         Logger.auth.info("Saving auth token to UserDefaults, token: \(token)")
-        UserDefaults.standard.set(token, forKey: APIConstants.Keys.token)
+        defaults.set(token, forKey: APIConstants.Keys.token)
     }
 }
 

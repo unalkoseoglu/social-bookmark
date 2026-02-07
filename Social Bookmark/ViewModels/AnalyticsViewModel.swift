@@ -211,7 +211,7 @@ final class AnalyticsViewModel: ObservableObject {
         if uncategorizedCount > 0 {
             categoryBreakdown.append(CategoryCount(
                 id: UUID(), // Dummy ID for UI
-                name: "Kategorisiz",
+                name: String(localized: "common.uncategorized"),
                 icon: "questionmark.folder",
                 colorHex: "#6B7280",
                 count: uncategorizedCount
@@ -253,10 +253,10 @@ final class AnalyticsViewModel: ObservableObject {
         }
         
         let timeOfDayBreakdown = [
-            TimeOfDayCount(label: "Sabah", count: morning, icon: "sun.max.fill"),
-            TimeOfDayCount(label: "Öğle", count: afternoon, icon: "sun.min.fill"),
-            TimeOfDayCount(label: "Akşam", count: evening, icon: "moon.stars.fill"),
-            TimeOfDayCount(label: "Gece", count: night, icon: "moon.zzz.fill")
+            TimeOfDayCount(label: String(localized: "analytics.time.morning"), count: morning, icon: "sun.max.fill"),
+            TimeOfDayCount(label: String(localized: "analytics.time.afternoon"), count: afternoon, icon: "sun.min.fill"),
+            TimeOfDayCount(label: String(localized: "analytics.time.evening"), count: evening, icon: "moon.stars.fill"),
+            TimeOfDayCount(label: String(localized: "analytics.time.night"), count: night, icon: "moon.zzz.fill")
         ]
         
         // 6. Streaks

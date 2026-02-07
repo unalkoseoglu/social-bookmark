@@ -138,6 +138,8 @@ struct EnhancedBookmarkRow: View {
                     ProgressView()
                         .scaleEffect(0.6)
                 }
+            } failure: {
+                fallbackIcon
             }
             .frame(width: 72, height: 72)
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -146,18 +148,23 @@ struct EnhancedBookmarkRow: View {
                     .stroke(Color(.systemGray5), lineWidth: 0.5)
             )
         } else {
-            // Fallback - emoji
-            ZStack {
-                bookmark.source.color.opacity(0.15)
-                Text(bookmark.source.emoji)
-                    .font(.title2)
-            }
-            .frame(width: 72, height: 72)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(.systemGray5), lineWidth: 0.5)
-            )
+            // Fallback - image yoksa direkt göster
+            fallbackIcon
+                .frame(width: 72, height: 72)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(.systemGray5), lineWidth: 0.5)
+                )
+        }
+    }
+    
+    @ViewBuilder
+    private var fallbackIcon: some View {
+        ZStack {
+            bookmark.source.color.opacity(0.15)
+            Text(bookmark.source.emoji)
+                .font(.title2)
         }
     }
 }

@@ -1,0 +1,44 @@
+{
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/BookmarkShareExtension/NSLocalizedStrings.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NSLocalizedStrings.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NSLocalizedStrings.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NSLocalizedStrings.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NSLocalizedStrings.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NSLocalizedStrings.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/NetworkManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NetworkManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NetworkManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NetworkManager.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NetworkManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/NetworkManager.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SessionStore.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SessionStore.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SessionStore.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SessionStore.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SessionStore.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SessionStore.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SyncModels.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncModels.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncModels.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncModels.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncModels.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncModels.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SyncService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncService.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/SyncService.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Logging/Logger+Extensions.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/Logger+Extensions.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/Logger+Extensions.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/Logger+Extensions.dia",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/Logger+Extensions.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/BookmarkShareExtension.build/Objects-normal/arm64/Logger+Extensions.swiftdeps"
+  }
+}

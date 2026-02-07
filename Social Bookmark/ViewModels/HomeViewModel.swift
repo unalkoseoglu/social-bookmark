@@ -170,8 +170,7 @@ final class HomeViewModel {
     func refresh() async {
         isLoading = true
         
-        print("🔄 [HomeViewModel] Manual refresh - triggering sync...")
-        await SyncService.shared.performFullSync()
+        print("🔄 [HomeViewModel] Refreshing UI data...")
         loadData()
 
         isLoading = false
@@ -179,7 +178,13 @@ final class HomeViewModel {
     
     /// Belirli bir kategori için bookmark sayısı
     func bookmarkCount(for category: Category) -> Int {
-        bookmarks.filter { $0.categoryId == category.id }.count
+        // Öncelik sunucudan gelen sayıda (sync performansı için)
+        if let serverCount = category.bookmarksCount, serverCount > 0 {
+            return serverCount
+        }
+        
+        // Sunucu bilgisi yoksa veya 0 ise yerelde filtrele (yeni eklenenler için)
+        return bookmarks.filter { $0.categoryId == category.id }.count
     }
     
     /// Belirli bir kaynak için bookmark sayısı
@@ -189,7 +194,19 @@ final class HomeViewModel {
     
     /// Belirli bir kategorideki bookmarklar
     func bookmarks(for category: Category) -> [Bookmark] {
-        bookmarks.filter { $0.categoryId == category.id }
+        let filtered = bookmarks.filter { $0.categoryId == category.id }
+        print("🔍 [HomeViewModel] Filtering bookmarks for category '\(category.name)' (ID: \(category.id)) -> Found \(filtered.count)")
+        
+        if filtered.isEmpty {
+            print("   - Current categories in ViewModel:")
+            for cat in categories {
+                print("     * '\(cat.name)' -> \(cat.id)")
+            }
+            let bookmarkCatIDs = Set(bookmarks.compactMap { $0.categoryId })
+            print("   - All unique CategoryIDs in local bookmarks: \(bookmarkCatIDs)")
+        }
+        
+        return filtered
     }
     
     /// Varsayılan kategorileri oluştur
@@ -282,7 +299,15 @@ final class HomeViewModel {
     
     private func loadCategories() {
         categories = categoryRepository.fetchAll()
-        print("🗂️ [HomeViewModel] Loaded \(categories.count) categories")
+        
+        let counts = NSCountedSet(array: categories.map { $0.name })
+        for name in counts {
+            if let nameStr = name as? String, counts.count(for: name) > 1 {
+                print("⚠️ [HomeViewModel] DUPLICATE CATEGORY NAME DETECTED: '\(nameStr)'")
+                let ids = categories.filter { $0.name == nameStr }.map { $0.id }
+                print("   - IDs: \(ids)")
+            }
+        }
     }
     
     deinit {

@@ -36,7 +36,7 @@ class ShareViewController: UIViewController {
     
     // MARK: - Constants
     
-    private let appGroupId = "group.com.unal.socialbookmark"
+    private let appGroupId = APIConstants.appGroupId
     private let inboxKey = "share_inbox_payloads"
     private let loadingTimeoutSeconds: TimeInterval = 15.0
     private let imageDirectory = "SharedImages"
@@ -61,13 +61,20 @@ class ShareViewController: UIViewController {
         
         // Tüm ağır işleri background'da yap
         Task {
-            // 1. Önce URL'i bulmaya çalış (en hızlısı)
-            let payload = await collectPayloadSafe()
+            // 1. Session ve Payload toplamayı paralel başlat
+            async let sessionInit: () = SessionStore.shared.initializeOnce()
+            async let payloadTask = collectPayloadSafe()
             
-            // 2. URL bulunduysa UI'ı anında göster (ModelContainer henüz hazır değil)
+            // 2. Payload'ı bekle (en kritik olan)
+            let payload = await payloadTask
+            
+            // 3. Session ilklendirmesinin bitmesini bekle (EnvironmentObject için gerekli)
+            await sessionInit
+            
+            // 4. UI'ı anında göster
             await showUIWithPayload(payload)
             
-            // 3. Arka planda ModelContainer'ı oluştur
+            // 5. Arka planda ModelContainer'ı oluştur
             let container = await createModelContainerAsync()
             
             await MainActor.run {
@@ -501,7 +508,7 @@ class ShareViewController: UIViewController {
             }
         )
         
-        let hosting = UIHostingController(rootView: AnyView(swiftUIView))
+        let hosting = UIHostingController(rootView: AnyView(swiftUIView.environmentObject(SessionStore.shared)))
         self.hostingController = hosting
         
         addChild(hosting)
@@ -519,7 +526,7 @@ class ShareViewController: UIViewController {
         
         // Eğer container varsa bağla
         if let container = modelContainer {
-            hosting.rootView = AnyView(swiftUIView.modelContainer(container))
+            hosting.rootView = AnyView(swiftUIView.modelContainer(container).environmentObject(SessionStore.shared))
         }
         
         print("✅ SwiftUI view setup complete")
@@ -555,9 +562,9 @@ class ShareViewController: UIViewController {
         
         if let hosting = hostingController as? UIHostingController<AnyView> {
             if let container = container {
-                hosting.rootView = AnyView(swiftUIView.modelContainer(container))
+                hosting.rootView = AnyView(swiftUIView.modelContainer(container).environmentObject(SessionStore.shared))
             } else {
-                hosting.rootView = AnyView(swiftUIView)
+                hosting.rootView = AnyView(swiftUIView.environmentObject(SessionStore.shared))
             }
         } else {
             // Re-setup if type mismatch

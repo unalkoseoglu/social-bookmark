@@ -29,6 +29,7 @@
 "common.getStarted" = "Başla";
 "common.min_read" = "dk okuma";
 "common.words" = "kelime";
+"common.days" = "Gün";
 "common.show_more" = "Daha Fazla";
 
 // MARK: - Auth
@@ -816,3 +817,64 @@
 "encryption.debug.test_run_fail %@" = "❌ Decryption başarısız!\nOrijinal: %@";
 "encryption.debug.copy_success %@" = "✅ Key kopyalandı! İlk 20 karakter: %@...";
 "encryption.debug.import_success" = "✅ Key başarıyla import edildi!";
+
+// MARK: - Analytics
+"analytics.title" = "Analiz";
+"analytics.tabs.general" = "Genel";
+"analytics.tabs.time" = "Zaman";
+"analytics.tabs.categories" = "Kategori";
+"analytics.time.morning" = "Sabah";
+"analytics.time.afternoon" = "Öğle";
+"analytics.time.evening" = "Akşam";
+"analytics.time.night" = "Gece";
+"analytics.filters.read" = "Okunmuş";
+"analytics.filters.stale" = "Eskimiş";
+"analytics.calculating" = "İstatistikler hesaplanıyor...";
+"analytics.window.30" = "30 Gün";
+"analytics.window.90" = "90 Gün";
+"analytics.category_analysis" = "Kategori Analizi";
+"analytics.no_categories" = "Henüz kategori verisi yok";
+"analytics.bookmark_not_found" = "Bookmark bulunamadı";
+"analytics.highlights" = "🌟 Öne Çıkanlar";
+"analytics.most_favorited" = "En çok favorilenen";
+"analytics.oldest_unread" = "En eski okunmamış";
+"analytics.current_streak" = "Güncel Streak";
+"analytics.longest_streak" = "En Uzun Streak";
+"analytics.most_active_day" = "En Aktif Gün";
+"analytics.read_bookmarks" = "Okunmuş Bookmarklar";
+"analytics.stale_bookmarks" = "Eskimiş Bookmarklar";
+"analytics.productivity_hours" = "Üretkenlik Saatleri";
+"analytics.peak_time_template %@" = "En çok **%@** vaktini seviyorsun.";
+"analytics.last_30_days_activity" = "Son 30 Gün Aktivite";
+"analytics.most_active_day_template %@" = "En aktif günün: %@";
+"analytics.overview.title" = "İstatistikler";
+
+// MARK: - Developer
+"settings.developer.title" = "Geliştirici";
+"settings.developer.force_sync" = "Tam Eşitlemeyi Zorla";
+"settings.developer.local_data" = "Yerel Veri";
+"settings.developer.bookmarks" = "Bookmarklar:";
+"settings.developer.categories" = "Kategoriler:";
+"settings.developer.user_id" = "Kullanıcı ID";
+"settings.developer.force_sync_footer" = "Tam Eşitlemeyi Zorla son eşitleme zaman damgasını temizler ve sunucudaki tüm verileri yeniden indirir. Bookmarklar veya kategoriler görünmüyorsa bunu kullanın.";
+
+// MARK: - Selection
+"selection.search_prompt" = "Bookmarklarda ara...";
+"selection.title" = "Bookmarkları Seç";
+
+// MARK: - Debug logs
+"debug.logs.title" = "Ağ Günlükleri";
+"debug.logs.no_logs" = "Henüz günlük yok";
+"debug.logs.request_details" = "İstek Detayları";
+"debug.logs.section.general" = "Genel";
+"debug.logs.section.error" = "Hata";
+"debug.logs.section.req_headers" = "İstek Başlıkları";
+"debug.logs.section.req_body" = "İstek Gövdesi";
+"debug.logs.section.res_headers" = "Yanıt Başlıkları";
+"debug.logs.section.res_body" = "Yanıt Gövdesi";
+
+// MARK: - Encryption Sync
+"encryption.sync.title" = "Eşitleme";
+"encryption.sync.reset_button" = "Eşitlemeyi Sıfırla";
+"encryption.sync.footer" = "Yerel verileri temizler ve her şeyi sunucudan yeniden indirir. Mükerrer veya güncel olmayan veriler görürseniz bunu kullanın.";
+"encryption.sync.reset_alert_message" = "Eşitleme sıfırlandı! Sunucudan taze verileri indirmek için aşağı kaydırıp yenileyin.";

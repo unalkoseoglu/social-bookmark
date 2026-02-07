@@ -7,7 +7,7 @@ struct NetworkLogsView: View {
     var body: some View {
         List {
             if logs.isEmpty {
-                Text("No logs yet")
+                Text("debug.logs.no_logs")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(logs) { log in
@@ -17,7 +17,7 @@ struct NetworkLogsView: View {
                 }
             }
         }
-        .navigationTitle("Network Logs")
+        .navigationTitle("debug.logs.title")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { clearLogs() }) {
@@ -111,7 +111,7 @@ struct NetworkLogDetailView: View {
     
     var body: some View {
         List {
-            Section(header: Text("General")) {
+            Section(header: Text("debug.logs.section.general")) {
                 InfoRow(label: "URL", value: log.url)
                 InfoRow(label: "Method", value: log.method)
                 InfoRow(label: "Status", value: "\(log.statusCode ?? 0)")
@@ -120,14 +120,14 @@ struct NetworkLogDetailView: View {
             }
             
             if let error = log.error {
-                Section(header: Text("Error")) {
+                Section(header: Text("debug.logs.section.error")) {
                     Text(error)
                         .foregroundColor(.red)
                 }
             }
             
             if let headers = log.requestHeaders, !headers.isEmpty {
-                Section(header: Text("Request Headers")) {
+                Section(header: Text("debug.logs.section.req_headers")) {
                     ForEach(headers.sorted(by: <), id: \.key) { key, value in
                         InfoRow(label: key, value: value)
                     }
@@ -135,14 +135,14 @@ struct NetworkLogDetailView: View {
             }
             
             if let body = log.requestBody, !body.isEmpty {
-                Section(header: Text("Request Body")) {
+                Section(header: Text("debug.logs.section.req_body")) {
                     Text(body)
                         .font(.system(.caption, design: .monospaced))
                 }
             }
             
             if let headers = log.responseHeaders, !headers.isEmpty {
-                Section(header: Text("Response Headers")) {
+                Section(header: Text("debug.logs.section.res_headers")) {
                     ForEach(headers.sorted(by: <), id: \.key) { key, value in
                         InfoRow(label: key, value: value)
                     }
@@ -150,18 +150,18 @@ struct NetworkLogDetailView: View {
             }
             
             if let body = log.responseBody, !body.isEmpty {
-                Section(header: Text("Response Body")) {
+                Section(header: Text("debug.logs.section.res_body")) {
                     Text(body)
                         .font(.system(.caption, design: .monospaced))
                         .contextMenu {
-                            Button("Copy") {
+                            Button(String(localized: "common.copy")) {
                                 UIPasteboard.general.string = body
                             }
                         }
                 }
             }
         }
-        .navigationTitle("Request Details")
+        .navigationTitle("debug.logs.request_details")
     }
 }
 
@@ -178,7 +178,7 @@ struct InfoRow: View {
                 .font(.system(.body, design: .monospaced))
         }
         .contextMenu {
-            Button("Copy") {
+            Button(String(localized: "common.copy")) {
                 UIPasteboard.general.string = value
             }
         }

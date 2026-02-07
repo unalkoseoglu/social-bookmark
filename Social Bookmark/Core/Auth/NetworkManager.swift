@@ -30,6 +30,10 @@ final class NetworkManager {
     private let session: URLSession
     private let decoder: JSONDecoder
     
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: APIConstants.appGroupId) ?? .standard
+    }
+    
     private init() {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
@@ -43,10 +47,21 @@ final class NetworkManager {
     func request<T: Decodable>(
         endpoint: String,
         method: String = "GET",
+        queryParameters: [String: String]? = nil,
         body: Data? = nil,
         headers: [String: String] = [:]
     ) async throws -> T {
-        guard let url = URL(string: APIConstants.baseURL.absoluteString + endpoint) else {
+        let urlString = APIConstants.baseURL.absoluteString + endpoint
+        
+        guard var components = URLComponents(string: urlString) else {
+            throw NetworkError.invalidURL
+        }
+        
+        if let queryParameters = queryParameters {
+            components.queryItems = queryParameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        
+        guard let url = components.url else {
             throw NetworkError.invalidURL
         }
         
@@ -59,7 +74,7 @@ final class NetworkManager {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
         // Auth token
-        if let token = UserDefaults.standard.string(forKey: APIConstants.Keys.token) {
+        if let token = defaults.string(forKey: APIConstants.Keys.token) {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
@@ -145,7 +160,7 @@ final class NetworkManager {
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
-        if let token = UserDefaults.standard.string(forKey: APIConstants.Keys.token) {
+        if let token = defaults.string(forKey: APIConstants.Keys.token) {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         

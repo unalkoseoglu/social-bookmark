@@ -1,0 +1,44 @@
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Content/PreviewMockCategoryRepository.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Content/PreviewMockRepository.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/APIConstants.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/AuthError.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/AuthRepositoryProtocol.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/AuthService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/AuthUser.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/DocumentUploadService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/EncryptionService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/ImageUploadService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/MigrationState.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/NetworkingHelpers.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/NetworkManager.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/SessionStore.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/SyncModels.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Auth/SyncService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/Logging/Logger+Extensions.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/BookmarkShareExtension/NSLocalizedStrings.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/BookmarkShareExtension/ShareExtensionView.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/BookmarkShareExtension/ShareViewController.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Core/AppConfig.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Models/Bookmark.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Models/BookmarkSource.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Models/Category.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Models/SortOption.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Models/SubscriptionManager.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Repositories/Protocol/BookmarkRepositoryProtocol.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Repositories/Protocol/CategoryRepositoryProtocol.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Repositories/BookmarkRepository.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Repositories/CategoryRepository.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Repositories/SyncableBookmarkRepository.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Constants/RandomNameGenerator.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Helpers/URLValidator.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/LinkedInService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/MediumService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/OCRService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/PDFService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/RedditService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/TwitterService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/Services/URLMetadataService.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Utilities/AppLanguage.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/ViewModels/AddBookmarkViewModel.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Views/Auth/SignInView.swift
+/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social\ Bookmark/Views/Paywall/PaywallView.swift

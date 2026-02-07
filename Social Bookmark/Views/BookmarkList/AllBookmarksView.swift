@@ -77,9 +77,11 @@ struct AllBookmarksView: View {
                 toolbarContent
             }
             .task {
-                // İlk açılışta hesapla
-                await updateFilteredBookmarks()
-                loadInitialPage()
+                // Sadece ilk açılışta veya veriler boşsa yükle
+                if displayedBookmarks.isEmpty {
+                    await updateFilteredBookmarks()
+                    loadInitialPage()
+                }
             }
             .onChange(of: searchText) { _, newValue in
                 // Debounce logic inside the Task
@@ -96,6 +98,20 @@ struct AllBookmarksView: View {
                 Task {
                     await updateFilteredBookmarks()
                     resetPagination()
+                }
+            }
+            .onChange(of: viewModel.bookmarks) { _, _ in
+                Task {
+                    await updateFilteredBookmarks()
+                    await MainActor.run {
+                        if !displayedBookmarks.isEmpty {
+                            // Basit bir güncelleme: Mevcut sayfa kadar veriyi yenile
+                            let count = displayedBookmarks.count
+                            displayedBookmarks = Array(filteredResults.prefix(count))
+                        } else {
+                            loadInitialPage()
+                        }
+                    }
                 }
             }
             .onChange(of: sortOrder) { _, _ in
@@ -160,6 +176,7 @@ struct AllBookmarksView: View {
         UnifiedBookmarkList(
             bookmarks: displayedBookmarks,
             viewModel: viewModel,
+            totalBookmarks: filteredResults,
             isGroupedBySource: sortOrder == .source,
             showStats: true,
             hasMorePages: hasMorePages,

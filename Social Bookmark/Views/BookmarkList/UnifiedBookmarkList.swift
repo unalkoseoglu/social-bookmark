@@ -7,6 +7,9 @@ struct UnifiedBookmarkList: View {
     let bookmarks: [Bookmark]
     let viewModel: HomeViewModel
     
+    /// Optional field to provide complete list for stats (if 'bookmarks' is paginated)
+    var totalBookmarks: [Bookmark]? = nil
+    
     // Configuration
     var showSorting: Bool = false
     var isGroupedBySource: Bool = false
@@ -16,6 +19,7 @@ struct UnifiedBookmarkList: View {
     var hasMorePages: Bool = false
     var isLoadingMore: Bool = false
     var onLoadMore: (() -> Void)? = nil
+    var onRefresh: (() async -> Void)? = nil
     
     // Empty State
     var emptyTitle: String = String(localized: "library.empty.title")
@@ -39,8 +43,11 @@ struct UnifiedBookmarkList: View {
             if bookmarks.isEmpty && !isLoadingMore {
                 emptyStateView
             } else {
+                
                 List {
+                    
                     if showStats {
+                        
                         statsSection
                     }
                     
@@ -55,6 +62,11 @@ struct UnifiedBookmarkList: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .refreshable {
+                    if let onRefresh = onRefresh {
+                        await onRefresh()
+                    }
+                }
             }
         }
     }
@@ -92,10 +104,12 @@ struct UnifiedBookmarkList: View {
     }
     
     private var statsSection: some View {
-        Section {
+        let statsList = totalBookmarks ?? bookmarks
+        
+        return Section {
             HStack(spacing: 20) {
                 statItem(
-                    count: bookmarks.count,
+                    count: statsList.count,
                     label: String(localized: "all.stats.total"),
                     color: .primary
                 )
@@ -103,7 +117,7 @@ struct UnifiedBookmarkList: View {
                 Divider()
                 
                 statItem(
-                    count: bookmarks.filter { $0.isRead }.count,
+                    count: statsList.filter { $0.isRead }.count,
                     label: String(localized: "all.stats.read"),
                     color: .green
                 )
@@ -111,7 +125,7 @@ struct UnifiedBookmarkList: View {
                 Divider()
                 
                 statItem(
-                    count: bookmarks.filter { !$0.isRead }.count,
+                    count: statsList.filter { !$0.isRead }.count,
                     label: String(localized: "all.stats.unread"),
                     color: .orange
                 )
@@ -155,12 +169,14 @@ struct UnifiedBookmarkList: View {
     // MARK: - Row Component
     
     private func bookmarkRow(_ bookmark: Bookmark) -> some View {
+       
         NavigationLink {
             BookmarkDetailView(
                 bookmark: bookmark,
                 viewModel: viewModel
             )
         } label: {
+            
             EnhancedBookmarkRow(
                 bookmark: bookmark,
                 category: viewModel.categories.first { $0.id == bookmark.categoryId }

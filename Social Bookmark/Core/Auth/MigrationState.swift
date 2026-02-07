@@ -162,6 +162,10 @@ final class AccountMigrationService: ObservableObject {
     
     private var modelContext: ModelContext?
     
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: APIConstants.appGroupId) ?? .standard
+    }
+    
     // MARK: - Initialization
     
     private init() {
@@ -211,7 +215,7 @@ final class AccountMigrationService: ObservableObject {
             return
         }
         // Check if already migrated
-        guard !UserDefaults.standard.bool(forKey: didMigrateToLaravelKey) else {
+        guard !defaults.bool(forKey: didMigrateToLaravelKey) else {
             Logger.auth.info("✅ [MIGRATION] Already migrated to Laravel")
             return
         }
@@ -252,7 +256,7 @@ final class AccountMigrationService: ObservableObject {
             }
             
             // Mark migration as complete
-            UserDefaults.standard.set(true, forKey: didMigrateToLaravelKey)
+            defaults.set(true, forKey: didMigrateToLaravelKey)
             Logger.auth.info("✅ [MIGRATION] Migration complete!")
             
         } catch {
@@ -279,10 +283,10 @@ final class AccountMigrationService: ObservableObject {
             try context.save()
             
             // Sync metadata'yı temizle
-            UserDefaults.standard.removeObject(forKey: APIConstants.Keys.lastSync)
+            defaults.removeObject(forKey: APIConstants.Keys.lastSync)
             
             // Reset migration flag so it runs again for new user
-            UserDefaults.standard.removeObject(forKey: didMigrateToLaravelKey)
+            defaults.removeObject(forKey: didMigrateToLaravelKey)
             
             Logger.auth.info("🧹 [MIGRATION] ✅ Local data and sync metadata cleared successfully")
             NotificationCenter.default.post(name: .localDataCleared, object: nil)

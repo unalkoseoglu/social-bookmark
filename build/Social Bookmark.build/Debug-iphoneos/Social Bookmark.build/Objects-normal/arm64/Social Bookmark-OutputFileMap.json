@@ -1,0 +1,1109 @@
+{
+  "" : {
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social Bookmark-primary.dia",
+    "emit-module-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social Bookmark-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social Bookmark-primary-emit-module.dia",
+    "pch" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social Bookmark-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social Bookmark-primary.swiftdeps"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/BookmarkShareExtension/NSLocalizedStrings.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NSLocalizedStrings~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/App/Social_BookmarkApp+OneSignal.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp+OneSignal~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/App/Social_BookmarkApp.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Social_BookmarkApp~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Content/PreviewMockCategoryRepository.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockCategoryRepository~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Content/PreviewMockRepository.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PreviewMockRepository~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/AppConfig.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConfig~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Audio/TTSManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TTSManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/APIConstants.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/APIConstants~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/AuthError.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthError~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/AuthRepositoryProtocol.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthRepositoryProtocol~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/AuthService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/AuthUser.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AuthUser~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/DocumentUploadService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DocumentUploadService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/EncryptionService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/ImageUploadService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageUploadService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/MigrationState.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MigrationState~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/NetworkManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/NetworkingHelpers.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkingHelpers~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/NotificationManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SessionStore.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SessionStore~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SyncModels.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncModels~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Auth/SyncService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Core/Logging/Logger+Extensions.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Logger+Extensions~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Language/LanguageManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LanguageManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Models/Bookmark.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Bookmark~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Models/BookmarkSource.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSource~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Models/Category.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Category~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Models/SortOption.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SortOption~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Models/SubscriptionManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SubscriptionManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Repositories/BookmarkRepository.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepository~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Repositories/CategoryRepository.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepository~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Repositories/Protocol/BookmarkRepositoryProtocol.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkRepositoryProtocol~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Repositories/Protocol/CategoryRepositoryProtocol.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryRepositoryProtocol~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Repositories/SyncableBookmarkRepository.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncableBookmarkRepository~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/AppLanguage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppLanguage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Constants/AppConstants.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppConstants~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Constants/LinkedInConfig.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInConfig~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Constants/RandomNameGenerator.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RandomNameGenerator~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Extensions/Date+Extensions.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/Date+Extensions~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Extensions/View+Extensions.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/View+Extensions~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Helpers/URLValidator.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLValidator~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/ReviewManager.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReviewManager~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/LinkedInService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/MediumService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/OCRService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OCRService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/PDFService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PDFService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/RedditService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/TwitterService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TwitterService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Utilities/Services/URLMetadataService.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/URLMetadataService~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/ViewModels/AddBookmarkViewModel.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkViewModel~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/ViewModels/AnalyticsViewModel.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsViewModel~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/ViewModels/BookmarkListViewModel.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListViewModel~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/ViewModels/HomeViewModel.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeViewModel~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/AddBookmarkView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AddBookmarkView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/CategoryPickerView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryPickerView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/LinkedInPreviewView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedInPreviewView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/MediumPreviewView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MediumPreviewView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/RedditPreviewView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RedditPreviewView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/AddBookmark/TweetPreviewView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TweetPreviewView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/AnalyticsView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AnalyticsView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/ActivityHeatmap.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ActivityHeatmap~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/LinkHealthCard.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkHealthCard~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/OverviewCard.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OverviewCard~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/PlatformBreakdownCard.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PlatformBreakdownCard~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/ReadingHabitsCard.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ReadingHabitsCard~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Analytics/Components/TimeOfDayCard.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/TimeOfDayCard~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Auth/RootView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/RootView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Auth/SignInView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SignInView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkDetail/AppearanceSettings.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AppearanceSettings~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkDetail/BookmarkDetailView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkDetailView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkDetail/CategoryDetailView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoryDetailView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkDetail/EditBookmarkView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EditBookmarkView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkDetail/LinkedBookmarksSection.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkedBookmarksSection~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/AllBookmarksView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AllBookmarksView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/BookmarkListView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkListView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/EmptyStateView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EmptyStateView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/FilteredBookmarksView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilteredBookmarksView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/SearchView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/BookmarkList/UnifiedBookmarkList.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/UnifiedBookmarkList~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Category/CategoriesManagementView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/CategoriesManagementView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/BookmarkSelectionSheet.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/BookmarkSelectionSheet~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/ErrorView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ErrorView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/FilterChip.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/FilterChip~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/IconCategory.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/IconCategory~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/ImageCropView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImageCropView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/ImagePickerView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ImagePickerView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/LinkAccountSheet.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LinkAccountSheet~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/LoadingView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LoadingView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/MainTabView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/MainTabView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Common/SelectableTextView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SelectableTextView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Components/ProBadge.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ProBadge~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Debug/NetworkLogViews.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NetworkLogViews~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Home/EnhancedBookmarkRow.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EnhancedBookmarkRow~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Home/HomeView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/HomeView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Library/LibraryView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/LibraryView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Components/OnboardingButton.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingButton~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Components/PageIndicator.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PageIndicator~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/OnboardingView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/OnboardingView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Pages/NotificationOnboardingPage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/NotificationOnboardingPage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Pages/SearchFeaturesPage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SearchFeaturesPage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Pages/ShareExtensionPage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/ShareExtensionPage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Pages/SourcesPage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SourcesPage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Onboarding/Pages/WelcomePage.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/WelcomePage~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Paywall/PaywallView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/PaywallView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Settings/AccountSettingsView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/AccountSettingsView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Settings/DataCleanupView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/DataCleanupView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Settings/EncryptionDebugView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/EncryptionDebugView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Settings/SettingsView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SettingsView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/Social Bookmark/Views/Settings/SyncSettingsView.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/SyncSettingsView~partial.swiftmodule"
+  },
+  "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/unalkoseoglu/Documents/Projects/Github/social-bookmark/build/Social Bookmark.build/Debug-iphoneos/Social Bookmark.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

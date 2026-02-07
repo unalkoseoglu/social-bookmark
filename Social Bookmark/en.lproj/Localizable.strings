@@ -30,6 +30,7 @@
 "common.getStarted" = "Get Started";
 "common.min_read" = "min read";
 "common.words" = "words";
+"common.days" = "Days";
 "common.show_more" = "Show More";
 
 // MARK: - Auth
@@ -829,3 +830,64 @@
 "encryption.debug.test_run_fail %@" = "❌ Decryption failed!\nOriginal: %@";
 "encryption.debug.copy_success %@" = "✅ Key copied! First 20 characters: %@...";
 "encryption.debug.import_success" = "✅ Key imported successfully!";
+
+// MARK: - Analytics
+"analytics.title" = "Analytics";
+"analytics.tabs.general" = "General";
+"analytics.tabs.time" = "Time";
+"analytics.tabs.categories" = "Categories";
+"analytics.time.morning" = "Morning";
+"analytics.time.afternoon" = "Afternoon";
+"analytics.time.evening" = "Evening";
+"analytics.time.night" = "Night";
+"analytics.filters.read" = "Read";
+"analytics.filters.stale" = "Stale";
+"analytics.calculating" = "Calculating statistics...";
+"analytics.window.30" = "30 Days";
+"analytics.window.90" = "90 Days";
+"analytics.category_analysis" = "Category Analysis";
+"analytics.no_categories" = "No category data yet";
+"analytics.bookmark_not_found" = "Bookmark not found";
+"analytics.highlights" = "🌟 Highlights";
+"analytics.most_favorited" = "Most favorited";
+"analytics.oldest_unread" = "Oldest unread";
+"analytics.current_streak" = "Current Streak";
+"analytics.longest_streak" = "Longest Streak";
+"analytics.most_active_day" = "Most Active Day";
+"analytics.read_bookmarks" = "Read Bookmarks";
+"analytics.stale_bookmarks" = "Stale Bookmarks";
+"analytics.productivity_hours" = "Productivity Hours";
+"analytics.peak_time_template %@" = "You enjoy **%@** time the most.";
+"analytics.last_30_days_activity" = "Last 30 Days Activity";
+"analytics.most_active_day_template %@" = "Your most active day: %@";
+"analytics.overview.title" = "Statistics";
+
+// MARK: - Developer
+"settings.developer.title" = "Developer";
+"settings.developer.force_sync" = "Force Full Sync";
+"settings.developer.local_data" = "Local Data";
+"settings.developer.bookmarks" = "Bookmarks:";
+"settings.developer.categories" = "Categories:";
+"settings.developer.user_id" = "User ID";
+"settings.developer.force_sync_footer" = "Force Full Sync clears the last sync timestamp and re-downloads all data from the server. Use this if bookmarks or categories are not appearing.";
+
+// MARK: - Selection
+"selection.search_prompt" = "Search bookmarks...";
+"selection.title" = "Select Bookmarks";
+
+// MARK: - Debug logs
+"debug.logs.title" = "Network Logs";
+"debug.logs.no_logs" = "No logs yet";
+"debug.logs.request_details" = "Request Details";
+"debug.logs.section.general" = "General";
+"debug.logs.section.error" = "Error";
+"debug.logs.section.req_headers" = "Request Headers";
+"debug.logs.section.req_body" = "Request Body";
+"debug.logs.section.res_headers" = "Response Headers";
+"debug.logs.section.res_body" = "Response Body";
+
+// MARK: - Encryption Sync
+"encryption.sync.title" = "Sync";
+"encryption.sync.reset_button" = "Reset Sync";
+"encryption.sync.footer" = "Clears local data and re-downloads everything from the server. Use this if you see duplicate or outdated data.";
+"encryption.sync.reset_alert_message" = "Sync reset! Pull to refresh to download fresh data from server.";

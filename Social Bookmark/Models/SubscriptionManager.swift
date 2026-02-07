@@ -43,6 +43,11 @@ final class SubscriptionManager: NSObject, ObservableObject {
                 if self.isPro != newProStatus {
                     print("🔄 [IAP] Profile Sync - IS_PRO: \(newProStatus)")
                     self.isPro = newProStatus
+                    
+                    // Persist to App Group immediately so extensions can see it
+                    if let defaults = UserDefaults(suiteName: APIConstants.appGroupId) {
+                        defaults.set(self.isPro, forKey: "isProUser")
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -73,11 +78,16 @@ final class SubscriptionManager: NSObject, ObservableObject {
             .build()
             
         Purchases.configure(with: configuration)
-        Purchases.shared.delegate = self
-        
         if shouldFetch {
+            Purchases.shared.delegate = self
             checkSubscriptionStatus()
             fetchOfferings()
+        } else {
+            // Extension modunda cache'den oku
+            if let defaults = UserDefaults(suiteName: APIConstants.appGroupId) {
+                self.isPro = defaults.bool(forKey: "isProUser")
+                print("📱 [IAP] Extension mode: Initial Pro status loaded from App Group: \(self.isPro)")
+            }
         }
         
         isConfigured = true
@@ -169,19 +179,28 @@ final class SubscriptionManager: NSObject, ObservableObject {
                         customerInfo.entitlements["com.unal.Social-Bookmark"]?.isActive == true
         
         DispatchQueue.main.async {
+            // Extension modundaysak ve yeni durum FREE ise,
+            // ana uygulamadan gelen PRO durumunu ezmemek için güncellemeyi atla.
+            let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
+            if isExtension && !proActive && self.isPro {
+                print("⚠️ [IAP] Extension mode: Ignoring FREE update from RevenueCat to keep existing PRO status.")
+                return
+            }
+            
+            self.isPro = proActive
+            
             if proActive {
                 print("✅ [IAP] User status updated to: PRO (via RevenueCat)")
-                self.isPro = true
-                
-                // Server'ı güncelle (opsiyonel, webhook kullanımı tavsiye edilir)
-                Task {
-                    try? await AuthService.shared.updateProStatus(isPro: true)
-                }
+                // Server'ı güncelle (opsiyonel)
+                Task { try? await AuthService.shared.updateProStatus(isPro: true) }
             } else {
-                // Alternatif olarak server'daki profile bakabiliriz
-                // Ama RevenueCat ana kaynak olmalı
-                self.isPro = false
                 print("ℹ️ [IAP] User status updated to: FREE")
+            }
+            
+            // App Group'a kaydet (Share Extension için)
+            if let defaults = UserDefaults(suiteName: APIConstants.appGroupId) {
+                defaults.set(self.isPro, forKey: "isProUser")
+                print("💾 [IAP] Pro status synced to App Group: \(self.isPro ? "PRO" : "FREE")")
             }
         }
     }

@@ -189,22 +189,37 @@ struct RootView: View {
     // MARK: - Auth Initialization
     
     private func initializeAuth() async {
+        Logger.sync.info("🔄 [RootView] Initializing auth...")
+        
         // SubscriptionManager'ı SessionStore ile bağla
         SubscriptionManager.shared.setupObservers(sessionStore: sessionStore)
         
         await sessionStore.initialize()
         
-        if !requireExplicitSignIn && !sessionStore.isAuthenticated { // && networkMonitor.isConnected { // TODO: Re-enable when NetworkMonitor is implemented
+        Logger.sync.info("🔐 [RootView] Auth initialized. isAuthenticated: \(sessionStore.isAuthenticated)")
+        
+        if !requireExplicitSignIn && !sessionStore.isAuthenticated {
+            Logger.sync.info("🔑 [RootView] Ensuring authentication...")
             await sessionStore.ensureAuthenticated()
+            Logger.sync.info("🔐 [RootView] After ensureAuthenticated. isAuthenticated: \(sessionStore.isAuthenticated)")
         }
         
-        // İlk açılışta sync yap (MANUAL ONLY)
-        /*
-        if sessionStore.isAuthenticated && !hasPerformedInitialSync {
+        // 3. Ensure encryption key is loaded before sync
+        if sessionStore.isAuthenticated {
+            Logger.sync.info("🔐 [RootView] Ensuring encryption key is loaded...")
+            do {
+                _ = try await EncryptionService.shared.getOrCreateKey()
+                Logger.sync.info("✅ [RootView] Encryption key loaded successfully")
+            } catch {
+                Logger.sync.error("❌ [RootView] Failed to load encryption key: \(error.localizedDescription)")
+                // If it failed, maybe the keychain is locked. Sync will proceed but might not decrypt.
+            }
+            
+            Logger.sync.info("✅ [RootView] User authenticated - triggering sync")
             await performInitialSync()
+        } else {
+            Logger.sync.warning("⚠️ [RootView] User not authenticated - skipping sync")
         }
-        */
-        Logger.sync.info("Initial sync disabled - manual sync required.")
     }
     
     // MARK: - Scene Phase Handling
@@ -215,8 +230,15 @@ struct RootView: View {
             // Uygulama aktif olduğunda (açılış veya arka plandan dönüş)
             Logger.app.info("Scene became active")
             
-            if sessionStore.isAuthenticated { // && networkMonitor.isConnected { // TODO: Re-enable when NetworkMonitor is implemented
-                // Do nothing - manual sync only
+            // Only sync if we've already done initial sync (prevents duplicate on first launch)
+            // .task handles the very first sync
+            if sessionStore.isAuthenticated && hasPerformedInitialSync {
+                Logger.sync.info("✅ [RootView] App became active (from background) - triggering sync")
+                Task {
+                    // Reset flag to allow sync
+                    hasPerformedInitialSync = false
+                    await performInitialSync()
+                }
             }
             
         case .inactive:
@@ -235,16 +257,21 @@ struct RootView: View {
     
     /// İlk açılışta tam sync
     private func performInitialSync() async {
-        guard !hasPerformedInitialSync else { return }
+        // Don't guard on hasPerformedInitialSync - we want sync on every app launch
+        Logger.sync.info("🔄 [RootView] Performing initial sync...")
         
-        Logger.sync.info("Performing initial sync...")
+        // Mark as performed to prevent duplicate syncs during this session
         hasPerformedInitialSync = true
         
         // Tam sync yap (önce download, sonra upload)
         await syncService.performFullSync()
         
+        Logger.sync.info("✅ [RootView] Initial sync complete - refreshing UI")
+        
         // ViewModel'i yenile
-       await homeViewModel.refresh()
+        await homeViewModel.refresh()
+        
+        Logger.sync.info("✅ [RootView] UI refresh complete")
     }
     
 }

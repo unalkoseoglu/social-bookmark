@@ -328,9 +328,36 @@ struct HomeView: View {
                     spacing: 12
                 ) {
                     // Favoriler (Her zaman en başta)
-                    FavoritesCard(count: viewModel.favoritesCount) {
+                    Button(action: {
                         showingFavorites = true
+                    }) {
+                        VStack(spacing: 8) {
+                            Image(systemName: "star.fill")
+                                .font(.title3)
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.yellow)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            
+                            Text("common.favorites")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                            
+                            Text("categories.management.bookmark_count \(viewModel.favoritesCount)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .contentTransition(.numericText())
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .buttonStyle(.plain)
                     
                     ForEach(Array(viewModel.sortedCategories.prefix(5))) { category in
                         CompactCategoryCard(
@@ -578,10 +605,12 @@ struct CompactCategoryCard: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                Text("\(count)")
+                Text("categories.management.bookmark_count \(count)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .contentTransition(.numericText())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)

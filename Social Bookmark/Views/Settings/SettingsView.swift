@@ -231,7 +231,7 @@ struct SettingsView: View {
                 }
             } label: {
                 HStack {
-                    Label("Force Full Sync", systemImage: "arrow.triangle.2.circlepath.circle.fill")
+                    Label(languageManager.localized("settings.developer.force_sync"), systemImage: "arrow.triangle.2.circlepath.circle.fill")
                     
                     Spacer()
                     
@@ -245,19 +245,19 @@ struct SettingsView: View {
             
             // Local Data Stats
             VStack(alignment: .leading, spacing: 8) {
-                Text("Local Data")
+                Text(languageManager.localized("settings.developer.local_data"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
                 HStack {
-                    Text("Bookmarks:")
+                    Text(languageManager.localized("settings.developer.bookmarks"))
                     Spacer()
                     Text("\(allBookmarks.count)")
                         .foregroundStyle(.secondary)
                 }
                 
                 HStack {
-                    Text("Categories:")
+                    Text(languageManager.localized("settings.developer.categories"))
                     Spacer()
                     Text("\(allCategories.count)")
                         .foregroundStyle(.secondary)
@@ -268,7 +268,7 @@ struct SettingsView: View {
             // User Info
             if let userId = sessionStore.userId {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("User ID")
+                    Text(languageManager.localized("settings.developer.user_id"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text(userId)
@@ -282,13 +282,12 @@ struct SettingsView: View {
             NavigationLink {
                 NetworkLogsView()
             } label: {
-                Label("Network Logs", systemImage: "network")
+                Label(languageManager.localized("debug.logs.title"), systemImage: "network")
             }
-            
         } header: {
-            Text("Developer")
+            Text(languageManager.localized("settings.developer.title"))
         } footer: {
-            Text("Force Full Sync clears the last sync timestamp and re-downloads all data from the server. Use this if bookmarks or categories are not appearing.")
+            Text(languageManager.localized("settings.developer.force_sync_footer"))
                 .font(.caption)
         }
     }

@@ -24,6 +24,12 @@ final class SessionStore: ObservableObject {
     // MARK: - Constants
     
     private let lastUserIdKey = "session_last_user_id"
+    private let isAnonymousKey = "session_is_anonymous"
+    private let displayNameKey = "session_display_name"
+    
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: APIConstants.appGroupId) ?? .standard
+    }
     // MARK: - Dependencies
     
     private let authService: AuthService
@@ -76,9 +82,28 @@ final class SessionStore: ObservableObject {
         
         Logger.auth.info("🔄 [SessionStore] Starting initialization...")
         
-        let lastId = UserDefaults.standard.string(forKey: lastUserIdKey)
-        let hasToken = UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil
+        let lastId = defaults.string(forKey: lastUserIdKey)
+        let hasToken = defaults.string(forKey: APIConstants.Keys.token) != nil
+        let isAnonFromCache = defaults.bool(forKey: isAnonymousKey)
+        let cachedName = defaults.string(forKey: displayNameKey)
+        
         Logger.auth.info("🔑 [SessionStore] Token exists: \(hasToken), Last user ID: \(lastId ?? "none")")
+        
+        // OPTIMIZATION: If in extension and have token, show UI immediately
+        let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
+        if isExtension && hasToken, let lastId = lastId {
+            Logger.auth.info("🚀 [SessionStore] Quick initialization for extension")
+            self.userId = lastId
+            self.isAuthenticated = true
+            self.isAnonymous = isAnonFromCache
+            self.displayName = cachedName
+            self.isLoading = false
+            self.didInitialize = true
+            
+            // Refresh in background if needed
+            Task { await loadUserProfile() }
+            return
+        }
         
         // Mevcut kullanıcıyı kontrol et
         if let user = await authService.getCurrentUser() {
@@ -94,18 +119,20 @@ final class SessionStore: ObservableObject {
             Logger.auth.info("📝 [SessionStore] User state updated, isAuthenticated: \(self.isAuthenticated)")
             
             // Only load profile if we haven't loaded it for this user yet
-            let shouldLoadProfile = userProfile == nil || userProfile?.id != user.id
+            // AND we're not in an extension (to speed up startup)
+            let shouldLoadProfile = (userProfile == nil || userProfile?.id != user.id) && !isExtension
+            
             if shouldLoadProfile {
                 Logger.auth.info("📥 Loading profile for user: \(user.id.uuidString)")
                 await loadUserProfile()
             } else {
-                Logger.auth.debug("✓ Profile already loaded for user: \(user.id.uuidString), skipping")
+                Logger.auth.info("✓ Skipping profile fetch (already loaded or in extension: \(isExtension))")
             }
             
             os.Logger.auth.info("Session restored for user: \(user.id.uuidString)")
             
             // Son başarılı ID'yi kaydet
-            UserDefaults.standard.set(user.id.uuidString, forKey: lastUserIdKey)
+            defaults.set(user.id.uuidString, forKey: lastUserIdKey)
         } else {
             Logger.auth.warning("❌ [SessionStore] No user found from getCurrentUser()")
             
@@ -328,7 +355,7 @@ final class SessionStore: ObservableObject {
     
     func loadUserProfile() async {
         // Guard: Don't attempt to load profile if we don't have a token
-        guard UserDefaults.standard.string(forKey: APIConstants.Keys.token) != nil else {
+        guard defaults.string(forKey: APIConstants.Keys.token) != nil else {
             Logger.auth.warning("⚠️ [SessionStore] Skipping profile load - no auth token available")
             return
         }
@@ -372,17 +399,14 @@ final class SessionStore: ObservableObject {
     // MARK: - Private Methods
     
     private func updateUserState(from user: AuthUser) {
-        let lastId = UserDefaults.standard.string(forKey: lastUserIdKey)
+        let lastId = defaults.string(forKey: lastUserIdKey)
         
         // GİZLİLİK KORUMASI:
-        // Eğer bir ID değişimi varsa VEYA ilk defa ID set ediliyorsa ve içeride veri varsa sil.
         if let lastId = lastId, lastId != user.id.uuidString {
             Logger.auth.warning("⚠️ [SessionStore] User ID mismatch (\(lastId) -> \(user.id.uuidString)). Wiping data.")
             Task { await AccountMigrationService.shared.clearAllLocalData() }
         } else if lastId == nil {
-            // İlk kez ID set ediliyor (taze kurulum değilse, yani içeride veri kalmışsa silinmeli)
-            // Bu senaryo genellikle "sign out olmuş ama veri temizlenmemiş" durumunda olur.
-            Logger.auth.info("ℹ️ [SessionStore] Connecting first user. Ensuring clean state.")
+            Logger.auth.info("ℹ : [SessionStore] Connecting first user. Ensuring clean state.")
             Task { await AccountMigrationService.shared.clearAllLocalData() }
         }
         
@@ -392,16 +416,16 @@ final class SessionStore: ObservableObject {
         self.isAuthenticated = true
         self.isAnonymous = user.isAnonymous
         
-        Logger.auth.info("✅ [updateUserState] Set isAuthenticated=\(self.isAuthenticated), isAnonymous=\(self.isAnonymous)")
-        
-        // ID'yi kaydet
-        UserDefaults.standard.set(user.id.uuidString, forKey: lastUserIdKey)
-        
         if displayName == nil {
             displayName = user.email ?? RandomNameGenerator.generate(from: user.id)
         }
         
-        // NotificationManager.shared.setExternalUserId(user.id.uuidString) // TODO: Re-enable when NotificationManager is available
+        Logger.auth.info("✅ [updateUserState] Set isAuthenticated=\(self.isAuthenticated), isAnonymous=\(self.isAnonymous)")
+        
+        // Persist to App Group for extension usage
+        defaults.set(user.id.uuidString, forKey: lastUserIdKey)
+        defaults.set(user.isAnonymous, forKey: isAnonymousKey)
+        defaults.set(displayName, forKey: displayNameKey)
     }
     
     private func resetUserState() {
@@ -412,7 +436,9 @@ final class SessionStore: ObservableObject {
         isAuthenticated = false
         isAnonymous = false
         
-        UserDefaults.standard.removeObject(forKey: lastUserIdKey)
+        defaults.removeObject(forKey: lastUserIdKey)
+        defaults.removeObject(forKey: isAnonymousKey)
+        defaults.removeObject(forKey: displayNameKey)
         // NotificationManager.shared.logout() // TODO: Re-enable when NotificationManager is available
     }
     
