@@ -43,10 +43,10 @@ struct SearchView: View {
         
         var title: String {
             switch self {
-            case .all: return String(localized: "search.scope.all")
-            case .title: return String(localized: "search.scope.title")
-            case .notes: return String(localized: "search.scope.notes")
-            case .tags: return String(localized: "search.scope.tags")
+            case .all: return LanguageManager.shared.localized("search.scope.all")
+            case .title: return LanguageManager.shared.localized("search.scope.title")
+            case .notes: return LanguageManager.shared.localized("search.scope.notes")
+            case .tags: return LanguageManager.shared.localized("search.scope.tags")
             }
         }
     }
@@ -69,7 +69,7 @@ struct SearchView: View {
                 resultsListView
             }
         }
-        .navigationTitle(String(localized: "search.title"))
+        .navigationTitle(LanguageManager.shared.localized("search.title"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             // Cache popular tags once
@@ -193,7 +193,7 @@ struct SearchView: View {
             Spacer()
             ProgressView()
                 .scaleEffect(1.2)
-            Text("search.searching")
+            Text(LanguageManager.shared.localized("search.searching"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Spacer()
@@ -227,12 +227,12 @@ struct SearchView: View {
     private var recentSearchesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("search.recent")
+                Text(LanguageManager.shared.localized("search.recent"))
                     .font(.headline)
                 
                 Spacer()
                 
-                Button("search.clear") {
+                Button(LanguageManager.shared.localized("search.clear")) {
                     recentSearches.removeAll()
                 }
                 .font(.subheadline)
@@ -253,7 +253,7 @@ struct SearchView: View {
     
     private var popularTagsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("search.popular_tags")
+            Text(LanguageManager.shared.localized("search.popular_tags"))
                 .font(.headline)
             
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
@@ -271,7 +271,7 @@ struct SearchView: View {
     
     private var sourceShortcutsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("search.browse_by_source")
+            Text(LanguageManager.shared.localized("search.browse_by_source"))
                 .font(.headline)
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -291,14 +291,14 @@ struct SearchView: View {
     
     private var noResultsView: some View {
         ContentUnavailableView {
-            Label("search.no_results.title", systemImage: "magnifyingglass")
+            Label(LanguageManager.shared.localized("search.no_results.title"), systemImage: "magnifyingglass")
         } description: {
-            Text("search.no_results.desc \(debouncedSearchText)")
+            Text(LanguageManager.shared.localized("search.no_results.desc %@", debouncedSearchText))
         } actions: {
             Button {
                 searchText = ""
             } label: {
-                Text("search.try_again")
+                Text(LanguageManager.shared.localized("search.try_again"))
             }
         }
     }
@@ -308,7 +308,7 @@ struct SearchView: View {
     private var resultsListView: some View {
         List {
             Section {
-                Text("search.results_count \(cachedResults.count)")
+                Text(LanguageManager.shared.localized("search.results_count %lld", Int64(cachedResults.count)))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

@@ -46,7 +46,7 @@ struct FilteredBookmarksView: View {
             }
             .navigationTitle(filter.title)
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: Text("filtered.search_prompt"))
+            .searchable(text: $searchText, prompt: Text(LanguageManager.shared.localized("filtered.search_prompt")))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
@@ -62,10 +62,12 @@ struct FilteredBookmarksView: View {
 
     private var bookmarkList: some View {
         UnifiedBookmarkList(
-            bookmarks: filteredBookmarks,
+            bookmarks: filteredBookmarks.map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+            },
             viewModel: viewModel,
-            emptyTitle: String(localized: emptyTitle),
-            emptySubtitle: String(localized: emptyDescription),
+            emptyTitle: LanguageManager.shared.localized(emptyTitle),
+            emptySubtitle: LanguageManager.shared.localized(emptyDescription),
             emptyIcon: filter.icon
         )
     }
@@ -74,19 +76,19 @@ struct FilteredBookmarksView: View {
 
     private var emptyStateView: some View {
         ContentUnavailableView {
-            Label(LocalizedStringKey(stringLiteral: String(localized: emptyTitle)), systemImage: filter.icon)
+            Label(LanguageManager.shared.localized(emptyTitle), systemImage: filter.icon)
         } description: {
-            Text(String(localized: emptyDescription))
+            Text(LanguageManager.shared.localized(emptyDescription))
         } actions: {
             Button { dismiss() } label: {
-                Text("common.go_back")
+                Text(LanguageManager.shared.localized("common.go_back"))
             }
         }
     }
 
     // MARK: - Computed Properties
 
-    private var emptyTitle: String.LocalizationValue {
+    private var emptyTitle: String {
         switch filter {
         case .unread: return "filtered.empty.unread.title"
         case .favorites: return "filtered.empty.favorites.title"
@@ -94,7 +96,7 @@ struct FilteredBookmarksView: View {
         }
     }
 
-    private var emptyDescription: String.LocalizationValue {
+    private var emptyDescription: String {
         switch filter {
         case .unread: return "filtered.empty.unread.desc"
         case .favorites: return "filtered.empty.favorites.desc"

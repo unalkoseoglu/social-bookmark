@@ -65,9 +65,11 @@ struct SignInHeader: View {
             Image(systemName: "crown.fill")
                 .font(.system(size: 60))
                 .foregroundStyle(.yellow)
-            Text("paywall.unauthenticated_title")
+            Text(LanguageManager.shared.localized("paywall.unauthenticated_title"))
                 .font(.title)
                 .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
             if let reason = reason {
                 Text(reason)
                     .font(.headline)
@@ -75,7 +77,7 @@ struct SignInHeader: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            Text("paywall.unauthenticated_subtitle")
+            Text(LanguageManager.shared.localized("paywall.unauthenticated_subtitle"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -101,10 +103,11 @@ struct SignInHeader: View {
             Image(systemName: "bookmark.fill")
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
-            Text("auth.welcome_title")
+                .foregroundStyle(.blue)
+            Text(LanguageManager.shared.localized("auth.welcome_title"))
                 .font(.title)
                 .fontWeight(.bold)
-            Text("auth.welcome_subtitle")
+            Text(LanguageManager.shared.localized("auth.welcome_subtitle"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -117,7 +120,7 @@ struct SignInHeader: View {
             Image(systemName: icon)
                 .foregroundStyle(.yellow)
                 .font(.system(size: 16, weight: .semibold))
-            Text(LocalizedStringKey(text))
+            Text(LanguageManager.shared.localized(text))
                 .font(.subheadline)
                 .foregroundStyle(.primary)
         }
@@ -186,15 +189,15 @@ struct SignInAlertModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(
-            Text("auth.error_title"),
+            Text(LanguageManager.shared.localized("auth.error_title")),
             isPresented: $showingError,
             presenting: error
         ) { _ in
-            Button(String(localized: "common.ok")) {
+            Button(LanguageManager.shared.localized("common.ok")) {
                 // sessionStore.clearError() // TODO: Implement if needed
             }
         } message: { error in
-            Text(error.errorDescription ?? String(localized: "auth.error.unknown"))
+            Text(error.errorDescription ?? LanguageManager.shared.localized("auth.error.unknown"))
         }
     }
 }
@@ -224,7 +227,7 @@ struct SignInLogicModifier: ViewModifier {
 
 extension SignInView {
     private var footerSection: some View {
-        Text("auth.terms_notice")
+        Text(LanguageManager.shared.localized("auth.terms_notice"))
             .font(.caption2)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)

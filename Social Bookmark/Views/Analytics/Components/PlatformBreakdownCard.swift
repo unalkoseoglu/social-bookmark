@@ -5,12 +5,12 @@ struct PlatformBreakdownCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Platform Analizi")
+            Text(LanguageManager.shared.localized("analytics.platform_analysis"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
             if breakdown.isEmpty {
-                Text("Henüz veri yok")
+                Text(LanguageManager.shared.localized("analytics.no_data"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -53,7 +53,7 @@ struct OnboardingView: View {
                                 currentPage += 1
                             }
                         }) {
-                            Text(LocalizedStringKey("common.continue"))
+                            Text(LanguageManager.shared.localized("common.continue"))
                                 .font(.headline)
                                 .foregroundStyle(colorScheme == .dark ? .black : .white)
                                 .frame(maxWidth: .infinity)
@@ -68,7 +68,7 @@ struct OnboardingView: View {
                             Button(action: { 
                                 isPresented = false 
                             }) {
-                                Text(LocalizedStringKey("common.getStarted"))
+                                Text(LanguageManager.shared.localized("common.getStarted"))
                                     .font(.headline)
                                     .foregroundStyle(colorScheme == .dark ? .black : .white)
                                     .frame(maxWidth: .infinity)
@@ -83,7 +83,7 @@ struct OnboardingView: View {
                                 // For now, we follow the current behavior of closing onboarding
                                 isPresented = false 
                             }) {
-                                Text(LocalizedStringKey("onboarding.action.login"))
+                                Text(LanguageManager.shared.localized("onboarding.action.login"))
                                     .font(.subheadline.bold())
                                     .foregroundStyle(.black)
                             }

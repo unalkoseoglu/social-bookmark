@@ -95,7 +95,7 @@ struct BookmarkDetailView: View {
     private var readingTime: String {
         let wpm = 200
         let minutes = max(1, wordCount / wpm)
-        return "\(minutes) \(String(localized: "common.min_read"))"
+        return LanguageManager.shared.localized("common.min_read %lld", Int64(minutes))
     }
     
     private var currentUIFont: UIFont {
@@ -269,17 +269,17 @@ struct BookmarkDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(action: { showingEditSheet = true }) {
-                        Label(String(localized: "common.edit"), systemImage: "pencil")
+                        Label(LanguageManager.shared.localized("common.edit"), systemImage: "pencil")
                     }
                     
                     Button(action: { showingShareSheet = true }) {
-                        Label(String(localized: "bookmarkDetail.share"), systemImage: "square.and.arrow.up")
+                        Label(LanguageManager.shared.localized("bookmarkDetail.share"), systemImage: "square.and.arrow.up")
                     }
                     
                     Divider()
                     
                     Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                        Label(String(localized: "common.delete"), systemImage: "trash")
+                        Label(LanguageManager.shared.localized("common.delete"), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -297,13 +297,13 @@ struct BookmarkDetailView: View {
                 categoryRepository: viewModel.categoryRepository
             )
         }
-        .alert(String(localized: "bookmarkDetail.delete_title"), isPresented: $showingDeleteAlert) {
-            Button(String(localized: "common.cancel"), role: .cancel) {}
-            Button(String(localized: "common.delete"), role: .destructive) {
+        .alert(LanguageManager.shared.localized("bookmarkDetail.delete_title"), isPresented: $showingDeleteAlert) {
+            Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) {}
+            Button(LanguageManager.shared.localized("common.delete"), role: .destructive) {
                 Task { await deleteBookmark() }
             }
         } message: {
-            Text(String(localized: "bookmarkDetail.delete_confirmation"))
+            Text(LanguageManager.shared.localized("bookmarkDetail.delete_confirmation"))
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareSheet(items: [
@@ -406,7 +406,7 @@ struct BookmarkDetailView: View {
                         .padding(.horizontal, 4)
                     
                     Image(systemName: "text.alignleft")
-                    Text("\(wordCount) \(String(localized: "common.words"))")
+                    Text(LanguageManager.shared.localized("common.words_count %lld", Int64(wordCount)))
                 }
                 .font(.caption)
                 .foregroundStyle(currentSecondaryTextColor)
@@ -436,7 +436,7 @@ struct BookmarkDetailView: View {
             if let summary = aiSummary {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Label(String(localized: "bookmarkDetail.summary_title"), systemImage: "sparkles")
+                        Label(LanguageManager.shared.localized("bookmarkDetail.summary_title"), systemImage: "sparkles")
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundStyle(.purple)
@@ -469,10 +469,10 @@ struct BookmarkDetailView: View {
                         if isSummarizing {
                             ProgressView()
                                 .padding(.trailing, 8)
-                            Text(String(localized: "common.loading"))
+                            Text(LanguageManager.shared.localized("common.loading"))
                         } else {
                             Image(systemName: "sparkles")
-                            Text(String(localized: "bookmarkDetail.summarize"))
+                            Text(LanguageManager.shared.localized("bookmarkDetail.summarize"))
                         }
                     }
                     .font(.subheadline)
@@ -505,7 +505,7 @@ struct BookmarkDetailView: View {
                 Image(systemName: "text.justify.left")
                     .font(.largeTitle)
                     .foregroundStyle(currentSecondaryTextColor.opacity(0.3))
-                Text(String(localized: "bookmark.no_content"))
+                Text(LanguageManager.shared.localized("bookmark.no_content"))
                     .font(.body)
                     .foregroundStyle(currentSecondaryTextColor)
             }
@@ -532,7 +532,7 @@ struct BookmarkDetailView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "bookmarkDetail.openInBrowser"))
+                    Text(LanguageManager.shared.localized("bookmarkDetail.openInBrowser"))
                         .font(.headline)
                         .foregroundStyle(currentTextColor)
                     
@@ -586,7 +586,7 @@ struct BookmarkDetailView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(bookmark.fileName ?? String(localized: "bookmarkDetail.document"))
+                    Text(bookmark.fileName ?? LanguageManager.shared.localized("bookmarkDetail.document"))
                         .font(.headline)
                         .foregroundStyle(currentTextColor)
                         .lineLimit(1)
@@ -596,7 +596,7 @@ struct BookmarkDetailView: View {
                             .font(.caption)
                             .foregroundStyle(currentSecondaryTextColor)
                     } else {
-                        Text(String(localized: "bookmarkDetail.openDocument"))
+                        Text(LanguageManager.shared.localized("bookmarkDetail.openDocument"))
                             .font(.caption)
                             .foregroundStyle(currentSecondaryTextColor)
                     }
@@ -631,7 +631,7 @@ struct BookmarkDetailView: View {
                     HStack(spacing: 8) {
                         Image(systemName: bookmark.isRead ? "checkmark.circle.fill" : "circle")
                             .font(.title3)
-                        Text(bookmark.isRead ? String(localized: "bookmarkDetail.status.read") : String(localized: "bookmarkDetail.markRead"))
+                        Text(bookmark.isRead ? LanguageManager.shared.localized("bookmarkDetail.status.read") : LanguageManager.shared.localized("bookmarkDetail.markRead"))
                             .fontWeight(.medium)
                     }
                     .foregroundStyle(bookmark.isRead ? .green : currentTextColor)
@@ -740,7 +740,7 @@ struct BookmarkDetailView: View {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             
             await MainActor.run {
-                let summary = "Bu içerik ana hatlarıyla \(bookmark.title) konusunu ele almaktadır. Yazıda vurgulanan en önemli noktalar; içerik düzenleme, kullanıcı deneyimi ve verimlilik artışıdır. Dokümanın geri kalanında bu konseptlerin derinlemesine analizi yapılmaktadır."
+                let summary = LanguageManager.shared.localized("bookmarkDetail.summary_mock %@", bookmark.title)
                 
                 withAnimation {
                     self.aiSummary = summary

@@ -28,8 +28,8 @@
 "common.skip" = "Skip";
 "common.continue" = "Continue";
 "common.getStarted" = "Get Started";
-"common.min_read" = "min read";
-"common.words" = "words";
+"common.min_read %lld" = "%lld min read";
+"common.words_count %lld" = "%lld words";
 "common.days" = "Days";
 "common.show_more" = "Show More";
 
@@ -258,6 +258,15 @@
 "bookmarkDetail.delete_title" = "Delete Bookmark?";
 "bookmarkDetail.delete_confirmation" = "Are you sure you want to delete this bookmark? This action cannot be undone.";
 "bookmarkDetail.word_count %lld" = "%lld words";
+"bookmarkDetail.document" = "Document";
+"bookmarkDetail.openDocument" = "View Document";
+"bookmarkDetail.summarize" = "Summarize with AI";
+"bookmarkDetail.summary_title" = "AI Summary";
+"bookmarkDetail.summary_mock %@" = "This content summarizes the topic of %@. The main points highlighted are content organization, user experience, and productivity increase. The rest of the document provides an in-depth analysis of these concepts.";
+"bookmarkDetail.search_in_text" = "Search in text";
+"bookmarkDetail.focus_mode" = "Focus Mode";
+"bookmarkDetail.linked_bookmarks" = "Linked Bookmarks";
+"bookmarkDetail.linked_bookmarks_empty" = "No linked bookmarks yet. Link related content to create a series or reading list.";
 "bookmark.no_content" = "No content available";
 
 // MARK: - Categories Management
@@ -282,6 +291,8 @@
 "categories.management.delete_confirmation %@" = "Are you sure you want to delete the '%@' category?";
 "categories.management.delete_with_bookmarks %lld %@" = "This category contains %lld bookmarks. Deleting '%@' will categorize its bookmarks as Uncategorized. Continue?";
 "categories.management.editing_status" = "Editing";
+"categories.sort.manual" = "Manual";
+"categories.sort.count" = "Bookmark Count";
 
 "category_picker.title" = "Category";
 "category_picker.none" = "Not Selected";
@@ -376,6 +387,10 @@
 "ocr.processing" = "Extracting text...";
 "ocr.noText" = "No text found";
 "ocr.result" = "OCR Result";
+"ocr.error.invalid_image" = "Invalid image format";
+"ocr.error.no_text" = "No text found in image";
+"ocr.error.crop_failed" = "Could not crop image";
+"ocr.error.processing" = "OCR Processing Error";
 
 // MARK: - Settings & Account
 "settings.title" = "Settings";
@@ -471,6 +486,9 @@
 "sync.error.network" = "No network connection";
 "sync.error.failed" = "Sync failed";
 "sync.error.conflict" = "Data conflict detected";
+"sync.error.bookmark_failed" = "Bookmark could not be synced";
+"sync.error.category_failed" = "Category could not be synced";
+"error.sync_failed" = "An error occurred during synchronization. Some data may not be saved to the cloud.";
 
 // MARK: - Language Settings
 "settings.language.system" = "System";
@@ -836,6 +854,35 @@
 "analytics.tabs.general" = "General";
 "analytics.tabs.time" = "Time";
 "analytics.tabs.categories" = "Categories";
+"analytics.filters.read" = "Read";
+"analytics.filters.stale" = "Stale";
+"analytics.activity_window" = "Activity Window";
+"analytics.completed" = "Completed";
+"analytics.platform_analysis" = "Platform Analysis";
+"analytics.reading_habits" = "Reading Habits";
+"analytics.reading_habits_subtitle" = "Your reading consistency and habits";
+"analytics.link_health" = "Link Health";
+"analytics.active_count %lld" = "%lld Active";
+"analytics.to_check_count %lld" = "%lld To Check";
+"analytics.broken_links_title" = "Needs Attention";
+"analytics.more_count %lld" = "%lld more...";
+"analytics.no_data" = "No data yet";
+"analytics.category_analysis" = "Category Analysis";
+"analytics.time_of_day_analysis" = "Time of Day Analysis";
+"analytics.title" = "Analytics";
+"analytics.calculating" = "Calculating statistics...";
+"analytics.window.30" = "30 Days";
+"analytics.window.90" = "90 Days";
+"analytics.no_categories" = "No category data yet";
+"analytics.bookmark_not_found" = "Bookmark not found";
+"analytics.highlights" = "🌟 Highlights";
+"analytics.most_favorited" = "Most favorited";
+"analytics.oldest_unread" = "Oldest unread";
+"analytics.current_streak" = "Current Streak";
+"analytics.longest_streak" = "Longest Streak";
+"analytics.most_active_day" = "Most Active Day";
+"analytics.read_bookmarks" = "Read Bookmarks";
+"analytics.stale_bookmarks" = "Stale Bookmarks";
 "analytics.time.morning" = "Morning";
 "analytics.time.afternoon" = "Afternoon";
 "analytics.time.evening" = "Evening";
@@ -863,13 +910,14 @@
 "analytics.overview.title" = "Statistics";
 
 // MARK: - Developer
-"settings.developer.title" = "Developer";
+"settings.developer.title" = "Developer Settings";
 "settings.developer.force_sync" = "Force Full Sync";
-"settings.developer.local_data" = "Local Data";
-"settings.developer.bookmarks" = "Bookmarks:";
-"settings.developer.categories" = "Categories:";
+"settings.developer.reset_sync" = "Reset Data & Re-sync";
+"settings.developer.local_data" = "Local Data Stats";
+"settings.developer.bookmarks" = "Bookmarks";
+"settings.developer.categories" = "Categories";
 "settings.developer.user_id" = "User ID";
-"settings.developer.force_sync_footer" = "Force Full Sync clears the last sync timestamp and re-downloads all data from the server. Use this if bookmarks or categories are not appearing.";
+"settings.developer.force_sync_footer" = "Forces a complete data synchronization with the server. Use this if bookmarks or categories are not appearing.";
 
 // MARK: - Selection
 "selection.search_prompt" = "Search bookmarks...";

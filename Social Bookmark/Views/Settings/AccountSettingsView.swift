@@ -37,7 +37,7 @@ struct AccountSettingsView: View {
                 dangerZoneSection
             }
         }
-        .navigationTitle("settings.account")
+        .navigationTitle(LanguageManager.shared.localized("settings.account"))
         .navigationBarTitleDisplayMode(.inline)
         .accountSettingsSheets(
             showingSignIn: $showingSignIn,
@@ -80,7 +80,7 @@ struct AccountSettingsView: View {
             }
 
         } header: {
-            Text("settings.account_info")
+            Text(LanguageManager.shared.localized("settings.account_info"))
         }
     }
     
@@ -95,11 +95,11 @@ struct AccountSettingsView: View {
                     .foregroundStyle(.orange)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("settings.anonymous_warning_title")
+                    Text(LanguageManager.shared.localized("settings.anonymous_warning_title"))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     
-                    Text("settings.anonymous_warning_message")
+                    Text(LanguageManager.shared.localized("settings.anonymous_warning_message"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -112,7 +112,7 @@ struct AccountSettingsView: View {
             } label: {
                 HStack {
                     
-                    Label("settings.link_with_apple", systemImage: "apple.logo")
+                    Label(LanguageManager.shared.localized("settings.link_with_apple"), systemImage: "apple.logo")
                    
                     
                     Spacer()
@@ -125,9 +125,9 @@ struct AccountSettingsView: View {
             }
             
         } header: {
-            Text("settings.secure_your_account")
+            Text(LanguageManager.shared.localized("settings.secure_your_account"))
         } footer: {
-            Text("settings.link_account_footer")
+            Text(LanguageManager.shared.localized("settings.link_account_footer"))
         }
     }
     
@@ -137,14 +137,14 @@ struct AccountSettingsView: View {
         Section {
             // Sync durumu
             HStack {
-                Label("settings.sync_status", systemImage: "arrow.triangle.2.circlepath")
+                Label(LanguageManager.shared.localized("settings.sync_status"), systemImage: "arrow.triangle.2.circlepath")
                 Spacer()
-                Text("settings.synced")
+                Text(LanguageManager.shared.localized("settings.synced"))
                     .foregroundStyle(.secondary)
             }
             
         } header: {
-            Text("settings.account_actions")
+            Text(LanguageManager.shared.localized("settings.account_actions"))
         }
     }
     
@@ -156,18 +156,18 @@ struct AccountSettingsView: View {
             Button(role: .destructive) {
                 showingSignOutAlert = true
             } label: {
-                Label("settings.sign_out", systemImage: "rectangle.portrait.and.arrow.right")
+                Label(LanguageManager.shared.localized("settings.sign_out"), systemImage: "rectangle.portrait.and.arrow.right")
             }
             
             // Hesabı Sil
             Button(role: .destructive) {
                 showingDeleteAccountAlert = true
             } label: {
-                Label("settings.delete_account", systemImage: "trash")
+                Label(LanguageManager.shared.localized("settings.delete_account"), systemImage: "trash")
             }
         
         } footer: {
-            Text("settings.delete_account_warning")
+            Text(LanguageManager.shared.localized("settings.delete_account_warning"))
         }
     }
     
@@ -190,11 +190,11 @@ struct AccountSettingsView: View {
                             .foregroundStyle(.blue)
                     }
                     
-                    Text("settings.link_account_title")
+                    Text(LanguageManager.shared.localized("settings.link_account_title"))
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("settings.link_account_subtitle")
+                    Text(LanguageManager.shared.localized("settings.link_account_subtitle"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -205,9 +205,9 @@ struct AccountSettingsView: View {
                 
                 // Faydalar listesi
                 VStack(alignment: .leading, spacing: 12) {
-                    benefitRow(icon: "checkmark.shield.fill", text: "settings.benefit_secure", color: .green)
-                    benefitRow(icon: "arrow.triangle.2.circlepath", text: "settings.benefit_sync", color: .blue)
-                    benefitRow(icon: "macbook.and.iphone", text: "settings.benefit_devices", color: .purple)
+                    benefitRow(icon: "checkmark.shield.fill", textId: "settings.benefit_secure", color: .green)
+                    benefitRow(icon: "arrow.triangle.2.circlepath", textId: "settings.benefit_sync", color: .blue)
+                    benefitRow(icon: "macbook.and.iphone", textId: "settings.benefit_devices", color: .purple)
                 }
                 .padding(.horizontal, 32)
                 
@@ -232,7 +232,7 @@ struct AccountSettingsView: View {
                 .padding(.horizontal, 24)
                 
                 // Info
-                Text("settings.link_keeps_data")
+                Text(LanguageManager.shared.localized("settings.link_keeps_data"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -241,11 +241,11 @@ struct AccountSettingsView: View {
                 Spacer()
                     .frame(height: 20)
             }
-            .navigationTitle("settings.link_account")
+            .navigationTitle(LanguageManager.shared.localized("settings.link_account"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("common.cancel") {
+                    Button(LanguageManager.shared.localized("common.cancel")) {
                         showingLinkAccountSheet = false
                     }
                 }
@@ -256,14 +256,14 @@ struct AccountSettingsView: View {
     
     // MARK: - Helper Views
     
-    private func benefitRow(icon: String, text: LocalizedStringKey, color: Color) -> some View {
+    private func benefitRow(icon: String, textId: String, color: Color) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.body)
                 .foregroundStyle(color)
                 .frame(width: 24)
             
-            Text(text)
+            Text(LanguageManager.shared.localized(textId))
                 .font(.subheadline)
                 .foregroundStyle(.primary)
         }
@@ -319,21 +319,21 @@ extension View {
         sessionStore: SessionStore
     ) -> some View {
         self
-            .alert("settings.sign_out_title", isPresented: showingSignOutAlert) {
-                Button("common.cancel", role: .cancel) { }
-                Button("settings.sign_out", role: .destructive) {
+            .alert(LanguageManager.shared.localized("settings.sign_out_title"), isPresented: showingSignOutAlert) {
+                Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) { }
+                Button(LanguageManager.shared.localized("settings.sign_out"), role: .destructive) {
                     Task { await sessionStore.signOutAndClearData() }
                 }
             } message: {
-                Text("settings.sign_out_message")
+                Text(LanguageManager.shared.localized("settings.sign_out_message"))
             }
-            .alert("settings.delete_account_title", isPresented: showingDeleteAccountAlert) {
-                Button("common.cancel", role: .cancel) { }
-                Button("settings.delete_account", role: .destructive) {
+            .alert(LanguageManager.shared.localized("settings.delete_account_title"), isPresented: showingDeleteAccountAlert) {
+                Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) { }
+                Button(LanguageManager.shared.localized("settings.delete_account"), role: .destructive) {
                     Task { await sessionStore.deleteAccount() }
                 }
             } message: {
-                Text("settings.delete_account_message")
+                Text(LanguageManager.shared.localized("settings.delete_account_message"))
             }
     }
 
@@ -343,11 +343,11 @@ extension View {
     ) -> some View {
         self
             .alert(
-                Text("auth.error_title"),
+                Text(LanguageManager.shared.localized("auth.error_title")),
                 isPresented: showingError,
                 presenting: sessionStore.error
             ) { _ in
-                Button("common.ok") {
+                Button(LanguageManager.shared.localized("common.ok")) {
                     sessionStore.clearError()
                 }
             } message: { error in
@@ -401,7 +401,7 @@ struct AccountSettingsSection: View {
                                 HStack(spacing: 4) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .font(.caption2)
-                                    Text("auth.tap_to_secure")
+                                    Text(LanguageManager.shared.localized("auth.tap_to_secure"))
                                         .font(.caption)
                                 }
                                 .foregroundStyle(.orange)
@@ -425,11 +425,11 @@ struct AccountSettingsSection: View {
                 Button {
                     showingSignIn = true
                 } label: {
-                    Label("auth.sign_in", systemImage: "person.crop.circle")
+                    Label(LanguageManager.shared.localized("auth.sign_in"), systemImage: "person.crop.circle")
                 }
             }
         } header: {
-            Text("settings.account")
+            Text(LanguageManager.shared.localized("settings.account"))
         }
         .sheet(isPresented: $showingSignIn) {
             SignInView(isPresented: true)

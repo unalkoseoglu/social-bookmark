@@ -1268,8 +1268,19 @@ extension ShareExtensionView {
         let finalImagesData: [Data]? = {
             if !tweetImagesData.isEmpty { return tweetImagesData }
             if !redditImagesData.isEmpty { return redditImagesData }
-            return nil
+            var collected: [Data] = []
+            if let li = linkedInImageData { collected.append(li) }
+            if let md = mediumImageData { collected.append(md) }
+            return collected.isEmpty ? nil : collected
         }()
+
+        // DIAGNOSTIC LOGGING:
+        if let data = finalImageData {
+            print("📸 [ShareExtension] Saving with single image: \(data.count) bytes")
+        }
+        if let multiple = finalImagesData {
+            print("📸 [ShareExtension] Saving with multiple images: \(multiple.count) items")
+        }
         
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),

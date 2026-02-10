@@ -9,21 +9,7 @@
 import SwiftUI
 
 struct EnhancedBookmarkRow: View {
-    let bookmark: Bookmark
-    var category: Category? = nil
-    
-    // MARK: - Computed Properties
-    
-    private var contentPreview: String {
-        if !bookmark.note.isEmpty {
-            return bookmark.note
-        } else if let extractedText = bookmark.extractedText, !extractedText.isEmpty {
-            return extractedText
-        } else if let url = bookmark.url {
-            return url
-        }
-        return String(localized: "bookmark.no_content")
-    }
+    let bookmark: BookmarkDisplayModel
     
     // MARK: - Body
     
@@ -42,7 +28,7 @@ struct EnhancedBookmarkRow: View {
                     .lineLimit(2)
                 
                 // Content
-                Text(contentPreview)
+                Text(bookmark.contentPreview)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -86,11 +72,11 @@ struct EnhancedBookmarkRow: View {
                         .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    if let category = category {
+                    if let categoryName = bookmark.categoryName {
                         Text("•")
                             .font(.caption2)
                             .foregroundStyle(.primary)
-                        Text(category.name)
+                        Text(categoryName)
                             .font(.caption2)
                             .foregroundStyle(.primary)
                     }
@@ -174,24 +160,28 @@ struct EnhancedBookmarkRow: View {
 #Preview("With Image") {
     List {
         EnhancedBookmarkRow(
-            bookmark: Bookmark(
-                title: "SwiftUI ile Modern iOS Uygulama Geliştirme Rehberi",
-                url: "https://developer.apple.com/swiftui",
-                note: "Apple'ın modern UI framework'ü SwiftUI ile ilgili kapsamlı dokümantasyon.",
-                source: .article,
-                isRead: false,
-                tags: ["Swift", "iOS", "SwiftUI"]
+            bookmark: BookmarkDisplayModel(
+                bookmark: Bookmark(
+                    title: "SwiftUI ile Modern iOS Uygulama Geliştirme Rehberi",
+                    url: "https://developer.apple.com/swiftui",
+                    note: "Apple'ın modern UI framework'ü SwiftUI ile ilgili kapsamlı dokümantasyon.",
+                    source: .article,
+                    isRead: false,
+                    tags: ["Swift", "iOS", "SwiftUI"]
+                )
             )
         )
         
         EnhancedBookmarkRow(
-            bookmark: Bookmark(
-                title: "Kısa başlık",
-                url: nil,
-                note: "",
-                source: .twitter,
-                isRead: true,
-                tags: []
+            bookmark: BookmarkDisplayModel(
+                bookmark: Bookmark(
+                    title: "Kısa başlık",
+                    url: nil,
+                    note: "",
+                    source: .twitter,
+                    isRead: true,
+                    tags: []
+                )
             )
         )
     }

@@ -24,9 +24,6 @@ struct SettingsView: View {
     @State private var showingAnalytics = false
     @Bindable var homeViewModel: HomeViewModel
     
-    @State private var showingRestartAlert = false
-    @State private var pendingLanguage: AppLanguage?
-    
     var body: some View {
         NavigationStack {
             List {
@@ -41,9 +38,6 @@ struct SettingsView: View {
                 // Senkronizasyon
                 syncSection
                 
-                // Developer / Debug
-                developerSection
-                
                 // Görünüm
                 appearanceSection
                 
@@ -55,24 +49,7 @@ struct SettingsView: View {
             }
             .navigationTitle(languageManager.localized("settings.title"))
             .toolbarTitleDisplayMode(.inline)
-            .alert(languageManager.localized("settings.language_change_title"), isPresented: $showingRestartAlert) {
-                Button(languageManager.localized("settings.restart_now")) {
-                    if let language = pendingLanguage {
-                        languageManager.currentLanguage = language
-                        languageManager.restartApp()
-                    }
-                }
-                Button(languageManager.localized("settings.restart_later"), role: .cancel) {
-                    if let language = pendingLanguage {
-                        languageManager.currentLanguage = language
-                    }
-                    pendingLanguage = nil
-                }
-            } message: {
-                Text(languageManager.localized("settings.language_change_message"))
-            }
         }
-        .id(languageManager.refreshID)
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
@@ -205,7 +182,7 @@ struct SettingsView: View {
         } footer: {
             if let lastSync = syncService.lastSyncDate {
                 HStack(spacing: 4) {
-                    Text(String(localized: "sync.last_sync_footer"))
+                    Text(LanguageManager.shared.localized("sync.last_sync_footer"))
                     Text(lastSync, style: .relative)
                 }
             }
@@ -233,15 +210,29 @@ struct SettingsView: View {
                 HStack {
                     Label(languageManager.localized("settings.developer.force_sync"), systemImage: "arrow.triangle.2.circlepath.circle.fill")
                     
-                    Spacer()
-                    
                     if isForcingSyncTask {
+                        Spacer()
                         ProgressView()
                             .scaleEffect(0.7)
                     }
                 }
             }
             .disabled(isForcingSyncTask || syncService.syncState == .syncing)
+            
+            // Reset Sync Button
+            Button(role: .destructive) {
+                Task {
+                    do {
+                        try await syncService.resetSync()
+                        await homeViewModel.refresh()
+                    } catch {
+                        print("❌ Reset sync failed: \(error)")
+                    }
+                }
+            } label: {
+                Label(LanguageManager.shared.localized("settings.developer.reset_sync"), systemImage: "trash.circle.fill")
+            }
+            .disabled(syncService.syncState == .syncing)
             
             // Local Data Stats
             VStack(alignment: .leading, spacing: 8) {
@@ -299,10 +290,10 @@ struct SettingsView: View {
             Button {
                 showingAnalytics = true
             } label: {
-                Label(String(localized: "settings.analytics"), systemImage: "chart.bar.fill")
+                Label(LanguageManager.shared.localized("settings.analytics"), systemImage: "chart.bar.fill")
             }
         } header: {
-            Text(String(localized: "settings.analytics_header"))
+            Text(LanguageManager.shared.localized("settings.analytics_header"))
         }
     }
     
@@ -310,28 +301,19 @@ struct SettingsView: View {
     
     private var appearanceSection: some View {
         Section {
-            // Dil seçimi - Picker yerine manuel liste
-            ForEach(AppLanguage.allCases) { language in
-                Button {
-                    if language != languageManager.currentLanguage {
-                        pendingLanguage = language
-                        showingRestartAlert = true
-                    }
-                } label: {
-                    HStack {
-                        Text(language.displayName)
-                            .foregroundStyle(.primary)
-                        
-                        Spacer()
-                        
-                        if language == languageManager.currentLanguage {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
-                                .fontWeight(.semibold)
-                        }
-                    }
+            Picker(selection: Binding(
+                get: { languageManager.currentLanguage },
+                set: { newValue in
+                    languageManager.currentLanguage = newValue
                 }
+            )) {
+                ForEach(AppLanguage.allCases) { language in
+                    Text(language.displayName).tag(language)
+                }
+            } label: {
+                Label(languageManager.localized("settings.language"), systemImage: "globe")
             }
+            .pickerStyle(.menu)
             
         } header: {
             Text(languageManager.localized("settings.language"))
@@ -393,13 +375,6 @@ struct SettingsView: View {
                 Text(languageManager.localized("settings.version"))
                 Spacer()
                 Text(appVersion)
-                    .foregroundStyle(.secondary)
-            }
-            
-            HStack {
-                Text(languageManager.localized("settings.build"))
-                Spacer()
-                Text(buildNumber)
                     .foregroundStyle(.secondary)
             }
             

@@ -31,17 +31,17 @@ struct BookmarkListView: View {
             Group {
                 if listViewModel.isLoading {
                     // Yüklenirken spinner göster
-                    ProgressView("common.loading")
+                    ProgressView(LanguageManager.shared.localized("common.loading"))
                 } else {
                     // UnifiedBookmarkList kendi boş durumunu yönetir
                     optimizedBookmarkList
                 }
             }
-            .navigationTitle("auth.welcome_title")
+            .navigationTitle(LanguageManager.shared.localized("auth.welcome_title"))
             .navigationBarTitleDisplayMode(.inline)
             .searchable(
                 text: $listViewModel.searchText,
-                prompt: Text("all.search_prompt")
+                prompt: Text(LanguageManager.shared.localized("all.search_prompt"))
             )
             .toolbar {
                 toolbarContent
@@ -68,11 +68,13 @@ struct BookmarkListView: View {
     /// Optimize edilmiş bookmark listesi - LazyVStack kullanıyor
     private var optimizedBookmarkList: some View {
         UnifiedBookmarkList(
-            bookmarks: listViewModel.bookmarks,
+            bookmarks: listViewModel.bookmarks.map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: homeViewModel.categories.first { cat in cat.id == bookmark.categoryId })
+            },
             viewModel: homeViewModel,
             showStats: true,
-            emptyTitle: String(localized: "home.empty.no_bookmarks"),
-            emptySubtitle: String(localized: "home.empty.no_bookmarks_desc"),
+            emptyTitle: LanguageManager.shared.localized("home.empty.no_bookmarks"),
+            emptySubtitle: LanguageManager.shared.localized("home.empty.no_bookmarks_desc"),
             emptyIcon: "bookmark.slash"
         )
     }
@@ -97,8 +99,8 @@ struct BookmarkListView: View {
         ToolbarItem(placement: .topBarLeading) {
             Menu {
                 // Kaynak filtresi
-                Picker("all.filter.source", selection: $listViewModel.selectedSource) {
-                    Text("common.all").tag(nil as BookmarkSource?)
+                Picker(LanguageManager.shared.localized("all.filter.source"), selection: $listViewModel.selectedSource) {
+                    Text(LanguageManager.shared.localized("common.all")).tag(nil as BookmarkSource?)
                     Divider()
                     ForEach(BookmarkSource.allCases) { source in
                         Text(source.displayName).tag(source as BookmarkSource?)
@@ -108,13 +110,13 @@ struct BookmarkListView: View {
                 Divider()
                 
                 // Okunmamış filtresi
-                Toggle("all.filter.only_unread", isOn: $listViewModel.showOnlyUnread)
+                Toggle(LanguageManager.shared.localized("all.filter.only_unread"), isOn: $listViewModel.showOnlyUnread)
                 
                 Divider()
                 
                 // Filtreleri temizle
                 Button(action: listViewModel.clearFilters) {
-                    Label("all.action.clear_filters", systemImage: "xmark.circle")
+                    Label(LanguageManager.shared.localized("all.action.clear_filters"), systemImage: "xmark.circle")
                 }
             } label: {
                 Image(systemName: "line.3.horizontal.decrease.circle")

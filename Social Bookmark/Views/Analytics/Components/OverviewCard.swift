@@ -14,21 +14,21 @@ struct OverviewCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("İstatistikler")
+            Text(LanguageManager.shared.localized("analytics.overview.title"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                StatItem(icon: "bookmark.fill", title: "Toplam", value: "\(total)", color: .blue)
-                StatItem(icon: "plus.circle.fill", title: "Bu Hafta", value: "\(thisWeek)", color: .green)
-                StatItem(icon: "star.fill", title: "Favoriler", value: "\(favorites)", color: .yellow)
-                StatItem(icon: "checkmark.circle.fill", title: "Okundu", value: "\(readCount) (%\(Int(totalReadPercentage * 100)))", color: Color.emerald) {
+                StatItem(icon: "bookmark.fill", title: LanguageManager.shared.localized("home.stat.total"), value: "\(total)", color: .blue)
+                StatItem(icon: "plus.circle.fill", title: LanguageManager.shared.localized("home.stat.this_week"), value: "\(thisWeek)", color: .green)
+                StatItem(icon: "star.fill", title: LanguageManager.shared.localized("common.favorites"), value: "\(favorites)", color: .yellow)
+                StatItem(icon: "checkmark.circle.fill", title: LanguageManager.shared.localized("all.stats.read"), value: "\(readCount) (%\(Int(totalReadPercentage * 100)))", color: Color.emerald) {
                     onReadTap?()
                 }
-                StatItem(icon: "folder.fill", title: "Kategori", value: "\(categories)", color: .purple) {
+                StatItem(icon: "folder.fill", title: LanguageManager.shared.localized("category_picker.title"), value: "\(categories)", color: .purple) {
                     onCategoriesTap?()
                 }
-                StatItem(icon: "archivebox.fill", title: "Eskimiş", value: "\(staleCount)", color: .brown) {
+                StatItem(icon: "archivebox.fill", title: LanguageManager.shared.localized("analytics.filters.stale"), value: "\(staleCount)", color: .brown) {
                     onStaleTap?()
                 }
             }

@@ -253,10 +253,10 @@ final class AnalyticsViewModel: ObservableObject {
         }
         
         let timeOfDayBreakdown = [
-            TimeOfDayCount(label: String(localized: "analytics.time.morning"), count: morning, icon: "sun.max.fill"),
-            TimeOfDayCount(label: String(localized: "analytics.time.afternoon"), count: afternoon, icon: "sun.min.fill"),
-            TimeOfDayCount(label: String(localized: "analytics.time.evening"), count: evening, icon: "moon.stars.fill"),
-            TimeOfDayCount(label: String(localized: "analytics.time.night"), count: night, icon: "moon.zzz.fill")
+            TimeOfDayCount(label: "morning", count: morning, icon: "sun.max.fill"),
+            TimeOfDayCount(label: "afternoon", count: afternoon, icon: "sun.horizon.fill"),
+            TimeOfDayCount(label: "evening", count: evening, icon: "moon.stars.fill"),
+            TimeOfDayCount(label: "night", count: night, icon: "sparkles")
         ]
         
         // 6. Streaks
@@ -301,7 +301,10 @@ final class AnalyticsViewModel: ObservableObject {
         let mostActiveDay: String?
         if let dayNum = mostActiveDayNum {
             let formatter = DateFormatter()
-            formatter.locale = Locale.current
+            // Burası background thread'de olduğu için shared'dan güvenli okuma yapmalı 
+            // Veya direkt sisteme bırakmalı ama biz App seviyesindeki dili istiyoruz.
+            // LanguageManager.shared thread-safe mi? currentLanguage bir struct olduğu için kopyası güvenli olmalı.
+            formatter.locale = LanguageManager.shared.currentLanguage.locale
             mostActiveDay = formatter.standaloneWeekdaySymbols[dayNum - 1].capitalized
         } else {
             mostActiveDay = nil

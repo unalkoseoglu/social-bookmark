@@ -11,12 +11,17 @@ struct ImageCropView: View {
     
     // MARK: - State
     
-    @State private var currentImage: UIImage
     @State private var rotation: Double = 0
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
+    
+    // Custom Crop Box
+    @State private var cropRect: CGRect = .zero
+    @State private var lastCropRect: CGRect = .zero
+    @State private var isInitializing = true
+    @State private var containerSize: CGSize = .zero
     
     // Filtreler
     @State private var brightness: Double = 0
@@ -29,12 +34,20 @@ struct ImageCropView: View {
     @State private var showingOCRResult = false
     @State private var ocrText: String = ""
     
+    // Performance Optimization
+    @State private var displayImage: UIImage? // Downsampled for UI performance
+    private let context = CIContext(options: [.useSoftwareRenderer: false])
+    
     // MARK: - Init
     
     init(image: UIImage, onImageCropped: @escaping (UIImage) -> Void) {
         self.originalImage = image
         self.onImageCropped = onImageCropped
-        _currentImage = State(initialValue: image)
+        
+        // Initial downsample for UI performance
+        let targetSize = ImageCropView.calculatePreviewSize(for: image.size)
+        let downsampled = ImageCropView.downsample(image, to: targetSize)
+        _displayImage = State(initialValue: downsampled)
     }
     
     // MARK: - Body
@@ -92,76 +105,117 @@ struct ImageCropView: View {
     
     private var imagePreview: some View {
         GeometryReader { geometry in
-            ZStack {
+            ZStack(alignment: .topLeading) {
                 Color.black
                 
-                Image(uiImage: currentImage)
-                    .resizable()
-                    .scaledToFit()
-                    .scaleEffect(scale)
-                    .rotationEffect(.degrees(rotation))
-                    .offset(offset)
-                    .gesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                let delta = value / lastScale
-                                lastScale = value
-                                scale = max(0.5, min(scale * delta, 5.0))
-                            }
-                            .onEnded { _ in
-                                lastScale = 1.0
-                            }
-                    )
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                offset = CGSize(
-                                    width: lastOffset.width + value.translation.width,
-                                    height: lastOffset.height + value.translation.height
-                                )
-                            }
-                            .onEnded { _ in
-                                lastOffset = offset
-                            }
-                    )
-                
-                // Crop overlay
-                Rectangle()
-                    .stroke(Color.white.opacity(0.8), style: StrokeStyle(lineWidth: 2, dash: [10]))
-                    .frame(
-                        width: geometry.size.width * 0.85,
-                        height: geometry.size.height * 0.85
-                    )
-                
-                // Grid lines
-                VStack(spacing: 0) {
-                    Color.clear
-                        .frame(height: geometry.size.height * 0.85 / 3)
-                    Divider()
-                        .background(Color.white.opacity(0.3))
-                    Color.clear
-                        .frame(height: geometry.size.height * 0.85 / 3)
-                    Divider()
-                        .background(Color.white.opacity(0.3))
-                    Color.clear
-                        .frame(height: geometry.size.height * 0.85 / 3)
+                // Image (Centered in background)
+                if let display = displayImage {
+                    Image(uiImage: display)
+                        .resizable()
+                        .scaledToFit()
+                        .scaleEffect(scale)
+                        .rotationEffect(.degrees(rotation))
+                        .offset(offset)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                        .simultaneousGesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let delta = value / lastScale
+                                    lastScale = value
+                                    scale = max(0.2, min(scale * delta, 10.0))
+                                }
+                                .onEnded { _ in
+                                    lastScale = 1.0
+                                }
+                        )
+                        .simultaneousGesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    offset = CGSize(
+                                        width: lastOffset.width + value.translation.width,
+                                        height: lastOffset.height + value.translation.height
+                                    )
+                                }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
+                        )
                 }
-                .frame(width: geometry.size.width * 0.85)
                 
-                HStack(spacing: 0) {
-                    Color.clear
-                        .frame(width: geometry.size.width * 0.85 / 3)
-                    Divider()
-                        .background(Color.white.opacity(0.3))
-                    Color.clear
-                        .frame(width: geometry.size.width * 0.85 / 3)
-                    Divider()
-                        .background(Color.white.opacity(0.3))
-                    Color.clear
-                        .frame(width: geometry.size.width * 0.85 / 3)
+                // Dimmed background overlay outside crop area
+                Color.black.opacity(0.5)
+                    .mask(
+                        ZStack(alignment: .topLeading) {
+                            Rectangle()
+                            Rectangle()
+                                .frame(width: cropRect.width, height: cropRect.height)
+                                .offset(x: cropRect.origin.x, y: cropRect.origin.y)
+                                .blendMode(.destinationOut)
+                        }
+                    )
+                    .allowsHitTesting(false)
+                
+                // Resizable Crop Box (Stroke, Grid, Handles)
+                ZStack(alignment: .topLeading) {
+                    // Grid lines inside box
+                    gridLines
+                    
+                    // Box Border
+                    Rectangle()
+                        .stroke(Color.white, lineWidth: 2)
+                    
+                    // Interactive Handles
+                    cropHandles
                 }
-                .frame(height: geometry.size.height * 0.85)
+                .frame(width: cropRect.width, height: cropRect.height)
+                .offset(x: cropRect.origin.x, y: cropRect.origin.y)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            cropRect.origin.x = lastCropRect.origin.x + value.translation.width
+                            cropRect.origin.y = lastCropRect.origin.y + value.translation.height
+                            limitCropRect(in: geometry.size)
+                        }
+                        .onEnded { _ in
+                            lastCropRect = cropRect
+                        }
+                )
             }
+            .onAppear {
+                isProcessing = false
+                updateInitialization(with: geometry.size)
+            }
+            .onChange(of: geometry.size) { _, newSize in
+                updateInitialization(with: newSize)
+            }
+        }
+    }
+    
+    private func updateInitialization(with size: CGSize) {
+        guard size.width > 0 && size.height > 0 else { return }
+        containerSize = size
+        
+        if isInitializing {
+            // Initialize crop box to 9:16 aspect ratio
+            let targetRatio: CGFloat = 9.0 / 16.0
+            let availableW = size.width * 0.85
+            let availableH = size.height * 0.85
+            
+            var w = availableW
+            var h = w / targetRatio
+            
+            if h > availableH {
+                h = availableH
+                w = h * targetRatio
+            }
+            
+            // Center the box in container coordinates
+            let x = (size.width - w) / 2
+            let y = (size.height - h) / 2
+            
+            cropRect = CGRect(x: x, y: y, width: w, height: h)
+            lastCropRect = cropRect
+            isInitializing = false
         }
     }
     
@@ -281,15 +335,20 @@ struct ImageCropView: View {
             brightness = 0
             contrast = 1.0
             saturation = 1.0
-            currentImage = originalImage
+            
+            // Re-downsample original
+            let targetSize = ImageCropView.calculatePreviewSize(for: originalImage.size)
+            displayImage = ImageCropView.downsample(originalImage, to: targetSize)
+            
             showingFilters = false
         }
     }
     
     private func applyFilters() {
-        guard let ciImage = CIImage(image: originalImage) else { return }
+        // Preview üzerinde hızlı filtre uygula
+        guard let sourceImage = displayImage,
+              let ciImage = CIImage(image: sourceImage) else { return }
         
-        let context = CIContext()
         let filter = CIFilter(name: "CIColorControls")
         filter?.setValue(ciImage, forKey: kCIInputImageKey)
         filter?.setValue(brightness, forKey: kCIInputBrightnessKey)
@@ -298,7 +357,26 @@ struct ImageCropView: View {
         
         if let outputImage = filter?.outputImage,
            let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
-            currentImage = UIImage(cgImage: cgImage)
+            displayImage = UIImage(cgImage: cgImage)
+        }
+    }
+    
+    // Helper to calculate preview size (max 1080p for performance)
+    private static func calculatePreviewSize(for size: CGSize) -> CGSize {
+        let maxDimension: CGFloat = 1200.0
+        if size.width <= maxDimension && size.height <= maxDimension { return size }
+        let ratio = size.width / size.height
+        if size.width > size.height {
+            return CGSize(width: maxDimension, height: maxDimension / ratio)
+        } else {
+            return CGSize(width: maxDimension * ratio, height: maxDimension)
+        }
+    }
+    
+    private static func downsample(_ image: UIImage, to size: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
     
@@ -306,8 +384,14 @@ struct ImageCropView: View {
         isProcessing = true
         
         Task {
+            // Apply final crop/filter/rotate for OCR
+            guard let processed = processFinalImage() else {
+                isProcessing = false
+                return
+            }
+            
             do {
-                let result = try await OCRService.shared.recognizeText(from: currentImage)
+                let result = try await OCRService.shared.recognizeText(from: processed)
                 await MainActor.run {
                     ocrText = result.cleanText
                     showingOCRResult = true
@@ -327,15 +411,93 @@ struct ImageCropView: View {
     private func saveAndClose() {
         isProcessing = true
         
-        // Rotasyonu uygula
-        var finalImage = currentImage
-        
+        if let finalImage = processFinalImage() {
+            onImageCropped(finalImage)
+            dismiss()
+        } else {
+            isProcessing = false
+        }
+    }
+    
+    private func processFinalImage() -> UIImage? {
+        // 1. Orijinal resmi döndür
+        var imageToProcess = originalImage
         if rotation != 0 {
-            finalImage = rotateImage(finalImage, degrees: rotation)
+            imageToProcess = rotateImage(imageToProcess, degrees: rotation)
         }
         
-        onImageCropped(finalImage)
-        dismiss()
+        // 2. Filtreleri uygula
+        if brightness != 0 || contrast != 1.0 || saturation != 1.0 {
+            if let ciImage = CIImage(image: imageToProcess) {
+                let filter = CIFilter(name: "CIColorControls")
+                filter?.setValue(ciImage, forKey: kCIInputImageKey)
+                filter?.setValue(brightness, forKey: kCIInputBrightnessKey)
+                filter?.setValue(contrast, forKey: kCIInputContrastKey)
+                filter?.setValue(saturation, forKey: kCIInputSaturationKey)
+                
+                if let outputImage = filter?.outputImage,
+                   let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
+                    imageToProcess = UIImage(cgImage: cgImage)
+                }
+            }
+        }
+        
+        // 3. Kırpma işlemini uygula
+        // Mapping from UI coordinates (scale/offset/cropRect) to Image coordinates
+        return cropImage(imageToProcess)
+    }
+    
+    private func cropImage(_ image: UIImage) -> UIImage {
+        guard containerSize.width > 0 && containerSize.height > 0 else { return image }
+        
+        let imageSize = image.size
+        let aspectWidth = containerSize.width / imageSize.width
+        let aspectHeight = containerSize.height / imageSize.height
+        let aspect = min(aspectWidth, aspectHeight)
+        
+        // Convert cropRect (top-left relative to container) to center-offset relative to image
+        // Screen center is (0,0) for image offset and crop points.
+        let containerCenterX = containerSize.width / 2
+        let containerCenterY = containerSize.height / 2
+        
+        // Distance from screen center to box center
+        let offX = cropRect.midX - containerCenterX
+        let offY = cropRect.midY - containerCenterY
+        
+        // Box relative to image center (in screen pixels)
+        let dx = offX - offset.width
+        let dy = offY - offset.height
+        
+        // Box size in screen pixels
+        let bw = cropRect.width
+        let bh = cropRect.height
+        
+        // Convert to unscaled display pixels
+        let relX = dx / scale
+        let relY = dy / scale
+        let relW = bw / scale
+        let relH = bh / scale
+        
+        // Convert to original image pixels
+        // (0,0) in unscaled display coords maps to (imageSize.width/2, imageSize.height/2) in image coords
+        let imageX = (imageSize.width / 2) + (relX / aspect) - (relW / aspect / 2)
+        let imageY = (imageSize.height / 2) + (relY / aspect) - (relH / aspect / 2)
+        let imageW = relW / aspect
+        let imageH = relH / aspect
+        
+        // Clamp to image bounds
+        let finalX = max(0, min(imageX, imageSize.width - 10))
+        let finalY = max(0, min(imageY, imageSize.height - 10))
+        let finalW = max(10, min(imageW, imageSize.width - finalX))
+        let finalH = max(10, min(imageH, imageSize.height - finalY))
+        
+        let cropZone = CGRect(x: finalX, y: finalY, width: finalW, height: finalH)
+        
+        guard let cgImage = image.cgImage?.cropping(to: cropZone) else {
+            return image
+        }
+        
+        return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
     }
     
     private func rotateImage(_ image: UIImage, degrees: Double) -> UIImage {
@@ -363,7 +525,152 @@ struct ImageCropView: View {
         
         return UIGraphicsGetImageFromCurrentImageContext() ?? image
     }
+    
+    // MARK: - Crop Helpers
+    
+    private var cropHandles: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach([HandlePosition.topLeading, .topTrailing, .bottomLeading, .bottomTrailing, .top, .bottom, .leading, .trailing], id: \.self) { pos in
+                handleView(at: pos)
+            }
+        }
+        .frame(width: cropRect.width, height: cropRect.height)
+    }
+    
+    private func handleView(at position: HandlePosition) -> some View {
+        let size: CGFloat = 44 // Larger hit target
+        let visibleSize: CGFloat = 36
+        let isEdge = position.isEdge
+        let isHorizontal = position.isHorizontal
+        
+        return ZStack {
+            if isEdge {
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.white)
+                    .frame(width: isHorizontal ? 24 : 6,
+                           height: isHorizontal ? 6 : 24)
+                    .overlay(RoundedRectangle(cornerRadius: 1).stroke(Color.black.opacity(0.3), lineWidth: 0.5))
+            } else {
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: visibleSize/1.5, height: visibleSize/1.5)
+                    .overlay(Circle().stroke(Color.black.opacity(0.3), lineWidth: 1))
+            }
+        }
+        .frame(width: size, height: size)
+        .contentShape(Rectangle())
+        .position(position.point(for: cropRect))
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    resizeCropRect(with: value.translation, at: position)
+                }
+                .onEnded { _ in
+                    lastCropRect = cropRect
+                }
+        )
+    }
+    
+    private var gridLines: some View {
+        ZStack {
+            // Vertical lines
+            HStack(spacing: 0) {
+                Spacer()
+                Divider().background(Color.white.opacity(0.3)).frame(width: 1)
+                Spacer()
+                Divider().background(Color.white.opacity(0.3)).frame(width: 1)
+                Spacer()
+            }
+            // Horizontal lines
+            VStack(spacing: 0) {
+                Spacer()
+                Divider().background(Color.white.opacity(0.3)).frame(height: 1)
+                Spacer()
+                Divider().background(Color.white.opacity(0.3)).frame(height: 1)
+                Spacer()
+            }
+        }
+        .allowsHitTesting(false)
+    }
+    
+    private func resizeCropRect(with translation: CGSize, at position: HandlePosition) {
+        var newRect = lastCropRect
+        let minSize: CGFloat = 60
+        
+        switch position {
+        case .topLeading:
+            newRect.origin.x = lastCropRect.origin.x + translation.width
+            newRect.origin.y = lastCropRect.origin.y + translation.height
+            newRect.size.width = lastCropRect.width - translation.width
+            newRect.size.height = lastCropRect.height - translation.height
+        case .topTrailing:
+            newRect.origin.y = lastCropRect.origin.y + translation.height
+            newRect.size.width = lastCropRect.width + translation.width
+            newRect.size.height = lastCropRect.height - translation.height
+        case .bottomLeading:
+            newRect.origin.x = lastCropRect.origin.x + translation.width
+            newRect.size.width = lastCropRect.width - translation.width
+            newRect.size.height = lastCropRect.height + translation.height
+        case .bottomTrailing:
+            newRect.size.width = lastCropRect.width + translation.width
+            newRect.size.height = lastCropRect.height + translation.height
+        case .top:
+            newRect.origin.y = lastCropRect.origin.y + translation.height
+            newRect.size.height = lastCropRect.height - translation.height
+        case .bottom:
+            newRect.size.height = lastCropRect.height + translation.height
+        case .leading:
+            newRect.origin.x = lastCropRect.origin.x + translation.width
+            newRect.size.width = lastCropRect.width - translation.width
+        case .trailing:
+            newRect.size.width = lastCropRect.width + translation.width
+        }
+        
+        // Constraints
+        if newRect.width >= minSize && newRect.height >= minSize {
+            cropRect = newRect
+        }
+    }
+    
+    private func limitCropRect(in containerSize: CGSize) {
+        // Standard bounds check for top-left origin
+        cropRect.origin.x = max(0, min(cropRect.origin.x, containerSize.width - cropRect.width))
+        cropRect.origin.y = max(0, min(cropRect.origin.y, containerSize.height - cropRect.height))
+    }
+    
+    enum HandlePosition {
+        case topLeading, topTrailing, bottomLeading, bottomTrailing
+        case top, bottom, leading, trailing
+        
+        var isEdge: Bool {
+            switch self {
+            case .top, .bottom, .leading, .trailing: return true
+            default: return false
+            }
+        }
+        
+        var isHorizontal: Bool {
+            switch self {
+            case .top, .bottom: return true
+            default: return false
+            }
+        }
+        
+        func point(for rect: CGRect) -> CGPoint {
+            switch self {
+            case .topLeading: return CGPoint(x: 0, y: 0)
+            case .topTrailing: return CGPoint(x: rect.width, y: 0)
+            case .bottomLeading: return CGPoint(x: 0, y: rect.height)
+            case .bottomTrailing: return CGPoint(x: rect.width, y: rect.height)
+            case .top: return CGPoint(x: rect.width / 2, y: 0)
+            case .bottom: return CGPoint(x: rect.width / 2, y: rect.height)
+            case .leading: return CGPoint(x: 0, y: rect.height / 2)
+            case .trailing: return CGPoint(x: rect.width, y: rect.height / 2)
+            }
+        }
+    }
 }
+
 // MARK: - Tool Button
 
 struct ToolButton: View {

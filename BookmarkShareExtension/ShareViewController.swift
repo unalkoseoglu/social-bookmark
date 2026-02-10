@@ -28,6 +28,28 @@ struct SharedInboxPayload: Codable {
     }
 }
 
+// MARK: - Loading View
+struct LoadingView: View {
+    var body: some View {
+        ZStack {
+            Color(uiColor: .systemBackground)
+            VStack(spacing: 16) {
+                Image(systemName: "bookmark.fill")
+                    .font(.system(size: 44))
+                    .foregroundColor(.blue)
+                
+                ProgressView()
+                    .scaleEffect(1.2)
+                
+                Text("Hazırlanıyor...")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+
 // MARK: - ShareViewController
 
 /// Share Extension'ın entry point'i
@@ -56,31 +78,43 @@ class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Temiz arka plan
-        view.backgroundColor = .clear
+        // Create initial loading view immediately
+        let loadingView = UIHostingController(rootView: LoadingView())
+        addChild(loadingView)
+        view.addSubview(loadingView.view)
+        loadingView.view.frame = view.bounds
+        loadingView.didMove(toParent: self)
+        self.hostingController = loadingView
         
-        // Tüm ağır işleri background'da yap
         Task {
             // 1. Session ve Payload toplamayı paralel başlat
+            // Session initialization is critical for repository creation
             async let sessionInit: () = SessionStore.shared.initializeOnce()
             async let payloadTask = collectPayloadSafe()
             
-            // 2. Payload'ı bekle (en kritik olan)
-            let payload = await payloadTask
+            // 2. Arka planda ModelContainer'ı başlat (en yavaş işlem)
+            let containerTask = Task.detached(priority: .userInitiated) {
+                await self.createModelContainerAsync()
+            }
             
-            // 3. Session ilklendirmesinin bitmesini bekle (EnvironmentObject için gerekli)
-            await sessionInit
+            // 3. Payload ve Session'ı bekle
+            let (payload, _) = await (payloadTask, sessionInit)
             
-            // 4. UI'ı anında göster
-            await showUIWithPayload(payload)
+            // 4. Session hazır olduğunda UI'ı hemen güncelle (ModelContainer gelene kadar bekleme)
+            // Bu sayede kullanıcı yazmaya/seçmeye başlayabilir
+            if let payload = payload {
+                await self.showUIWithPayload(payload)
+            } else {
+                close()
+                return
+            }
             
-            // 5. Arka planda ModelContainer'ı oluştur
-            let container = await createModelContainerAsync()
+            // 5. ModelContainer bittiğinde repository'leri enjekte et
+            let container = await containerTask.value
             
             await MainActor.run {
                 self.modelContainer = container
-                // Eğer UI açıksa repository'leri enjekte et
-                if self.hostingController != nil, let payload = payload {
+                if let payload = payload {
                     self.updateUIWithContainer(container, payload: payload)
                 }
             }
@@ -489,8 +523,10 @@ class ShareViewController: UIViewController {
         var categoryRepository: CategoryRepositoryProtocol?
         
         if let container = modelContainer {
-            bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
-            categoryRepository = CategoryRepository(modelContext: container.mainContext)
+            let baseBookmarkRepo = BookmarkRepository(modelContext: container.mainContext)
+            let baseCategoryRepo = CategoryRepository(modelContext: container.mainContext)
+            bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
+            categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
         }
         
         let swiftUIView = ShareExtensionView(
@@ -541,8 +577,10 @@ class ShareViewController: UIViewController {
         var categoryRepository: CategoryRepositoryProtocol?
         
         if let container = container {
-            bookmarkRepository = BookmarkRepository(modelContext: container.mainContext)
-            categoryRepository = CategoryRepository(modelContext: container.mainContext)
+            let baseBookmarkRepo = BookmarkRepository(modelContext: container.mainContext)
+            let baseCategoryRepo = CategoryRepository(modelContext: container.mainContext)
+            bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
+            categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
         }
         
         let swiftUIView = ShareExtensionView(

@@ -36,7 +36,7 @@ struct AnalyticsView: View {
                 // Custom Tab Picker
                 Picker("Tabs", selection: $selectedTab) {
                     ForEach(AnalyticsTab.allCases, id: \.self) { tab in
-                        Text(LocalizedStringKey(tab.rawValue)).tag(tab)
+                        Text(LanguageManager.shared.localized(tab.rawValue)).tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -48,7 +48,7 @@ struct AnalyticsView: View {
                             VStack(spacing: 12) {
                                 ProgressView()
                                     .scaleEffect(1.5)
-                                Text("analytics.calculating")
+                                Text(LanguageManager.shared.localized("analytics.calculating"))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -67,7 +67,7 @@ struct AnalyticsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("analytics.title")
+            .navigationTitle(LanguageManager.shared.localized("analytics.title"))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {
@@ -126,9 +126,9 @@ struct AnalyticsView: View {
     
     @ViewBuilder
     private var timeTabView: some View {
-        Picker("Süre", selection: $viewModel.activityWindow) {
-            Text("analytics.window.30").tag(30)
-            Text("analytics.window.90").tag(90)
+        Picker(LanguageManager.shared.localized("analytics.activity_window"), selection: $viewModel.activityWindow) {
+            Text(LanguageManager.shared.localized("analytics.window.30")).tag(30)
+            Text(LanguageManager.shared.localized("analytics.window.90")).tag(90)
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
@@ -144,12 +144,12 @@ struct AnalyticsView: View {
         
         VStack(spacing: 16) {
             HStack(spacing: 16) {
-                StatCard(title: String(localized: "analytics.current_streak"), value: "\(viewModel.currentStreak) \(String(localized: "common.days"))", icon: "flame.fill", color: .orange)
-                StatCard(title: String(localized: "analytics.longest_streak"), value: "\(viewModel.longestStreak) \(String(localized: "common.days"))", icon: "trophy.fill", color: .yellow)
+                StatCard(title: LanguageManager.shared.localized("analytics.current_streak"), value: "\(viewModel.currentStreak) \(LanguageManager.shared.localized("common.days"))", icon: "flame.fill", color: .orange)
+                StatCard(title: LanguageManager.shared.localized("analytics.longest_streak"), value: "\(viewModel.longestStreak) \(LanguageManager.shared.localized("common.days"))", icon: "trophy.fill", color: .yellow)
             }
             
             if let activeDay = viewModel.mostActiveDay {
-                StatCard(title: String(localized: "analytics.most_active_day"), value: activeDay, icon: "calendar.badge.clock", color: .blue)
+                StatCard(title: LanguageManager.shared.localized("analytics.most_active_day"), value: activeDay, icon: "calendar.badge.clock", color: .blue)
             }
         }
     }
@@ -157,12 +157,12 @@ struct AnalyticsView: View {
     @ViewBuilder
     private var categoryTabView: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("analytics.category_analysis")
+            Text(LanguageManager.shared.localized("analytics.category_analysis"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
             if viewModel.categoryBreakdown.isEmpty {
-                Text("analytics.no_categories")
+                Text(LanguageManager.shared.localized("analytics.no_categories"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -212,14 +212,13 @@ struct AnalyticsView: View {
             // Fetch the actual bookmark model using the snapshot's title or id if we had it.
             // Since Snapshot has title and url, we can search by that.
             let title = snapshot.title
-            let url = snapshot.url
             let descriptor = FetchDescriptor<Bookmark>(predicate: #Predicate<Bookmark> { $0.title == title })
             
             if let bookmark = try? modelContext.fetch(descriptor).first {
                 BookmarkDetailView(bookmark: bookmark, viewModel: homeViewModel)
                     .environmentObject(sessionStore)
             } else {
-                Text("analytics.bookmark_not_found")
+                Text(LanguageManager.shared.localized("analytics.bookmark_not_found"))
             }
         }
         .sheet(item: $selectedFilter) { filter in
@@ -231,7 +230,7 @@ struct AnalyticsView: View {
     @ViewBuilder
     private var highlightCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("analytics.highlights")
+            Text(LanguageManager.shared.localized("analytics.highlights"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -242,7 +241,7 @@ struct AnalyticsView: View {
                         selectedSnapshot = BookmarkSnapshot(id: bookmark.id, title: bookmark.title, url: bookmark.url)
                     }
                 } label: {
-                    HighlightRow(title: String(localized: "analytics.most_favorited"), content: favoriteTitle, icon: "star.fill", color: .yellow)
+                    HighlightRow(title: LanguageManager.shared.localized("analytics.most_favorited"), content: favoriteTitle, icon: "star.fill", color: .yellow)
                 }
             }
             
@@ -253,7 +252,7 @@ struct AnalyticsView: View {
                         selectedSnapshot = BookmarkSnapshot(id: bookmark.id, title: bookmark.title, url: bookmark.url)
                     }
                 } label: {
-                    HighlightRow(title: String(localized: "analytics.oldest_unread"), content: oldestTitle, icon: "clock.fill", color: .blue)
+                    HighlightRow(title: LanguageManager.shared.localized("analytics.oldest_unread"), content: oldestTitle, icon: "clock.fill", color: .blue)
                 }
             }
         }
@@ -320,7 +319,7 @@ struct AnalyticsFilteredListView: View {
     @EnvironmentObject private var sessionStore: SessionStore
     
     private var title: String {
-        filterType == .read ? String(localized: "analytics.read_bookmarks") : String(localized: "analytics.stale_bookmarks")
+        filterType == .read ? LanguageManager.shared.localized("analytics.read_bookmarks") : LanguageManager.shared.localized("analytics.stale_bookmarks")
     }
     
     private var filteredBookmarks: [Bookmark] {
@@ -336,10 +335,14 @@ struct AnalyticsFilteredListView: View {
     var body: some View {
         NavigationStack {
             UnifiedBookmarkList(
-                bookmarks: filteredBookmarks,
+                bookmarks: filteredBookmarks.map { bookmark in
+                     BookmarkDisplayModel(bookmark: bookmark, category: homeViewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
                 viewModel: homeViewModel,
-                totalBookmarks: filteredBookmarks,
-                emptyTitle: String(localized: "all.empty.no_results"),
+                totalBookmarks: filteredBookmarks.map { bookmark in
+                    BookmarkDisplayModel(bookmark: bookmark, category: homeViewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
+                emptyTitle: LanguageManager.shared.localized("all.empty.no_results"),
                 emptySubtitle: "",
                 emptyIcon: "tray"
             )

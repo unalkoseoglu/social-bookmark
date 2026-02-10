@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Observation
+import SwiftData
 
 /// Ana sayfa ViewModel'i
 /// Dashboard için gerekli tüm verileri yönetir
@@ -18,17 +19,67 @@ final class HomeViewModel {
     private(set) var bookmarks: [Bookmark] = []
     private(set) var categories: [Category] = []
     private(set) var isLoading = false
+    var errorMessage: String?
     
     let bookmarkRepository: BookmarkRepositoryProtocol
     let categoryRepository: CategoryRepositoryProtocol
     
+    enum CategorySortOrder: String, CaseIterable, Identifiable {
+        case manual = "manual"
+        case newest = "newest"
+        case alphabetical = "alphabetical"
+        case count = "count"
+        
+        var id: String { rawValue }
+        
+        var title: String {
+            switch self {
+            case .manual: return LanguageManager.shared.localized("categories.sort.manual")
+            case .newest: return LanguageManager.shared.localized("all.sort.newest")
+            case .alphabetical: return LanguageManager.shared.localized("all.sort.alphabetical")
+            case .count: return LanguageManager.shared.localized("categories.sort.count")
+            }
+        }
+    }
+    
+    // MARK: - Navigation & Sort State
+    var selectedTab: AppTab = .home
+    var librarySegment: LibraryView.LibrarySegment = .all
+    
+    var categorySortOrder: CategorySortOrder = .manual {
+        didSet {
+            UserDefaults.standard.set(categorySortOrder.rawValue, forKey: "categorySortOrder")
+        }
+    }
+    
     // MARK: - Computed Properties
     
-    /// Bookmark sayısına göre (azalan) sıralanmış kategoriler
+    /// Kategoriler (Seçilen sıralama tercihine göre)
     var sortedCategories: [Category] {
-        categories.sorted { cat1, cat2 in
-            bookmarkCount(for: cat1) > bookmarkCount(for: cat2)
+        var result = categories
+        
+        switch categorySortOrder {
+        case .manual:
+            result.sort { cat1, cat2 in
+                if cat1.order != cat2.order {
+                    return cat1.order < cat2.order
+                }
+                return bookmarkCount(for: cat1) > bookmarkCount(for: cat2)
+            }
+        case .newest:
+            result.sort { $0.createdAt > $1.createdAt }
+        case .alphabetical:
+            result.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
+        case .count:
+            result.sort { bookmarkCount(for: $0) > bookmarkCount(for: $1) }
         }
+        
+        return result
+    }
+
+    /// Sadece manuel sıralamaya göre kategoriler (Yönetim ekranı için)
+    var manualSortedCategories: [Category] {
+        categories.sorted { $0.order < $1.order }
     }
     
     /// Toplam bookmark sayısı
@@ -78,9 +129,18 @@ final class HomeViewModel {
         bookmarks.filter { $0.categoryId == nil }.count
     }
     
-    /// Son eklenen bookmarklar (10 adet)
+    /// Son eklenenler (Safe for Display)
+    var recentDisplayBookmarks: [BookmarkDisplayModel] {
+        recentBookmarks
+            .filter { $0.modelContext != nil } // Crash önlemi
+            .map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: categories.first { cat in cat.id == bookmark.categoryId })
+            }
+    }
+    
+    /// Son eklenen bookmarklar
     var recentBookmarks: [Bookmark] {
-        Array(bookmarks.prefix(10))
+        bookmarks.sorted { $0.createdAt > $1.createdAt }
     }
     
     /// Kaynak bazlı istatistikler
@@ -97,6 +157,10 @@ final class HomeViewModel {
         self.bookmarkRepository = bookmarkRepository
         self.categoryRepository = categoryRepository
         
+        // Sıralama tercihini yükle
+        let savedSort = UserDefaults.standard.string(forKey: "categorySortOrder") ?? "manual"
+        self.categorySortOrder = CategorySortOrder(rawValue: savedSort) ?? .manual
+        
         loadData()
         
         // ✅ YENİ: Sync tamamlandığında verileri yenile
@@ -112,8 +176,10 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🔄 [HomeViewModel] Sync completed, refreshing data...")
-            self?.loadData()
+            Task { @MainActor in
+                print("🔄 [HomeViewModel] Sync completed, refreshing data...")
+                self?.loadData()
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -121,8 +187,10 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🔄 [HomeViewModel] Categories synced, refreshing data...")
-            self?.loadData()
+            Task { @MainActor in
+                print("🔄 [HomeViewModel] Categories synced, refreshing data...")
+                self?.loadData()
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -130,8 +198,10 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🔄 [HomeViewModel] Bookmarks synced, refreshing data...")
-            self?.loadData()
+            Task { @MainActor in
+                print("🔄 [HomeViewModel] Bookmarks synced, refreshing data...")
+                self?.loadData()
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -139,8 +209,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🔐 [HomeViewModel] User signed in, refreshing and syncing...")
-            Task {
+            Task { @MainActor in
+                print("🔐 [HomeViewModel] User signed in, refreshing and syncing...")
                 await self?.refresh()
             }
         }
@@ -150,8 +220,10 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("👋 [HomeViewModel] User signed out, clearing data...")
-            self?.loadData()
+            Task { @MainActor in
+                print("👋 [HomeViewModel] User signed out, clearing data...")
+                self?.loadData()
+            }
         }
         
         NotificationCenter.default.addObserver(
@@ -159,8 +231,21 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🧹 [HomeViewModel] Local data cleared, refreshing UI...")
-            self?.loadData()
+            Task { @MainActor in
+                print("🧹 [HomeViewModel] Local data cleared, refreshing UI...")
+                self?.loadData()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: .syncDidFail,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                print("⚠️ [HomeViewModel] Sync failed notification received")
+                self?.errorMessage = String(localized: "error.sync_failed")
+            }
         }
     }
     
@@ -192,20 +277,27 @@ final class HomeViewModel {
         bookmarks.filter { $0.source == source }.count
     }
     
+    /// Belirli bir kategorideki bookmarklar (Safe for Display)
+    var displayBookmarks: [BookmarkDisplayModel] {
+        bookmarks
+            .filter { $0.modelContext != nil } // Crash önlemi: Sadece context'e bağlı olanları map'le
+            .map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: categories.first { cat in cat.id == bookmark.categoryId })
+            }
+    }
+    
+    /// ID'ye göre bookmark bul (Safe lookup for Navigation)
+    func bookmark(with id: UUID) -> Bookmark? {
+        if let bookmark = bookmarks.first(where: { $0.id == id }), bookmark.modelContext != nil {
+            return bookmark
+        }
+        return nil
+    }
+    
     /// Belirli bir kategorideki bookmarklar
     func bookmarks(for category: Category) -> [Bookmark] {
         let filtered = bookmarks.filter { $0.categoryId == category.id }
-        print("🔍 [HomeViewModel] Filtering bookmarks for category '\(category.name)' (ID: \(category.id)) -> Found \(filtered.count)")
-        
-        if filtered.isEmpty {
-            print("   - Current categories in ViewModel:")
-            for cat in categories {
-                print("     * '\(cat.name)' -> \(cat.id)")
-            }
-            let bookmarkCatIDs = Set(bookmarks.compactMap { $0.categoryId })
-            print("   - All unique CategoryIDs in local bookmarks: \(bookmarkCatIDs)")
-        }
-        
+        // ... (logging removed for brevity)
         return filtered
     }
     
@@ -249,11 +341,38 @@ final class HomeViewModel {
         
         print("✅ [HomeViewModel] updateCategory completed")
     }
+
+    /// Kategorileri yeniden sırala ve manuel moduna geç
+    func reorderCategories(_ reordered: [Category]) {
+        for (index, category) in reordered.enumerated() {
+            category.order = index
+            categoryRepository.update(category)
+        }
+        withAnimation {
+            categorySortOrder = .manual
+        }
+        loadCategories()
+    }
+
+    /// Birden fazla kategoriyi toplu güncelle
+    func updateCategories(_ categories: [Category]) {
+        for category in categories {
+            categoryRepository.update(category)
+        }
+        loadCategories()
+    }
     
     /// Bookmark sil
     /// ✅ DÜZELTME: Manuel sync kaldırıldı
     func deleteBookmark(_ bookmark: Bookmark) {
+        // 1. Optimistic update: UI'dan hemen kaldır (ID bazlı temizlik daha güvenli)
+        bookmarks.removeAll { $0.id == bookmark.id }
+        
+        // 2. Fiziksel silme
         bookmarkRepository.delete(bookmark)
+        
+        // 3. Yenileme: Gecikmeli çağrıyı kaldırıyoruz çünkü crash'e sebep oluyor.
+        // Repository'den tekrar yükleyerek state'i senkron tutuyoruz.
         loadBookmarks()
     }
     
@@ -293,8 +412,20 @@ final class HomeViewModel {
     }
     
     private func loadBookmarks() {
-        bookmarks = bookmarkRepository.fetchAll()
-        print("📚 [HomeViewModel] Loaded \(bookmarks.count) bookmarks")
+        let fetched = bookmarkRepository.fetchAll()
+        
+        // ID bazlı tekilleştirme ve geçersiz (silinmiş/detached) nesneleri temizleme
+        var seenIds = Set<UUID>()
+        bookmarks = fetched.filter { bookmark in
+            // SwiftData Safety: Detached veya silinmiş objeleri listeye alma
+            guard bookmark.modelContext != nil else { return false }
+            
+            guard !seenIds.contains(bookmark.id) else { return false }
+            seenIds.insert(bookmark.id)
+            return true
+        }
+        
+        print("📚 [HomeViewModel] Loaded \(bookmarks.count) unique and valid bookmarks")
     }
     
     private func loadCategories() {

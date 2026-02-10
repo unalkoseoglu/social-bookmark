@@ -96,19 +96,19 @@ struct ShareExtensionPage: View {
             
             // 3. Text Content (Bottom)
             VStack(spacing: 12) {
-                Text("onboarding.share.title")
+                Text(LanguageManager.shared.localized("onboarding.share.title"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                Text("onboarding.share.subtitle")
+                Text(LanguageManager.shared.localized("onboarding.share.subtitle"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                Text(LocalizedStringKey("onboarding.share.reminder"))
+                Text(LanguageManager.shared.localized("onboarding.share.reminder"))
                     .font(.caption.bold())
                     .foregroundStyle(.orange)
                     .multilineTextAlignment(.center)

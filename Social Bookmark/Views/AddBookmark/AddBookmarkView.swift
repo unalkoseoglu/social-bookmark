@@ -17,14 +17,20 @@ struct AddBookmarkView: View {
     @FocusState private var focusedField: Field?
     
     // OCR Image States
-    @State private var showingOCRImagePicker = false
-    @State private var showingOCRImageCrop = false
+    enum OCRSheet: Identifiable {
+        case picker, crop
+        var id: Int { self.hashValue }
+    }
+    @State private var activeOCRSheet: OCRSheet?
     @State private var ocrImage: UIImage?
     @State private var isProcessingOCR = false
     
     // Bookmark Cover Image States
-    @State private var showingCoverImagePicker = false
-    @State private var showingCoverImageCrop = false
+    enum CoverSheet: Identifiable {
+        case picker, crop
+        var id: Int { self.hashValue }
+    }
+    @State private var activeCoverSheet: CoverSheet?
     @State private var coverImage: UIImage?
     
     // Sheet states for pickers
@@ -66,8 +72,8 @@ struct AddBookmarkView: View {
                 detailsSection
                 organizationSection
                 tagsSection
-                fileSection
                 coverImageSection
+                fileSection
                 ocrSection
                 
                 if !viewModel.validationErrors.isEmpty {
@@ -75,13 +81,13 @@ struct AddBookmarkView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(String(localized: "addBookmark.title"))
+            .navigationTitle(LanguageManager.shared.localized("addBookmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .keyboard) {
                     HStack {
                         Spacer()
-                        Button(String(localized: "common.done")) {
+                        Button(LanguageManager.shared.localized("common.done")) {
                             hideKeyboard()
                         }
                         .fontWeight(.semibold)
@@ -96,38 +102,51 @@ struct AddBookmarkView: View {
                 }
             }
             // OCR Image Sheets
-            .sheet(isPresented: $showingOCRImagePicker) {
-                ImagePickerView { image in
-                    ocrImage = image
-                    showingOCRImageCrop = true
-                }
-            }
-            .sheet(isPresented: $showingOCRImageCrop) {
-                if let image = ocrImage {
-                    ImageCropView(image: image) { croppedImage in
-                        ocrImage = croppedImage
-                        performOCR(on: croppedImage)
+            .sheet(item: $activeOCRSheet) { sheet in
+                switch sheet {
+                case .picker:
+                    ImagePickerView { image in
+                        ocrImage = image
+                        // Delay presentation of crop to avoid sheet collision
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            activeOCRSheet = .crop
+                        }
+                    }
+                case .crop:
+                    if let image = ocrImage {
+                        ImageCropView(image: image) { croppedImage in
+                            ocrImage = croppedImage
+                            performOCR(on: croppedImage)
+                        }
+                    } else {
+                        Color.black.onAppear { activeOCRSheet = nil }
                     }
                 }
             }
             // Cover Image Sheets
-            .sheet(isPresented: $showingCoverImagePicker) {
-                ImagePickerView { image in
-                    coverImage = image
-                    showingCoverImageCrop = true
-                }
-            }
-            .sheet(isPresented: $showingCoverImageCrop) {
-                if let image = coverImage {
-                    ImageCropView(image: image) { croppedImage in
-                        coverImage = croppedImage
+            .sheet(item: $activeCoverSheet) { sheet in
+                switch sheet {
+                case .picker:
+                    ImagePickerView { image in
+                        coverImage = image
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            activeCoverSheet = .crop
+                        }
+                    }
+                case .crop:
+                    if let image = coverImage {
+                        ImageCropView(image: image) { croppedImage in
+                            coverImage = croppedImage
+                        }
+                    } else {
+                        Color.black.onAppear { activeCoverSheet = nil }
                     }
                 }
             }
             // Picker Sheets
             .sheet(isPresented: $showingCategoryPicker) {
                 SelectionPickerSheet(
-                    title: String(localized: "addBookmark.field.category"),
+                    title: LanguageManager.shared.localized("addBookmark.field.category"),
                     items: buildCategoryItems(),
                     selectedId: viewModel.selectedCategoryId?.uuidString,
                     onSelect: { id in
@@ -138,7 +157,7 @@ struct AddBookmarkView: View {
             }
             .sheet(isPresented: $showingSourcePicker) {
                 SelectionPickerSheet(
-                    title: String(localized: "addBookmark.field.source"),
+                    title: LanguageManager.shared.localized("addBookmark.field.source"),
                     items: buildSourceItems(),
                     selectedId: viewModel.selectedSource.rawValue,
                     onSelect: { id in
@@ -177,8 +196,8 @@ struct AddBookmarkView: View {
                 id: nil,
                 icon: "tray.fill",
                 iconColor: .gray,
-                title: String(localized: "addBookmark.no_category"),
-                subtitle: String(localized: "addBookmark.category.no_category_hint")
+                title: LanguageManager.shared.localized("addBookmark.no_category"),
+                subtitle: LanguageManager.shared.localized("addBookmark.category.no_category_hint")
             )
         ]
         
@@ -217,13 +236,13 @@ struct AddBookmarkView: View {
     // MARK: - Sections
     
     private var basicInfoSection: some View {
-        Section(String(localized: "addBookmark.section.basic")) {
-            TextField(String(localized: "addBookmark.field.title"), text: $viewModel.title, axis: .vertical)
+        Section(LanguageManager.shared.localized("addBookmark.section.basic")) {
+            TextField(LanguageManager.shared.localized("addBookmark.field.title"), text: $viewModel.title, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
             HStack {
-                TextField(String(localized: "addBookmark.field.url"), text: $viewModel.url)
+                TextField(LanguageManager.shared.localized("addBookmark.field.url"), text: $viewModel.url)
                     .keyboardType(.URL)
                     .autocapitalization(.none)
                     .autocorrectionDisabled()
@@ -276,7 +295,7 @@ struct AddBookmarkView: View {
                 } label: {
                     HStack {
                         Image(systemName: "trash")
-                        Text(String(localized: "addBookmark.clearAll"))
+                        Text(LanguageManager.shared.localized("addBookmark.clearAll"))
                     }
                     .font(.subheadline)
                     .frame(maxWidth: .infinity)
@@ -284,14 +303,14 @@ struct AddBookmarkView: View {
             }
             
             if !viewModel.url.isEmpty && !viewModel.isURLValid {
-                Label(String(localized: "addBookmark.error.invalid_url"), systemImage: "exclamationmark.triangle")
+                Label(LanguageManager.shared.localized("addBookmark.error.invalid_url"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
                     .font(.caption)
             }
             
             if let linkedInContent = viewModel.fetchedLinkedInContent {
                 Label(
-                    String(localized: "addBookmark.status.linkedin_fetched"),
+                    LanguageManager.shared.localized("addBookmark.status.linkedin_fetched"),
                     systemImage: "checkmark.circle.fill"
                 )
                 .foregroundStyle(.cyan)
@@ -299,7 +318,7 @@ struct AddBookmarkView: View {
                 .accessibilityLabel(linkedInContent.title)
             } else if let redditPost = viewModel.fetchedRedditPost {
                 Label(
-                    String(localized: "addBookmark.status.reddit_fetched"),
+                    LanguageManager.shared.localized("addBookmark.status.reddit_fetched"),
                     systemImage: "checkmark.circle.fill"
                 )
                 .foregroundStyle(.orange)
@@ -307,17 +326,17 @@ struct AddBookmarkView: View {
                 .accessibilityLabel(redditPost.title)
             } else if viewModel.fetchedTweet != nil {
                 HStack {
-                    Label(String(localized: "addBookmark.status.tweet_fetched"), systemImage: "checkmark.circle.fill")
+                    Label(LanguageManager.shared.localized("addBookmark.status.tweet_fetched"), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
 
                     if viewModel.tweetImagesData.count > 0 {
-                        Text(String(localized: "addBookmark.status.images_count \(viewModel.tweetImagesData.count)"))
+                        Text(LanguageManager.shared.localized("addBookmark.status.images_count %lld", Int64(viewModel.tweetImagesData.count)))
                             .foregroundStyle(.blue)
                     }
                 }
                 .font(.caption)
             } else if let metadata = viewModel.fetchedMetadata, metadata.hasTitle {
-                Label(String(localized: "addBookmark.status.page_filled"), systemImage: "checkmark.circle.fill")
+                Label(LanguageManager.shared.localized("addBookmark.status.page_filled"), systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
                     .font(.caption)
             }
@@ -330,7 +349,7 @@ struct AddBookmarkView: View {
             Section {
                 LinkedInPreviewView(post: content, imageData: viewModel.linkedInImageData)
             } header: {
-                Label(String(localized: "addBookmark.preview.linkedin"), systemImage: "link")
+                Label(LanguageManager.shared.localized("addBookmark.preview.linkedin"), systemImage: "link")
                     .foregroundStyle(.cyan)
             }
         }
@@ -342,7 +361,7 @@ struct AddBookmarkView: View {
             Section {
                 RedditPreviewView(post: post, imagesData: viewModel.redditImagesData)
             } header: {
-                Label(String(localized: "addBookmark.preview.reddit"), systemImage: "bubble.left.and.bubble.right.fill")
+                Label(LanguageManager.shared.localized("addBookmark.preview.reddit"), systemImage: "bubble.left.and.bubble.right.fill")
                     .foregroundStyle(.orange)
             }
         }
@@ -357,13 +376,13 @@ struct AddBookmarkView: View {
                     HStack {
                         Image(systemName: "bird.fill")
                             .foregroundStyle(.blue)
-                        Text(String(localized: "addBookmark.preview.tweet"))
+                        Text(LanguageManager.shared.localized("addBookmark.preview.tweet"))
                             .font(.headline)
                         Spacer()
                         
                         // Görsel sayısı badge
                         if viewModel.tweetImagesData.count > 1 {
-                            Text(String(localized: "addBookmark.preview.images \(viewModel.tweetImagesData.count)"))
+                            Text(LanguageManager.shared.localized("addBookmark.preview.images %lld", Int64(viewModel.tweetImagesData.count)))
                                 .font(.caption)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -424,7 +443,7 @@ struct AddBookmarkView: View {
                             .overlay {
                                 VStack(spacing: 8) {
                                     ProgressView()
-                                    Text(String(localized: "addBookmark.loading.images \(tweet.mediaURLs.count)"))
+                                    Text(LanguageManager.shared.localized("addBookmark.loading.images %lld", Int64(tweet.mediaURLs.count)))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -565,8 +584,8 @@ struct AddBookmarkView: View {
     }
     
     private var detailsSection: some View {
-        Section(String(localized: "addBookmark.section.notes")) {
-            TextField(String(localized: "addBookmark.field.notes"), text: $viewModel.note, axis: .vertical)
+        Section(LanguageManager.shared.localized("addBookmark.section.notes")) {
+            TextField(LanguageManager.shared.localized("addBookmark.field.notes"), text: $viewModel.note, axis: .vertical)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .lineLimit(3...10)
@@ -577,7 +596,7 @@ struct AddBookmarkView: View {
     // MARK: - Organization Section
     
     private var organizationSection: some View {
-        Section(String(localized: "addBookmark.section.organization")) {
+        Section(LanguageManager.shared.localized("addBookmark.section.organization")) {
             // Kategori Seçici
             SelectionRowButton(
                 icon: viewModel.selectedCategoryId.flatMap { id in
@@ -586,10 +605,10 @@ struct AddBookmarkView: View {
                 iconColor: viewModel.selectedCategoryId.flatMap { id in
                     viewModel.categories.first { $0.id == id }?.color
                 } ?? .gray,
-                label: String(localized: "addBookmark.field.category"),
+                label: LanguageManager.shared.localized("addBookmark.field.category"),
                 value: viewModel.selectedCategoryId.flatMap { id in
                     viewModel.categories.first { $0.id == id }?.name
-                } ?? String(localized: "addBookmark.no_category")
+                } ?? LanguageManager.shared.localized("addBookmark.no_category")
             ) {
                 showingCategoryPicker = true
             }
@@ -598,7 +617,7 @@ struct AddBookmarkView: View {
             SelectionRowButton(
                 emoji: viewModel.selectedSource.emoji,
                 iconColor: viewModel.selectedSource.color,
-                label: String(localized: "addBookmark.field.source"),
+                label: LanguageManager.shared.localized("addBookmark.field.source"),
                 value: viewModel.selectedSource.displayName
             ) {
                 showingSourcePicker = true
@@ -608,14 +627,14 @@ struct AddBookmarkView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField(String(localized: "addBookmark.tags.placeholder"), text: $viewModel.tagsInput)
+            TextField(LanguageManager.shared.localized("addBookmark.tags.placeholder"), text: $viewModel.tagsInput)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: .tags)
         } header: {
-            Text(String(localized: "addBookmark.section.tags"))
+            Text(LanguageManager.shared.localized("addBookmark.section.tags"))
         } footer: {
-            Text(String(localized: "addBookmark.tags.hint"))
+            Text(LanguageManager.shared.localized("addBookmark.tags.hint"))
         }
     }
     
@@ -641,18 +660,18 @@ struct AddBookmarkView: View {
                     // Aksiyonlar
                     HStack(spacing: 16) {
                         Button {
-                            showingCoverImageCrop = true
+                            activeCoverSheet = .crop
                         } label: {
-                            Label(String(localized: "addBookmark.coverImage.edit"), systemImage: "crop")
+                            Label(LanguageManager.shared.localized("addBookmark.coverImage.edit"), systemImage: "crop")
                                 .font(.subheadline)
                         }
                         
                         Spacer()
                         
                         Button {
-                            showingCoverImagePicker = true
+                            activeCoverSheet = .picker
                         } label: {
-                            Label(String(localized: "addBookmark.coverImage.change"), systemImage: "arrow.triangle.2.circlepath.camera")
+                            Label(LanguageManager.shared.localized("addBookmark.coverImage.change"), systemImage: "arrow.triangle.2.circlepath.camera")
                                 .font(.subheadline)
                         }
                         
@@ -663,7 +682,7 @@ struct AddBookmarkView: View {
                                 coverImage = nil
                             }
                         } label: {
-                            Label(String(localized: "addBookmark.coverImage.remove"), systemImage: "trash")
+                            Label(LanguageManager.shared.localized("addBookmark.coverImage.remove"), systemImage: "trash")
                                 .font(.subheadline)
                         }
                     }
@@ -672,7 +691,7 @@ struct AddBookmarkView: View {
             } else {
                 // Görsel ekleme butonu
                 Button {
-                    showingCoverImagePicker = true
+                    activeCoverSheet = .picker
                 } label: {
                     HStack(spacing: 14) {
                         Image(systemName: "photo.fill")
@@ -689,12 +708,12 @@ struct AddBookmarkView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(String(localized: "addBookmark.coverImage.add"))
+                            Text(LanguageManager.shared.localized("addBookmark.coverImage.add"))
                                 .font(.body)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.primary)
                             
-                            Text(String(localized: "addBookmark.coverImage.hint"))
+                            Text(LanguageManager.shared.localized("addBookmark.coverImage.hint"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -711,10 +730,10 @@ struct AddBookmarkView: View {
                 .buttonStyle(.plain)
             }
         } header: {
-            Label(String(localized: "addBookmark.section.coverImage"), systemImage: "photo.on.rectangle")
+            Label(LanguageManager.shared.localized("addBookmark.section.coverImage"), systemImage: "photo.on.rectangle")
         } footer: {
             if coverImage == nil {
-                Text(String(localized: "addBookmark.coverImage.footer"))
+                Text(LanguageManager.shared.localized("addBookmark.coverImage.footer"))
             }
         }
     }
@@ -763,7 +782,7 @@ struct AddBookmarkView: View {
                     }
                     
                     if viewModel.fileExtension == "pdf" && !viewModel.isProcessingFile {
-                        Text(String(localized: "addBookmark.file.pdf_processed"))
+                        Text(LanguageManager.shared.localized("addBookmark.file.pdf_processed"))
                             .font(.caption2)
                             .foregroundStyle(.green)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -775,7 +794,7 @@ struct AddBookmarkView: View {
                     if subscriptionManager.isPro {
                         showingFileImporter = true
                     } else {
-                        paywallReason = String(localized: "pro.document.message")
+                        paywallReason = LanguageManager.shared.localized("pro.document.message")
                         showingPaywall = true
                     }
                 } label: {
@@ -794,12 +813,12 @@ struct AddBookmarkView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(String(localized: "addBookmark.file.add"))
+                            Text(LanguageManager.shared.localized("addBookmark.file.add"))
                                 .font(.body)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.primary)
                             
-                            Text(String(localized: "addBookmark.file.hint"))
+                            Text(LanguageManager.shared.localized("addBookmark.file.hint"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -816,10 +835,10 @@ struct AddBookmarkView: View {
                 .buttonStyle(.plain)
             }
         } header: {
-            Label(String(localized: "addBookmark.section.file"), systemImage: "doc.on.doc")
+            Label(LanguageManager.shared.localized("addBookmark.section.file"), systemImage: "doc.on.doc")
         } footer: {
             if viewModel.fileName == nil {
-                Text(String(localized: "addBookmark.file.footer"))
+                Text(LanguageManager.shared.localized("addBookmark.file.footer"))
             }
         }
     }
@@ -844,16 +863,16 @@ struct AddBookmarkView: View {
                                 HStack(spacing: 8) {
                                     ProgressView()
                                         .scaleEffect(0.8)
-                                    Text(String(localized: "addBookmark.ocr.processing"))
+                                    Text(LanguageManager.shared.localized("addBookmark.ocr.processing"))
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
                             } else {
-                                Label(String(localized: "addBookmark.ocr.completed"), systemImage: "checkmark.circle.fill")
+                                Label(LanguageManager.shared.localized("addBookmark.ocr.completed"), systemImage: "checkmark.circle.fill")
                                     .font(.subheadline)
                                     .foregroundStyle(.green)
                                 
-                                Text(String(localized: "addBookmark.ocr.completedHint"))
+                                Text(LanguageManager.shared.localized("addBookmark.ocr.completedHint"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -865,9 +884,9 @@ struct AddBookmarkView: View {
                     // Aksiyonlar
                     HStack(spacing: 16) {
                         Button {
-                            showingOCRImageCrop = true
+                            activeOCRSheet = .crop
                         } label: {
-                            Label(String(localized: "addBookmark.ocr.recrop"), systemImage: "crop")
+                            Label(LanguageManager.shared.localized("addBookmark.ocr.recrop"), systemImage: "crop")
                                 .font(.subheadline)
                         }
                         
@@ -878,7 +897,7 @@ struct AddBookmarkView: View {
                                 ocrImage = nil
                             }
                         } label: {
-                            Label(String(localized: "addBookmark.ocr.remove"), systemImage: "trash")
+                            Label(LanguageManager.shared.localized("addBookmark.ocr.remove"), systemImage: "trash")
                                 .font(.subheadline)
                         }
                     }
@@ -888,7 +907,7 @@ struct AddBookmarkView: View {
                 // OCR ekleme butonu
                 Button {
                     if subscriptionManager.isPro {
-                        showingOCRImagePicker = true
+                        activeOCRSheet = .picker
                     } else {
                         showingPaywall = true
                     }
@@ -908,12 +927,12 @@ struct AddBookmarkView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(String(localized: "addBookmark.ocr.add"))
+                            Text(LanguageManager.shared.localized("addBookmark.ocr.add"))
                                 .font(.body)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.primary)
                             
-                            Text(String(localized: "addBookmark.ocr.hint"))
+                            Text(LanguageManager.shared.localized("addBookmark.ocr.hint"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -930,10 +949,10 @@ struct AddBookmarkView: View {
                 .buttonStyle(.plain)
             }
         } header: {
-            Label(String(localized: "addBookmark.section.ocr"), systemImage: "text.viewfinder")
+            Label(LanguageManager.shared.localized("addBookmark.section.ocr"), systemImage: "text.viewfinder")
         } footer: {
             if ocrImage == nil {
-                Text(String(localized: "addBookmark.ocr.footer"))
+                Text(LanguageManager.shared.localized("addBookmark.ocr.footer"))
             }
         }
     }
@@ -946,7 +965,7 @@ struct AddBookmarkView: View {
                     .font(.subheadline)
             }
         } header: {
-            Text(String(localized: "addBookmark.errors")).foregroundStyle(.red)
+            Text(LanguageManager.shared.localized("addBookmark.errors")).foregroundStyle(.red)
         }
     }
     
@@ -963,7 +982,7 @@ struct AddBookmarkView: View {
         }
         
         ToolbarItem(placement: .confirmationAction) {
-            Button(String(localized: "common.save")) { saveBookmark() }
+            Button(LanguageManager.shared.localized("common.save")) { saveBookmark() }
                 .disabled(!viewModel.isValid)
                 .fontWeight(.semibold)
         }
@@ -976,7 +995,7 @@ struct AddBookmarkView: View {
         if !subscriptionManager.isPro {
             let count = (try? modelContext.fetchCount(FetchDescriptor<Bookmark>())) ?? 0
             if count >= 50 {
-                paywallReason = String(localized: "pro.limit.message")
+                paywallReason = LanguageManager.shared.localized("pro.limit.message")
                 showingPaywall = true
                 return
             }
@@ -1002,16 +1021,16 @@ struct AddBookmarkView: View {
                 let result = try await OCRService.shared.recognizeText(from: image)
                 
                 await MainActor.run {
-                    if viewModel.title.isEmpty {
-                        let lines = result.text.components(separatedBy: "\n")
-                        if let firstLine = lines.first, !firstLine.isEmpty {
-                            viewModel.title = String(firstLine.prefix(100))
-                        }
+                    // Akıllı başlık önerisini kullan
+                    if viewModel.title.isEmpty, let suggested = result.suggestedTitle {
+                        viewModel.title = suggested
                     }
                     
+                    // Temizlenmiş metni notlara ekle
                     if viewModel.note.isEmpty {
                         viewModel.note = result.cleanText
                     } else {
+                        // Var olan notun sonuna ekle
                         viewModel.note += "\n\n---\n\n" + result.cleanText
                     }
                     
@@ -1139,7 +1158,7 @@ struct SelectionPickerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(String(localized: "common.done")) {
+                    Button(LanguageManager.shared.localized("common.done")) {
                         dismiss()
                     }
                     .fontWeight(.semibold)
@@ -1230,16 +1249,16 @@ struct SelectionRowButton: View {
 extension BookmarkSource {
     var sourceDescription: String? {
         switch self {
-        case .twitter: return String(localized: "source.twitter.description")
-        case .reddit: return String(localized: "source.reddit.description")
-        case .linkedin: return String(localized: "source.linkedin.description")
-        case .medium: return String(localized: "source.medium.description")
-        case .youtube: return String(localized: "source.youtube.description")
-        case .instagram: return String(localized: "source.instagram.description")
-        case .github: return String(localized: "source.github.description")
-        case .article: return String(localized: "source.article.description")
-        case .document: return String(localized: "source.document.description")
-        case .manual: return String(localized: "source.manual.description")
+        case .twitter: return LanguageManager.shared.localized("source.twitter.description")
+        case .reddit: return LanguageManager.shared.localized("source.reddit.description")
+        case .linkedin: return LanguageManager.shared.localized("source.linkedin.description")
+        case .medium: return LanguageManager.shared.localized("source.medium.description")
+        case .youtube: return LanguageManager.shared.localized("source.youtube.description")
+        case .instagram: return LanguageManager.shared.localized("source.instagram.description")
+        case .github: return LanguageManager.shared.localized("source.github.description")
+        case .article: return LanguageManager.shared.localized("source.article.description")
+        case .document: return LanguageManager.shared.localized("source.document.description")
+        case .manual: return LanguageManager.shared.localized("source.manual.description")
         case .other: return nil
         }
     }

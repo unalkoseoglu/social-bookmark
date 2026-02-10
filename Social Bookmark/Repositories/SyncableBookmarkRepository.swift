@@ -56,7 +56,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
             Task.detached { @MainActor in
                 do {
                     // 📄 Doküman yükleme işlemi (Syncable layer'da yapıyoruz)
-                    if snapshot.source == .document, let fileName = snapshot.fileName, snapshot.fileURL == nil {
+                    if snapshot.source == .document, snapshot.fileName != nil, snapshot.fileURL == nil {
                         // Not: fileURL nil ise henüz yüklenmemiştir
                         // Burada SyncableBookmarkRepository veya AddBookmarkViewModel'den veriyi geçirmemiz lazım
                         // Ancak Snapshot'ta data yok. 
@@ -96,12 +96,13 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         
         if isSyncEnabled {
             // Bookmark bilgilerini capture et (silmeden önce)
-            let snapshot = createBookmarkSnapshot(bookmark)
+            let bookmarkId = bookmark.id
+            let bookmarkTitle = bookmark.title
             
             Task.detached { @MainActor in
                 do {
-                    try await SyncService.shared.deleteBookmark(snapshot)
-                    Logger.sync.info("Deleted from cloud: \(snapshot.title)")
+                    try await SyncService.shared.deleteBookmark(id: bookmarkId)
+                    Logger.sync.info("Deleted from cloud: \(bookmarkTitle)")
                 } catch {
                     Logger.sync.error("Cloud delete failed: \(error.localizedDescription)")
                 }
@@ -116,15 +117,15 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         
         if isSyncEnabled {
             // Tüm bookmark'ları capture et
-            let snapshots = bookmarks.map { createBookmarkSnapshot($0) }
+            let bookmarkIdsWithTitles = bookmarks.map { ($0.id, $0.title) }
             
             Task.detached { @MainActor in
-                for snapshot in snapshots {
+                for (id, title) in bookmarkIdsWithTitles {
                     do {
-                        try await SyncService.shared.deleteBookmark(snapshot)
-                        Logger.sync.info("Deleted from cloud: \(snapshot.title)")
+                        try await SyncService.shared.deleteBookmark(id: id)
+                        Logger.sync.info("Deleted from cloud: \(title)")
                     } catch {
-                        Logger.sync.error("Cloud delete failed for \(snapshot.title): \(error.localizedDescription)")
+                        Logger.sync.error("Cloud delete failed for \(title): \(error.localizedDescription)")
                     }
                 }
             }
@@ -137,6 +138,14 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     
     /// SwiftData managed object'i async-safe snapshot'a çevirir
     private func createBookmarkSnapshot(_ bookmark: Bookmark) -> Bookmark {
+        // IMAGE LOGGING:
+        if let data = bookmark.imageData {
+            print("📸 [SyncableRepository] Snapshotting with single image data: \(data.count) bytes")
+        }
+        if let multiple = bookmark.imagesData, !multiple.isEmpty {
+            print("📸 [SyncableRepository] Snapshotting with multiple images: \(multiple.count) items")
+        }
+        
         let snapshot = Bookmark(
             title: bookmark.title,
             url: bookmark.url,
@@ -152,8 +161,13 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
             fileURL: bookmark.fileURL,
             fileName: bookmark.fileName,
             fileExtension: bookmark.fileExtension,
-            fileSize: bookmark.fileSize
+            fileSize: bookmark.fileSize,
+            linkedBookmarkIds: bookmark.linkedBookmarkIds // ✅ EKLENDİ
         )
+        
+        // Transient veriyi de aktar (Sync layer için gerekli)
+        snapshot.fileData = bookmark.fileData // ✅ EKLENDİ
+        
         snapshot.id = bookmark.id
         snapshot.createdAt = bookmark.createdAt
         snapshot.updatedAt = bookmark.lastUpdated
@@ -219,31 +233,14 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         baseRepository.create(category)
         
         if isSyncEnabled {
-            // Category bilgilerini capture et (SwiftData managed object'i async context'e taşıyamayız)
-            let categoryId = category.id
-            let categoryName = category.name
-            let categoryIcon = category.icon
-            let categoryColorHex = category.colorHex
-            let categoryOrder = category.order
-            let categoryCreatedAt = category.createdAt
-            let categoryUpdatedAt = category.lastUpdated
+            let snapshot = createCategorySnapshot(category)
             
             Task.detached { @MainActor in
                 do {
-                    let categorySnapshot = Category(
-                        id: categoryId,
-                        name: categoryName,
-                        icon: categoryIcon,
-                        colorHex: categoryColorHex,
-                        order: categoryOrder
-                    )
-                    categorySnapshot.createdAt = categoryCreatedAt
-                    categorySnapshot.updatedAt = categoryUpdatedAt
-                    
-                    try await SyncService.shared.syncCategory(categorySnapshot)
-                    Logger.sync.info("Synced new category: \(categoryName)")
+                    try await SyncService.shared.syncCategory(snapshot)
+                    print("✅ [SyncableCategoryRepository] Synced new category: \(snapshot.name)")
                 } catch {
-                    Logger.sync.error("Sync failed for new category: \(error.localizedDescription)")
+                    print("❌ [SyncableCategoryRepository] Sync failed for new category: \(error.localizedDescription)")
                 }
             }
         }
@@ -254,12 +251,14 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         baseRepository.update(category)
         
         if isSyncEnabled {
+            let snapshot = createCategorySnapshot(category)
+            
             Task.detached { @MainActor in
                 do {
-                    try await SyncService.shared.syncCategory(category)
-                    Logger.sync.info("Synced updated category: \(category.name)")
+                    try await SyncService.shared.syncCategory(snapshot)
+                    print("✅ [SyncableCategoryRepository] Synced updated category: \(snapshot.name)")
                 } catch {
-                    Logger.sync.error("Sync failed for updated category: \(error.localizedDescription)")
+                    print("❌ [SyncableCategoryRepository] Sync failed for updated category: \(error.localizedDescription)")
                 }
             }
         }
@@ -269,36 +268,36 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         Logger.sync.info("Deleting category: \(category.name)")
         
         if isSyncEnabled {
-            // Category bilgilerini capture et (silmeden önce)
             let categoryId = category.id
             let categoryName = category.name
-            let categoryIcon = category.icon
-            let categoryColorHex = category.colorHex
-            let categoryOrder = category.order
-            let categoryCreatedAt = category.createdAt
-            let categoryUpdatedAt = category.lastUpdated
             
             Task.detached { @MainActor in
                 do {
-                    let categorySnapshot = Category(
-                        id: categoryId,
-                        name: categoryName,
-                        icon: categoryIcon,
-                        colorHex: categoryColorHex,
-                        order: categoryOrder
-                    )
-                    categorySnapshot.createdAt = categoryCreatedAt
-                    categorySnapshot.updatedAt = categoryUpdatedAt
-                    
-                    try await SyncService.shared.deleteCategory(categorySnapshot)
-                    Logger.sync.info("Deleted from cloud: \(categoryName)")
+                    try await SyncService.shared.deleteCategory(id: categoryId)
+                    print("✅ [SyncableCategoryRepository] Deleted from cloud: \(categoryName)")
                 } catch {
-                    Logger.sync.error("Cloud delete failed: \(error.localizedDescription)")
+                    print("❌ [SyncableCategoryRepository] Cloud delete failed: \(error.localizedDescription)")
                 }
             }
         }
         
         baseRepository.delete(category)
+    }
+    
+    
+    // MARK: - Private Helpers
+    
+    private func createCategorySnapshot(_ category: Category) -> Category {
+        let snapshot = Category(
+            id: category.id,
+            name: category.name,
+            icon: category.icon,
+            colorHex: category.colorHex,
+            order: category.order
+        )
+        snapshot.createdAt = category.createdAt
+        snapshot.updatedAt = category.lastUpdated
+        return snapshot
     }
     
     func bookmarkCount(for categoryId: UUID) -> Int {

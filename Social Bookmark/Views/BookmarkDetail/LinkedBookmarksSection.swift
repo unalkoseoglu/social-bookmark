@@ -16,14 +16,14 @@ struct LinkedBookmarksSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Linked Bookmarks", systemImage: "link")
+                Label(String(localized: "bookmarkDetail.linked_bookmarks"), systemImage: "link")
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
                 Button(action: onAddLink) {
-                    Label("Add", systemImage: "plus")
+                    Label(String(localized: "common.add"), systemImage: "plus")
                         .font(.caption.weight(.bold))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
@@ -35,7 +35,7 @@ struct LinkedBookmarksSection: View {
             .padding(.horizontal)
             
             if linkedBookmarks.isEmpty {
-                Text("No linked bookmarks yet. Link related content to create a series or reading list.")
+                Text(String(localized: "bookmarkDetail.linked_bookmarks_empty"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)

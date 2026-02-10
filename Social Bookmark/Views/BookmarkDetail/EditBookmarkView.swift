@@ -145,7 +145,7 @@ struct EditBookmarkView: View {
                 // Etiketler
                 tagsSection
             }
-            .navigationTitle(String(localized: "editBookmark.title"))
+            .navigationTitle(LanguageManager.shared.localized("editBookmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
@@ -164,17 +164,17 @@ struct EditBookmarkView: View {
                     }
                 }
             }
-            .confirmationDialog(String(localized: "editBookmark.imageOptions"), isPresented: $showingImageOptions, presenting: selectedImageId) { id in
-                Button(String(localized: "editBookmark.viewFullScreen")) {
+            .confirmationDialog(LanguageManager.shared.localized("editBookmark.imageOptions"), isPresented: $showingImageOptions, presenting: selectedImageId) { id in
+                Button(LanguageManager.shared.localized("editBookmark.viewFullScreen")) {
                     showingFullScreenImage = true
                 }
                 
-                Button(String(localized: "common.delete"), role: .destructive) {
+                Button(LanguageManager.shared.localized("common.delete"), role: .destructive) {
                     print("⚠️ [EditBookmark] Delete triggered FROM DIALOG for ID: \(id)")
                     deleteImage(with: id, source: "ConfirmationDialog")
                 }
                 
-                Button(String(localized: "common.cancel"), role: .cancel) {}
+                Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) {}
             }
             .fullScreenCover(isPresented: $showingFullScreenImage) {
                 if let id = selectedImageId, 
@@ -182,10 +182,10 @@ struct EditBookmarkView: View {
                     FullScreenImageViewer(images: allImages.map { $0.image }, initialIndex: index)
                 }
             }
-            .alert(String(localized: "common.error"), isPresented: $showingSaveError) {
-                Button(String(localized: "common.done"), role: .cancel) {}
+            .alert(LanguageManager.shared.localized("common.error"), isPresented: $showingSaveError) {
+                Button(LanguageManager.shared.localized("common.done"), role: .cancel) {}
             } message: {
-                Text(saveError ?? String(localized: "editBookmark.saveError"))
+                Text(saveError ?? LanguageManager.shared.localized("editBookmark.saveError"))
             }
             .disabled(isSaving)
         }
@@ -200,19 +200,19 @@ struct EditBookmarkView: View {
     // MARK: - Sections
     
     private var basicInfoSection: some View {
-        Section(String(localized: "editBookmark.section.basic")) {
-            TextField(String(localized: "editBookmark.field.title"), text: $title, axis: .vertical)
+        Section(LanguageManager.shared.localized("editBookmark.section.basic")) {
+            TextField(LanguageManager.shared.localized("editBookmark.field.title"), text: $title, axis: .vertical)
                 .lineLimit(2...4)
                 .focused($focusedField, equals: .title)
             
-            TextField(String(localized: "editBookmark.field.url"), text: $url)
+            TextField(LanguageManager.shared.localized("editBookmark.field.url"), text: $url)
                 .keyboardType(.URL)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
                 .focused($focusedField, equals: .url)
             
             if !url.isEmpty && !isURLValid {
-                Label(String(localized: "validation.invalid_url"), systemImage: "exclamationmark.triangle")
+                Label(LanguageManager.shared.localized("validation.invalid_url"), systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.red)
                     .font(.caption)
             }
@@ -239,10 +239,10 @@ struct EditBookmarkView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("editBookmark.addImage")
+                            Text(LanguageManager.shared.localized("editBookmark.addImage"))
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                            Text("editBookmark.maxImages")
+                            Text(LanguageManager.shared.localized("editBookmark.maxImages"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -263,7 +263,7 @@ struct EditBookmarkView: View {
                     
                     // Alt bilgi ve ekleme butonu
                     HStack {
-                        Text("editBookmark.imageCount \(totalImageCount)")
+                        Text(LanguageManager.shared.localized("editBookmark.imageCount %@", "\(totalImageCount)"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
@@ -275,7 +275,7 @@ struct EditBookmarkView: View {
                                 maxSelectionCount: 4 - totalImageCount,
                                 matching: .images
                             ) {
-                                Label(String(localized: "common.add"), systemImage: "plus")
+                                Label(LanguageManager.shared.localized("common.add"), systemImage: "plus")
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
@@ -291,16 +291,16 @@ struct EditBookmarkView: View {
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
-                    Text("editBookmark.processingImages")
+                    Text(LanguageManager.shared.localized("editBookmark.processingImages"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
         } header: {
-            Text("editBookmark.section.images")
+            Text(LanguageManager.shared.localized("editBookmark.section.images"))
         } footer: {
             if !imageRecords.isEmpty {
-                Text("editBookmark.tapToEdit")
+                Text(LanguageManager.shared.localized("editBookmark.tapToEdit"))
                     .font(.caption)
             }
         }
@@ -360,7 +360,7 @@ struct EditBookmarkView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        Text("editBookmark.newBadge")
+                        Text(LanguageManager.shared.localized("editBookmark.newBadge"))
                             .font(.caption2)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
@@ -385,17 +385,17 @@ struct EditBookmarkView: View {
                         .frame(width: 24)
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("editBookmark.noCategories")
+                        Text(LanguageManager.shared.localized("editBookmark.noCategories"))
                             .font(.subheadline)
-                        Text("editBookmark.createCategoryHint")
+                        Text(LanguageManager.shared.localized("editBookmark.createCategoryHint"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
             } else {
-                Picker(String(localized: "editBookmark.category"), selection: $selectedCategoryId) {
+                Picker(LanguageManager.shared.localized("editBookmark.category"), selection: $selectedCategoryId) {
                     // Hiçbiri seçeneği
-                    Label(String(localized: "editBookmark.uncategorized"), systemImage: "tray")
+                    Label(LanguageManager.shared.localized("editBookmark.uncategorized"), systemImage: "tray")
                         .tag(nil as UUID?)
                     
                     Divider()
@@ -414,7 +414,7 @@ struct EditBookmarkView: View {
                 .pickerStyle(.menu)
             }
         } header: {
-            Text("editBookmark.section.category")
+            Text(LanguageManager.shared.localized("editBookmark.section.category"))
         } footer: {
             if let category = selectedCategory {
                 Label(category.name, systemImage: category.icon)
@@ -425,8 +425,8 @@ struct EditBookmarkView: View {
     }
     
     private var detailsSection: some View {
-        Section(String(localized: "editBookmark.section.details")) {
-            Picker(String(localized: "editBookmark.source"), selection: $selectedSource) {
+        Section(LanguageManager.shared.localized("editBookmark.section.details")) {
+            Picker(LanguageManager.shared.localized("editBookmark.source"), selection: $selectedSource) {
                 ForEach(BookmarkSource.allCases) { source in
                     HStack {
                         Text(source.emoji)
@@ -437,7 +437,7 @@ struct EditBookmarkView: View {
             }
             .pickerStyle(.menu)
             
-            TextField(String(localized: "editBookmark.field.notes"), text: $note, axis: .vertical)
+            TextField(LanguageManager.shared.localized("editBookmark.field.notes"), text: $note, axis: .vertical)
                 .lineLimit(3...10)
                 .focused($focusedField, equals: .note)
         }
@@ -445,12 +445,12 @@ struct EditBookmarkView: View {
     
     private var tagsSection: some View {
         Section {
-            TextField(String(localized: "editBookmark.field.tags"), text: $tagsInput)
+            TextField(LanguageManager.shared.localized("editBookmark.field.tags"), text: $tagsInput)
                 .focused($focusedField, equals: .tags)
         } header: {
-            Text("editBookmark.section.tags")
+            Text(LanguageManager.shared.localized("editBookmark.section.tags"))
         } footer: {
-            Text("editBookmark.tagsHint")
+            Text(LanguageManager.shared.localized("editBookmark.tagsHint"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -459,7 +459,7 @@ struct EditBookmarkView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button(String(localized: "common.cancel")) {
+            Button(LanguageManager.shared.localized("common.cancel")) {
                 dismiss()
             }
             .disabled(isSaving)
@@ -470,7 +470,7 @@ struct EditBookmarkView: View {
                 ProgressView()
                     .scaleEffect(0.8)
             } else {
-                Button(String(localized: "common.save")) {
+                Button(LanguageManager.shared.localized("common.save")) {
                     Task {
                         await saveChanges()
                     }

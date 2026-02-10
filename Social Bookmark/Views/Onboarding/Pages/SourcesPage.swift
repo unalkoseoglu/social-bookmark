@@ -66,11 +66,11 @@ struct SourcesPage: View {
             
             // Text Content
             VStack(spacing: 12) {
-                Text(LocalizedStringKey("onboarding.sources.title"))
+                Text(LanguageManager.shared.localized("onboarding.sources.title"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
                 
-                Text(LocalizedStringKey("onboarding.sources.subtitle"))
+                Text(LanguageManager.shared.localized("onboarding.sources.subtitle"))
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -130,7 +130,7 @@ struct FeatureRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Text(LocalizedStringKey(text))
+            Text(LanguageManager.shared.localized(text))
                 .font(.subheadline)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)

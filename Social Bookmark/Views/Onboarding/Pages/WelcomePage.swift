@@ -19,13 +19,13 @@ struct WelcomePage: View {
                 
                 // Text Content
                 VStack(spacing: 16) {
-                    Text(LocalizedStringKey("onboarding.welcome.title"))
+                    Text(LanguageManager.shared.localized("onboarding.welcome.title"))
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .opacity(isVisible ? 1.0 : 0.0)
                         .offset(y: isVisible ? 0 : 20)
                     
-                    Text(LocalizedStringKey("onboarding.welcome.subtitle"))
+                    Text(LanguageManager.shared.localized("onboarding.welcome.subtitle"))
                         .font(.title3)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

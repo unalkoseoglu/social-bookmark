@@ -1,78 +1,76 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Share Extension Localization - English
+   Share Extension Localization - Korean (ko)
    ═══════════════════════════════════════════════════════════════════ */
-"CFBundleDisplayName" = "Save to Link Bookmark";
+"CFBundleDisplayName" = "링크 북마크에 저장";
 
 /* Navigation */
-
-"extension.title" = "Save Bookmark";
-"extension.cancel" = "Cancel";
-"extension.save" = "Save";
+"extension.title" = "북마크 저장";
+"extension.cancel" = "취소";
+"extension.save" = "저장";
 
 /* URL Section */
-"extension.source" = "Source";
+"extension.source" = "출처";
 
 /* Error Banner */
-"extension.error.twitter" = "Twitter Error";
-"extension.error.reddit" = "Reddit Error";
-"extension.error.linkedin" = "LinkedIn Error";
-"extension.error.medium" = "Medium Error";
-"extension.error.network" = "Connection Error";
-"extension.error.openInBrowser" = "Open in Browser";
+"extension.error.twitter" = "Twitter 오류";
+"extension.error.reddit" = "Reddit 오류";
+"extension.error.linkedin" = "LinkedIn 오류";
+"extension.error.medium" = "Medium 오류";
+"extension.error.network" = "연결 오류";
+"extension.error.openInBrowser" = "브라우저에서 열기";
 
 /* LinkedIn Specific Errors */
-"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
-"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+"extension.linkedin.authRequired" = "이 콘텐츠를 보려면 LinkedIn 로그인이 필요합니다.";
+"extension.linkedin.botDetected" = "LinkedIn 접속이 일시적으로 제한되었습니다. 나중에 다시 시도해 주세요.";
 
 /* Preview Sections */
-"extension.preview.tweet" = "Tweet Preview";
-"extension.preview.reddit" = "Reddit Preview";
-"extension.preview.linkedin" = "LinkedIn Preview";
-"extension.preview.medium" = "Medium Preview";
+"extension.preview.tweet" = "트윗 미리보기";
+"extension.preview.reddit" = "Reddit 미리보기";
+"extension.preview.linkedin" = "LinkedIn 미리보기";
+"extension.preview.medium" = "Medium 미리보기";
 
 /* Preview Stats */
-"extension.stats.images" = "%d images";
-"extension.stats.comments" = "%@ comments";
-"extension.stats.readTime" = "%d min read";
-"extension.stats.membersOnly" = "Members Only";
+"extension.stats.images" = "이미지 %d개";
+"extension.stats.comments" = "댓글 %@개";
+"extension.stats.readTime" = "읽기 시간 %d분";
+"extension.stats.membersOnly" = "멤버 전용";
 
 /* Basic Info Section */
-"extension.basicInfo" = "Basic Information";
-"extension.title.placeholder" = "Title";
-"extension.source.label" = "Source";
-"extension.contentFetched" = "Content fetched";
+"extension.basicInfo" = "기본 정보";
+"extension.title.placeholder" = "제목";
+"extension.source.label" = "출처";
+"extension.contentFetched" = "콘텐츠를 가져왔습니다";
 
 /* Category Section */
-"extension.category" = "Category";
-"extension.category.none" = "Uncategorized";
-"extension.category.empty" = "No categories";
-"extension.category.emptyHint" = "You can create categories from the main app";
+"extension.category" = "카테고리";
+"extension.category.none" = "미지정";
+"extension.category.empty" = "카테고리 없음";
+"extension.category.emptyHint" = "메인 앱에서 카테고리를 생성할 수 있습니다";
 
 /* Notes Section */
-"extension.notes" = "Notes";
-"extension.notes.placeholder" = "Add your notes here";
+"extension.notes" = "메모";
+"extension.notes.placeholder" = "여기에 메모를 추가하세요";
 
 /* Tags Section */
-"extension.tags" = "Tags";
-"extension.tags.placeholder" = "Tags (comma separated)";
-"extension.tags.hint" = "Example: swift, ios, tutorial";
+"extension.tags" = "태그";
+"extension.tags.placeholder" = "태그 (쉼표로 구분)";
+"extension.tags.hint" = "예: swift, ios, tutorial";
 
 /* Medium */
-"extension.medium.readOn" = "Read on Medium";
+"extension.medium.readOn" = "Medium에서 읽기";
 
 /* Status */
-"extension.loading" = "Loading...";
-"extension.saved" = "Saved";
+"extension.loading" = "로딩 중...";
+"extension.saved" = "저장됨";
 
-"extension.fallback.title" = "Link Saved";
-"extension.fallback.message" = "This link will be processed in the main app.";
-"extension.fallback.ok" = "OK";
+"extension.fallback.title" = "링크 저장됨";
+"extension.fallback.message" = "이 링크는 메인 앱에서 처리됩니다.";
+"extension.fallback.ok" = "확인";
 
 // MARK: - Share Extension (ShareViewController)
 
 // Loading
-"extension.loading.hint" = "First launch may take a moment";
+"extension.loading.hint" = "첫 실행 시 시간이 걸릴 수 있습니다";
 
 // First Launch Banner
-"extension.firstLaunch.message" = "First launch may take longer, please wait...";
-
+"extension.firstLaunch.message" = "첫 실행은 시간이 더 걸릴 수 있습니다. 잠시만 기다려 주세요...";

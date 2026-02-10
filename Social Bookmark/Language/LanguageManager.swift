@@ -86,6 +86,16 @@ final class LanguageManager: ObservableObject {
             languageCode = "tr"
         case .english:
             languageCode = "en"
+        case .german:
+            languageCode = "de"
+        case .korean:
+            languageCode = "ko"
+        case .simplifiedChinese:
+            languageCode = "zh-Hans"
+        case .traditionalChinese:
+            languageCode = "zh-Hant"
+        case .arabic:
+            languageCode = "ar"
         }
         
         if let path = Bundle.main.path(forResource: languageCode, ofType: "lproj"),
@@ -114,8 +124,11 @@ final class LanguageManager: ObservableObject {
         
         // Flag'i set et
         DispatchQueue.main.async { [weak self] in
-            self?.refreshID = UUID()
             self?.languageJustChanged = true
+            self?.refreshID = UUID()
+            
+            // Notification is still useful for other observers
+            NotificationCenter.default.post(name: Notification.Name("appShouldRestart"), object: nil)
         }
         
         print("🌍 Language changed to: \(language.displayName)")

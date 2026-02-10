@@ -150,8 +150,17 @@ final class AuthRepository: AuthRepositoryProtocol, @unchecked Sendable {
         
         // Fetch fresh user data (Skip in extension to speed up startup)
         let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
+        let token = defaults.string(forKey: APIConstants.Keys.token)
+        
         if isExtension {
-             Logger.auth.info("⏭️ [AuthRepo] Extension mode: Skipping fresh profile fetch, returning nil user (will use SessionStore cache)")
+             Logger.auth.info("🚀 [AuthRepo] Extension mode: Attempting shallow session restoration")
+             if let token = token, let lastId = defaults.string(forKey: "session_last_user_id"), let uuid = UUID(uuidString: lastId) {
+                 let isAnon = defaults.bool(forKey: "session_is_anonymous")
+                 let user = AuthUser(id: uuid, email: nil, isAnonymous: isAnon)
+                 Logger.auth.info("✅ [AuthRepo] Shallow session restored for: \(lastId)")
+                 return user
+             }
+             Logger.auth.warning("⚠️ [AuthRepo] Extension mode: No token or lastUserId found")
              return nil
         }
         

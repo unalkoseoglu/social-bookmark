@@ -26,12 +26,12 @@ struct NotificationOnboardingPage: View {
             
             // Text Content
             VStack(spacing: 16) {
-                Text(LocalizedStringKey("onboarding.notifications.title"))
+                Text(LanguageManager.shared.localized("onboarding.notifications.title"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
                 
-                Text(LocalizedStringKey("onboarding.notifications.subtitle"))
+                Text(LanguageManager.shared.localized("onboarding.notifications.subtitle"))
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -72,7 +72,7 @@ private struct FeatureRow2: View {
                 .foregroundStyle(.blue)
                 .frame(width: 32)
             
-            Text(LocalizedStringKey(text))
+            Text(LanguageManager.shared.localized(text))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }

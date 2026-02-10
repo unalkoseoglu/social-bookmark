@@ -7,7 +7,7 @@ struct LinkHealthCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Bağlantı Sağlığı")
+            Text(LanguageManager.shared.localized("analytics.link_health"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -26,11 +26,11 @@ struct LinkHealthCard: View {
                 .frame(width: 80, height: 80)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Label("\(stats.active) Aktif", systemImage: "checkmark.circle.fill")
+                    Label(LanguageManager.shared.localized("analytics.active_count %lld", Int64(stats.active)), systemImage: "checkmark.circle.fill")
                         .foregroundStyle(Color.emerald)
                         .font(.subheadline)
                     
-                    Label("\(stats.broken) Kontrol Et", systemImage: "exclamationmark.triangle.fill")
+                    Label(LanguageManager.shared.localized("analytics.to_check_count %lld", Int64(stats.broken)), systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                         .font(.subheadline)
                 }
@@ -39,7 +39,7 @@ struct LinkHealthCard: View {
             if !brokenLinks.isEmpty {
                 Divider()
                 
-                Text("Kontrol Edilmesi Gerekenler")
+                Text(LanguageManager.shared.localized("analytics.broken_links_title"))
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                 
@@ -70,7 +70,7 @@ struct LinkHealthCard: View {
                 }
                 
                 if brokenLinks.count > 3 {
-                    Text("\(brokenLinks.count - 3) tane daha...")
+                    Text(LanguageManager.shared.localized("analytics.more_count %lld", Int64(brokenLinks.count - 3)))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

@@ -1,78 +1,151 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Share Extension Localization - English
+   Share Extension Localization - German (de)
    ═══════════════════════════════════════════════════════════════════ */
-"CFBundleDisplayName" = "Save to Link Bookmark";
+"CFBundleDisplayName" = "In Link-Lesezeichen speichern";
 
 /* Navigation */
-
-"extension.title" = "Save Bookmark";
-"extension.cancel" = "Cancel";
-"extension.save" = "Save";
+"extension.title" = "Lesezeichen speichern";
+"extension.cancel" = "Abbrechen";
+"extension.save" = "Speichern";
 
 /* URL Section */
-"extension.source" = "Source";
+"extension.source" = "Quelle";
 
 /* Error Banner */
-"extension.error.twitter" = "Twitter Error";
-"extension.error.reddit" = "Reddit Error";
-"extension.error.linkedin" = "LinkedIn Error";
-"extension.error.medium" = "Medium Error";
-"extension.error.network" = "Connection Error";
-"extension.error.openInBrowser" = "Open in Browser";
+"extension.error.twitter" = "Twitter-Fehler";
+"extension.error.reddit" = "Reddit-Fehler";
+"extension.error.linkedin" = "LinkedIn-Fehler";
+"extension.error.medium" = "Medium-Fehler";
+"extension.error.network" = "Verbindungsfehler";
+"extension.error.openInBrowser" = "Im Browser öffnen";
 
 /* LinkedIn Specific Errors */
-"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
-"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+"extension.linkedin.authRequired" = "Anmeldung bei LinkedIn ist erforderlich, um diesen Inhalt anzuzeigen.";
+"extension.linkedin.botDetected" = "Der Zugriff auf LinkedIn ist vorübergehend eingeschränkt. Bitte versuchen Sie es später erneut.";
 
 /* Preview Sections */
-"extension.preview.tweet" = "Tweet Preview";
-"extension.preview.reddit" = "Reddit Preview";
-"extension.preview.linkedin" = "LinkedIn Preview";
-"extension.preview.medium" = "Medium Preview";
+"extension.preview.tweet" = "Tweet-Vorschau";
+"extension.preview.reddit" = "Reddit-Vorschau";
+"extension.preview.linkedin" = "LinkedIn-Vorschau";
+"extension.preview.medium" = "Medium-Vorschau";
 
 /* Preview Stats */
-"extension.stats.images" = "%d images";
-"extension.stats.comments" = "%@ comments";
-"extension.stats.readTime" = "%d min read";
-"extension.stats.membersOnly" = "Members Only";
+"extension.stats.images" = "%d Bilder";
+"extension.stats.comments" = "%@ Kommentare";
+"extension.stats.readTime" = "%d Min. Lesezeit";
+"extension.stats.membersOnly" = "Nur für Mitglieder";
 
 /* Basic Info Section */
-"extension.basicInfo" = "Basic Information";
-"extension.title.placeholder" = "Title";
-"extension.source.label" = "Source";
-"extension.contentFetched" = "Content fetched";
+"extension.basicInfo" = "Basisinformationen";
+"extension.title.placeholder" = "Titel";
+"extension.source.label" = "Quelle";
+"extension.contentFetched" = "Inhalt geladen";
 
 /* Category Section */
-"extension.category" = "Category";
-"extension.category.none" = "Uncategorized";
-"extension.category.empty" = "No categories";
-"extension.category.emptyHint" = "You can create categories from the main app";
+"extension.category" = "Kategorie";
+"extension.category.none" = "Nicht kategorisiert";
+"extension.category.empty" = "Keine Kategorien";
+"extension.category.emptyHint" = "Sie können Kategorien in der Haupt-App erstellen";
 
 /* Notes Section */
-"extension.notes" = "Notes";
-"extension.notes.placeholder" = "Add your notes here";
+"extension.notes" = "Notizen";
+"extension.notes.placeholder" = "Fügen Sie hier Ihre Notizen hinzu";
 
 /* Tags Section */
 "extension.tags" = "Tags";
-"extension.tags.placeholder" = "Tags (comma separated)";
-"extension.tags.hint" = "Example: swift, ios, tutorial";
+"extension.tags.placeholder" = "Tags (durch Komma getrennt)";
+"extension.tags.hint" = "Beispiel: swift, ios, tutorial";
 
 /* Medium */
-"extension.medium.readOn" = "Read on Medium";
+"extension.medium.readOn" = "Auf Medium lesen";
 
 /* Status */
-"extension.loading" = "Loading...";
-"extension.saved" = "Saved";
+"extension.loading" = "Laden...";
+"extension.saved" = "Gespeichert";
 
-"extension.fallback.title" = "Link Saved";
-"extension.fallback.message" = "This link will be processed in the main app.";
+"extension.fallback.title" = "Link gespeichert";
+"extension.fallback.message" = "Dieser Link wird in der Haupt-App verarbeitet.";
 "extension.fallback.ok" = "OK";
 
 // MARK: - Share Extension (ShareViewController)
 
 // Loading
-"extension.loading.hint" = "First launch may take a moment";
+"extension.loading.hint" = "Der erste Start kann einen Moment dauern";
 
 // First Launch Banner
-"extension.firstLaunch.message" = "First launch may take longer, please wait...";
+"extension.firstLaunch.message" = "Der erste Start kann länger dauern, bitte warten...";/* ═══════════════════════════════════════════════════════════════════
+                                                                                         Share Extension Localization - German (de)
+                                                                                         ═══════════════════════════════════════════════════════════════════ */
+                                                                                      "CFBundleDisplayName" = "In Link-Lesezeichen speichern";
 
+                                                                                      /* Navigation */
+                                                                                      "extension.title" = "Lesezeichen speichern";
+                                                                                      "extension.cancel" = "Abbrechen";
+                                                                                      "extension.save" = "Speichern";
+
+                                                                                      /* URL Section */
+                                                                                      "extension.source" = "Quelle";
+
+                                                                                      /* Error Banner */
+                                                                                      "extension.error.twitter" = "Twitter-Fehler";
+                                                                                      "extension.error.reddit" = "Reddit-Fehler";
+                                                                                      "extension.error.linkedin" = "LinkedIn-Fehler";
+                                                                                      "extension.error.medium" = "Medium-Fehler";
+                                                                                      "extension.error.network" = "Verbindungsfehler";
+                                                                                      "extension.error.openInBrowser" = "Im Browser öffnen";
+
+                                                                                      /* LinkedIn Specific Errors */
+                                                                                      "extension.linkedin.authRequired" = "Anmeldung bei LinkedIn ist erforderlich, um diesen Inhalt anzuzeigen.";
+                                                                                      "extension.linkedin.botDetected" = "Der Zugriff auf LinkedIn ist vorübergehend eingeschränkt. Bitte versuchen Sie es später erneut.";
+
+                                                                                      /* Preview Sections */
+                                                                                      "extension.preview.tweet" = "Tweet-Vorschau";
+                                                                                      "extension.preview.reddit" = "Reddit-Vorschau";
+                                                                                      "extension.preview.linkedin" = "LinkedIn-Vorschau";
+                                                                                      "extension.preview.medium" = "Medium-Vorschau";
+
+                                                                                      /* Preview Stats */
+                                                                                      "extension.stats.images" = "%d Bilder";
+                                                                                      "extension.stats.comments" = "%@ Kommentare";
+                                                                                      "extension.stats.readTime" = "%d Min. Lesezeit";
+                                                                                      "extension.stats.membersOnly" = "Nur für Mitglieder";
+
+                                                                                      /* Basic Info Section */
+                                                                                      "extension.basicInfo" = "Basisinformationen";
+                                                                                      "extension.title.placeholder" = "Titel";
+                                                                                      "extension.source.label" = "Quelle";
+                                                                                      "extension.contentFetched" = "Inhalt geladen";
+
+                                                                                      /* Category Section */
+                                                                                      "extension.category" = "Kategorie";
+                                                                                      "extension.category.none" = "Nicht kategorisiert";
+                                                                                      "extension.category.empty" = "Keine Kategorien";
+                                                                                      "extension.category.emptyHint" = "Sie können Kategorien in der Haupt-App erstellen";
+
+                                                                                      /* Notes Section */
+                                                                                      "extension.notes" = "Notizen";
+                                                                                      "extension.notes.placeholder" = "Fügen Sie hier Ihre Notizen hinzu";
+
+                                                                                      /* Tags Section */
+                                                                                      "extension.tags" = "Tags";
+                                                                                      "extension.tags.placeholder" = "Tags (durch Komma getrennt)";
+                                                                                      "extension.tags.hint" = "Beispiel: swift, ios, tutorial";
+
+                                                                                      /* Medium */
+                                                                                      "extension.medium.readOn" = "Auf Medium lesen";
+
+                                                                                      /* Status */
+                                                                                      "extension.loading" = "Laden...";
+                                                                                      "extension.saved" = "Gespeichert";
+
+                                                                                      "extension.fallback.title" = "Link gespeichert";
+                                                                                      "extension.fallback.message" = "Dieser Link wird in der Haupt-App verarbeitet.";
+                                                                                      "extension.fallback.ok" = "OK";
+
+                                                                                      // MARK: - Share Extension (ShareViewController)
+
+                                                                                      // Loading
+                                                                                      "extension.loading.hint" = "Der erste Start kann einen Moment dauern";
+
+                                                                                      // First Launch Banner
+                                                                                      "extension.firstLaunch.message" = "Der erste Start kann länger dauern, bitte warten...";

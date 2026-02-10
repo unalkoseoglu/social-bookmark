@@ -19,7 +19,7 @@ struct SearchFeaturesPage: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
-                    Text(String(localized: "search.mockup.query"))
+                    Text(LanguageManager.shared.localized("search.mockup.query"))
                         .foregroundStyle(.primary)
                     Spacer()
                     Image(systemName: "mic.fill")
@@ -47,11 +47,11 @@ struct SearchFeaturesPage: View {
             
             // Text Content
             VStack(spacing: 12) {
-                Text(LocalizedStringKey("onboarding.search.title"))
+                Text(LanguageManager.shared.localized("onboarding.search.title"))
                     .font(.system(size: 26, weight: .bold, design: .rounded))
                     .multilineTextAlignment(.center)
                 
-                Text(LocalizedStringKey("onboarding.search.subtitle"))
+                Text(LanguageManager.shared.localized("onboarding.search.subtitle"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -116,7 +116,7 @@ struct OnboardingFeatureItem: View {
             Image(systemName: icon)
                 .foregroundStyle(.blue)
                 .font(.headline)
-            Text(LocalizedStringKey(text))
+            Text(LanguageManager.shared.localized(text))
                 .font(.caption)
                 .lineLimit(2)
         }

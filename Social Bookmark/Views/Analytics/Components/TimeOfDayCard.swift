@@ -5,7 +5,7 @@ struct TimeOfDayCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("analytics.productivity_hours")
+            Text(LanguageManager.shared.localized("analytics.time_of_day_analysis"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -32,7 +32,7 @@ struct TimeOfDayCard: View {
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
                         
-                        Text(item.label)
+                        Text(LanguageManager.shared.localized("analytics.time.\(item.label.lowercased())"))
                             .font(.system(size: 10))
                             .foregroundStyle(.secondary)
                     }
@@ -42,7 +42,7 @@ struct TimeOfDayCard: View {
             .frame(height: 160)
             
             if let peak = breakdown.max(by: { $0.count < $1.count }), peak.count > 0 {
-                Text(String(localized: "analytics.peak_time_template \(peak.label)"))
+                Text(LanguageManager.shared.localized("analytics.peak_time_template %@", LanguageManager.shared.localized("analytics.time.\(peak.label.lowercased())")))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

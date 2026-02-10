@@ -1,912 +1,870 @@
 /* Localizable.strings
    Social Bookmark
-   English Localization - Cleaned & Optimized Version
+   简体中文本地化
 */
 
-
 // MARK: - Common
-"common.ok" = "OK";
-"common.offline" = "Offline";
-"common.error" = "Error";
-"common.unknown_error" = "Unknown error";
-"common.offline_save_info" = "Changes will be saved";
-"common.cancel" = "Cancel";
-"common.done" = "Done";
-"common.delete" = "Delete";
-"common.edit" = "Edit";
-"common.save" = "Save";
-"common.copy" = "Copy";
-"common.go_back" = "Go Back";
-"common.loading" = "Loading...";
-"common.success" = "Success";
-"common.retry" = "Retry";
-"common.all" = "All";
-"common.today" = "Today";
-"common.this_week" = "This Week";
-"common.favorites" = "Favorites";
-"common.uncategorized" = "Uncategorized";
-"common.skip" = "Skip";
-"common.continue" = "Continue";
-"common.getStarted" = "Get Started";
-"common.min_read" = "min read";
-"common.words" = "words";
-"common.days" = "Days";
-"common.show_more" = "Show More";
+"common.ok" = "确定";
+"common.offline" = "离线";
+"common.error" = "错误";
+"common.unknown_error" = "未知错误";
+"common.offline_save_info" = "更改将被保存";
+"common.cancel" = "取消";
+"common.done" = "完成";
+"common.delete" = "删除";
+"common.edit" = "编辑";
+"common.save" = "保存";
+"common.copy" = "复制";
+"common.go_back" = "返回";
+"common.loading" = "加载中...";
+"common.success" = "成功";
+"common.retry" = "重试";
+"common.all" = "全部";
+"common.today" = "今天";
+"common.this_week" = "本周";
+"common.favorites" = "收藏";
+"common.uncategorized" = "未分类";
+"common.skip" = "跳过";
+"common.continue" = "继续";
+"common.getStarted" = "开始使用";
+"common.min_read" = "分钟阅读";
+"common.words" = "字";
+"common.days" = "天";
+"common.show_more" = "显示更多";
 
 // MARK: - Auth
 "auth.welcome_title" = "Social Bookmark";
-"auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
-"auth.or_divider" = "or";
-"auth.continue_anonymously" = "Continue Without Account";
-"auth.sign_in_apple" = "Sign in with Apple";
-"auth.sign_up" = "Sign Up";
-"auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
-"auth.error_title" = "Error";
-"auth.sign_in" = "Sign In";
-"auth.anonymous_user" = "Anonymous User";
-"auth.user" = "User";
-"auth.anonymous_account" = "Anonymous Account";
-"auth.not_signed_in" = "Not Signed In";
-"auth.sign_in_to_sync" = "Sign in to sync your data";
-"auth.tap_to_secure" = "Tap to secure";
+"auth.welcome_subtitle" = "随时随地保存、整理和访问您的社交媒体内容。";
+"auth.or_divider" = "或";
+"auth.continue_anonymously" = "以游客身份继续";
+"auth.sign_in_apple" = "通过 Apple 登录";
+"auth.sign_up" = "注册";
+"auth.terms_notice" = "继续操作即表示您同意服务条款和隐私政策。";
+"auth.error_title" = "错误";
+"auth.sign_in" = "登录";
+"auth.anonymous_user" = "匿名用户";
+"auth.user" = "用户";
+"auth.anonymous_account" = "匿名账户";
+"auth.not_signed_in" = "未登录";
+"auth.sign_in_to_sync" = "登录以同步您的数据";
+"auth.tap_to_secure" = "点击以保护账户";
 
 /* Auth - Errors */
-"auth.error.not_authenticated" = "You need to sign in";
-"auth.error.not_anonymous" = "This action is only for anonymous accounts";
-"auth.error.sign_up_failed" = "Sign up failed";
-"auth.error.apple_sign_in_failed" = "Apple Sign In failed";
-"auth.error.invalid_credentials" = "Invalid email or password";
-"auth.error.email_not_confirmed" = "Please confirm your email";
-"auth.error.user_already_exists" = "This email is already registered";
-"auth.error.weak_password" = "Password must be at least 6 characters";
-"auth.error.invalid_email" = "Invalid email address";
-"auth.error.rate_limit" = "Too many attempts. Please wait";
-"auth.error.user_not_found" = "User not found";
-"auth.error.network" = "No internet connection";
-"auth.error.unknown" = "An unknown error occurred";
+"auth.error.not_authenticated" = "您需要登录";
+"auth.error.not_anonymous" = "此操作仅限匿名账户";
+"auth.error.sign_up_failed" = "注册失败";
+"auth.error.apple_sign_in_failed" = "Apple 登录失败";
+"auth.error.invalid_credentials" = "邮箱或密码无效";
+"auth.error.email_not_confirmed" = "请确认您的电子邮件";
+"auth.error.user_already_exists" = "此邮箱已被注册";
+"auth.error.weak_password" = "密码至少需要 6 个字符";
+"auth.error.invalid_email" = "无效的电子邮件地址";
+"auth.error.rate_limit" = "尝试次数过多，请稍后再试";
+"auth.error.user_not_found" = "未找到用户";
+"auth.error.network" = "无网络连接";
+"auth.error.unknown" = "发生未知错误";
 
 // MARK: - Greetings
-"greeting.morning" = "Good morning";
-"greeting.afternoon" = "Good afternoon";
-"greeting.evening" = "Good evening";
-"greeting.night" = "Good night";
-"greeting.welcome" = "Welcome";
+"greeting.morning" = "早上好";
+"greeting.afternoon" = "下午好";
+"greeting.evening" = "晚上好";
+"greeting.night" = "晚安";
+"greeting.welcome" = "欢迎";
 
 // MARK: - Tab Bar
-"tab.home" = "Home";
-"tab.library" = "Library";
-"tab.add" = "Add";
-"tab.search" = "Search";
+"tab.home" = "首页";
+"tab.library" = "库";
+"tab.add" = "添加";
+"tab.search" = "搜索";
 
 // MARK: - Home View
-"home.title" = "Bookmarks";
-"home.greeting.morning" = "Good Morning";
-"home.greeting.afternoon" = "Good Afternoon";
-"home.greeting.evening" = "Good Evening";
-"home.stats_summary %lld %lld" = "%lld total • %lld unread";
-"home.stat.total" = "Total";
-"home.stat.unread" = "Unread";
-"home.stat.total_count %lld" = "%lld bookmarks";
-"home.stat.unread_count %lld" = "%lld unread";
-"home.stat.this_week" = "This Week";
+"home.title" = "书签";
+"home.greeting.morning" = "早上好";
+"home.greeting.afternoon" = "下午好";
+"home.greeting.evening" = "晚上好";
+"home.stats_summary %lld %lld" = "共 %lld 条 • %lld 条未读";
+"home.stat.total" = "总计";
+"home.stat.unread" = "未读";
+"home.stat.total_count %lld" = "%lld 个书签";
+"home.stat.unread_count %lld" = "%lld 个未读";
+"home.stat.this_week" = "本周";
+"home.section.quick_access" = "快捷访问";
+"home.section.categories" = "分类";
+"home.section.recent" = "最近添加";
 
-"home.section.quick_access" = "Quick Access";
-"home.section.categories" = "Categories";
-"home.section.recent" = "Recently Added";
-
-"home.filter.unread" = "Unread";
-"home.filter.favorites" = "Favorites";
-"home.filter.today" = "Today";
-
-"home.action.edit" = "Edit";
-"home.action.see_all" = "See All";
-"home.action.create_categories" = "Create Categories";
-"home.action.add_first" = "Add Your First Bookmark";
-
-"home.empty.no_bookmarks" = "No bookmarks yet";
-"home.empty.no_bookmarks_desc" = "Add content using the share button or start by adding your first bookmark.";
-"home.empty.add_category" = "Add Category";
-"home.empty.add_category_desc" = "Create categories to organize your bookmarks";
-"home.limit.approaching" = "Limit approaching";
-"home.limit.approaching_desc" = "Upgrade to Pro for unlimited space and features.";
-"home.action.upgrade" = "Upgrade";
+"home.filter.unread" = "未读";
+"home.filter.favorites" = "收藏";
+"home.filter.today" = "今天";
+"home.action.edit" = "编辑";
+"home.action.see_all" = "查看全部";
+"home.action.create_categories" = "创建分类";
+"home.action.add_first" = "添加第一个书签";
+"home.empty.no_bookmarks" = "暂无书签";
+"home.empty.no_bookmarks_desc" = "通过分享按钮添加内容，或点击下方开始添加。";
+"home.empty.add_category" = "添加分类";
+"home.empty.add_category_desc" = "创建分类来整理您的书签";
+"home.limit.approaching" = "即将达到上限";
+"home.limit.approaching_desc" = "升级至 Pro 版以获得无限空间和更多功能。";
+"home.action.upgrade" = "升级";
 
 // MARK: - Library View
-"library.title" = "Library";
-"library.segment.all" = "All";
-"library.segment.categories" = "Categories";
-"library.segment.sources" = "Sources";
-"library.empty.title" = "No bookmarks yet";
-"library.empty.subtitle" = "Save content from social media";
-"library.categories.empty.title" = "No categories";
-"library.categories.empty.subtitle" = "Create categories to organize your bookmarks";
-"library.action.create_default_categories" = "Create Default Categories";
+"library.title" = "库";
+"library.segment.all" = "全部";
+"library.segment.categories" = "分类";
+"library.segment.sources" = "来源";
+"library.empty.title" = "暂无书签";
+"library.empty.subtitle" = "从社交媒体保存内容";
+"library.categories.empty.title" = "暂无分类";
+"library.categories.empty.subtitle" = "创建分类来整理书签";
+"library.action.create_default_categories" = "创建默认分类";
 
 // MARK: - All Bookmarks View
-"all.title" = "All Bookmarks";
-"all.search_prompt" = "Search title, notes or tags...";
-"all.section.bookmarks" = "Bookmarks";
-"all.stats.total" = "Total";
-"all.stats.read" = "Read";
-"all.stats.unread" = "Unread";
+"all.title" = "所有书签";
+"all.search_prompt" = "搜索标题、笔记或标签...";
+"all.section.bookmarks" = "书签";
+"all.stats.total" = "总计";
+"all.stats.read" = "已读";
+"all.stats.unread" = "未读";
+"all.sort.newest" = "最新添加";
+"all.sort.oldest" = "最早添加";
+"all.sort.alphabetical" = "字母顺序";
+"all.sort.source" = "按来源";
+"all.filter.title" = "筛选";
+"all.filter.all" = "全部";
+"all.filter.source" = "来源";
+"all.filter.only_unread" = "仅未读";
+"all.menu.sort" = "排序";
 
-"all.sort.newest" = "Newest";
-"all.sort.oldest" = "Oldest";
-"all.sort.alphabetical" = "Alphabetical";
-"all.sort.source" = "By Source";
-"all.filter.title" = "Filter";
-"all.filter.all" = "All";
-"all.filter.source" = "Source";
-"all.filter.only_unread" = "Only Unread";
-"all.menu.sort" = "Sort";
+"all.action.mark_read" = "标记为已读";
+"all.action.mark_unread" = "标记为未读";
+"all.action.mark_all_read" = "全部标记为已读";
+"all.action.clear_filters" = "清除筛选";
 
-"all.action.mark_read" = "Mark as Read";
-"all.action.mark_unread" = "Mark as Unread";
-"all.action.mark_all_read" = "Mark All as Read";
-"all.action.clear_filters" = "Clear Filters";
+"all.empty.title" = "无书签";
+"all.empty.desc" = "您还没有添加任何书签。";
+"all.empty.no_results" = "未找到符合搜索条件的书签。";
 
-"all.empty.title" = "No Bookmarks";
-"all.empty.desc" = "You haven't added any bookmarks yet.";
-"all.empty.no_results" = "No bookmarks match your search.";
+"filtered.search_prompt" = "搜索...";
+"filtered.section.bookmarks" = "书签";
+"filtered.mark_read" = "标记为已读";
+"filtered.unfavorite" = "取消收藏";
+"filtered.desc.unread" = "您还没有阅读的书签";
+"filtered.desc.favorites" = "您标记为收藏的书签";
+"filtered.desc.today" = "您今天添加的书签";
 
-"filtered.search_prompt" = "Search...";
-"filtered.section.bookmarks" = "Bookmarks";
-"filtered.mark_read" = "Mark as Read";
-"filtered.unfavorite" = "Remove from Favorites";
-"filtered.desc.unread" = "Bookmarks you haven't read yet";
-"filtered.desc.favorites" = "Bookmarks you marked as favorite";
-"filtered.desc.today" = "Bookmarks you added today";
-
-"filtered.empty.unread.title" = "All Caught Up!";
-"filtered.empty.unread.desc" = "You've read all your bookmarks. Great job!";
-"filtered.empty.favorites.title" = "No Favorites";
-"filtered.empty.favorites.desc" = "You haven't added any favorites yet.";
-"filtered.empty.today.title" = "Nothing Today";
-"filtered.empty.today.desc" = "You haven't added any bookmarks today.";
+"filtered.empty.unread.title" = "全部读完！";
+"filtered.empty.unread.desc" = "您已经读完了所有书签，太棒了！";
+"filtered.empty.favorites.title" = "无收藏";
+"filtered.empty.favorites.desc" = "您还没有添加任何收藏。";
+"filtered.empty.today.title" = "今日无内容";
+"filtered.empty.today.desc" = "您今天还没有添加任何书签。";
 
 // MARK: - Category Detail
-"categoryDetail.search_prompt" = "Search...";
-"categoryDetail.empty_title" = "No Bookmarks Yet";
-"categoryDetail.empty_desc" = "There are no bookmarks in this category.";
+"categoryDetail.search_prompt" = "搜索...";
+"categoryDetail.empty_title" = "暂无书签";
+"categoryDetail.empty_desc" = "此分类下没有书签。";
 
 // MARK: - Search View
-"search.title" = "Search";
-"search.placeholder" = "Search bookmarks...";
-"search.scope.all" = "All";
-"search.scope.title" = "Title";
-"search.scope.notes" = "Notes";
-"search.scope.tags" = "Tags";
-"search.recent" = "Recent Searches";
-"search.clear" = "Clear";
-"search.popular_tags" = "Popular Tags";
-"search.browse_by_source" = "Browse by Source";
-"search.suggestions" = "Suggestions";
-"search.results_count %lld" = "%lld results found";
-"search.no_results.title" = "No Results";
-"search.no_results.desc %@" = "No results found for \"%@\".";
-"search.try_again" = "Try Again";
-"search.empty" = "No results found";
-"search.searching" = "Searching...";
+"search.title" = "搜索";
+"search.placeholder" = "搜索书签...";
+"search.scope.all" = "全部";
+"search.scope.title" = "标题";
+"search.scope.notes" = "笔记";
+"search.scope.tags" = "标签";
+"search.recent" = "最近搜索";
+"search.clear" = "清除";
+"search.popular_tags" = "热门标签";
+"search.browse_by_source" = "按来源浏览";
+"search.suggestions" = "建议";
+"search.results_count %lld" = "找到 %lld 个结果";
+"search.no_results.title" = "无结果";
+"search.no_results.desc %@" = "未找到有关“%@”的结果。";
+"search.try_again" = "重试";
+"search.empty" = "未找到结果";
+"search.searching" = "搜索中...";
 "search.mockup.query" = "SwiftUI";
 
 // MARK: - Bookmark Add / Edit
-"addBookmark.title" = "New Bookmark";
-"addBookmark.section.basic" = "Basic Info";
-"addBookmark.section.notes" = "Notes";
-"addBookmark.section.organization" = "Organization";
-"addBookmark.section.tags" = "Tags";
-"addBookmark.section.image" = "Image";
-"addBookmark.section.category" = "Category";
-"addBookmark.section.source" = "Source";
+"addBookmark.title" = "新建书签";
+"addBookmark.section.basic" = "基本信息";
+"addBookmark.section.notes" = "笔记";
+"addBookmark.section.organization" = "组织";
+"addBookmark.section.tags" = "标签";
+"addBookmark.section.image" = "图片";
+"addBookmark.section.category" = "分类";
+"addBookmark.section.source" = "来源";
 
-"addBookmark.field.title" = "Title";
-"addBookmark.field.url" = "URL";
-"addBookmark.field.notes" = "Add your notes here";
-"addBookmark.field.note" = "Note";
-"addBookmark.field.tags" = "Tags";
-"addBookmark.field.tags.hint" = "Separate with commas";
-"addBookmark.field.source" = "Source";
-"addBookmark.field.category" = "Category";
+"addBookmark.field.title" = "标题";
+"addBookmark.field.url" = "链接";
+"addBookmark.field.notes" = "在此处添加您的笔记";
+"addBookmark.field.note" = "笔记";
+"addBookmark.field.tags" = "标签";
+"addBookmark.field.tags.hint" = "用逗号分隔";
+"addBookmark.field.source" = "来源";
+"addBookmark.field.category" = "分类";
 
-"addBookmark.select" = "Select";
-"addBookmark.no_category" = "No Category";
-"addBookmark.category.none" = "Uncategorized";
-"addBookmark.tags.placeholder" = "swift, ios, development";
-"addBookmark.tags.hint" = "Separate multiple tags with commas";
+"addBookmark.select" = "选择";
+"addBookmark.no_category" = "无分类";
+"addBookmark.category.none" = "未分类";
+"addBookmark.tags.placeholder" = "swift, ios, 开发";
+"addBookmark.tags.hint" = "输入多个标签，用逗号分隔";
 
-"addBookmark.image.add" = "Add Photo";
-"addBookmark.image.edit" = "Edit";
-"addBookmark.image.remove" = "Remove";
+"addBookmark.image.add" = "添加图片";
+"addBookmark.image.edit" = "编辑";
+"addBookmark.image.remove" = "移除";
+"addBookmark.status.content_fetched" = "内容已获取";
+"addBookmark.status.page_filled" = "页面信息已填充";
+"addBookmark.status.linkedin_fetched" = "LinkedIn 内容已获取";
+"addBookmark.status.reddit_fetched" = "Reddit 内容已获取";
+"addBookmark.status.tweet_fetched" = "推文内容已获取";
+"addBookmark.status.images_count %lld" = "(%lld 张图片)";
 
-"addBookmark.status.content_fetched" = "Content fetched";
-"addBookmark.status.page_filled" = "Page info filled";
-"addBookmark.status.linkedin_fetched" = "LinkedIn content fetched";
-"addBookmark.status.reddit_fetched" = "Reddit content fetched";
-"addBookmark.status.tweet_fetched" = "Tweet content fetched";
-"addBookmark.status.images_count %lld" = "(%lld images)";
+"addBookmark.preview.linkedin" = "LinkedIn 预览";
+"addBookmark.preview.reddit" = "Reddit 预览";
+"addBookmark.preview.tweet" = "推文预览";
+"addBookmark.preview.images %lld" = "%lld 张图片";
+"addBookmark.loading.images %lld" = "正在加载 %lld 张图片...";
 
-"addBookmark.preview.linkedin" = "LinkedIn Preview";
-"addBookmark.preview.reddit" = "Reddit Preview";
-"addBookmark.preview.tweet" = "Tweet Preview";
-"addBookmark.preview.images %lld" = "%lld images";
-"addBookmark.loading.images %lld" = "Loading %lld images...";
-
-"addBookmark.ocr.processing" = "Processing OCR...";
-"addBookmark.errors" = "Errors";
-"addBookmark.error.invalid_url" = "Invalid URL format";
-"addBookmark.action.save" = "Save";
-"addBookmark.action.cancel" = "Cancel";
-"addBookmark.saving" = "Saving...";
+"addBookmark.ocr.processing" = "OCR 处理中...";
+"addBookmark.errors" = "错误";
+"addBookmark.error.invalid_url" = "无效的链接格式";
+"addBookmark.action.save" = "保存";
+"addBookmark.action.cancel" = "取消";
+"addBookmark.saving" = "保存中...";
 
 // MARK: - Bookmark Detail
-"bookmarkDetail.title" = "Details";
-"bookmarkDetail.section.content" = "Content";
-"bookmarkDetail.section.source" = "Source";
-"bookmarkDetail.section.tags" = "Tags";
-"bookmarkDetail.section.info" = "Information";
-"bookmarkDetail.section.actions" = "Actions";
+"bookmarkDetail.title" = "详情";
+"bookmarkDetail.section.content" = "内容";
+"bookmarkDetail.section.source" = "来源";
+"bookmarkDetail.section.tags" = "标签";
+"bookmarkDetail.section.info" = "信息";
+"bookmarkDetail.section.actions" = "操作";
 
-"bookmarkDetail.status.read" = "Read";
-"bookmarkDetail.markRead" = "Read";
-"bookmarkDetail.markUnread" = "Unread";
-"bookmarkDetail.addFavorite" = "Add to Favorites";
-"bookmarkDetail.removeFavorite" = "Remove from Favorites";
-"bookmarkDetail.openInBrowser" = "Open in Browser";
-"bookmarkDetail.copyUrl" = "Copy URL";
-"bookmarkDetail.share" = "Share";
-"bookmarkDetail.delete" = "Delete";
-"bookmarkDetail.delete_title" = "Delete Bookmark?";
-"bookmarkDetail.delete_confirmation" = "Are you sure you want to delete this bookmark? This action cannot be undone.";
-"bookmarkDetail.word_count %lld" = "%lld words";
-"bookmarkDetail.document" = "Document";
-"bookmarkDetail.openDocument" = "View Document";
-"bookmarkDetail.summarize" = "Summarize with AI";
-"bookmarkDetail.summary_title" = "AI Summary";
-"bookmarkDetail.summary_mock %@" = "This content summarizes the topic of %@. The main points highlighted are content organization, user experience, and productivity increase. The rest of the document provides an in-depth analysis of these concepts.";
-"bookmarkDetail.search_in_text" = "Search in text";
-"bookmarkDetail.focus_mode" = "Focus Mode";
-"bookmarkDetail.linked_bookmarks" = "Linked Bookmarks";
-"bookmarkDetail.linked_bookmarks_empty" = "No linked bookmarks yet. Link related content to create a series or reading list.";
-"bookmark.no_content" = "No content available";
+"bookmarkDetail.status.read" = "已读";
+"bookmarkDetail.markRead" = "设为已读";
+"bookmarkDetail.markUnread" = "设为未读";
+"bookmarkDetail.addFavorite" = "添加收藏";
+"bookmarkDetail.removeFavorite" = "取消收藏";
+"bookmarkDetail.openInBrowser" = "在浏览器中打开";
+"bookmarkDetail.copyUrl" = "复制链接";
+"bookmarkDetail.share" = "分享";
+"bookmarkDetail.delete" = "删除";
+"bookmarkDetail.delete_title" = "删除书签？";
+"bookmarkDetail.delete_confirmation" = "确定要删除此书签吗？此操作无法撤销。";
+"bookmarkDetail.word_count %lld" = "%lld 字";
+"bookmarkDetail.document" = "文档";
+"bookmarkDetail.openDocument" = "查看文档";
+"bookmarkDetail.summarize" = "AI 摘要";
+"bookmarkDetail.summary_title" = "AI 摘要";
+"bookmarkDetail.summary_mock %@" = "此内容总结了关于 %@ 的信息。要点包括内容组织、用户体验和效率提升。文档其余部分提供了这些概念的深入分析。";
+"bookmarkDetail.search_in_text" = "在全文中搜索";
+"bookmarkDetail.focus_mode" = "专注模式";
+"bookmarkDetail.linked_bookmarks" = "关联书签";
+"bookmarkDetail.linked_bookmarks_empty" = "尚无关联书签。关联相关内容以创建系列或阅读列表。";
+"bookmark.no_content" = "无可用内容";
 
 // MARK: - Categories Management
-"categories.title" = "Categories";
-"categories.empty" = "No categories yet";
-"categories.create" = "New Category";
-"category.new.title" = "New Category";
-"category.edit.title" = "Edit Category";
-"category.field.name" = "Category Name";
-"category.field.name_placeholder" = "e.g. Work, Reading List, Research";
-"category.field.icon" = "Icon";
-"category.field.color" = "Color";
-"category.color.picker" = "Select Color";
-"category.preview" = "Preview";
+"categories.title" = "分类";
+"categories.empty" = "暂无分类";
+"categories.create" = "新分类";
+"category.new.title" = "新建分类";
+"category.edit.title" = "编辑分类";
+"category.field.name" = "分类名称";
+"category.field.name_placeholder" = "例如：工作、阅读列表、研究";
+"category.field.icon" = "图标";
+"category.field.color" = "颜色";
+"category.color.picker" = "拾色器";
+"category.preview" = "预览";
+"category.delete.title" = "删除分类";
+"category.delete.message" = "此分类将被删除，但其中的书签不会被移除。";
+"categories.management.info_title" = "分类";
+"categories.management.info_desc" = "创建分类来整理您的书签。您可以拖动进行排序。";
+"categories.management.count %lld" = "分类 (%lld)";
+"categories.management.bookmark_count %lld" = "%lld 个书签";
+"categories.management.delete_confirmation %@" = "确定要删除分类“%@”吗？";
+"categories.management.delete_with_bookmarks %lld %@" = "此分类包含 %lld 个书签。删除“%@”将使这些书签变为“未分类”。是否继续？";
+"categories.management.editing_status" = "正在编辑";
+"categories.sort.manual" = "手动";
+"categories.sort.count" = "书签数量";
 
-"category.delete.title" = "Delete Category";
-"category.delete.message" = "This category will be deleted but bookmarks inside won't be removed.";
-"categories.management.info_title" = "Categories";
-"categories.management.info_desc" = "Create categories to organize your bookmarks. You can drag to reorder them.";
-"categories.management.count %lld" = "Categories (%lld)";
-"categories.management.bookmark_count %lld" = "%lld bookmarks";
-"categories.management.delete_confirmation %@" = "Are you sure you want to delete the '%@' category?";
-"categories.management.delete_with_bookmarks %lld %@" = "This category contains %lld bookmarks. Deleting '%@' will categorize its bookmarks as Uncategorized. Continue?";
-"categories.management.editing_status" = "Editing";
-"categories.sort.manual" = "Manual";
-"categories.sort.count" = "Bookmark Count";
-
-"category_picker.title" = "Category";
-"category_picker.none" = "Not Selected";
-"category_picker.selection_title" = "Categories";
+"category_picker.title" = "分类";
+"category_picker.none" = "未选择";
+"category_picker.selection_title" = "选择分类";
 
 // MARK: - Bookmark Sources
-"source.twitter" = "X";
+"source.twitter" = "X (Twitter)";
 "source.reddit" = "Reddit";
 "source.linkedin" = "LinkedIn";
 "source.medium" = "Medium";
 "source.youtube" = "YouTube";
 "source.instagram" = "Instagram";
 "source.github" = "GitHub";
-"source.article" = "Article";
-"source.blog" = "Blog";
-"source.other" = "Other";
+"source.article" = "文章";
+"source.blog" = "博客";
+"source.other" = "其他";
 
 // MARK: - Previews & Special Content
-"preview.twitter.title" = "Tweet Preview";
-"preview.reddit.title" = "Reddit Preview";
-"preview.linkedin.title" = "LinkedIn Preview";
-"preview.medium.title" = "Medium Preview";
+"preview.twitter.title" = "推文预览";
+"preview.reddit.title" = "Reddit 预览";
+"preview.linkedin.title" = "LinkedIn 预览";
+"preview.medium.title" = "Medium 预览";
 
-"reddit.preview.title" = "Reddit Preview";
-"reddit.images_count %lld" = "%lld images";
-"reddit.comments_count %lld" = "%lld comments";
+"reddit.preview.title" = "Reddit 预览";
+"reddit.images_count %lld" = "%lld 张图片";
+"reddit.comments_count %lld" = "%lld 条评论";
+"linkedin.preview.title" = "LinkedIn 预览";
+"linkedin.partial_content_warning" = "部分内容";
 
-"linkedin.preview.title" = "LinkedIn Preview";
-"linkedin.partial_content_warning" = "Partial Content";
+"tweet.preview.title" = "推文预览";
 
-"tweet.preview.title" = "Tweet Preview";
-
-"medium.preview.title" = "Medium Article";
-"medium.preview.badge" = "Member";
-"medium.read_time %lld" = "%lld min read";
+"medium.preview.title" = "Medium 文章";
+"medium.preview.badge" = "会员";
+"medium.read_time %lld" = "%lld 分钟阅读";
 
 // MARK: - Errors (Network & Service)
-"error.network" = "Check your internet connection";
-"error.network.title" = "Connection Error";
-"error.rate_limited" = "Too many requests. Please wait.";
+"error.network" = "请检查您的网络连接";
+"error.network.title" = "连接错误";
+"error.rate_limited" = "请求过多。请稍后再试。";
 
-"error.twitter.title" = "X Error";
-"error.twitter.not_found" = "𝕏 Tweet not found or may have been deleted.";
-"error.twitter.invalid_url" = "𝕏 Invalid Twitter URL.";
-"error.twitter.parse" = "⚠️ Could not process tweet content.";
-"error.twitter.generic" = "𝕏 Could not fetch Twitter content.";
+"error.twitter.title" = "X 错误";
+"error.twitter.not_found" = "𝕏 推文未找到或已被删除。";
+"error.twitter.invalid_url" = "𝕏 无效的 Twitter 链接。";
+"error.twitter.parse" = "⚠️ 无法解析推文内容。";
+"error.twitter.generic" = "𝕏 无法获取 Twitter 内容。";
 
-"error.reddit.title" = "Reddit Error";
-"error.reddit.not_found" = "👽 Reddit content not found.";
-"error.reddit.invalid_url" = "👽 Invalid Reddit URL.";
-"error.reddit.parse" = "⚠️ Could not process Reddit content.";
+"error.reddit.title" = "Reddit 错误";
+"error.reddit.not_found" = "👽 未找到 Reddit 内容。";
+"error.reddit.invalid_url" = "👽 无效的 Reddit 链接。";
+"error.reddit.parse" = "⚠️ 无法解析 Reddit 内容。";
 
-"error.linkedin.title" = "LinkedIn Error";
-"error.linkedin.auth_required" = "🔒 Sign in required to view this LinkedIn content.";
-"error.linkedin.bot_detected" = "⏳ LinkedIn access temporarily restricted.";
-
-"error.medium.title" = "Medium Error";
-"error.medium.paywall" = "📗 This article requires membership.";
-"error.medium.parse" = "⚠️ Could not process Medium content.";
-
-"error.action.open_browser" = "Open in Browser";
+"error.linkedin.title" = "LinkedIn 错误";
+"error.linkedin.auth_required" = "🔒 请登录以查看此 LinkedIn 内容。";
+"error.linkedin.bot_detected" = "⏳ LinkedIn 访问暂时受限。";
+"error.medium.title" = "Medium 错误";
+"error.medium.paywall" = "📗 此文章仅限会员阅读。";
+"error.medium.parse" = "⚠️ 无法解析 Medium 内容。";
+"error.action.open_browser" = "在浏览器中打开";
 
 // MARK: - Share Extension
-"share.title" = "Save Bookmark";
-"share.section.source" = "Source";
-"share.section.basic" = "Basic Info";
-"share.section.notes" = "Notes";
-"share.section.tags" = "Tags";
-"share.saving" = "Saving...";
-"share.success" = "Saved!";
+"share.title" = "保存书签";
+"share.section.source" = "来源";
+"share.section.basic" = "基本信息";
+"share.section.notes" = "笔记";
+"share.section.tags" = "标签";
+"share.saving" = "保存中...";
+"share.success" = "已保存！";
 
 // MARK: - Validation
-"validation.titleRequired" = "Title is required";
-"validation.title_required" = "Title is required";
-"validation.titleTooLong" = "Title too long (max 200 characters)";
-"validation.invalidURL" = "Invalid URL format";
-"validation.invalid_url" = "Invalid URL format";
-"validation.noteTooLong" = "Note too long (max 5000 characters)";
+"validation.titleRequired" = "标题为必填项";
+"validation.title_required" = "标题为必填项";
+"validation.titleTooLong" = "标题过长（最大 200 字符）";
+"validation.invalidURL" = "无效的链接格式";
+"validation.invalid_url" = "无效的链接格式";
+"validation.noteTooLong" = "笔记过长（最大 5000 字符）";
 
 // MARK: - Image & OCR
-"image.title" = "Image";
-"image.addPhoto" = "Add Photo";
-"image.takePhoto" = "Take Photo";
-"image.selectFromGallery" = "Select from Gallery";
-"image.picker_subtitle" = "Take a photo or select from gallery";
-"image.source_title" = "Image Source";
-"image.crop" = "Crop";
-"image.rotate" = "Rotate";
-"image.reset" = "Reset";
+"image.title" = "图片";
+"image.addPhoto" = "添加照片";
+"image.takePhoto" = "拍摄照片";
+"image.selectFromGallery" = "从相册选择";
+"image.picker_subtitle" = "拍摄照片或从相册中选择";
+"image.source_title" = "图片来源";
+"image.crop" = "裁剪";
+"image.rotate" = "旋转";
+"image.reset" = "重置";
 
-"ocr.title" = "OCR";
-"ocr.processing" = "Extracting text...";
-"ocr.noText" = "No text found";
-"ocr.result" = "OCR Result";
-"ocr.error.invalid_image" = "Invalid image format";
-"ocr.error.no_text" = "No text found in image";
-"ocr.error.crop_failed" = "Could not crop image";
-"ocr.error.processing" = "OCR Processing Error";
+"ocr.title" = "OCR 文字识别";
+"ocr.processing" = "正在提取文字...";
+"ocr.noText" = "未检测到文字";
+"ocr.result" = "OCR 结果";
+"ocr.error.invalid_image" = "无效的图片格式";
+"ocr.error.no_text" = "图片中未找到文字";
+"ocr.error.crop_failed" = "无法裁剪图片";
+"ocr.error.processing" = "OCR 处理错误";
 
 // MARK: - Settings & Account
-"settings.title" = "Settings";
-"settings.section.general" = "General";
-"settings.section.bookmark" = "Bookmark Settings";
-"settings.section.about" = "About";
-"settings.section.danger" = "Danger Zone";
-"settings.appearance" = "Appearance";
-"settings.language" = "Language";
-"settings.autoDetectSource" = "Auto-detect Source";
-"settings.showReadingTime" = "Show Reading Time";
-"settings.pro_banner_title" = "Link Bookmark PRO";
-"settings.pro_banner_subtitle" = "Remove all limits and access from anywhere.";
-"settings.notifications" = "Notifications";
-"settings.notifications_header" = "Notification Settings";
-"settings.notifications_footer" = "Stay informed about new features, reminders, and important updates.";
+"settings.title" = "设置";
+"settings.section.general" = "常规";
+"settings.section.bookmark" = "书签设置";
+"settings.section.about" = "关于";
+"settings.section.danger" = "危险区域";
+"settings.appearance" = "外观";
+"settings.language" = "语言";
+"settings.autoDetectSource" = "自动检测来源";
+"settings.showReadingTime" = "显示阅读时间";
+"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_subtitle" = "解锁无限限制，随时随地访问。";
+"settings.notifications" = "通知";
+"settings.notifications_header" = "通知设置";
+"settings.notifications_footer" = "获取有关新功能、提醒和重要更新的通知。";
 
-"appearance.font.system" = "System";
-"appearance.font.serif" = "Serif";
-"appearance.font.mono" = "Mono";
-"appearance.font.rounded" = "Rounded";
+"appearance.font.system" = "系统";
+"appearance.font.serif" = "衬线体";
+"appearance.font.mono" = "等宽体";
+"appearance.font.rounded" = "圆体";
 
-"appearance.theme.light" = "Light";
-"appearance.theme.sepia" = "Sepia";
-"appearance.theme.dark" = "Dark";
-"appearance.theme.black" = "Black";
+"appearance.theme.light" = "浅色";
+"appearance.theme.sepia" = "护眼";
+"appearance.theme.dark" = "深色";
+"appearance.theme.black" = "纯黑";
 
-"settings.account" = "Account";
-"settings.account_info" = "Account Information";
-"settings.account_actions" = "Account Actions";
-"settings.link_account" = "Link Account";
-"settings.link_account_title" = "Link Your Account";
-"settings.link_account_subtitle" = "Sign in with Apple to secure your bookmarks.";
-"settings.link_account_footer" = "Link your Apple account to secure your data and sync across all your devices.";
-"settings.link_keeps_data" = "Your existing data will be preserved.";
-"settings.benefit_secure" = "Your data stays safe";
-"settings.benefit_sync" = "Automatic sync";
-"settings.benefit_devices" = "Access on all devices";
+"settings.account" = "账户";
+"settings.account_info" = "账户信息";
+"settings.account_actions" = "账户操作";
+"settings.link_account" = "绑定账户";
+"settings.link_account_title" = "绑定您的账户";
+"settings.link_account_subtitle" = "通过 Apple 登录以保护您的书签。";
+"settings.link_account_footer" = "绑定您的 Apple 账户以确保数据安全并在所有设备间同步。";
+"settings.link_keeps_data" = "您的现有数据将被保留。";
+"settings.benefit_secure" = "数据更安全";
+"settings.benefit_sync" = "自动同步";
+"settings.benefit_devices" = "多设备访问";
 
-"settings.anonymous_warning_title" = "Your Account is Not Secure";
-"settings.anonymous_warning_message" = "You may lose your data if you delete the app.";
-"settings.secure_your_account" = "Secure Your Account";
-"settings.link_with_apple" = "Link with Apple";
+"settings.anonymous_warning_title" = "账户未受保护";
+"settings.anonymous_warning_message" = "如果您删除应用，可能会丢失数据。";
+"settings.secure_your_account" = "保护您的账户";
+"settings.link_with_apple" = "使用 Apple 绑定";
 
-"settings.sign_out" = "Sign Out";
-"settings.sign_out_title" = "Sign Out";
-"settings.sign_out_message" = "Are you sure you want to sign out?";
+"settings.sign_out" = "退出登录";
+"settings.sign_out_title" = "退出登录";
+"settings.sign_out_message" = "您确定要退出登录吗？";
 
-"settings.delete_account" = "Delete Account";
-"settings.delete_account_title" = "Delete Account";
-"settings.delete_account_message" = "This action cannot be undone. All data will be deleted.";
-"settings.delete_account_warning" = "Deleting your account will permanently remove all your bookmarks and data.";
+"settings.delete_account" = "注销账户";
+"settings.delete_account_title" = "注销账户";
+"settings.delete_account_message" = "此操作无法撤销。所有数据将被删除。";
+"settings.delete_account_warning" = "注销账户将永久移除您的所有书签和数据。";
 
 // MARK: - Synchronization
-"settings.sync_section" = "Synchronization";
-"settings.sync" = "Sync Status";
-"settings.sync_status" = "Sync Status";
-"settings.synced" = "Synced";
-"sync.settings.title" = "Sync Settings";
-"sync.status_section" = "Sync Status";
-"sync.network_status" = "Network Status";
-"sync.connected" = "Connected";
-"sync.disconnected" = "Disconnected";
-"sync.status" = "Status";
-"sync.state.idle" = "Idle";
-"sync.state.syncing" = "Syncing...";
-"sync.state.uploading" = "Uploading...";
-"sync.state.downloading" = "Downloading...";
-"sync.state.offline" = "Offline";
-"sync.state.error" = "Error";
-"sync.calculating" = "Calculating...";
-"sync.sync_now" = "Sync Now";
-"sync.every_5_minutes" = "Every 5 minutes";
-"sync.download_from_cloud" = "Download from Cloud";
-"sync.download_confirmation_title" = "Download from Cloud?";
-"sync.download_confirmation_message" = "Your local data will be replaced with the data from the cloud. This action cannot be undone.";
-"sync.download_confirm" = "Download and Replace";
-"sync.actions_section" = "Actions";
-"sync.actions_footer" = "You can manually synchronize your data.";
-"sync.last_sync" = "Last Sync";
-"sync.last_sync_footer" = "Your data was last updated at the time shown above.";
-"sync.user_id" = "User ID";
-"sync.auto_sync" = "Auto Sync";
+"settings.sync_section" = "同步";
+"settings.sync" = "同步状态";
+"settings.sync_status" = "同步状态";
+"settings.synced" = "已同步";
+"sync.settings.title" = "同步设置";
+"sync.status_section" = "同步状态";
+"sync.network_status" = "网络状态";
+"sync.connected" = "已连接";
+"sync.disconnected" = "未连接";
+"sync.status" = "状态";
+"sync.state.idle" = "空闲";
+"sync.state.syncing" = "同步中...";
+"sync.state.uploading" = "上传中...";
+"sync.state.downloading" = "下载中...";
+"sync.state.offline" = "离线";
+"sync.state.error" = "错误";
+"sync.calculating" = "计算中...";
+"sync.sync_now" = "立即同步";
+"sync.every_5_minutes" = "每 5 分钟一次";
+"sync.download_from_cloud" = "从云端下载";
+"sync.download_confirmation_title" = "从云端下载？";
+"sync.download_confirmation_message" = "您的本地数据将被云端数据替换。此操作无法撤销。";
+"sync.download_confirm" = "下载并替换";
+"sync.actions_section" = "操作";
+"sync.actions_footer" = "您可以手动同步您的数据。";
+"sync.last_sync" = "上次同步";
+"sync.last_sync_footer" = "您的数据上次更新于上述时间。";
+"sync.user_id" = "用户 ID";
+"sync.auto_sync" = "自动同步";
+"sync.cache_section" = "缓存";
+"sync.cache_size" = "缓存大小";
+"sync.clear_cache" = "清除缓存";
+"sync.clear_cache_title" = "清除缓存";
+"sync.clear_cache_confirm" = "所有本地缓存将被清除。是否继续？";
+"sync.cache_footer" = "清除缓存可以释放设备空间。";
 
-"sync.cache_section" = "Cache";
-"sync.cache_size" = "Cache Size";
-"sync.clear_cache" = "Clear Cache";
-"sync.clear_cache_title" = "Clear Cache";
-"sync.clear_cache_confirm" = "All local cache will be cleared. Do you want to continue?";
-"sync.cache_footer" = "Clearing the cache frees up space on your device.";
-
-"sync.error.not_authenticated" = "Please sign in";
-"sync.error.network" = "No network connection";
-"sync.error.failed" = "Sync failed";
-"sync.error.conflict" = "Data conflict detected";
-"sync.error.bookmark_failed" = "Bookmark could not be synced";
-"sync.error.category_failed" = "Category could not be synced";
-"error.sync_failed" = "An error occurred during synchronization. Some data may not be saved to the cloud.";
+"sync.error.not_authenticated" = "请登录";
+"sync.error.network" = "无网络连接";
+"sync.error.failed" = "同步失败";
+"sync.error.conflict" = "检测到数据冲突";
+"sync.error.bookmark_failed" = "书签同步失败";
+"sync.error.category_failed" = "分类同步失败";
+"error.sync_failed" = "同步期间出错。某些数据可能未保存到云端。";
 
 // MARK: - Language Settings
-"settings.language.system" = "System";
-"settings.language.turkish" = "Turkish";
-"settings.language.english" = "English";
-"settings.language.system_desc" = "Use device language";
-"settings.language.turkish_desc" = "Use Turkish interface";
-"settings.language.english_desc" = "Use English interface";
-"settings.language_hint" = "Language change applies immediately";
-"settings.language_changed_title" = "Language Changed";
-"settings.language_changed_message" = "App language has been changed successfully.";
-"settings.language_change_title" = "Change Language";
-"settings.language_change_message" = "The app needs to restart to fully apply the language change.";
-"settings.language_footer" = "App will restart to apply language change";
-"settings_language_footer" = "The app will restart to fully apply the language change.";
-"settings.restart_now" = "Restart Now";
-"settings.restart_later" = "Later";
+"settings.language.system" = "系统默认";
+"settings.language.turkish" = "土耳其语";
+"settings.language.english" = "英语";
+"settings.language.chinese" = "简体中文";
+"settings.language.system_desc" = "使用设备语言设置";
+"settings.language.turkish_desc" = "使用土耳其语界面";
+"settings.language.english_desc" = "使用英语界面";
+"settings.language.chinese_desc" = "使用简体中文界面";
+"settings.language_hint" = "语言更改将立即生效";
+"settings.language_changed_title" = "语言已更改";
+"settings.language_changed_message" = "应用语言已成功更改。";
+"settings.language_change_title" = "更改语言";
+"settings.language_change_message" = "应用需要重新启动以完全应用语言更改。";
+"settings.language_footer" = "更改语言后应用将重新启动";
+"settings_language_footer" = "应用需要重新启动以完全应用语言设置。";
+"settings.restart_now" = "立即重启";
+"settings.restart_later" = "稍后";
 
 // MARK: - About & Info
-"settings.version" = "Version";
-"settings.build" = "Build";
-"settings.source_code" = "Source Code";
-"settings.contact" = "Contact Us";
+"settings.version" = "版本";
+"settings.build" = "构建版本";
+"settings.source_code" = "源代码";
+"settings.contact" = "联系我们";
 "settings.github" = "GitHub";
-"settings.feedback" = "Feedback";
-"settings.about" = "About";
-"settings.rate_app" = "Rate App";
-"settings.rate_app_desc" = "If you like Social Bookmark, please give us a rating!";
+"settings.feedback" = "反馈";
+"settings.about" = "关于";
+"settings.rate_app" = "评价应用";
+"settings.rate_app_desc" = "如果您喜欢 Social Bookmark，请给我们好评！";
 
 // MARK: - Danger Zone
-"settings.deleteAll" = "Delete All Data";
-"settings.deleteAll.title" = "Delete All Data";
-"settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
+"settings.deleteAll" = "删除所有数据";
+"settings.deleteAll.title" = "删除所有数据";
+"settings.deleteAll.message" = "所有书签和分类将被删除。此操作无法撤销！";
 
 // MARK: - Widgets
-"widget.reading_progress" = "Reading Progress";
-"widget.quick_stats" = "Quick Stats";
-"widget.popular_tags" = "Popular Tags";
-"widget.read_count %lld %lld" = "%lld/%lld read";
-
+"widget.reading_progress" = "阅读进度";
+"widget.quick_stats" = "快捷统计";
+"widget.popular_tags" = "热门标签";
+"widget.read_count %lld %lld" = "已读 %lld/%lld";
 
 // MARK: - Migration States
-"migration.state.idle" = "Ready";
-"migration.state.preparing" = "Preparing...";
-"migration.state.categories %lld %lld" = "Migrating categories (%lld/%lld)";
-"migration.state.bookmarks %lld %lld" = "Migrating bookmarks (%lld/%lld)";
-"migration.state.images %lld %lld" = "Uploading images (%lld/%lld)";
-"migration.state.cleaning" = "Cleaning up...";
-"migration.state.completed" = "Completed!";
-"migration.state.failed %@" = "Error: %@";
+"migration.state.idle" = "就绪";
+"migration.state.preparing" = "准备中...";
+"migration.state.categories %lld %lld" = "正在迁移分类 (%lld/%lld)";
+"migration.state.bookmarks %lld %lld" = "正在迁移书签 (%lld/%lld)";
+"migration.state.images %lld %lld" = "正在上传图片 (%lld/%lld)";
+"migration.state.cleaning" = "清理中...";
+"migration.state.completed" = "完成！";
+"migration.state.failed %@" = "错误：%@";
 
 // MARK: - Migration Errors
-"migration.error.not_anonymous" = "Only anonymous accounts can be migrated";
-"migration.error.no_new_account" = "New account not found";
-"migration.error.same_account" = "Cannot migrate to the same account";
-"migration.error.in_progress" = "Migration already in progress";
-"migration.error.no_data" = "No data to migrate";
-"migration.error.category_failed %@" = "Category migration failed: %@";
-"migration.error.bookmark_failed %@" = "Bookmark migration failed: %@";
-"migration.error.image_failed %@" = "Image migration failed: %@";
-"migration.error.cleanup_failed %@" = "Cleanup failed: %@";
-"migration.error.network" = "Internet connection required";
+"migration.error.not_anonymous" = "仅能迁移匿名账户";
+"migration.error.no_new_account" = "未找到新账户";
+"migration.error.same_account" = "无法迁移到同一账户";
+"migration.error.in_progress" = "迁移已在进行中";
+"migration.error.no_data" = "无迁移数据";
+"migration.error.category_failed %@" = "分类迁移失败：%@";
+"migration.error.bookmark_failed %@" = "书签迁移失败：%@";
+"migration.error.image_failed %@" = "图片迁移失败：%@";
+"migration.error.cleanup_failed %@" = "清理失败：%@";
+"migration.error.network" = "需要网络连接以进行迁移";
 
 // MARK: - Account Settings
-"settings.secure_your_data" = "Secure Your Data";
-"settings.link_description" = "Sign in with your Apple account to backup your data to the cloud and sync across all your devices.";
-"settings.benefit_sync" = "Sync across all devices";
-"settings.benefit_restore" = "Restore your data anytime";
-"settings.benefit_secure" = "End-to-end encryption security";
-"settings.link_keeps_data" = "All your existing bookmarks and categories will be transferred to your Apple account.";
+"settings.secure_your_data" = "保障您的数据安全";
+"settings.link_description" = "使用 Apple 账户登录以将您的数据备份到云端并在设备间同步。";
+"settings.benefit_sync" = "跨设备同步";
+"settings.benefit_restore" = "随时恢复您的数据";
+"settings.benefit_secure" = "端到端加密安全";
+"settings.link_keeps_data" = "您所有的现有书签和分类都将关联至您的 Apple 账户。";
 
-"settings.migration_warning_title" = "Important";
-"settings.migration_warning_body" = "This action cannot be undone. Your data will be permanently linked to your Apple account.";
+"settings.migration_warning_title" = "重要提示";
+"settings.migration_warning_body" = "此操作无法撤销。您的数据将永久关联至您的 Apple 账户。";
+"settings.migrating_data" = "正在迁移数据";
+"settings.do_not_close" = "请不要关闭应用";
 
-"settings.migrating_data" = "Migrating Data";
-"settings.do_not_close" = "Please don't close the app";
+"settings.migration_complete" = "迁移完成！";
+"settings.migration_complete_desc" = "您的所有数据已成功迁移至 Apple 账户。";
 
-"settings.migration_complete" = "Migration Complete!";
-"settings.migration_complete_desc" = "All your data has been successfully transferred to your Apple account.";
+"settings.categories_migrated" = "已迁移分类";
+"settings.bookmarks_migrated" = "已迁移书签";
+"settings.images_migrated" = "已迁移图片";
 
-"settings.categories_migrated" = "Categories";
-"settings.bookmarks_migrated" = "Bookmarks";
-"settings.images_migrated" = "Images";
-
-"settings.migration_failed" = "Migration Failed";
+"settings.migration_failed" = "迁移失败";
 
 // MARK: - Sign Out
-"settings.signout_warning_title" = "Sign Out?";
-"settings.signout_warning_anonymous" = "All data in your anonymous account will be deleted and cannot be recovered.";
-"settings.signout_warning_authenticated" = "Data on this device will be cleared. Your data will be restored when you sign in again.";
-"settings.signout_confirm" = "Sign Out";
+"settings.signout_warning_title" = "退出登录？";
+"settings.signout_warning_anonymous" = "由于这是匿名账户，所有数据都将丢失且无法恢复。";
+"settings.signout_warning_authenticated" = "此设备上的数据将被清除。再次登录时，数据将恢复。";
+"settings.signout_confirm" = "退出登录";
 
 // MARK: - Common
-"common.try_again" = "Try Again";
-"common.done" = "Done";
-
-
-/*
-  EditBookmark Localization - English
-  Add to existing Localizable.strings file
-*/
+"common.try_again" = "重试";
+"common.done" = "完成";
 
 // MARK: - Edit Bookmark Screen
-"editBookmark.title" = "Edit";
-"editBookmark.section.basic" = "Basic Info";
-"editBookmark.section.images" = "Images";
-"editBookmark.section.category" = "Category";
-"editBookmark.section.details" = "Details";
-"editBookmark.section.tags" = "Tags";
+"editBookmark.title" = "编辑";
+"editBookmark.section.basic" = "基本信息";
+"editBookmark.section.images" = "图片";
+"editBookmark.section.category" = "分类";
+"editBookmark.section.details" = "详细信息";
+"editBookmark.section.tags" = "标签";
 
-"editBookmark.field.title" = "Title";
-"editBookmark.field.url" = "URL (optional)";
-"editBookmark.field.notes" = "Notes (optional)";
-"editBookmark.field.tags" = "Tags (comma separated)";
+"editBookmark.field.title" = "标题";
+"editBookmark.field.url" = "链接（可选）";
+"editBookmark.field.notes" = "笔记（可选）";
+"editBookmark.field.tags" = "标签（用逗号分隔）";
 
-"editBookmark.addImage" = "Add Image";
-"editBookmark.maxImages" = "You can add up to 4 images";
-"editBookmark.imageCount %lld" = "%lld/4 images";
-"editBookmark.processingImages" = "Processing images...";
-"editBookmark.tapToEdit" = "Tap image to edit";
-"editBookmark.newBadge" = "NEW";
+"editBookmark.addImage" = "添加图片";
+"editBookmark.maxImages" = "最多可添加 4 张图片";
+"editBookmark.imageCount %lld" = "%lld/4 张图片";
+"editBookmark.processingImages" = "处理图片中...";
+"editBookmark.tapToEdit" = "点击图片进行编辑";
+"editBookmark.newBadge" = "新增";
 
-"editBookmark.imageOptions" = "Image Options";
-"editBookmark.viewFullScreen" = "View Full Screen";
+"editBookmark.imageOptions" = "图片选项";
+"editBookmark.viewFullScreen" = "全屏查看";
+"editBookmark.category" = "分类";
+"editBookmark.uncategorized" = "未分类";
+"editBookmark.noCategories" = "未定义分类";
+"editBookmark.createCategoryHint" = "您可以在首页创建新分类";
 
-"editBookmark.category" = "Category";
-"editBookmark.uncategorized" = "Uncategorized";
-"editBookmark.noCategories" = "No categories defined";
-"editBookmark.createCategoryHint" = "You can create a new category from the home screen";
+"editBookmark.source" = "来源";
+"editBookmark.tagsHint" = "例如：Swift, iOS, 教程";
 
-"editBookmark.source" = "Source";
-"editBookmark.tagsHint" = "Example: Swift, iOS, Tutorial";
+"editBookmark.saveError" = "保存时发生错误";
+"common.add" = "添加";
 
-"editBookmark.saveError" = "An error occurred while saving";
-
-// MARK: - Common (if not already present)
-"common.add" = "Add";
-
-// MARK: - UI Static Additions (2025-12-25)
-"filters.title" = "Filters";
-"preview.title" = "Preview";
-"toolbar.title" = "Toolbar";
-"image.preview" = "Image Preview";
-"button.close" = "Close";
-"button.confirm" = "Confirm";
-"button.cancel" = "Cancel";
-"button.save" = "Save";
-"button.edit" = "Edit";
-"button.delete" = "Delete";
-"button.copy" = "Copy";
+// MARK: - UI Static Additions
+"filters.title" = "筛选器";
+"preview.title" = "预览";
+"toolbar.title" = "工具栏";
+"image.preview" = "图片预览";
+"button.close" = "关闭";
+"button.confirm" = "确认";
+"button.cancel" = "取消";
+"button.save" = "保存";
+"button.edit" = "编辑";
+"button.delete" = "删除";
+"button.copy" = "复制";
 
 // MARK: - Category Icons
+"category.icons.show_more" = "显示更多图标";
+"category.icons.all_title" = "所有图标";
+"category.icons.search" = "搜索图标...";
+"category.icons.total_count %lld" = "共 %lld 个图标";
 
-// Icon Picker
-"category.icons.show_more" = "More Icons";
-"category.icons.all_title" = "All Icons";
-"category.icons.search" = "Search icons...";
-"category.icons.total_count %lld" = "Total %lld icons";
-
-// Icon Categories
-"category.icons.general" = "General";
-"category.icons.books" = "Books & Reading";
-"category.icons.communication" = "Communication";
-"category.icons.people" = "People";
-"category.icons.sports" = "Sports & Fitness";
-"category.icons.nature" = "Nature & Weather";
-"category.icons.objects" = "Objects";
-"category.icons.devices" = "Devices";
-"category.icons.transport" = "Transport";
-"category.icons.places" = "Places";
-"category.icons.work" = "Work & Office";
-"category.icons.health" = "Health";
-"category.icons.food" = "Food & Drink";
-"category.icons.entertainment" = "Entertainment";
-"category.icons.education" = "Education";
-"category.icons.tech" = "Technology";
-"category.icons.symbols" = "Symbols & Shapes";
-"category.icons.security" = "Security";
-"category.icons.media" = "Media Controls";
-"category.icons.badges" = "Flags & Badges";
+"category.icons.general" = "常规";
+"category.icons.books" = "图书与阅读";
+"category.icons.communication" = "沟通";
+"category.icons.people" = "人物";
+"category.icons.sports" = "运动与健身";
+"category.icons.nature" = "自然与天气";
+"category.icons.objects" = "物体";
+"category.icons.devices" = "设备";
+"category.icons.transport" = "交通";
+"category.icons.places" = "地点";
+"category.icons.work" = "商务与办公";
+"category.icons.health" = "健康";
+"category.icons.food" = "食物与饮品";
+"category.icons.entertainment" = "娱乐";
+"category.icons.education" = "教育";
+"category.icons.tech" = "科技";
+"category.icons.symbols" = "符号与形状";
+"category.icons.security" = "安全";
+"category.icons.media" = "媒体控制";
+"category.icons.badges" = "旗帜与徽章";
 
 // MARK: - Add Bookmark - New Keys
-// Clear All
-"addBookmark.clearAll" = "Clear All";
+"addBookmark.clearAll" = "清除全部";
+"addBookmark.category.no_category_hint" = "保存为未分类";
 
-// Category Picker
-"addBookmark.category.no_category_hint" = "Save without category";
+"addBookmark.section.coverImage" = "封面图";
+"addBookmark.coverImage.add" = "添加封面图";
+"addBookmark.coverImage.hint" = "为此书签选择一张特色图片";
+"addBookmark.coverImage.footer" = "添加一张自定义封面图以在列表中显示";
+"addBookmark.coverImage.edit" = "裁剪";
+"addBookmark.coverImage.change" = "更改";
+"addBookmark.coverImage.remove" = "移除";
 
-// Cover Image Section
-"addBookmark.section.coverImage" = "Cover Image";
-"addBookmark.coverImage.add" = "Add Cover Image";
-"addBookmark.coverImage.hint" = "Choose a custom image for the bookmark";
-"addBookmark.coverImage.footer" = "Add a custom cover image that will appear in the list";
-"addBookmark.coverImage.edit" = "Crop";
-"addBookmark.coverImage.change" = "Change";
-"addBookmark.coverImage.remove" = "Remove";
+"addBookmark.section.ocr" = "文字识别 (OCR)";
+"addBookmark.ocr.add" = "从图片提取文字";
+"addBookmark.ocr.hint" = "将照片中的文字添加到笔记";
+"addBookmark.ocr.footer" = "从图片中提取文字并自动填充到笔记中";
+"addBookmark.ocr.processing" = "正在识别文字...";
+"addBookmark.ocr.completed" = "识别完成";
+"addBookmark.ocr.completedHint" = "文字已添加到笔记";
+"addBookmark.ocr.recrop" = "重新裁剪";
+"addBookmark.ocr.remove" = "移除";
 
-// OCR Section
-"addBookmark.section.ocr" = "Text Extraction (OCR)";
-"addBookmark.ocr.add" = "Extract Text from Image";
-"addBookmark.ocr.hint" = "Add text from photo to notes";
-"addBookmark.ocr.footer" = "Extract text from an image and automatically add it to notes";
-"addBookmark.ocr.processing" = "Extracting text...";
-"addBookmark.ocr.completed" = "Text extracted";
-"addBookmark.ocr.completedHint" = "Text added to notes";
-"addBookmark.ocr.recrop" = "Recrop";
-"addBookmark.ocr.remove" = "Remove";
-
-// Source Descriptions
-"source.twitter.description" = "Twitter/X posts";
-"source.reddit.description" = "Reddit posts & comments";
-"source.linkedin.description" = "LinkedIn posts";
-"source.medium.description" = "Medium articles";
-"source.youtube.description" = "YouTube videos";
-"source.github.description" = "GitHub repositories";
-"source.news.description" = "News articles";
-"source.blog.description" = "Blog posts";
-"source.documentation.description" = "Technical documentation";
-"source.document" = "File";
-
+"source.twitter.description" = "Twitter/X 帖子";
+"source.reddit.description" = "Reddit 帖子与评论";
+"source.linkedin.description" = "LinkedIn 帖子";
+"source.medium.description" = "Medium 文章";
+"source.youtube.description" = "YouTube 视频";
+"source.github.description" = "GitHub 仓库";
+"source.news.description" = "新闻文章";
+"source.blog.description" = "博客文章";
+"source.documentation.description" = "技术文档";
+"source.document" = "文件";
 
 /* Encryption Key Backup View */
+"encryption.status.title" = "状态";
+"encryption.status.label" = "加密状态";
+"encryption.status.active" = "已启用";
+"encryption.status.inactive" = "未启用";
+"encryption.status.footer" = "您的数据在设备上进行加密。服务器仅存储加密版本。";
+"encryption.export.title" = "备份";
+"encryption.export.button" = "导出密钥";
+"encryption.export.key_label" = "您的加密密钥：";
+"encryption.export.copy_button" = "复制";
+"encryption.export.footer" = "⚠️ 请将此密钥存放在安全的地方。如果丢失，您将无法访问您的数据。";
 
-/* Status Section */
-"encryption.status.title" = "Status";
-"encryption.status.label" = "Encryption Status";
-"encryption.status.active" = "Active";
-"encryption.status.inactive" = "Inactive";
-"encryption.status.footer" = "Your data is encrypted on your device. Only the encrypted version is stored on the server.";
+"encryption.import.title" = "恢复";
+"encryption.import.placeholder" = "在此粘贴密钥...";
+"encryption.import.button" = "导入密钥";
 
-/* Export Section */
-"encryption.export.title" = "Backup";
-"encryption.export.button" = "Export Key";
-"encryption.export.key_label" = "Your Encryption Key:";
-"encryption.export.copy_button" = "Copy";
-"encryption.export.footer" = "⚠️ Keep this key in a safe place. If you lose it, you won't be able to access your data.";
+"encryption.danger.title" = "危险区域";
+"encryption.danger.reset_button" = "重置密钥";
+"encryption.danger.footer" = "⚠️ 重置密钥将导致所有现有的加密数据无法读取！";
 
-/* Import Section */
-"encryption.import.title" = "Restore";
-"encryption.import.placeholder" = "Paste key...";
-"encryption.import.button" = "Import Key";
+"encryption.alert.info" = "信息";
+"encryption.alert.ok" = "确定";
+"encryption.alert.reset_title" = "重置密钥";
+"encryption.alert.reset_message" = "此操作无法撤销。您所有现有的加密数据都将无法解密。";
+"encryption.alert.cancel" = "取消";
+"encryption.alert.reset_confirm" = "重置";
+"encryption.alert.import_success" = "密钥已成功导入";
 
-/* Danger Zone */
-"encryption.danger.title" = "Danger Zone";
-"encryption.danger.reset_button" = "Reset Key";
-"encryption.danger.footer" = "⚠️ If you reset the key, all your encrypted data will become unreadable!";
-
-/* Alerts */
-"encryption.alert.info" = "Info";
-"encryption.alert.ok" = "OK";
-"encryption.alert.reset_title" = "Reset Key";
-"encryption.alert.reset_message" = "This action cannot be undone. All your encrypted data will become unreadable.";
-"encryption.alert.cancel" = "Cancel";
-"encryption.alert.reset_confirm" = "Reset";
-"encryption.alert.import_success" = "Key imported successfully";
-
-/* Navigation */
-"encryption.navigation_title" = "Encryption";
-
-/* Errors - from EncryptionError enum */
-"encryption.error.key_not_found" = "Encryption key not found";
-"encryption.error.invalid_key_format" = "Invalid key format";
-"encryption.error.encoding_failed" = "Data could not be encoded";
-"encryption.error.decoding_failed" = "Data could not be decoded";
-"encryption.error.encryption_failed" = "Encryption failed";
-"encryption.error.decryption_failed" = "Decryption failed";
-"encryption.error.invalid_ciphertext" = "Invalid encrypted data";
-"encryption.error.keychain_error" = "Keychain error: %d";
+"encryption.navigation_title" = "加密";
+"encryption.error.key_not_found" = "未找到加密密钥";
+"encryption.error.invalid_key_format" = "无效的密钥格式";
+"encryption.error.encoding_failed" = "数据编码失败";
+"encryption.error.decoding_failed" = "数据解码失败";
+"encryption.error.encryption_failed" = "加密失败";
+"encryption.error.decryption_failed" = "解密失败";
+"encryption.error.invalid_ciphertext" = "无效的密文";
+"encryption.error.keychain_error" = "钥匙串错误：%d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "Welcome to Social Bookmark!";
-"onboarding.welcome.subtitle" = "Save, organize, and access your content from anywhere";
+"onboarding.welcome.title" = "欢迎来到 Social Bookmark！";
+"onboarding.welcome.subtitle" = "随时随地保存、整理和访问您的内容";
+"onboarding.sources.title" = "所有收藏 尽在一处";
+"onboarding.sources.subtitle" = "从 Twitter, Reddit, LinkedIn, Medium 等平台保存内容";
+"onboarding.sources.features.smart" = "✨ 智能内容提取";
+"onboarding.sources.features.ocr" = "📸 图片文字识别 (OCR)";
+"onboarding.sources.features.web" = "🔗 保存完整的网页内容";
 
-"onboarding.sources.title" = "All Your Favorites in One Place";
-"onboarding.sources.subtitle" = "Save content from Twitter, Reddit, LinkedIn, Medium and more";
-"onboarding.sources.features.smart" = "✨ Smart content extraction";
-"onboarding.sources.features.ocr" = "📸 Read text in images (OCR)";
-"onboarding.sources.features.web" = "🔗 Save web pages with full content";
+"onboarding.share.title" = "随时随地一键保存";
+"onboarding.share.subtitle" = "通过 Safari, Twitter, Reddit 等应用的分享菜单保存内容...";
+"onboarding.share.step1" = "在任何应用中点击分享按钮";
+"onboarding.share.step2" = "选择 Social Bookmark";
+"onboarding.share.step3" = "内容将被自动保存并分类";
+"onboarding.share.reminder" = "首次使用前别忘了启用分享扩展程序！";
+"onboarding.search.title" = "瞬间找到任何内容";
+"onboarding.search.subtitle" = "强大的搜索功能可覆盖标题、说明及全文内容";
+"onboarding.search.features.fulltext" = "📝 全文搜索 - 搜索内容内部文字";
+"onboarding.search.features.filter" = "🏷️ 按分类快速筛选";
+"onboarding.search.features.sync" = "☁️ 所有设备无缝同步";
+"onboarding.search.features.secure" = "🔐 端到端加密，确保隐私";
+"onboarding.notifications.title" = "不错过任何内容";
+"onboarding.notifications.subtitle" = "通过阅读提醒和重要更新，让您的书签库发挥更大价值。";
+"onboarding.notifications.feature1" = "阅读进度提醒";
+"onboarding.notifications.feature2" = "新功能发布通知";
+"onboarding.notifications.feature3" = "安全且私密的通知";
 
-"onboarding.share.title" = "Save with One Tap, Anywhere";
-"onboarding.share.subtitle" = "Use the share menu from any app like Safari, Twitter, Reddit...";
-"onboarding.share.step1" = "Tap the share button in any app";
-"onboarding.share.step2" = "Select Social Bookmark";
-"onboarding.share.step3" = "Content is automatically saved and categorized";
-"onboarding.share.reminder" = "Don't forget to enable the Share Extension on first use!";
+"home.notification_card.title" = "启用通知";
+"home.notification_card.subtitle" = "开启通知以获取提醒和更新。";
+"home.notification_card.button" = "立即开启";
 
-"onboarding.search.title" = "Find Anything Instantly";
-"onboarding.search.subtitle" = "Search across all your content, titles, descriptions and full texts with powerful search";
-"onboarding.search.features.fulltext" = "📝 Full-text search - search in all content";
-"onboarding.search.features.filter" = "🏷️ Filter by categories";
-"onboarding.search.features.sync" = "☁️ Sync across all your devices";
-"onboarding.search.features.secure" = "🔐 Secure with end-to-end encryption";
-"onboarding.notifications.title" = "Never Miss a Thing";
-"onboarding.notifications.subtitle" = "Use your bookmarks more efficiently with important updates and reading reminders.";
-"onboarding.notifications.feature1" = "Reading reminders";
-"onboarding.notifications.feature2" = "New feature announcements";
-"onboarding.notifications.feature3" = "Secure and private notifications";
-
-"home.notification_card.title" = "Enable Notifications";
-"home.notification_card.subtitle" = "Activate notifications for reminders and updates.";
-"home.notification_card.button" = "Enable Now";
-
-"onboarding.action.login" = "Have an account? Sign In";
-"common.skip" = "Skip";
+"onboarding.action.login" = "已有账户？立即登录";
+"common.skip" = "跳过";
 
 // MARK: - Paywall
-"paywall.unauthenticated_title" = "Sign In First";
-"paywall.unauthenticated_subtitle" = "Please sign in to use Pro features and backup your data.";
-"paywall.pro_features_title" = "What's in Pro?";
-"paywall.feature.unlimited_bookmarks" = "Unlimited Bookmarks";
-"paywall.feature.custom_categories" = "Create Custom Categories";
-"paywall.feature.ocr" = "Image Text Search (OCR)";
-"paywall.feature.multi_image" = "Multiple Image Support";
-"paywall.feature.cloud_sync" = "Cross-Device Sync";
-"paywall.feature.ad_free" = "Ad-free Experience";
+"paywall.unauthenticated_title" = "请先登录";
+"paywall.unauthenticated_subtitle" = "请登录以使用 Pro 功能并备份您的数据。";
+"paywall.pro_features_title" = "Pro 版有哪些功能？";
+"paywall.feature.unlimited_bookmarks" = "无限书签数量";
+"paywall.feature.custom_categories" = "自定义分类";
+"paywall.feature.ocr" = "图片搜索 (OCR)";
+"paywall.feature.multi_image" = "多图片支持";
+"paywall.feature.cloud_sync" = "多设备云同步";
+"paywall.feature.ad_free" = "无广告体验";
 
 // MARK: - Settings - Advanced
-"settings.advanced.cleanup" = "Data Cleanup";
-"settings.advanced.encryption_debug" = "Encryption Debug";
+"settings.advanced.cleanup" = "数据清理";
+"settings.advanced.encryption_debug" = "加密调试";
 
 // MARK: - Data Cleanup
-"cleanup.title" = "Data Cleanup";
-"cleanup.status.label" = "Status";
-"cleanup.status.ready" = "Ready";
-"cleanup.action.delete_all" = "Clear All Data and Re-sync";
-"cleanup.section.danger" = "⚠️ Dangerous Operations";
-"cleanup.footer.danger" = "This operation will delete all local bookmarks and categories and re-download them from Supabase. Encrypted data will be correctly decrypted.";
-"cleanup.alert.title" = "Are you sure?";
-"cleanup.alert.cancel" = "Cancel";
-"cleanup.alert.confirm" = "Yes, Clear";
-"cleanup.alert.message" = "All local data will be deleted and re-downloaded from Supabase.";
-"cleanup.status.deleting" = "🗑️ Deleting local data...";
-"cleanup.status.deleted_count %lld %lld" = "✅ %lld bookmarks, %lld categories deleted";
-"cleanup.status.preparing" = "⚙️ Preparing sync service...";
-"cleanup.status.downloading" = "📥 Downloading from Supabase...";
-"cleanup.status.completed_count %lld %lld" = "✅ Completed! %lld categories, %lld bookmarks downloaded.";
-"cleanup.status.error %@" = "❌ Error: %@";
+"cleanup.title" = "数据清理";
+"cleanup.status.label" = "状态";
+"cleanup.status.ready" = "就绪";
+"cleanup.action.delete_all" = "清除所有本地数据并重新同步";
+"cleanup.section.danger" = "⚠️ 危险操作";
+"cleanup.footer.danger" = "此操作将删除所有本地书签和分类，并从服务器重新下载。加密数据将被正确解密。";
+"cleanup.alert.title" = "确定吗？";
+"cleanup.alert.cancel" = "取消";
+"cleanup.alert.confirm" = "是的，执行清理";
+"cleanup.alert.message" = "所有本地数据将被移除并从云端重新同步。";
+"cleanup.status.deleting" = "🗑️ 正在删除本地数据...";
+"cleanup.status.deleted_count %lld %lld" = "✅ 已删除 %lld 个书签, %lld 个分类";
+"cleanup.status.preparing" = "⚙️ 正在准备同步服务...";
+"cleanup.status.downloading" = "📥 正在从云端下载...";
+"cleanup.status.completed_count %lld %lld" = "✅ 完成！已下载 %lld 个分类, %lld 个书签。";
+"cleanup.status.error %@" = "❌ 错误：%@";
 
 // MARK: - Encryption Debug
-"encryption.debug.title" = "Encryption Debug";
-"encryption.debug.key_status" = "Encryption Key Status";
-"encryption.debug.has_key" = "Key Exists?";
-"encryption.debug.yes" = "✅ YES";
-"encryption.debug.no" = "❌ NO";
-"encryption.debug.check_key" = "Check Key";
-"encryption.debug.test_section" = "Test Encryption";
-"encryption.debug.run_test" = "Run Encryption Test";
-"encryption.debug.export_section" = "Key Export";
-"encryption.debug.export_button" = "Export Key";
-"encryption.debug.import_section" = "Key Import";
-"encryption.debug.import_placeholder" = "Paste key here...";
-"encryption.debug.import_button" = "Import Key";
-"encryption.debug.import_footer" = "Paste the key you exported from your iPhone here to import it.";
-"encryption.debug.test_success" = "✅ Encryption key loaded successfully";
-"encryption.debug.test_fail %@" = "❌ Encryption key load failed: %@";
-"encryption.debug.test_run_success %@" = "✅ Encryption/Decryption successful!\nOriginal: %@";
-"encryption.debug.test_run_fail %@" = "❌ Decryption failed!\nOriginal: %@";
-"encryption.debug.copy_success %@" = "✅ Key copied! First 20 characters: %@...";
-"encryption.debug.import_success" = "✅ Key imported successfully!";
+"encryption.debug.title" = "加密调试";
+"encryption.debug.key_status" = "密钥状态";
+"encryption.debug.has_key" = "是否存在密钥？";
+"encryption.debug.yes" = "✅ 是";
+"encryption.debug.no" = "❌ 否";
+"encryption.debug.check_key" = "检查密钥";
+"encryption.debug.test_section" = "加密测试";
+"encryption.debug.run_test" = "运行测试";
+"encryption.debug.export_section" = "导出密钥";
+"encryption.debug.export_button" = "导出密钥";
+"encryption.debug.import_section" = "导入密钥";
+"encryption.debug.import_placeholder" = "在此粘贴密钥...";
+"encryption.debug.import_button" = "导入密钥";
+"encryption.debug.import_footer" = "从您的旧设备导出密钥后，在此粘贴。";
+"encryption.debug.test_success" = "✅ 加密密钥加载成功";
+"encryption.debug.test_fail %@" = "❌ 加密密钥加载失败：%@";
+"encryption.debug.test_run_success %@" = "✅ 加密/解密成功！\n原文：%@";
+"encryption.debug.test_run_fail %@" = "❌ 解密失败！\n原文：%@";
+"encryption.debug.copy_success %@" = "✅ 密钥已复制！前 20 位：%@...";
+"encryption.debug.import_success" = "✅ 密钥导入成功！";
 
 // MARK: - Analytics
-"analytics.title" = "Analytics";
-"analytics.tabs.general" = "General";
-"analytics.tabs.time" = "Time";
-"analytics.tabs.categories" = "Categories";
-"analytics.time.morning" = "Morning";
-"analytics.time.afternoon" = "Afternoon";
-"analytics.time.evening" = "Evening";
-"analytics.time.night" = "Night";
-"analytics.filters.read" = "Read";
-"analytics.filters.stale" = "Stale";
-"analytics.calculating" = "Calculating statistics...";
-"analytics.window.30" = "30 Days";
-"analytics.window.90" = "90 Days";
-"analytics.category_analysis" = "Category Analysis";
-"analytics.no_categories" = "No category data yet";
-"analytics.bookmark_not_found" = "Bookmark not found";
-"analytics.highlights" = "🌟 Highlights";
-"analytics.most_favorited" = "Most favorited";
-"analytics.oldest_unread" = "Oldest unread";
-"analytics.current_streak" = "Current Streak";
-"analytics.longest_streak" = "Longest Streak";
-"analytics.most_active_day" = "Most Active Day";
-"analytics.read_bookmarks" = "Read Bookmarks";
-"analytics.stale_bookmarks" = "Stale Bookmarks";
-"analytics.productivity_hours" = "Productivity Hours";
-"analytics.peak_time_template %@" = "You enjoy **%@** time the most.";
-"analytics.last_30_days_activity" = "Last 30 Days Activity";
-"analytics.most_active_day_template %@" = "Your most active day: %@";
-"analytics.overview.title" = "Statistics";
+"analytics.title" = "分析";
+"analytics.tabs.general" = "常规";
+"analytics.tabs.time" = "时间";
+"analytics.tabs.categories" = "分类";
+"analytics.time.morning" = "早晨";
+"analytics.time.afternoon" = "下午";
+"analytics.time.evening" = "傍晚";
+"analytics.time.night" = "深夜";
+"analytics.filters.read" = "已读";
+"analytics.filters.stale" = "过期";
+"analytics.calculating" = "正在计算统计数据...";
+"analytics.window.30" = "30 天";
+"analytics.window.90" = "90 天";
+"analytics.category_analysis" = "分类分析";
+"analytics.no_categories" = "暂无分类数据";
+"analytics.bookmark_not_found" = "未找到书签";
+"analytics.highlights" = "🌟 亮点";
+"analytics.most_favorited" = "收藏最多";
+"analytics.oldest_unread" = "最早未读";
+"analytics.current_streak" = "当前连续天数";
+"analytics.longest_streak" = "最长连续天数";
+"analytics.most_active_day" = "最活跃的一天";
+"analytics.read_bookmarks" = "已读书签";
+"analytics.stale_bookmarks" = "过期书签";
+"analytics.productivity_hours" = "高效时段";
+"analytics.peak_time_template %@" = "您通常在 **%@** 时间段最享受阅读。";
+"analytics.last_30_days_activity" = "过去 30 天活动";
+"analytics.most_active_day_template %@" = "您最活跃的一天是：%@";
+"analytics.overview.title" = "统计数据";
 
 // MARK: - Developer
-"settings.developer.title" = "Developer Settings";
-"settings.developer.force_sync" = "Force Full Sync";
-"settings.developer.reset_sync" = "Reset Data & Re-sync";
-"settings.developer.local_data" = "Local Data Stats";
-"settings.developer.bookmarks" = "Bookmarks";
-"settings.developer.categories" = "Categories";
-"settings.developer.user_id" = "User ID";
-"settings.developer.force_sync_footer" = "Forces a complete data synchronization with the server. Use this if bookmarks or categories are not appearing.";
+"settings.developer.title" = "开发者设置";
+"settings.developer.force_sync" = "强制完全同步";
+"settings.developer.reset_sync" = "重置数据并同步";
+"settings.developer.local_data" = "本地数据统计";
+"settings.developer.bookmarks" = "书签";
+"settings.developer.categories" = "分类";
+"settings.developer.user_id" = "用户 ID";
+"settings.developer.force_sync_footer" = "强制与服务器进行完整的数据同步。如果书签或分类没有出现，请使用此功能。";
 
 // MARK: - Selection
-"selection.search_prompt" = "Search bookmarks...";
-"selection.title" = "Select Bookmarks";
+"selection.search_prompt" = "搜索书签...";
+"selection.title" = "选择书签";
 
 // MARK: - Debug logs
-"debug.logs.title" = "Network Logs";
-"debug.logs.no_logs" = "No logs yet";
-"debug.logs.request_details" = "Request Details";
-"debug.logs.section.general" = "General";
-"debug.logs.section.error" = "Error";
-"debug.logs.section.req_headers" = "Request Headers";
-"debug.logs.section.req_body" = "Request Body";
-"debug.logs.section.res_headers" = "Response Headers";
-"debug.logs.section.res_body" = "Response Body";
+"debug.logs.title" = "网络日志";
+"debug.logs.no_logs" = "暂无日志";
+"debug.logs.request_details" = "请求详情";
+"debug.logs.section.general" = "常规";
+"debug.logs.section.error" = "错误";
+"debug.logs.section.req_headers" = "请求头";
+"debug.logs.section.req_body" = "请求体";
+"debug.logs.section.res_headers" = "响应头";
+"debug.logs.section.res_body" = "响应体";
 
 // MARK: - Encryption Sync
-"encryption.sync.title" = "Sync";
-"encryption.sync.reset_button" = "Reset Sync";
-"encryption.sync.footer" = "Clears local data and re-downloads everything from the server. Use this if you see duplicate or outdated data.";
-"encryption.sync.reset_alert_message" = "Sync reset! Pull to refresh to download fresh data from server.";
+"encryption.sync.title" = "同步";
+"encryption.sync.reset_button" = "重置同步";
+"encryption.sync.footer" = "清除本地数据并从服务器重新下载所有内容。如果您看到重复或过时的数据，请使用此功能。";
+"encryption.sync.reset_alert_message" = "同步已重置！请下拉刷新以从服务器获取最新数据。";

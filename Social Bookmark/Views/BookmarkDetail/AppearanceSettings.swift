@@ -21,10 +21,10 @@ enum ReaderFont: String, CaseIterable, Identifiable {
     
     var displayName: String {
         switch self {
-        case .system: return String(localized: "appearance.font.system")
-        case .serif: return String(localized: "appearance.font.serif")
-        case .mono: return String(localized: "appearance.font.mono")
-        case .rounded: return String(localized: "appearance.font.rounded")
+        case .system: return LanguageManager.shared.localized("appearance.font.system")
+        case .serif: return LanguageManager.shared.localized("appearance.font.serif")
+        case .mono: return LanguageManager.shared.localized("appearance.font.mono")
+        case .rounded: return LanguageManager.shared.localized("appearance.font.rounded")
         }
     }
 }
@@ -39,10 +39,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .light: return String(localized: "appearance.theme.light")
-        case .sepia: return String(localized: "appearance.theme.sepia")
-        case .dark: return String(localized: "appearance.theme.dark")
-        case .black: return String(localized: "appearance.theme.black")
+        case .light: return LanguageManager.shared.localized("appearance.theme.light")
+        case .sepia: return LanguageManager.shared.localized("appearance.theme.sepia")
+        case .dark: return LanguageManager.shared.localized("appearance.theme.dark")
+        case .black: return LanguageManager.shared.localized("appearance.theme.black")
         }
     }
     

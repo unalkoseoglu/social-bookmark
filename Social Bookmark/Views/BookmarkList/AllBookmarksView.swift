@@ -16,7 +16,7 @@ struct AllBookmarksView: View {
     
     // MARK: - Pagination State
     
-    @State private var displayedBookmarks: [Bookmark] = []
+    @State private var displayedBookmarks: [BookmarkDisplayModel] = []
     @State private var currentPage = 0
     @State private var isLoadingMore = false
     
@@ -34,10 +34,10 @@ struct AllBookmarksView: View {
         
         var title: String {
             switch self {
-            case .newest: return String(localized: "all.sort.newest")
-            case .oldest: return String(localized: "all.sort.oldest")
-            case .alphabetical: return String(localized: "all.sort.alphabetical")
-            case .source: return String(localized: "all.sort.source")
+            case .newest: return LanguageManager.shared.localized("all.sort.newest")
+            case .oldest: return LanguageManager.shared.localized("all.sort.oldest")
+            case .alphabetical: return LanguageManager.shared.localized("all.sort.alphabetical")
+            case .source: return LanguageManager.shared.localized("all.sort.source")
             }
         }
         
@@ -60,7 +60,7 @@ struct AllBookmarksView: View {
     }
     
     // Kaynak bazlı gruplama
-    private var groupedBookmarks: [BookmarkSource: [Bookmark]] {
+    private var groupedBookmarks: [BookmarkSource: [BookmarkDisplayModel]] {
         Dictionary(grouping: displayedBookmarks, by: { $0.source })
     }
     
@@ -70,9 +70,9 @@ struct AllBookmarksView: View {
     
     var body: some View {
         bookmarkList
-            .navigationTitle(Text("all.title"))
+            .navigationTitle(Text(LanguageManager.shared.localized("all.title")))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: Text("all.search_prompt"))
+            .searchable(text: $searchText, prompt: Text(LanguageManager.shared.localized("all.search_prompt")))
             .toolbar {
                 toolbarContent
             }
@@ -107,7 +107,10 @@ struct AllBookmarksView: View {
                         if !displayedBookmarks.isEmpty {
                             // Basit bir güncelleme: Mevcut sayfa kadar veriyi yenile
                             let count = displayedBookmarks.count
-                            displayedBookmarks = Array(filteredResults.prefix(count))
+                            let newSource = filteredResults.prefix(count)
+                            displayedBookmarks = newSource.map { bookmark in
+                                BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                            }
                         } else {
                             loadInitialPage()
                         }
@@ -176,14 +179,16 @@ struct AllBookmarksView: View {
         UnifiedBookmarkList(
             bookmarks: displayedBookmarks,
             viewModel: viewModel,
-            totalBookmarks: filteredResults,
+            totalBookmarks: filteredResults.map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+            },
             isGroupedBySource: sortOrder == .source,
             showStats: true,
             hasMorePages: hasMorePages,
             isLoadingMore: isLoadingMore,
             onLoadMore: { loadMoreBookmarks() },
-            emptyTitle: String(localized: "all.empty.title"),
-            emptySubtitle: String(localized: "all.empty.desc"),
+            emptyTitle: LanguageManager.shared.localized("all.empty.title"),
+            emptySubtitle: LanguageManager.shared.localized("all.empty.desc"),
             emptyIcon: "bookmark"
         )
     }
@@ -197,7 +202,7 @@ struct AllBookmarksView: View {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
                 // Sort options
-                Section("all.menu.sort") {
+                Section(LanguageManager.shared.localized("all.menu.sort")) {
                     ForEach(SortOrder.allCases) { order in
                         Button {
                             withAnimation {
@@ -218,7 +223,7 @@ struct AllBookmarksView: View {
                     }
                    
                 } label: {
-                    Label("all.action.mark_all_read", systemImage: "checkmark.circle.fill")
+                    Label(LanguageManager.shared.localized("all.action.mark_all_read"), systemImage: "checkmark.circle.fill")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -231,7 +236,7 @@ struct AllBookmarksView: View {
     private var filterSheet: some View {
         NavigationStack {
             List {
-                Section("all.filter.source") {
+                Section(LanguageManager.shared.localized("all.filter.source")) {
                     ForEach(BookmarkSource.allCases) { source in
                         Button {
                             selectedSource = selectedSource == source ? nil : source
@@ -250,11 +255,11 @@ struct AllBookmarksView: View {
                     }
                 }
             }
-            .navigationTitle(Text("all.filter.title"))
+            .navigationTitle(Text(LanguageManager.shared.localized("all.filter.title")))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.done") {
+                    Button(LanguageManager.shared.localized("common.done")) {
                         showingFilters = false
                     }
                 }
@@ -291,14 +296,17 @@ struct AllBookmarksView: View {
             
             await MainActor.run {
                 let newBookmarks = Array(filteredBookmarks[startIndex..<endIndex])
-                displayedBookmarks.append(contentsOf: newBookmarks)
+                let mapped = newBookmarks.map { bookmark in
+                    BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                }
+                displayedBookmarks.append(contentsOf: mapped)
                 currentPage += 1
                 isLoadingMore = false
             }
         }
     }
     
-    private func loadMoreIfNeeded(currentBookmark: Bookmark) {
+    private func loadMoreIfNeeded(currentBookmark: BookmarkDisplayModel) {
         guard let index = displayedBookmarks.firstIndex(where: { $0.id == currentBookmark.id }) else { return }
         
         if index >= displayedBookmarks.count - 5 && !isLoadingMore {
@@ -308,25 +316,31 @@ struct AllBookmarksView: View {
     
     // MARK: - Actions
     
-    private func deleteBookmark(_ bookmark: Bookmark) async {
-        viewModel.bookmarkRepository.delete(bookmark)
-        await viewModel.refresh()
+    private func deleteBookmark(_ displayModel: BookmarkDisplayModel) async {
+        if let bookmark = viewModel.bookmark(with: displayModel.id) {
+            viewModel.deleteBookmark(bookmark)
+            await viewModel.refresh()
+        }
         
         // Remove from displayed list
-        if let index = displayedBookmarks.firstIndex(where: { $0.id == bookmark.id }) {
+        if let index = displayedBookmarks.firstIndex(where: { $0.id == displayModel.id }) {
             displayedBookmarks.remove(at: index)
         }
     }
     
-    private func toggleRead(_ bookmark: Bookmark) {
-        bookmark.isRead.toggle()
-        viewModel.bookmarkRepository.update(bookmark)
+    private func toggleRead(_ displayModel: BookmarkDisplayModel) {
+        if let bookmark = viewModel.bookmark(with: displayModel.id) {
+            bookmark.isRead.toggle()
+            viewModel.bookmarkRepository.update(bookmark)
+        }
     }
     
     private func markAllAsRead() async {
-        for bookmark in displayedBookmarks where !bookmark.isRead {
-            bookmark.isRead = true
-            viewModel.bookmarkRepository.update(bookmark)
+        for displayModel in displayedBookmarks where !displayModel.isRead {
+            if let bookmark = viewModel.bookmark(with: displayModel.id) {
+                bookmark.isRead = true
+                viewModel.bookmarkRepository.update(bookmark)
+            }
         }
         await viewModel.refresh()
     }

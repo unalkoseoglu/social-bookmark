@@ -117,6 +117,7 @@
 				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
+				Language/LanguageManager.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -126,8 +127,11 @@
 				Repositories/Protocol/BookmarkRepositoryProtocol.swift,
 				Repositories/Protocol/CategoryRepositoryProtocol.swift,
 				Repositories/SyncableBookmarkRepository.swift,
+				Utilities/AppLanguage.swift,
 				Utilities/Constants/RandomNameGenerator.swift,
 				Utilities/Helpers/URLValidator.swift,
+				Utilities/Services/BookmarkExtractionService.swift,
+				Utilities/Services/ImageProcessingService.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
@@ -178,6 +182,7 @@
 				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
+				Language/LanguageManager.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
@@ -191,6 +196,8 @@
 				Utilities/AppLanguage.swift,
 				Utilities/Constants/RandomNameGenerator.swift,
 				Utilities/Helpers/URLValidator.swift,
+				Utilities/Services/BookmarkExtractionService.swift,
+				Utilities/Services/ImageProcessingService.swift,
 				Utilities/Services/LinkedInService.swift,
 				Utilities/Services/MediumService.swift,
 				Utilities/Services/OCRService.swift,
@@ -524,6 +531,11 @@
 				en,
 				Base,
 				tr,
+				ko,
+				"zh-Hans",
+				ar,
+				"zh-Hant",
+				de,
 			);
 			mainGroup = C0867EF22EE9A86D000C8D7D;
 			minimizedProjectReferenceProxies = 1;
@@ -762,12 +774,12 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Social Bookmark'a Kaydet";
+				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark'a Kaydet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -798,12 +810,12 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Social Bookmark'a Kaydet";
+				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark'a Kaydet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1080,7 +1092,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1108,7 +1120,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1135,7 +1147,7 @@
 			baseConfigurationReference = DE03FCBF980ABC9F1FDD6377 /* Pods-Social Bookmark-Social BookmarkUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1162,7 +1174,7 @@
 			baseConfigurationReference = 6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1189,7 +1201,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkShareExtension/Info.plist;
@@ -1224,7 +1236,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkShareExtension/Info.plist;

@@ -1,5 +1,6 @@
 import Vision
 import UIKit
+import ImageIO
 
 /// OCR (Optical Character Recognition) servisi
 /// Fotoğraflardan metin çıkarır - Apple Vision Framework kullanır
@@ -29,7 +30,7 @@ final class OCRService {
         var suggestedTitle: String? {
             let lines = cleanText.components(separatedBy: "\n")
             
-            // 1. Kişi ismi algıla (Büyük Harf + Büyük Harf formatı)
+            // 1. Kişi ismi algıla (Büyük Harf + Büyük Harf formatı) - Genelde tweet sahipleri
             if let personName = detectPersonName(in: lines) {
                 return personName
             }
@@ -43,16 +44,13 @@ final class OCRService {
                     return false
                 }
                 
-                // En az 15 karakter
-                guard trimmed.count >= 15 else { return false }
-                // En fazla 100 karakter (başlık için uygun)
-                guard trimmed.count <= 100 else { return false }
-                // En az 3 kelime
-                guard trimmed.split(separator: " ").count >= 3 else { return false }
-                // Nokta ile bitiyorsa çok uzun olabilir, atla
-                if trimmed.hasSuffix(".") && trimmed.count > 60 {
-                    return false
-                }
+                // En az 10 karakter (biraz daha toleranslı)
+                guard trimmed.count >= 10 else { return false }
+                // En fazla 120 karakter
+                guard trimmed.count <= 120 else { return false }
+                // En az 2 kelime
+                guard trimmed.split(separator: " ").count >= 2 else { return false }
+                
                 return true
             }
             
@@ -61,11 +59,11 @@ final class OCRService {
                 return truncateTitle(firstMeaningful)
             }
             
-            // 3. Fallback: İlk satırın ilk 60 karakteri (saat değilse)
+            // 3. Fallback: İlk satır
             if let firstLine = lines.first {
                 let trimmed = firstLine.trimmingCharacters(in: .whitespaces)
-                if trimmed.range(of: "^\\d{1,2}:\\d{2}$", options: .regularExpression) == nil {
-                    return truncateTitle(firstLine)
+                if !trimmed.isEmpty {
+                    return truncateTitle(trimmed)
                 }
             }
             
@@ -74,12 +72,12 @@ final class OCRService {
         
         /// Kişi ismi algılama - "Ad Soyad" formatı
         private func detectPersonName(in lines: [String]) -> String? {
-            for line in lines.prefix(3) { // İlk 3 satıra bak
+            for line in lines.prefix(5) { // İlk 5 satıra bak
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 
-                // İki kelime kontrolü
+                // İki veya üç kelime kontrolü
                 let words = trimmed.split(separator: " ")
-                guard words.count == 2 || words.count == 3 else { continue }
+                guard words.count >= 2 && words.count <= 4 else { continue }
                 
                 // Her kelime büyük harfle başlamalı
                 let allCapitalized = words.allSatisfy { word in
@@ -89,13 +87,13 @@ final class OCRService {
                 
                 guard allCapitalized else { continue }
                 
-                // Çok uzun değilse (muhtemelen isim değil)
-                guard trimmed.count <= 50 else { continue }
-                
-                // Sayı içermemeli
+                // İsimler genelde sayı içermez
                 guard !trimmed.contains(where: { $0.isNumber }) else { continue }
                 
-                // Geçerli isim formatı
+                // Sadece harf ve boşluk olmalı
+                let allowedCharset = CharacterSet.letters.union(.whitespaces)
+                guard trimmed.rangeOfCharacter(from: allowedCharset.inverted) == nil else { continue }
+                
                 return trimmed
             }
             
@@ -116,13 +114,13 @@ final class OCRService {
             
             for word in words {
                 let testString = result.isEmpty ? String(word) : result + " " + String(word)
-                if testString.count > 75 {
+                if testString.count > 77 {
                     break
                 }
                 result = testString
             }
             
-            return result + "..."
+            return result.isEmpty ? String(trimmed.prefix(77)) + "..." : result + "..."
         }
         
         /// Akıllı temizleme - gereksiz UI elementlerini filtrele
@@ -130,58 +128,54 @@ final class OCRService {
             let lines = text.components(separatedBy: "\n")
             var cleanedLines: [String] = []
             
+            // Yaygın screenshot UI elementleri (Regex ile daha güvenli)
+            let uiPatterns = [
+                "^\\d{1,2}:\\d{2}$", // Saat
+                "^\\d{1,3}%?'?$",    // Batarya
+                "^[\\.\\-…•\\*]+$",   // Sadece semboller
+                "^[0-9]+$",          // Sadece sayılar (liste no değilse)
+                "^LTE|4G|5G|WiFi$",  // Bağlantı
+                "^Done|Cancel|Edit|Next|Back|Save|Open|Share|Copy$", // UI butonları
+                "^Tüm Notlar|Notlar|Tags|Etiketler|Kategoriler$"       // App UI
+            ]
+            
+            let combinedPattern = uiPatterns.joined(separator: "|")
+            let regex = try? NSRegularExpression(pattern: combinedPattern, options: .caseInsensitive)
+            
             for line in lines {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
-                
-                // Boş satırları atla
                 guard !trimmed.isEmpty else { continue }
                 
-                // Tek karakter veya sadece noktalama işaretleri olan satırları atla
-                if trimmed.count <= 2 && trimmed.rangeOfCharacter(from: .letters) == nil {
+                // Regex check
+                let range = NSRange(location: 0, length: trimmed.utf16.count)
+                if let match = regex?.firstMatch(in: trimmed, options: [], range: range), match.range == range {
                     continue
                 }
                 
-                // Saat formatı (14:59, 02:10, vb.) - atla
-                if trimmed.range(of: "^\\d{1,2}:\\d{2}$", options: .regularExpression) != nil {
+                // Sosyal medya platform isimleri
+                let skipList = ["twitter.com", "x.com", "instagram.com", "linkedin.com", "reddit.com", "medium.com"]
+                if skipList.contains(where: { trimmed.lowercased() == $0 }) {
                     continue
                 }
                 
-                // Batarya yüzdesi (99%, 100%, vb.) - atla
-                if trimmed.range(of: "^\\d{1,3}%?'?$", options: .regularExpression) != nil {
+                // Tek karakterli satırlar harf değilse atla
+                if trimmed.count == 1 && trimmed.rangeOfCharacter(from: .letters) == nil {
                     continue
                 }
                 
-                // Tek nokta, üç nokta, tire gibi karakterler - atla
-                if trimmed.range(of: "^[\\.\\-…•]+$", options: .regularExpression) != nil {
+                // Twitter handle tek başına ise (ve çok kısaysa) atla
+                if trimmed.hasPrefix("@") && !trimmed.contains(" ") && trimmed.count < 15 {
                     continue
                 }
                 
-                // Screenshot, Text Content gibi UI başlıkları - atla
-                let uiLabels = ["screenshot", "text content", "open", "copy", "share", "notlar", "etiketler"]
-                if uiLabels.contains(where: { trimmed.lowercased() == $0 }) {
-                    continue
-                }
-                
-                // Sosyal medya platform isimleri (X.com, Twitter.com) - atla
-                if trimmed.lowercased().contains(".com") && trimmed.count < 15 {
-                    continue
-                }
-                
-                // Twitter handle (@username) tek başına ise atla
-                if trimmed.hasPrefix("@") && !trimmed.contains(" ") {
-                    continue
-                }
-                
-                // Sadece emoji olan satırları atla
+                // Emoji sadece satırlar
                 if trimmed.unicodeScalars.allSatisfy({ $0.properties.isEmoji }) {
                     continue
                 }
                 
-                // Geçerli satır - ekle
                 cleanedLines.append(trimmed)
             }
             
-            // Satırları akıllıca birleştir
             return mergeLines(cleanedLines)
         }
         
@@ -192,57 +186,35 @@ final class OCRService {
             var merged: [String] = []
             var currentParagraph = ""
             
-            for (_, line) in lines.enumerated() {
+            for line in lines {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 
-                // İlk satır
                 if currentParagraph.isEmpty {
                     currentParagraph = trimmed
                     continue
                 }
                 
-                // Önceki satır cümle sonu ile bitiyorsa (. ! ?) - yeni paragraf başlat
-                let lastChar = currentParagraph.last
-                if lastChar == "." || lastChar == "!" || lastChar == "?" {
+                // Paragraf bitiş işaretleri
+                let sentenceEnders: Set<Character> = [".", "!", "?", ":"]
+                let lastChar = currentParagraph.last ?? " "
+                
+                // Yeni paragraf belirtileri:
+                // 1. Önceki satır . ! ? : ile biterse
+                // 2. Bu satır liste başıysa (1. - • *)
+                // 3. Bu satır büyük harfle başlıyorsa VE önceki satır yeterince uzunsa
+                
+                let isNewList = trimmed.range(of: "^(\\d+[\\.)\\-]|[-•\\*])", options: .regularExpression) != nil
+                let startsWithUpper = trimmed.first?.isUppercase ?? false
+                let prevIsLong = currentParagraph.count > 50
+                
+                if sentenceEnders.contains(lastChar) || isNewList || (startsWithUpper && prevIsLong) {
                     merged.append(currentParagraph)
                     currentParagraph = trimmed
-                    continue
-                }
-                
-                // Satır büyük harfle başlıyorsa VE önceki satır kısa değilse - yeni paragraf
-                if let firstChar = trimmed.first, firstChar.isUppercase,
-                   currentParagraph.count > 40,
-                   lastChar != "," {
-                    merged.append(currentParagraph)
-                    currentParagraph = trimmed
-                    continue
-                }
-                
-                // Satır sayı ile başlıyorsa (liste) - yeni satır
-                if trimmed.range(of: "^\\d+[\\.)\\-]", options: .regularExpression) != nil {
-                    merged.append(currentParagraph)
-                    currentParagraph = trimmed
-                    continue
-                }
-                
-                // Satır tire ile başlıyorsa (madde) - yeni satır
-                if trimmed.hasPrefix("-") || trimmed.hasPrefix("•") || trimmed.hasPrefix("*") {
-                    merged.append(currentParagraph)
-                    currentParagraph = trimmed
-                    continue
-                }
-                
-                // Tek kelime veya çok kısa satır - önceki satıra ekle
-                if trimmed.split(separator: " ").count <= 2 {
+                } else {
                     currentParagraph += " " + trimmed
-                    continue
                 }
-                
-                // Normal durum: önceki satıra boşlukla ekle
-                currentParagraph += " " + trimmed
             }
             
-            // Son paragrafı ekle
             if !currentParagraph.isEmpty {
                 merged.append(currentParagraph)
             }
@@ -253,78 +225,80 @@ final class OCRService {
     
     // MARK: - Public Methods
     
-    /// Resimden metin çıkar
-    /// - Parameter image: UIImage
-    /// - Returns: OCRResult
+    /// Resimden metin çıkar (Optimize edilmiş)
     func recognizeText(from image: UIImage) async throws -> OCRResult {
-        guard let cgImage = image.cgImage else {
-            throw OCRError.invalidImage
-        }
-        
-        // Vision request oluştur
-        let request = VNRecognizeTextRequest()
-        
-        // Ayarlar
-        request.recognitionLevel = .accurate // Fast veya Accurate
-        request.recognitionLanguages = ["tr-TR", "en-US"] // Türkçe ve İngilizce
-        request.usesLanguageCorrection = true
-        
-        // Request handler
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        
-        // İşlemi çalıştır
-        try handler.perform([request])
-        
-        // Sonuçları al
-        guard let observations = request.results, !observations.isEmpty else {
-            throw OCRError.noTextFound
-        }
-        
-        // Metinleri birleştir
-        var fullText = ""
-        var confidences: [Float] = []
-        var boundingBoxes: [CGRect] = []
-        
-        for observation in observations {
-            guard let topCandidate = observation.topCandidates(1).first else {
-                continue
+        // 1. Ön İşleme (Preprocessing)
+        // Background queue'da yapalım ki UI bloklanmasın (metod asenkron olsa da CPU yoğun işler)
+        return try await Task.detached(priority: .userInitiated) {
+            let optimizedImage = self.preprocessForOCR(image)
+            
+            guard let cgImage = optimizedImage.cgImage else {
+                throw OCRError.invalidImage
             }
             
-            fullText += topCandidate.string + "\n"
-            confidences.append(topCandidate.confidence)
-            boundingBoxes.append(observation.boundingBox)
-        }
-        
-        // Ortalama güven skoru
-        let avgConfidence = confidences.isEmpty ? 0.0 : confidences.reduce(0, +) / Float(confidences.count)
-        
-        return OCRResult(
-            text: fullText,
-            confidence: avgConfidence,
-            boundingBoxes: boundingBoxes
-        )
+            // Orientation düzeltme
+            let orientation = CGImagePropertyOrientation(image.imageOrientation)
+            
+            return try await withCheckedThrowingContinuation { continuation in
+                let request = VNRecognizeTextRequest { request, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    
+                    guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                        continuation.resume(throwing: OCRError.noTextFound)
+                        return
+                    }
+                    
+                    if observations.isEmpty {
+                        continuation.resume(throwing: OCRError.noTextFound)
+                        return
+                    }
+                    
+                    var fullText = ""
+                    var confidences: [Float] = []
+                    var boundingBoxes: [CGRect] = []
+                    
+                    // Observations genelde üstten aşağıdır
+                    for observation in observations {
+                        guard let topCandidate = observation.topCandidates(1).first else { continue }
+                        fullText += topCandidate.string + "\n"
+                        confidences.append(topCandidate.confidence)
+                        boundingBoxes.append(observation.boundingBox)
+                    }
+                    
+                    let avgConfidence = confidences.isEmpty ? 0.0 : confidences.reduce(0, +) / Float(confidences.count)
+                    
+                    continuation.resume(returning: OCRResult(
+                        text: fullText,
+                        confidence: avgConfidence,
+                        boundingBoxes: boundingBoxes
+                    ))
+                }
+                
+                // Hassasiyet Ayarları
+                request.recognitionLevel = .accurate
+                
+                // Dil Desteği - Cihazın desteklediği dilleri de alabiliriz ama şimdilik TR/EN garanti
+                request.recognitionLanguages = ["tr-TR", "en-US"]
+                request.usesLanguageCorrection = true
+                
+                let handler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
+                
+                do {
+                    try handler.perform([request])
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }.value
     }
     
     /// Hızlı OCR - düşük hassasiyet ama hızlı
     func quickRecognize(from image: UIImage) async throws -> String {
-        guard let cgImage = image.cgImage else {
-            throw OCRError.invalidImage
-        }
-        
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .fast
-        request.recognitionLanguages = ["tr-TR", "en-US"]
-        
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        try handler.perform([request])
-        
-        guard let observations = request.results else {
-            throw OCRError.noTextFound
-        }
-        
-        return observations
-            .compactMap { $0.topCandidates(1).first?.string }
-            .joined(separator: "\n")
+        let result = try await recognizeText(from: image)
+        return result.cleanText
     }
     
     /// Belirli bir bölgedeki metni çıkar
@@ -333,25 +307,88 @@ final class OCRService {
             throw OCRError.invalidImage
         }
         
-        // Bölgeyi crop et
+        // CGImage cropping coordinates are normalized if using Vision, but here we expect absolute pixels
         guard let croppedImage = cgImage.cropping(to: region) else {
             throw OCRError.cropFailed
         }
         
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.recognitionLanguages = ["tr-TR", "en-US"]
+        let uiImage = UIImage(cgImage: croppedImage)
+        let result = try await recognizeText(from: uiImage)
+        return result.text
+    }
+    
+    // MARK: - Preprocessing Logic
+    
+    /// OCR için resimi optimize et: Resize -> Grayscale -> Contrast
+    private func preprocessForOCR(_ image: UIImage) -> UIImage {
+        // 1. Resize (Çok büyük resimler Vision'ı yavaşlatır, çok küçükler doğruluk düşürür)
+        // İdeal OCR boyutu: Kısa kenar ~1200-1500px
+        let targetSize = calculateOCRSize(for: image.size)
+        let resized = resizeImage(image, to: targetSize) ?? image
         
-        let handler = VNImageRequestHandler(cgImage: croppedImage, options: [:])
-        try handler.perform([request])
+        // 2. Grayscale & Contrast
+        guard let ciImage = CIImage(image: resized) else { return resized }
         
-        guard let observations = request.results else {
-            throw OCRError.noTextFound
+        let context = CIContext(options: [.useSoftwareRenderer: false])
+        
+        // Noir filter (Grayscale)
+        let noir = CIFilter(name: "CIPhotoEffectNoir")
+        noir?.setValue(ciImage, forKey: kCIInputImageKey)
+        
+        // Contrast enhancement
+        let contrast = CIFilter(name: "CIColorControls")
+        contrast?.setValue(noir?.outputImage ?? ciImage, forKey: kCIInputImageKey)
+        contrast?.setValue(1.4, forKey: kCIInputContrastKey) // Kontrastı belirgin artır
+        
+        if let output = contrast?.outputImage,
+           let cgImage = context.createCGImage(output, from: output.extent) {
+            return UIImage(cgImage: cgImage)
         }
         
-        return observations
-            .compactMap { $0.topCandidates(1).first?.string }
-            .joined(separator: "\n")
+        return resized
+    }
+    
+    private func calculateOCRSize(for originalSize: CGSize) -> CGSize {
+        let maxDimension: CGFloat = 2000.0 // OCR için makul maksimum genişlik/yükseklik
+        
+        if originalSize.width <= maxDimension && originalSize.height <= maxDimension {
+            return originalSize
+        }
+        
+        let aspectRatio = originalSize.width / originalSize.height
+        
+        if originalSize.width > originalSize.height {
+            return CGSize(width: maxDimension, height: maxDimension / aspectRatio)
+        } else {
+            return CGSize(width: maxDimension * aspectRatio, height: maxDimension)
+        }
+    }
+    
+    private func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0 // Scale 1.0 önemli, yoksa retina ekranlarda çok büyük olur
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
+
+// MARK: - Orientation Helper
+
+extension CGImagePropertyOrientation {
+    init(_ uiOrientation: UIImage.Orientation) {
+        switch uiOrientation {
+        case .up: self = .up
+        case .upMirrored: self = .upMirrored
+        case .down: self = .down
+        case .downMirrored: self = .downMirrored
+        case .left: self = .left
+        case .leftMirrored: self = .leftMirrored
+        case .right: self = .right
+        case .rightMirrored: self = .rightMirrored
+        @unknown default: self = .up
+        }
     }
 }
 
@@ -366,52 +403,13 @@ enum OCRError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidImage:
-            return "Geçersiz resim formatı"
+            return String(localized: "ocr.error.invalid_image")
         case .noTextFound:
-            return "Resimde metin bulunamadı"
+            return String(localized: "ocr.error.no_text")
         case .cropFailed:
-            return "Resim kırpılamadı"
+            return String(localized: "ocr.error.crop_failed")
         case .processingFailed(let message):
-            return "İşlem hatası: \(message)"
+            return "\(String(localized: "ocr.error.processing")): \(message)"
         }
-    }
-}
-
-// MARK: - Image Processing Helpers
-
-extension OCRService {
-    /// Resmi OCR için optimize et
-    func preprocessImage(_ image: UIImage) -> UIImage? {
-        guard let ciImage = CIImage(image: image) else { return nil }
-        
-        let context = CIContext()
-        
-        // Kontrast artır
-        let contrastFilter = CIFilter(name: "CIColorControls")
-        contrastFilter?.setValue(ciImage, forKey: kCIInputImageKey)
-        contrastFilter?.setValue(1.2, forKey: kCIInputContrastKey) // Kontrast artır
-        
-        guard let outputImage = contrastFilter?.outputImage,
-              let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
-            return nil
-        }
-        
-        return UIImage(cgImage: cgImage)
-    }
-    
-    /// Resmi siyah-beyaz yap (OCR için daha iyi)
-    func convertToGrayscale(_ image: UIImage) -> UIImage? {
-        guard let ciImage = CIImage(image: image) else { return nil }
-        
-        let context = CIContext()
-        let filter = CIFilter(name: "CIPhotoEffectNoir")
-        filter?.setValue(ciImage, forKey: kCIInputImageKey)
-        
-        guard let outputImage = filter?.outputImage,
-              let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
-            return nil
-        }
-        
-        return UIImage(cgImage: cgImage)
     }
 }

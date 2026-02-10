@@ -16,23 +16,27 @@ struct LibraryView: View {
     @Binding var selectedTab: AppTab
     @EnvironmentObject private var sessionStore: SessionStore
     
-    @State private var selectedSegment: LibrarySegment = .all
-    @State private var selectedCategory: Category?
-    @State private var showingCategoryManagement = false
-    @State private var showingAnalytics = false
-    @State private var showingUncategorized = false
-    @State private var showingFavorites = false
     @Environment(\.modelContext) private var modelContext
     
     @State private var searchText = ""
+    @State private var categorySearchText = ""
     @State private var debouncedSearchText = ""
     @State private var selectedSource: BookmarkSource?
     @State private var sortOrder: SortOrder = .newest
     @State private var filteredResults: [Bookmark] = []
     
+    // Sheet & Navigation States
+    @State private var selectedCategory: Category?
+    @State private var showingCategoryManagement = false
+    @State private var showingAnalytics = false
+    @State private var showingUncategorized = false
+    @State private var showingFavorites = false
+    
+
+    
     // MARK: - Pagination State
     
-    @State private var displayedBookmarks: [Bookmark] = []
+    @State private var displayedBookmarks: [BookmarkDisplayModel] = []
     @State private var currentPage = 0
     @State private var isLoadingMore = false
     private let itemsPerPage = 20
@@ -47,10 +51,10 @@ struct LibraryView: View {
         
         var title: String {
             switch self {
-            case .newest: return String(localized: "all.sort.newest")
-            case .oldest: return String(localized: "all.sort.oldest")
-            case .alphabetical: return String(localized: "all.sort.alphabetical")
-            case .source: return String(localized: "all.sort.source")
+            case .newest: return LanguageManager.shared.localized("all.sort.newest")
+            case .oldest: return LanguageManager.shared.localized("all.sort.oldest")
+            case .alphabetical: return LanguageManager.shared.localized("all.sort.alphabetical")
+            case .source: return LanguageManager.shared.localized("all.sort.source")
             }
         }
         
@@ -71,9 +75,9 @@ struct LibraryView: View {
         
         var title: String {
             switch self {
-            case .all: return String(localized: "library.segment.all")
-            case .categories: return String(localized: "library.segment.categories")
-            case .sources: return String(localized: "library.segment.sources")
+            case .all: return LanguageManager.shared.localized("library.segment.all")
+            case .categories: return LanguageManager.shared.localized("library.segment.categories")
+            case .sources: return LanguageManager.shared.localized("library.segment.sources")
             }
         }
     }
@@ -82,26 +86,15 @@ struct LibraryView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Segment Picker
-            Picker(String(localized: "addBookmark.select"), selection: $selectedSegment) {
-                ForEach(LibrarySegment.allCases, id: \.self) { segment in
-                    Text(segment.title).tag(segment)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
+            segmentPicker
             
-            // Content
-            switch selectedSegment {
-            case .all:
-                allBookmarksContent
-            case .categories:
-                categoriesContent
-            case .sources:
-                sourcesContent
+            if viewModel.librarySegment == .categories {
+                categorySearchBar
             }
+            
+            contentView
         }
-        .navigationTitle(String(localized: "library.title"))
+        .navigationTitle(LanguageManager.shared.localized("library.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             // Back button - Ana Sayfa'ya döner
@@ -117,14 +110,30 @@ struct LibraryView: View {
             
             ToolbarItem(placement: .topBarTrailing) {
                 HStack {
-                    if selectedSegment == .all {
+                    if viewModel.librarySegment == .all {
                         Menu {
-                            Section(String(localized: "all.menu.sort")) {
+                            Section(LanguageManager.shared.localized("all.menu.sort")) {
                                 ForEach(SortOrder.allCases) { order in
                                     Button {
                                         withAnimation { sortOrder = order }
                                     } label: {
                                         Label(order.title, systemImage: sortOrder == order ? "checkmark" : order.icon)
+                                    }
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        }
+                    }
+                    
+                    if viewModel.librarySegment == .categories {
+                        Menu {
+                            Section(LanguageManager.shared.localized("all.menu.sort")) {
+                                ForEach(HomeViewModel.CategorySortOrder.allCases) { order in
+                                    Button {
+                                        withAnimation { viewModel.categorySortOrder = order }
+                                    } label: {
+                                        Label(order.title, systemImage: viewModel.categorySortOrder == order ? "checkmark" : "arrow.up.arrow.down")
                                     }
                                 }
                             }
@@ -139,7 +148,7 @@ struct LibraryView: View {
                         Image(systemName: "chart.bar.xaxis")
                     }
                     
-                    if selectedSegment == .categories {
+                    if viewModel.librarySegment == .categories {
                         Button {
                             showingCategoryManagement = true
                         } label: {
@@ -187,7 +196,10 @@ struct LibraryView: View {
                     if !displayedBookmarks.isEmpty {
                         // Basit bir güncelleme: Mevcut sayfa kadar veriyi yenile
                         let count = displayedBookmarks.count
-                        displayedBookmarks = Array(filteredResults.prefix(count))
+                        let newSource = filteredResults.prefix(count)
+                        displayedBookmarks = newSource.map { bookmark in
+                            BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                        }
                     } else {
                         loadInitialPage()
                     }
@@ -226,39 +238,36 @@ struct LibraryView: View {
         let currentSource = selectedSource
         let currentSort = sortOrder
         
-        let results = await Task.detached(priority: .userInitiated) {
-            var bookmarks = currentBookmarks
-            
-            if let source = currentSource {
-                bookmarks = bookmarks.filter { $0.source == source }
-            }
-            
-            if !currentSearch.isEmpty {
-                let searchLower = currentSearch.lowercased()
-                bookmarks = bookmarks.filter { bookmark in
-                    bookmark.title.lowercased().contains(searchLower) ||
-                    bookmark.note.lowercased().contains(searchLower) ||
-                    bookmark.tags.contains { $0.lowercased().contains(searchLower) }
-                }
-            }
-            
-            switch currentSort {
-            case .newest:
-                bookmarks.sort { $0.createdAt > $1.createdAt }
-            case .oldest:
-                bookmarks.sort { $0.createdAt < $1.createdAt }
-            case .alphabetical:
-                bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
-            case .source:
-                bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
-            }
-            
-            return bookmarks
-        }.value
+        // SwiftData modelleri (PersistentModel) Sendable değildir. 
+        // Bu yüzden Task.detached içinde kullanılamazlar.
+        // Filtreleme işlemini MainActor üzerinde gerçekleştiriyoruz.
+        var bookmarks = currentBookmarks
         
-        await MainActor.run {
-            self.filteredResults = results
+        if let source = currentSource {
+            bookmarks = bookmarks.filter { $0.source == source }
         }
+        
+        if !currentSearch.isEmpty {
+            let searchLower = currentSearch.lowercased()
+            bookmarks = bookmarks.filter { bookmark in
+                bookmark.title.lowercased().contains(searchLower) ||
+                bookmark.note.lowercased().contains(searchLower) ||
+                bookmark.tags.contains { $0.lowercased().contains(searchLower) }
+            }
+        }
+        
+        switch currentSort {
+        case .newest:
+            bookmarks.sort { $0.createdAt > $1.createdAt }
+        case .oldest:
+            bookmarks.sort { $0.createdAt < $1.createdAt }
+        case .alphabetical:
+            bookmarks.sort { $0.title.localizedCompare($1.title) == .orderedAscending }
+        case .source:
+            bookmarks.sort { $0.source.rawValue < $1.source.rawValue }
+        }
+        
+        self.filteredResults = bookmarks
     }
     
     // MARK: - All Bookmarks Content
@@ -267,14 +276,16 @@ struct LibraryView: View {
         UnifiedBookmarkList(
             bookmarks: displayedBookmarks,
             viewModel: viewModel,
-            totalBookmarks: filteredResults,
+            totalBookmarks: filteredResults.map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+            },
             isGroupedBySource: sortOrder == .source,
             showStats: true,
             hasMorePages: hasMorePages,
             isLoadingMore: isLoadingMore,
             onLoadMore: { loadMoreBookmarks() },
-            emptyTitle: String(localized: "library.empty.title"),
-            emptySubtitle: String(localized: "library.empty.subtitle"),
+            emptyTitle: LanguageManager.shared.localized("library.empty.title"),
+            emptySubtitle: LanguageManager.shared.localized("library.empty.subtitle"),
             emptyIcon: "bookmark"
         )
     }
@@ -289,41 +300,49 @@ struct LibraryView: View {
                 VStack(spacing: 16) {
                     emptyStateView(
                         icon: "folder",
-                        title: String(localized: "library.categories.empty.title"),
-                        subtitle: String(localized: "library.categories.empty.subtitle")
+                        title: LanguageManager.shared.localized("library.categories.empty.title"),
+                        subtitle: LanguageManager.shared.localized("library.categories.empty.subtitle")
                     )
                     
                     Button {
                         viewModel.createDefaultCategories()
                     } label: {
-                        Label(String(localized: "library.action.create_default_categories"), systemImage: "folder.badge.plus")
+                        Label(LanguageManager.shared.localized("library.action.create_default_categories"), systemImage: "folder.badge.plus")
                     }
                     .buttonStyle(.borderedProminent)
                 }
             } else {
                 ScrollView {
-                    LazyVGrid(
-                        columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
-                        spacing: 12
-                    ) {
-                        // Favoriler (Her zaman en başta)
-                        FavoritesCard(count: viewModel.favoritesCount) {
-                            showingFavorites = true
-                        }
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Category Stats Header
+                        categoryStatsHeader
+                            .padding(.top, 8)
                         
-                        ForEach(viewModel.categories) { category in
-                            LibraryCategoryCard(
-                                category: category,
-                                count: viewModel.bookmarkCount(for: category)
-                            ) {
-                                selectedCategory = category
+                        LazyVGrid(
+                            columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3),
+                            spacing: 12
+                        ) {
+                            // Favoriler (Sadece arama yoksa göster)
+                            if categorySearchText.isEmpty {
+                                FavoritesCard(count: viewModel.favoritesCount) {
+                                    showingFavorites = true
+                                }
                             }
-                        }
-                        
-                        // Kategorisiz
-                        if viewModel.uncategorizedCount > 0 {
-                            UncategorizedCard(count: viewModel.uncategorizedCount) {
-                                showingUncategorized = true
+                            
+                            ForEach(sortedFilteredCategories) { category in
+                                LibraryCategoryCard(
+                                    category: category,
+                                    count: viewModel.bookmarkCount(for: category)
+                                ) {
+                                    selectedCategory = category
+                                }
+                            }
+                            
+                            // Kategorisiz (Sadece arama yoksa ve varsa göster)
+                            if categorySearchText.isEmpty && viewModel.uncategorizedCount > 0 {
+                                UncategorizedCard(count: viewModel.uncategorizedCount) {
+                                    showingUncategorized = true
+                                }
                             }
                         }
                     }
@@ -331,6 +350,49 @@ struct LibraryView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Category Helpers
+    
+    private var categoryStatsHeader: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(viewModel.categories.count)")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Text(LanguageManager.shared.localized("categories.management.count"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(viewModel.allBookmarks.count)")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Text(LanguageManager.shared.localized("all.stats.total"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
+    private var sortedFilteredCategories: [Category] {
+        var result = viewModel.sortedCategories
+        
+        // Search filter
+        if !categorySearchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(categorySearchText) }
+        }
+        
+        return result
     }
     
     // MARK: - Sources Content
@@ -382,14 +444,17 @@ struct LibraryView: View {
             
             await MainActor.run {
                 let newBookmarks = Array(filteredResults[startIndex..<endIndex])
-                displayedBookmarks.append(contentsOf: newBookmarks)
+                let mapped = newBookmarks.map { bookmark in
+                     BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                }
+                displayedBookmarks.append(contentsOf: mapped)
                 currentPage += 1
                 isLoadingMore = false
             }
         }
     }
     
-    private func loadMoreIfNeeded(currentBookmark: Bookmark) {
+    private func loadMoreIfNeeded(currentBookmark: BookmarkDisplayModel) {
         guard let index = displayedBookmarks.firstIndex(where: { $0.id == currentBookmark.id }) else { return }
         
         if index >= displayedBookmarks.count - 5 {
@@ -399,6 +464,69 @@ struct LibraryView: View {
 
     private var hasMorePages: Bool {
         displayedBookmarks.count < filteredResults.count
+    }
+}
+
+// MARK: - SearchBar Component
+
+struct SearchBar: View {
+    @Binding var text: String
+    var placeholder: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            
+            TextField(placeholder, text: $text)
+                .textFieldStyle(PlainTextFieldStyle())
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+            
+            if !text.isEmpty {
+                Button(action: {
+                    self.text = ""
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(8)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(10)
+    }
+}
+
+// MARK: - LibraryView Extensions
+
+extension LibraryView {
+    private var segmentPicker: some View {
+        Picker(LanguageManager.shared.localized("addBookmark.select"), selection: $viewModel.librarySegment) {
+            ForEach(LibrarySegment.allCases, id: \.self) { segment in
+                Text(segment.title).tag(segment)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, 16)
+    }
+    
+    private var categorySearchBar: some View {
+        SearchBar(text: $categorySearchText, placeholder: LanguageManager.shared.localized("category.icons.search"))
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+    }
+    
+    @ViewBuilder
+    private var contentView: some View {
+        switch viewModel.librarySegment {
+        case .all:
+            allBookmarksContent
+        case .categories:
+            categoriesContent
+        case .sources:
+            sourcesContent
+        }
     }
 }
 
@@ -468,7 +596,7 @@ struct FavoritesCard: View {
                         .contentTransition(.numericText())
                 }
                 
-                Text(String(localized: "common.favorites"))
+                Text(LanguageManager.shared.localized("common.favorites"))
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
@@ -492,14 +620,18 @@ struct FavoritesBookmarksView: View {
     var body: some View {
         NavigationStack {
             UnifiedBookmarkList(
-                bookmarks: filteredBookmarks,
+                bookmarks: filteredBookmarks.map { bookmark in
+                    BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
                 viewModel: viewModel,
-                totalBookmarks: filteredBookmarks,
-                emptyTitle: String(localized: "common.favorites"),
-                emptySubtitle: String(localized: "library.empty.subtitle"),
+                totalBookmarks: filteredBookmarks.map { bookmark in
+                    BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
+                emptyTitle: LanguageManager.shared.localized("common.favorites"),
+                emptySubtitle: LanguageManager.shared.localized("library.empty.subtitle"),
                 emptyIcon: "star"
             )
-            .navigationTitle(String(localized: "common.favorites"))
+            .navigationTitle(LanguageManager.shared.localized("common.favorites"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -530,7 +662,7 @@ struct UncategorizedCard: View {
                         .contentTransition(.numericText())
                 }
                 
-                Text(String(localized: "common.uncategorized"))
+                Text(LanguageManager.shared.localized("common.uncategorized"))
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
@@ -553,14 +685,18 @@ struct UncategorizedBookmarksView: View {
     var body: some View {
         NavigationStack {
             UnifiedBookmarkList(
-                bookmarks: filteredBookmarks,
+                bookmarks: filteredBookmarks.map { bookmark in
+                     BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
                 viewModel: viewModel,
-                totalBookmarks: filteredBookmarks,
-                emptyTitle: String(localized: "common.uncategorized"),
-                emptySubtitle: String(localized: "library.empty.subtitle"),
+                totalBookmarks: filteredBookmarks.map { bookmark in
+                     BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+                },
+                emptyTitle: LanguageManager.shared.localized("common.uncategorized"),
+                emptySubtitle: LanguageManager.shared.localized("library.empty.subtitle"),
                 emptyIcon: "tray"
             )
-            .navigationTitle(String(localized: "common.uncategorized"))
+            .navigationTitle(LanguageManager.shared.localized("common.uncategorized"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }

@@ -1,78 +1,76 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Share Extension Localization - English
+   Share Extension Localization - Chinese, Simplified (zh-Hans)
    ═══════════════════════════════════════════════════════════════════ */
-"CFBundleDisplayName" = "Save to Link Bookmark";
+"CFBundleDisplayName" = "保存到链接书签";
 
 /* Navigation */
-
-"extension.title" = "Save Bookmark";
-"extension.cancel" = "Cancel";
-"extension.save" = "Save";
+"extension.title" = "保存书签";
+"extension.cancel" = "取消";
+"extension.save" = "保存";
 
 /* URL Section */
-"extension.source" = "Source";
+"extension.source" = "来源";
 
 /* Error Banner */
-"extension.error.twitter" = "Twitter Error";
-"extension.error.reddit" = "Reddit Error";
-"extension.error.linkedin" = "LinkedIn Error";
-"extension.error.medium" = "Medium Error";
-"extension.error.network" = "Connection Error";
-"extension.error.openInBrowser" = "Open in Browser";
+"extension.error.twitter" = "Twitter 错误";
+"extension.error.reddit" = "Reddit 错误";
+"extension.error.linkedin" = "LinkedIn 错误";
+"extension.error.medium" = "Medium 错误";
+"extension.error.network" = "网络连接错误";
+"extension.error.openInBrowser" = "在浏览器中打开";
 
 /* LinkedIn Specific Errors */
-"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
-"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+"extension.linkedin.authRequired" = "需要登录 LinkedIn 才能查看此内容。";
+"extension.linkedin.botDetected" = "LinkedIn 访问暂时受限。请稍后再试。";
 
 /* Preview Sections */
-"extension.preview.tweet" = "Tweet Preview";
-"extension.preview.reddit" = "Reddit Preview";
-"extension.preview.linkedin" = "LinkedIn Preview";
-"extension.preview.medium" = "Medium Preview";
+"extension.preview.tweet" = "推文预览";
+"extension.preview.reddit" = "Reddit 预览";
+"extension.preview.linkedin" = "LinkedIn 预览";
+"extension.preview.medium" = "Medium 预览";
 
 /* Preview Stats */
-"extension.stats.images" = "%d images";
-"extension.stats.comments" = "%@ comments";
-"extension.stats.readTime" = "%d min read";
-"extension.stats.membersOnly" = "Members Only";
+"extension.stats.images" = "%d 张图片";
+"extension.stats.comments" = "%@ 条评论";
+"extension.stats.readTime" = "%d 分钟阅读";
+"extension.stats.membersOnly" = "仅限会员";
 
 /* Basic Info Section */
-"extension.basicInfo" = "Basic Information";
-"extension.title.placeholder" = "Title";
-"extension.source.label" = "Source";
-"extension.contentFetched" = "Content fetched";
+"extension.basicInfo" = "基本信息";
+"extension.title.placeholder" = "标题";
+"extension.source.label" = "来源";
+"extension.contentFetched" = "内容已获取";
 
 /* Category Section */
-"extension.category" = "Category";
-"extension.category.none" = "Uncategorized";
-"extension.category.empty" = "No categories";
-"extension.category.emptyHint" = "You can create categories from the main app";
+"extension.category" = "分类";
+"extension.category.none" = "未分类";
+"extension.category.empty" = "无分类";
+"extension.category.emptyHint" = "您可以在主应用中创建分类";
 
 /* Notes Section */
-"extension.notes" = "Notes";
-"extension.notes.placeholder" = "Add your notes here";
+"extension.notes" = "备注";
+"extension.notes.placeholder" = "在此添加备注";
 
 /* Tags Section */
-"extension.tags" = "Tags";
-"extension.tags.placeholder" = "Tags (comma separated)";
-"extension.tags.hint" = "Example: swift, ios, tutorial";
+"extension.tags" = "标签";
+"extension.tags.placeholder" = "标签（用逗号分隔）";
+"extension.tags.hint" = "示例：swift, ios, 教程";
 
 /* Medium */
-"extension.medium.readOn" = "Read on Medium";
+"extension.medium.readOn" = "在 Medium 上阅读";
 
 /* Status */
-"extension.loading" = "Loading...";
-"extension.saved" = "Saved";
+"extension.loading" = "加载中...";
+"extension.saved" = "已保存";
 
-"extension.fallback.title" = "Link Saved";
-"extension.fallback.message" = "This link will be processed in the main app.";
-"extension.fallback.ok" = "OK";
+"extension.fallback.title" = "链接已保存";
+"extension.fallback.message" = "此链接将在主应用中进行处理。";
+"extension.fallback.ok" = "确定";
 
 // MARK: - Share Extension (ShareViewController)
 
 // Loading
-"extension.loading.hint" = "First launch may take a moment";
+"extension.loading.hint" = "首次启动可能需要一些时间";
 
 // First Launch Banner
-"extension.firstLaunch.message" = "First launch may take longer, please wait...";
-
+"extension.firstLaunch.message" = "首次启动可能耗时较长，请稍候...";

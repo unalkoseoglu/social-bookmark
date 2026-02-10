@@ -26,10 +26,10 @@ struct CategoriesManagementView: View {
             // Bilgi kartı
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("categories.management.info_title", systemImage: "folder.fill")
+                    Label(LanguageManager.shared.localized("categories.management.info_title"), systemImage: "folder.fill")
                         .font(.headline)
                     
-                    Text("categories.management.info_desc")
+                    Text(LanguageManager.shared.localized("categories.management.info_desc"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -41,7 +41,7 @@ struct CategoriesManagementView: View {
                 if viewModel.categories.isEmpty {
                     emptyCategoriesView
                 } else {
-                    ForEach(viewModel.categories) { category in
+                    ForEach(viewModel.sortedCategories) { category in
                         CategoryManagementRow(
                             category: category,
                             bookmarkCount: viewModel.bookmarkCount(for: category)
@@ -53,13 +53,13 @@ struct CategoriesManagementView: View {
                                 categoryToDelete = category
                                 showingDeleteAlert = true
                             } label: {
-                                Label("common.delete", systemImage: "trash")
+                                Label(LanguageManager.shared.localized("common.delete"), systemImage: "trash")
                             }
                             
                             Button {
                                 editingCategory = category
                             } label: {
-                                Label("common.edit", systemImage: "pencil")
+                                Label(LanguageManager.shared.localized("common.edit"), systemImage: "pencil")
                             }
                             .tint(.blue)
                         }
@@ -68,7 +68,7 @@ struct CategoriesManagementView: View {
                 }
             } header: {
                 HStack {
-                    Text("categories.management.count \(viewModel.categories.count)")
+                    Text(LanguageManager.shared.localized("categories.management.count %lld", Int64(viewModel.categories.count)))
                     Spacer()
                     EditButton()
                         .font(.caption)
@@ -81,19 +81,36 @@ struct CategoriesManagementView: View {
                     Button {
                         viewModel.createDefaultCategories()
                     } label: {
-                        Label("library.action.create_default_categories", systemImage: "plus.circle.fill")
+                        Label(LanguageManager.shared.localized("library.action.create_default_categories"), systemImage: "plus.circle.fill")
                     }
                 }
             }
         }
-        .navigationTitle("categories.title")
+        .navigationTitle(LanguageManager.shared.localized("categories.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingAddCategory = true
-                } label: {
-                    Image(systemName: "plus")
+                HStack(spacing: 16) {
+                    // Sıralama Menüsü
+                    Menu {
+                        Section(LanguageManager.shared.localized("all.menu.sort")) {
+                            ForEach(HomeViewModel.CategorySortOrder.allCases) { order in
+                                Button {
+                                    withAnimation { viewModel.categorySortOrder = order }
+                                } label: {
+                                    Label(order.title, systemImage: viewModel.categorySortOrder == order ? "checkmark" : "arrow.up.arrow.down")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+
+                    Button {
+                        showingAddCategory = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
                 }
             }
         }
@@ -107,9 +124,9 @@ struct CategoriesManagementView: View {
                 viewModel.updateCategory(updatedCategory)
             }
         }
-        .alert("category.delete.title", isPresented: $showingDeleteAlert) {
-            Button("common.cancel", role: .cancel) {}
-            Button("common.delete", role: .destructive) {
+        .alert(LanguageManager.shared.localized("category.delete.title"), isPresented: $showingDeleteAlert) {
+            Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) {}
+            Button(LanguageManager.shared.localized("common.delete"), role: .destructive) {
                 if let category = categoryToDelete {
                     viewModel.deleteCategory(category)
                 }
@@ -118,9 +135,9 @@ struct CategoriesManagementView: View {
             if let category = categoryToDelete {
                 let count = viewModel.bookmarkCount(for: category)
                 if count > 0 {
-                    Text("categories.management.delete_with_bookmarks \(count) \(category.name)")
+                    Text(LanguageManager.shared.localized("categories.management.delete_with_bookmarks %lld %@", Int64(count), category.name))
                 } else {
-                    Text("categories.management.delete_confirmation \(category.name)")
+                    Text(LanguageManager.shared.localized("categories.management.delete_confirmation %@", category.name))
                 }
             }
         }
@@ -134,7 +151,7 @@ struct CategoriesManagementView: View {
                 .font(.system(size: 32))
                 .foregroundStyle(.secondary)
             
-            Text("categories.empty")
+            Text(LanguageManager.shared.localized("categories.empty"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -145,17 +162,9 @@ struct CategoriesManagementView: View {
     // MARK: - Actions
     
     private func moveCategories(from source: IndexSet, to destination: Int) {
-        var categories = viewModel.categories
-        categories.move(fromOffsets: source, toOffset: destination)
-        
-        for (index, category) in categories.enumerated() {
-            category.order = index
-            viewModel.updateCategory(category)
-        }
-        
-        Task {
-            await viewModel.refresh()
-        }
+        var items = viewModel.sortedCategories
+        items.move(fromOffsets: source, toOffset: destination)
+        viewModel.reorderCategories(items)
     }
 }
 
@@ -180,7 +189,7 @@ struct CategoryManagementRow: View {
                     .font(.body)
                     .fontWeight(.medium)
                 
-                Text("categories.management.bookmark_count \(bookmarkCount)")
+                Text(LanguageManager.shared.localized("categories.management.bookmark_count %lld", Int64(bookmarkCount)))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -217,7 +226,7 @@ struct AddCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("category.preview") {
+                Section(LanguageManager.shared.localized("category.preview")) {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
                             .font(.title3)
@@ -227,11 +236,11 @@ struct AddCategoryView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(name.isEmpty ? String(localized: "category.field.name") : name)
+                            Text(name.isEmpty ? LanguageManager.shared.localized("category.field.name") : name)
                                 .font(.body)
                                 .fontWeight(.medium)
                             
-                            Text("categories.management.bookmark_count \(2)")
+                            Text(LanguageManager.shared.localized("categories.management.bookmark_count %lld", Int64(2)))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -239,14 +248,14 @@ struct AddCategoryView: View {
                     .padding(.vertical, 4)
                 }
                 Section {
-                    TextField("category.field.name_placeholder", text: $name)
+                    TextField(LanguageManager.shared.localized("category.field.name_placeholder"), text: $name)
                         .onChange(of: name) { _, newValue in
                             if newValue.count > 20 {
                                 name = String(newValue.prefix(20))
                             }
                         }
                 } header: {
-                    Text("category.field.name")
+                    Text(LanguageManager.shared.localized("category.field.name"))
                 } footer: {
                     HStack {
                         Spacer()
@@ -256,25 +265,25 @@ struct AddCategoryView: View {
                     }
                 }
                 
-                Section("category.field.icon") {
+                Section(LanguageManager.shared.localized("category.field.icon")) {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
-                Section("category.field.color") {
+                Section(LanguageManager.shared.localized("category.field.color")) {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
                 
             }
-            .navigationTitle("category.new.title")
+            .navigationTitle(LanguageManager.shared.localized("category.new.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("common.cancel") { dismiss() }
+                    Button(LanguageManager.shared.localized("common.cancel")) { dismiss() }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.save") { saveCategory() }
+                    Button(LanguageManager.shared.localized("common.save")) { saveCategory() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)
                 }
@@ -320,7 +329,7 @@ struct EditCategoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("category.preview") {
+                Section(LanguageManager.shared.localized("category.preview")) {
                     HStack(spacing: 14) {
                         Image(systemName: selectedIcon)
                             .font(.title3)
@@ -330,11 +339,11 @@ struct EditCategoryView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(name.isEmpty ? "category.field.name" : name)
+                            Text(name.isEmpty ? LanguageManager.shared.localized("category.field.name") : name)
                                 .font(.body)
                                 .fontWeight(.medium)
                             
-                            Text("categories.management.bookmark_count \(2)")
+                            Text(LanguageManager.shared.localized("categories.management.bookmark_count %lld", Int64(2)))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -343,14 +352,14 @@ struct EditCategoryView: View {
                 }
                 
                 Section {
-                    TextField("category.field.name", text: $name)
+                    TextField(LanguageManager.shared.localized("category.field.name"), text: $name)
                         .onChange(of: name) { _, newValue in
                             if newValue.count > 20 {
                                 name = String(newValue.prefix(20))
                             }
                         }
                 } header: {
-                    Text("category.field.name")
+                    Text(LanguageManager.shared.localized("category.field.name"))
                 } footer: {
                     HStack {
                         Spacer()
@@ -360,25 +369,25 @@ struct EditCategoryView: View {
                     }
                 }
                 
-                Section("category.field.icon") {
+                Section(LanguageManager.shared.localized("category.field.icon")) {
                     IconPickerGrid(selectedIcon: $selectedIcon)
                 }
                 
-                Section("category.field.color") {
+                Section(LanguageManager.shared.localized("category.field.color")) {
                     ColorPickerGrid(selectedColor: $selectedColor)
                 }
                 
                 
             }
-            .navigationTitle("category.edit.title")
+            .navigationTitle(LanguageManager.shared.localized("category.edit.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("common.cancel") { dismiss() }
+                    Button(LanguageManager.shared.localized("common.cancel")) { dismiss() }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.save") { saveChanges() }
+                    Button(LanguageManager.shared.localized("common.save")) { saveChanges() }
                         .fontWeight(.semibold)
                         .disabled(!isValid)
                 }
@@ -421,7 +430,7 @@ struct IconPickerGrid: View {
                 HStack(spacing: 6) {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.body)
-                    Text("category.icons.show_more")
+                    Text(LanguageManager.shared.localized("category.icons.show_more"))
                         .font(.subheadline)
                 }
                 .foregroundStyle(.blue)
@@ -494,7 +503,7 @@ struct AllIconsPickerView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
                     if searchText.isEmpty {
-                        Text("category.icons.total_count \(totalIconCount)")
+                        Text(LanguageManager.shared.localized("category.icons.total_count %lld", Int64(totalIconCount)))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal)
@@ -544,12 +553,12 @@ struct AllIconsPickerView: View {
                 
                 .padding(.vertical)
             }
-            .navigationTitle("category.icons.all_title")
+            .navigationTitle(LanguageManager.shared.localized("category.icons.all_title"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "category.icons.search")
+            .searchable(text: $searchText, prompt: LanguageManager.shared.localized("category.icons.search"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.done") { dismiss() }
+                    Button(LanguageManager.shared.localized("common.done")) { dismiss() }
                         .fontWeight(.semibold)
                 }
             }

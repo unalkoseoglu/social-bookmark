@@ -25,25 +25,25 @@ struct CategoryDetailView: View {
     var body: some View {
         NavigationStack {
             UnifiedBookmarkList(
-                bookmarks: filteredBookmarks,
+                bookmarks: filteredBookmarks.map { BookmarkDisplayModel(bookmark: $0, category: category) },
                 viewModel: viewModel,
-                totalBookmarks: bookmarks,
+                totalBookmarks: bookmarks.map { BookmarkDisplayModel(bookmark: $0, category: category) },
                 onRefresh: {
                     try? await SyncService.shared.fetchBookmarks(categoryId: category.id)
                     await MainActor.run {
                         loadBookmarks()
                     }
                 },
-                emptyTitle: String(localized: "categoryDetail.empty_title"),
-                emptySubtitle: String(localized: "categoryDetail.empty_desc"),
+                emptyTitle: LanguageManager.shared.localized("categoryDetail.empty.title"),
+                emptySubtitle: LanguageManager.shared.localized("categoryDetail.empty.desc"),
                 emptyIcon: category.icon
             )
             .navigationTitle(category.name)
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: Text("categoryDetail.search_prompt"))
+            .searchable(text: $searchText, prompt: Text(LanguageManager.shared.localized("categoryDetail.search_prompt")))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("common.done") {
+                    Button(LanguageManager.shared.localized("common.done")) {
                         dismiss()
                     }
                 }

@@ -33,8 +33,37 @@ final class SyncService: ObservableObject {
         UserDefaults(suiteName: APIConstants.appGroupId) ?? .standard
     }
     
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
+    }()
+    
     private init() {
         Logger.sync.info("SyncService initialized")
+    }
+    
+    private func parseDate(_ dateString: String?) -> Date? {
+        guard let dateString = dateString, !dateString.isEmpty else { return nil }
+        
+        // 1. Try ISO8601 with fractional seconds
+        let isoFractional = ISO8601DateFormatter()
+        isoFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = isoFractional.date(from: dateString) {
+            return date
+        }
+        
+        // 2. Try standard ISO8601
+        let isoStandard = ISO8601DateFormatter()
+        if let date = isoStandard.date(from: dateString) {
+            return date
+        }
+        
+        // 3. Fallback for Laravel default: "yyyy-MM-dd HH:mm:ss"
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        df.locale = Locale(identifier: "en_US_POSIX")
+        return df.date(from: dateString)
     }
     
     func configure(modelContext: ModelContext) {
@@ -54,15 +83,16 @@ final class SyncService: ObservableObject {
         syncError = nil
         
         do {
+            print("🔄 [SYNC] Starting full sync...")
             syncState = .downloading
             try await downloadFromCloud()
+            
+            syncState = .uploading
+            try await uploadToCloud()
             
             // Temporary: Repair any local records that might be stuck as ciphertext
             print("🛠️ [SYNC] Running local encryption repair...")
             try? await repairLocalEncryption()
-            
-            // Don't upload here - sync/delta already handles bidirectional sync
-            // Upload only happens when user makes changes (via SyncableRepository)
             
             syncState = .idle
             lastSyncDate = Date()
@@ -80,6 +110,28 @@ final class SyncService: ObservableObject {
             syncState = .error
             NotificationCenter.default.post(name: .syncDidFail, object: error)
         }
+    }
+
+    /// Clears all local data AND sync progress, then re-downloads everything.
+    func resetSync() async throws {
+        print("🚨 [SYNC] RESET SYNC REQUESTED! Clearing everything...")
+        guard let context = modelContext else { return }
+        
+        syncState = .syncing
+        
+        // 1. Clear last sync timestamp
+        defaults.removeObject(forKey: APIConstants.Keys.lastSync)
+        
+        // 2. Clear local data
+        try await clearLocalData(context: context)
+        
+        // 3. Perform fresh sync
+        try await downloadFromCloud()
+        
+        syncState = .idle
+        lastSyncDate = Date()
+        print("✅ [SYNC] Reset sync complete.")
+        NotificationCenter.default.post(name: .syncDidComplete, object: nil)
     }
     
     func syncChanges() async {
@@ -101,7 +153,7 @@ final class SyncService: ObservableObject {
     func downloadFromCloud() async throws {
         let user = await AuthService.shared.getCurrentUser()
         guard let context = modelContext,
-              let userId = user?.id.uuidString else {
+              user != nil else {
             throw SyncError.notAuthenticated
         }
         print("🔄 [SYNC] Downloading from cloud (sync/delta)")
@@ -122,13 +174,19 @@ final class SyncService: ObservableObject {
         let delta: DeltaSyncResponse = try await network.request(
             endpoint: APIConstants.Endpoints.syncDelta,
             method: "POST",
-            body: try JSONEncoder().encode(requestBody)
+            body: try encoder.encode(requestBody)
         )
+        
+        print("📥 [SYNC] Delta received: \(delta.updatedBookmarks.count) bookmarks, \(delta.updatedCategories.count) categories")
         
         try await processDeltaCategories(delta.updatedCategories, deletedIds: delta.deletedIds["categories"] ?? [], context: context)
         try await processDeltaBookmarks(delta.updatedBookmarks, deletedIds: delta.deletedIds["bookmarks"] ?? [], context: context)
 
         try context.save()
+        
+        // Final count verification
+        let finalCount = (try? context.fetchCount(FetchDescriptor<Bookmark>())) ?? 0
+        print("📊 [SYNC] Local bookmark count after sync: \(finalCount)")
         
         // Update sync timestamp
         defaults.set(delta.currentServerTime, forKey: APIConstants.Keys.lastSync)
@@ -147,18 +205,21 @@ final class SyncService: ObservableObject {
         
         print("🌐 [SYNC] Calling GET \(APIConstants.Endpoints.bookmarks) with params: \(queryParams)")
         
-        let response: CloudListResponse<CloudBookmark> = try await network.request(
+        // Explicitly decode the response to avoid scope issues if CloudListResponse is flaky
+        let response: [String: [CloudBookmark]] = try await network.request(
             endpoint: APIConstants.Endpoints.bookmarks,
             method: "GET",
             queryParameters: queryParams
         )
+        
+        let bookmarkData = response["data"] ?? []
         
         guard let context = modelContext else {
             Logger.sync.error("❌ ModelContext not configured in SyncService")
             return
         }
         
-        try await processDeltaBookmarks(response.data, deletedIds: [], context: context)
+        try await processDeltaBookmarks(bookmarkData, deletedIds: [], context: context)
         try context.save()
         
         // Refresh UI
@@ -193,7 +254,7 @@ final class SyncService: ObservableObject {
         guard let context = modelContext else { return }
         
         // Ensure key is loaded
-        _ = try? await EncryptionService.shared.getOrCreateKey()
+        _ = try? EncryptionService.shared.getOrCreateKey()
         guard EncryptionService.shared.isKeyAvailable else {
             Logger.sync.error("❌ Cannot repair encryption: Key still not available")
             return
@@ -253,7 +314,7 @@ final class SyncService: ObservableObject {
             }
             
             // Repair Tags
-            let originalTags = bookmark.tags ?? []
+            let originalTags = bookmark.tags
             let decryptedTags = originalTags.map { EncryptionService.shared.decryptOptional($0) ?? $0 }
             if decryptedTags != originalTags {
                 print("🔍 [REPAIR][Pass \(pass)] Fixed tags for bookmark: \(originalTitle.prefix(15))...")
@@ -302,7 +363,7 @@ final class SyncService: ObservableObject {
     func uploadToCloud() async throws {
         let user = await AuthService.shared.getCurrentUser()
         guard let context = modelContext,
-              let userId = user?.id.uuidString else {
+              user != nil else {
             throw SyncError.notAuthenticated
         }
 
@@ -311,12 +372,15 @@ final class SyncService: ObservableObject {
     }
     
     func syncBookmark(_ bookmark: Bookmark, fileData: Data? = nil) async throws {
+        print("🔄 [SYNC] Attempting to sync bookmark: \(bookmark.title) (\(bookmark.id.uuidString))")
+        
         guard await AuthService.shared.getCurrentUser() != nil else {
+            print("⚠️ [SYNC] Bookmark sync failed: Not authenticated")
             throw SyncError.notAuthenticated
         }
 
         let payload = createBookmarkPayload(bookmark)
-        let jsonPayload = try JSONEncoder().encode(["bookmarks": [payload]])
+        let jsonPayload = try encoder.encode(["bookmarks": [payload]])
         let jsonString = String(data: jsonPayload, encoding: .utf8) ?? ""
 
         var filesToUpload: [NetworkManager.FileUpload] = []
@@ -350,53 +414,118 @@ final class SyncService: ObservableObject {
             ))
         }
 
-        if !filesToUpload.isEmpty {
-            // Multipart sync
-            let _: [String: AnyCodable] = try await network.upload(
-                endpoint: APIConstants.Endpoints.bookmarksUpsert,
-                files: filesToUpload,
-                additionalFields: ["payload": jsonString]
-            )
-        } else {
-            // Standard JSON sync
-            let _: [String: AnyCodable] = try await network.request(
-                endpoint: APIConstants.Endpoints.bookmarksUpsert,
-                method: "POST",
-                body: jsonPayload
-            )
+        do {
+            if !filesToUpload.isEmpty {
+                // Multipart sync
+                let _: [String: AnyCodable] = try await network.upload(
+                    endpoint: APIConstants.Endpoints.bookmarksUpsert,
+                    files: filesToUpload,
+                    additionalFields: ["payload": jsonString]
+                )
+            } else {
+                // Standard JSON sync
+                let _: [String: AnyCodable] = try await network.request(
+                    endpoint: APIConstants.Endpoints.bookmarksUpsert,
+                    method: "POST",
+                    body: jsonPayload
+                )
+            }
+        } catch {
+            print("❌ [SYNC] Sync failed for bookmark \(bookmark.id): \(error.localizedDescription)")
+            await MainActor.run {
+                self.syncError = String(localized: "sync.error.bookmark_failed")
+                NotificationCenter.default.post(name: .syncDidFail, object: error.localizedDescription)
+            }
+            throw error
         }
+        print("✅ [SYNC] Successfully synced bookmark: \(bookmark.title)")
     }
     
     func syncCategory(_ category: Category) async throws {
+        print("🔄 [SYNC] Attempting to sync category: \(category.name) (\(category.id.uuidString))")
+        
         guard await AuthService.shared.getCurrentUser() != nil else {
+            print("⚠️ [SYNC] Category sync failed: Not authenticated")
             throw SyncError.notAuthenticated
         }
 
         let payload = createCategoryPayload(category)
+        let jsonContent = try encoder.encode(["categories": [payload]])
         
-        let _: [String: AnyCodable] = try await network.request(
-            endpoint: APIConstants.Endpoints.categoriesUpsert,
-            method: "POST",
-            body: try JSONEncoder().encode(["categories": [payload]])
-        )
+        do {
+            let _: [String: AnyCodable] = try await network.request(
+                endpoint: APIConstants.Endpoints.categoriesUpsert,
+                method: "POST",
+                body: jsonContent
+            )
+            print("✅ [SYNC] Successfully synced category: \(category.name)")
+        } catch {
+            print("❌ [SYNC] Sync failed for category \(category.id): \(error.localizedDescription)")
+            await MainActor.run {
+                self.syncError = String(localized: "sync.error.category_failed")
+                NotificationCenter.default.post(name: .syncDidFail, object: error.localizedDescription)
+            }
+            throw error
+        }
     }
     
-    func deleteBookmark(_ bookmark: Bookmark) async throws {
-        guard await AuthService.shared.getCurrentUser() != nil else { return }
+    func deleteBookmark(id: UUID) async throws {
+        print("🗑️ [SYNC] Attempting to delete bookmark: \(id.uuidString)")
         
-        _ = try await network.request(
-            endpoint: "\(APIConstants.Endpoints.bookmarks)/\(bookmark.id.uuidString.lowercased())",
-            method: "DELETE"
-        ) as EmptyResponse
+        // Fast auth check
+        guard defaults.string(forKey: APIConstants.Keys.token) != nil else {
+            print("⚠️ [SYNC] Cannot delete bookmark: Not authenticated")
+            return
+        }
+        
+        let endpoint = "\(APIConstants.Endpoints.bookmarks)/\(id.uuidString.lowercased())"
+        print("🌐 [SYNC] DELETE \(endpoint)")
+        
+        do {
+            let _: EmptyResponse = try await network.request(
+                endpoint: endpoint,
+                method: "DELETE"
+            )
+            print("✅ [SYNC] Successfully deleted bookmark from cloud: \(id.uuidString)")
+        } catch {
+            let errorMsg = error.localizedDescription.lowercased()
+            print("❌ [SYNC] Cloud delete failed for bookmark \(id.uuidString): \(error.localizedDescription)")
+            
+            if errorMsg.contains("404") || errorMsg.contains("no query results") || errorMsg.contains("not found") {
+                print("⚠️ [SYNC] SERVER ERROR: Model not found. The server might be expecting an integer ID or looking in the wrong column despite the API docs.")
+            }
+            
+            throw error
+        }
     }
     
-    func deleteCategory(_ category: Category) async throws {
-        guard await AuthService.shared.getCurrentUser() != nil else { return }
+    func deleteCategory(id: UUID) async throws {
+        print("🗑️ [SYNC] Attempting to delete category: \(id.uuidString)")
         
-        _ = try await network.request(
-            endpoint: "\(APIConstants.Endpoints.categories)/\(category.id.uuidString.lowercased())",
-            method: "DELETE"
-        ) as EmptyResponse
+        guard defaults.string(forKey: APIConstants.Keys.token) != nil else {
+            print("⚠️ [SYNC] Cannot delete category: Not authenticated")
+            return
+        }
+        
+        let endpoint = "\(APIConstants.Endpoints.categories)/\(id.uuidString.lowercased())"
+        print("🌐 [SYNC] DELETE \(endpoint)")
+        
+        do {
+            let _: EmptyResponse = try await network.request(
+                endpoint: endpoint,
+                method: "DELETE"
+            )
+            print("✅ [SYNC] Successfully deleted category from cloud: \(id.uuidString)")
+        } catch {
+            let errorMsg = error.localizedDescription.lowercased()
+            print("❌ [SYNC] Cloud delete failed for category \(id.uuidString): \(error.localizedDescription)")
+            
+            if errorMsg.contains("404") || errorMsg.contains("no query results") || errorMsg.contains("not found") {
+                print("⚠️ [SYNC] SERVER ERROR: Model not found for category. Check server route binding.")
+            }
+            
+            throw error
+        }
     }
     
     // MARK: - Delta Processing
@@ -437,8 +566,14 @@ final class SyncService: ObservableObject {
                         order: cloud.order
                     )
                     promoted.bookmarksCount = cloud.bookmarksCount
-                    promoted.createdAt = existingLocal.createdAt
-                    if let updatedAt = cloud.updatedAt { promoted.updatedAt = updatedAt }
+                    if let cloudCreated = parseDate(cloud.createdAt) {
+                        promoted.createdAt = cloudCreated
+                    } else {
+                        promoted.createdAt = existingLocal.createdAt
+                    }
+                    if let cloudUpdated = parseDate(cloud.updatedAt) {
+                        promoted.updatedAt = cloudUpdated
+                    }
                     
                     // Delete old and insert new
                     context.delete(existingLocal)
@@ -463,9 +598,15 @@ final class SyncService: ObservableObject {
                      colorHex: cloud.color,
                      order: cloud.order
                  )
-                 promoted.bookmarksCount = cloud.bookmarksCount
-                 promoted.createdAt = existingByName.createdAt
-                 if let updatedAt = cloud.updatedAt { promoted.updatedAt = updatedAt }
+                  promoted.bookmarksCount = cloud.bookmarksCount
+                  if let cloudCreated = parseDate(cloud.createdAt) {
+                      promoted.createdAt = cloudCreated
+                  } else {
+                      promoted.createdAt = existingByName.createdAt
+                  }
+                  if let cloudUpdated = parseDate(cloud.updatedAt) {
+                      promoted.updatedAt = cloudUpdated
+                  }
                  
                  let oldID = existingByName.id
                  context.delete(existingByName)
@@ -484,8 +625,12 @@ final class SyncService: ObservableObject {
                 order: cloud.order
             )
             newCategory.bookmarksCount = cloud.bookmarksCount
-            if let createdAt = cloud.createdAt { newCategory.createdAt = createdAt }
-            if let updatedAt = cloud.updatedAt { newCategory.updatedAt = updatedAt }
+            if let cloudCreated = parseDate(cloud.createdAt) {
+                newCategory.createdAt = cloudCreated
+            }
+            if let cloudUpdated = parseDate(cloud.updatedAt) {
+                newCategory.updatedAt = cloudUpdated
+            }
             
             context.insert(newCategory)
         }
@@ -564,9 +709,6 @@ final class SyncService: ObservableObject {
                 source: BookmarkSource(rawValue: cloud.source) ?? .manual
             )
             newBookmark.id = serverID
-            if let createdAt = cloud.createdAt {
-                newBookmark.createdAt = createdAt
-            }
             
             if let catID = cloud.categoryId {
                 print("📝 [SYNC] Incoming bookmark '\(newBookmark.title)' belongs to category ID: \(catID)")
@@ -575,6 +717,8 @@ final class SyncService: ObservableObject {
             updateBookmark(newBookmark, with: cloud)
             context.insert(newBookmark)
         }
+        
+        print("📝 [SYNC] Processed \(cloudBookmarks.count) cloud bookmarks.")
     }
     
     private func updateBookmark(_ bookmark: Bookmark, with cloud: CloudBookmark) {
@@ -591,23 +735,17 @@ final class SyncService: ObservableObject {
             bookmark.tags = tags.map { decryptIfNeeded($0, isEncrypted: isEncrypted) }
         }
         
-        // Note: cloud model doesn't have updatedAt anymore
-        // Tag management and category mapping...
+        if let cloudCreated = parseDate(cloud.createdAt) {
+            bookmark.createdAt = cloudCreated
+        }
+        if let cloudUpdated = parseDate(cloud.updatedAt) {
+            bookmark.updatedAt = cloudUpdated
+        }
         if let categoryId = cloud.categoryId {
             bookmark.categoryId = categoryId
         }
         
-        if let createdAt = cloud.createdAt {
-            bookmark.createdAt = createdAt
-        }
-        if let updatedAt = cloud.updatedAt {
-            bookmark.updatedAt = updatedAt
-        }
-        
         // Linked Bookmarks
-        if let linkedIds = cloud.linkedBookmarkIds {
-            bookmark.linkedBookmarkIds = linkedIds.compactMap { UUID(uuidString: $0) }
-        }
         
         print("📝 [SYNC] Updated bookmark: '\(bookmark.title)' (Favorite: \(cloud.isFavorite))")
     }
@@ -623,7 +761,7 @@ final class SyncService: ObservableObject {
         let _: [String: AnyCodable] = try await network.request(
             endpoint: APIConstants.Endpoints.categoriesUpsert,
             method: "POST",
-            body: try JSONEncoder().encode(["categories": payloads])
+            body: try encoder.encode(["categories": payloads])
         )
     }
 
@@ -656,7 +794,7 @@ final class SyncService: ObservableObject {
             let _: [String: AnyCodable] = try await network.request(
                 endpoint: APIConstants.Endpoints.bookmarksUpsert,
                 method: "POST",
-                body: try JSONEncoder().encode(["bookmarks": payloads])
+                body: try encoder.encode(["bookmarks": payloads])
             )
         } catch {
             print("❌ [SYNC] Bookmarks upsert failed: \(error)")
@@ -708,13 +846,6 @@ final class SyncService: ObservableObject {
         category.colorHex = cloud.color
         category.order = cloud.order
         category.bookmarksCount = cloud.bookmarksCount
-        
-        if let createdAt = cloud.createdAt {
-            category.createdAt = createdAt
-        }
-        if let updatedAt = cloud.updatedAt {
-            category.updatedAt = updatedAt
-        }
     }
     
     private func encryptIfNeeded(_ value: String) -> String {

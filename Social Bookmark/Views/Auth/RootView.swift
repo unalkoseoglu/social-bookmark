@@ -47,6 +47,7 @@ struct RootView: View {
     // @StateObject private var networkMonitor = NetworkMonitor.shared // TODO: Re-enable when NetworkMonitor is implemented
     @StateObject private var syncService = SyncService.shared
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @ObservedObject private var languageManager = LanguageManager.shared
     
     @Environment(\.scenePhase) private var scenePhase
     
@@ -67,7 +68,7 @@ struct RootView: View {
     
     var body: some View {
         Group {
-            if showSplash || sessionStore.isLoading {
+            if showSplash || sessionStore.isLoading || languageManager.languageJustChanged {
                 loadingView
             } else if !sessionStore.isAuthenticated && requireExplicitSignIn {
                 NavigationStack {
@@ -77,6 +78,8 @@ struct RootView: View {
             } else {
                 // Ana uygulama
                 AdaptiveMainTabView(viewModel: homeViewModel)
+                    .id(languageManager.refreshID)
+                    .environment(\.locale, languageManager.currentLanguage.locale)
                     .environmentObject(sessionStore)
                     // .offlineBanner() // TODO: Re-enable when NetworkMonitor is implemented
                     .fullScreenCover(isPresented: $showOnboarding) {
@@ -108,7 +111,11 @@ struct RootView: View {
             }
             await initializeAuth()
             
-           
+            // Dil değişimi sonrası splash gösteriliyorsa kapat
+            if languageManager.languageJustChanged {
+                try? await Task.sleep(nanoseconds: 1_200_000_000)
+                languageManager.languageJustChanged = false
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .appShouldRestart)) { _ in
             showSplash = true
@@ -133,6 +140,7 @@ struct RootView: View {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
+        .environment(\.locale, languageManager.currentLanguage.locale)
     }
     
     // MARK: - Loading View
@@ -151,7 +159,7 @@ struct RootView: View {
                 ProgressView()
                     .scaleEffect(1.2)
                 
-                Text(String(localized: "common.loading"))
+                Text(languageManager.localized("common.loading"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

@@ -19,7 +19,7 @@ struct SyncSettingsView: View {
     @State private var showingSyncConfirmation = false
     @State private var showingClearCacheConfirmation = false
     @State private var showingPaywall = false
-    @State private var cacheSize: String = String(localized: "sync.calculating")
+    @State private var cacheSize: String = LanguageManager.shared.localized("sync.calculating")
     
     var body: some View {
         List {
@@ -37,7 +37,7 @@ struct SyncSettingsView: View {
             // Bilgi
             infoSection
         }
-        .navigationTitle(String(localized: "sync.settings.title"))
+        .navigationTitle(LanguageManager.shared.localized("sync.settings.title"))
         .onAppear {
             calculateCacheSize()
         }
@@ -53,7 +53,7 @@ struct SyncSettingsView: View {
             // Bağlantı durumu
             HStack {
                 Label {
-                    Text(String(localized: "sync.network_status"))
+                    Text(LanguageManager.shared.localized("sync.network_status"))
                 } icon: {
                     Image(systemName: "wifi") // networkMonitor.isConnected ? "wifi" : "wifi.slash" // TODO: Re-enable
                         .foregroundStyle(.green) // networkMonitor.isConnected ? .green : .red // TODO: Re-enable
@@ -61,14 +61,14 @@ struct SyncSettingsView: View {
                 
                 Spacer()
                 
-                Text(String(localized: "sync.connected")) // networkMonitor.isConnected ? ... : ... // TODO: Re-enable
+                Text(LanguageManager.shared.localized("sync.connected")) // networkMonitor.isConnected ? ... : ... // TODO: Re-enable
                     .foregroundStyle(.secondary)
             }
             
             // Sync durumu
             HStack {
                 Label {
-                    Text(String(localized: "sync.status"))
+                    Text(LanguageManager.shared.localized("sync.status"))
                 } icon: {
                     syncStatusIcon
                 }
@@ -82,7 +82,7 @@ struct SyncSettingsView: View {
             // Son sync zamanı
             if let lastSync = syncService.lastSyncDate {
                 HStack {
-                    Label(String(localized: "sync.last_sync"), systemImage: "clock")
+                    Label(LanguageManager.shared.localized("sync.last_sync"), systemImage: "clock")
                     
                     Spacer()
                     
@@ -105,7 +105,7 @@ struct SyncSettingsView: View {
             }
             
         } header: {
-            Text(String(localized: "sync.status_section"))
+            Text(LanguageManager.shared.localized("sync.status_section"))
         }
     }
     
@@ -124,7 +124,7 @@ struct SyncSettingsView: View {
                 }
             } label: {
                 HStack {
-                    Label(String(localized: "sync.sync_now"), systemImage: "arrow.triangle.2.circlepath")
+                    Label(LanguageManager.shared.localized("sync.sync_now"), systemImage: "arrow.triangle.2.circlepath")
                     
                     Spacer()
                     
@@ -143,24 +143,24 @@ struct SyncSettingsView: View {
                     showingPaywall = true
                 }
             } label: {
-                Label(String(localized: "sync.download_from_cloud"), systemImage: "icloud.and.arrow.down")
+                Label(LanguageManager.shared.localized("sync.download_from_cloud"), systemImage: "icloud.and.arrow.down")
             }
             .disabled(syncService.syncState == .syncing) // || !networkMonitor.isConnected) // TODO: Re-enable
             
         } header: {
-            Text(String(localized: "sync.actions_section"))
+            Text(LanguageManager.shared.localized("sync.actions_section"))
         } footer: {
-            Text(String(localized: "sync.actions_footer"))
+            Text(LanguageManager.shared.localized("sync.actions_footer"))
         }
-        .alert(String(localized: "sync.download_confirmation_title"), isPresented: $showingSyncConfirmation) {
-            Button(String(localized: "sync.download_confirm"), role: .destructive) {
+        .alert(LanguageManager.shared.localized("sync.download_confirmation_title"), isPresented: $showingSyncConfirmation) {
+            Button(LanguageManager.shared.localized("sync.download_confirm"), role: .destructive) {
                 Task {
                     try? await syncService.downloadFromCloud()
                 }
             }
-            Button(String(localized: "common.cancel"), role: .cancel) { }
+            Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) { }
         } message: {
-            Text(String(localized: "sync.download_confirmation_message"))
+            Text(LanguageManager.shared.localized("sync.download_confirmation_message"))
         }
     }
     
@@ -170,7 +170,7 @@ struct SyncSettingsView: View {
         Section {
             // Cache boyutu
             HStack {
-                Label(String(localized: "sync.cache_size"), systemImage: "internaldrive")
+                Label(LanguageManager.shared.localized("sync.cache_size"), systemImage: "internaldrive")
                 
                 Spacer()
                 
@@ -182,22 +182,22 @@ struct SyncSettingsView: View {
             Button(role: .destructive) {
                 showingClearCacheConfirmation = true
             } label: {
-                Label(String(localized: "sync.clear_cache"), systemImage: "trash")
+                Label(LanguageManager.shared.localized("sync.clear_cache"), systemImage: "trash")
             }
             
         } header: {
-            Text(String(localized: "sync.cache_section"))
+            Text(LanguageManager.shared.localized("sync.cache_section"))
         } footer: {
-            Text(String(localized: "sync.cache_footer"))
+            Text(LanguageManager.shared.localized("sync.cache_footer"))
         }
-        .alert(String(localized: "sync.clear_cache_title"), isPresented: $showingClearCacheConfirmation) {
-            Button(String(localized: "sync.clear_cache"), role: .destructive) {
+        .alert(LanguageManager.shared.localized("sync.clear_cache_title"), isPresented: $showingClearCacheConfirmation) {
+            Button(LanguageManager.shared.localized("sync.clear_cache"), role: .destructive) {
                 ImageUploadService.shared.clearCache()
                 calculateCacheSize()
             }
-            Button(String(localized: "common.cancel"), role: .cancel) { }
+            Button(LanguageManager.shared.localized("common.cancel"), role: .cancel) { }
         } message: {
-            Text(String(localized: "sync.clear_cache_confirm"))
+            Text(LanguageManager.shared.localized("sync.clear_cache_confirm"))
         }
     }
     
@@ -207,7 +207,7 @@ struct SyncSettingsView: View {
         Section {
             if sessionStore.isAuthenticated {
                 HStack {
-                    Label(String(localized: "sync.user_id"), systemImage: "person.circle")
+                    Label(LanguageManager.shared.localized("sync.user_id"), systemImage: "person.circle")
                     
                     Spacer()
                     
@@ -217,7 +217,7 @@ struct SyncSettingsView: View {
                 }
             }
         } header: {
-            Text(String(localized: "settings.account_info"))
+            Text(LanguageManager.shared.localized("settings.account_info"))
         }
     }
 
@@ -245,17 +245,17 @@ struct SyncSettingsView: View {
     private var syncStatusText: String {
         switch syncService.syncState {
         case .idle:
-            return String(localized: "sync.state.idle")
+            return LanguageManager.shared.localized("sync.state.idle")
         case .syncing:
-            return String(localized: "sync.state.syncing")
+            return LanguageManager.shared.localized("sync.state.syncing")
         case .uploading:
-            return String(localized: "sync.state.uploading")
+            return LanguageManager.shared.localized("sync.state.uploading")
         case .downloading:
-            return String(localized: "sync.state.downloading")
+            return LanguageManager.shared.localized("sync.state.downloading")
         case .offline:
-            return String(localized: "sync.state.offline")
+            return LanguageManager.shared.localized("sync.state.offline")
         case .error:
-            return String(localized: "sync.state.error")
+            return LanguageManager.shared.localized("sync.state.error")
         }
     }
     

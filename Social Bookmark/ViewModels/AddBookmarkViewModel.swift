@@ -130,34 +130,31 @@ final class AddBookmarkViewModel {
         case reddit(RedditService.RedditError)
         case linkedin(LinkedInService.LinkedInError)
         case medium(MediumService.MediumError)
+        case extraction(ExtractionError) // YENİ
         case network(String)
         case unknown(String)
         
         var id: String {
             switch self {
-            case .twitter: return "x.com"
-            case .reddit: return "reddit"
-            case .linkedin: return "linkedin"
-            case .medium: return "medium"
-            case .network: return "network"
-            case .unknown: return "unknown"
+            case .twitter(let e): return "tw_\(e.localizedDescription)"
+            case .reddit(let e): return "rd_\(e.localizedDescription)"
+            case .linkedin(let e): return "li_\(e.localizedDescription)"
+            case .medium(let e): return "md_\(e.localizedDescription)"
+            case .extraction(let e): return "ex_\(e.localizedDescription)" // YENİ
+            case .network(let m): return "net_\(m)"
+            case .unknown(let m): return "unk_\(m)"
             }
         }
         
         var errorDescription: String? {
             switch self {
-            case .twitter(let error):
-                return error.errorDescription
-            case .reddit(let error):
-                return error.errorDescription
-            case .linkedin(let error):
-                return error.errorDescription
-            case .medium(let error):
-                return error.errorDescription
-            case .network(let message):
-                return message
-            case .unknown(let message):
-                return message
+            case .twitter(let error): return error.localizedDescription
+            case .reddit(let error): return error.localizedDescription
+            case .linkedin(let error): return error.localizedDescription
+            case .medium(let error): return error.localizedDescription
+            case .extraction(let error): return error.localizedDescription // YENİ
+            case .network(let message): return message
+            case .unknown(let message): return message
             }
         }
         
@@ -172,13 +169,13 @@ final class AddBookmarkViewModel {
                     return String(localized: "error.twitter.invalid_url")
                 case .networkError:
                     return String(localized: "error.network")
-                case .parseError:  // ✅ DÜZELTME: parsingError -> parseError
-                    return String(localized: "error.twitter.parse")
-                case .rateLimited:
-                    return String(localized: "error.rate_limited")
+                case .parseError:
+                    return String(localized: "error.twitter.parse_error")
                 default:
                     return String(localized: "error.twitter.generic")
                 }
+            case .extraction(let error): // YENİ
+                return error.localizedDescription
             case .reddit(let error):
                 return error.localizedDescription
             case .linkedin(let error):
@@ -198,8 +195,17 @@ final class AddBookmarkViewModel {
             case .twitter: return .blue
             case .reddit: return .orange
             case .linkedin: return Color(red: 0, green: 0.47, blue: 0.71)
-            case .medium: return .primary
-            case .network, .unknown: return .red
+            case .medium: return .black
+            case .extraction(let error): // YENİ
+                switch error {
+                case .twitter: return .blue
+                case .reddit: return .orange
+                case .linkedin: return Color(red: 0, green: 0.47, blue: 0.71)
+                case .medium: return .black
+                default: return .secondary
+                }
+            case .network: return .gray
+            case .unknown: return .red
             }
         }
         
@@ -313,7 +319,10 @@ final class AddBookmarkViewModel {
         let finalImagesData: [Data]? = {
             if !tweetImagesData.isEmpty { return tweetImagesData }
             if !redditImagesData.isEmpty { return redditImagesData }
-            return nil
+            var collected: [Data] = []
+            if let li = linkedInImageData { collected.append(li) }
+            if let md = mediumImageData { collected.append(md) }
+            return collected.isEmpty ? nil : collected
         }()
 
         let newBookmark = Bookmark(
@@ -351,30 +360,82 @@ final class AddBookmarkViewModel {
         
         await MainActor.run {
             isLoadingMetadata = true
-            fetchedTweet = nil
-            tweetImagesData = []
-            fetchedRedditPost = nil
-            redditImagesData = []
-            fetchedLinkedInContent = nil
-            linkedInImageData = nil
-            fetchedMediumPost = nil
-            mediumImageData = nil
+            serviceError = nil
+            clearPlatformSpecificData()
         }
         
-        if TwitterService.shared.isTwitterURL(url) {
-            await fetchTwitterContent()
-        } else if isRedditURL(url) {
-            await fetchRedditContent()
-        } else if isLinkedInURL(url) {
-            await fetchLinkedInContent()
-        } else if isMediumURL(url) {
-            await fetchMediumContent()
-        } else {
-            await fetchGenericMetadata()
+        do {
+            let content = try await BookmarkExtractionService.shared.extract(from: url)
+            
+            await MainActor.run {
+                self.updateMetadata(title: content.title, note: content.note)
+                if let author = content.author {
+                    if !self.note.isEmpty {
+                        self.note += "\n\n— \(author)"
+                    } else {
+                        self.note = author
+                    }
+                }
+                self.selectedSource = content.source
+                
+                // Platforma özel objeleri set et (View önizlemeleri için)
+                self.fetchedTweet = content.tweet
+                self.fetchedRedditPost = content.redditPost
+                self.fetchedLinkedInContent = content.linkedinPost
+                self.fetchedMediumPost = content.mediumPost
+                self.fetchedMetadata = content.genericMetadata
+            }
+            
+            // Download images
+            for imageUrl in content.imageURLs {
+                if let data = try? await ImageProcessingService.shared.downloadAndProcessImage(from: imageUrl.absoluteString) {
+                    await MainActor.run {
+                        self.appendImageData(data, for: content.source)
+                    }
+                }
+            }
+        } catch let error as ExtractionError {
+            await MainActor.run {
+                self.serviceError = .extraction(error)
+            }
+        } catch {
+            await MainActor.run {
+                self.serviceError = .unknown(error.localizedDescription)
+            }
         }
         
         await MainActor.run {
             isLoadingMetadata = false
+        }
+    }
+    
+    private func clearPlatformSpecificData() {
+        fetchedTweet = nil
+        tweetImagesData = []
+        fetchedRedditPost = nil
+        redditImagesData = []
+        fetchedLinkedInContent = nil
+        linkedInImageData = nil
+        fetchedMediumPost = nil
+        mediumImageData = nil
+        fetchedMetadata = nil
+    }
+    
+    private func appendImageData(_ data: Data, for source: BookmarkSource) {
+        switch source {
+        case .twitter:
+            tweetImagesData.append(data)
+        case .reddit:
+            redditImagesData.append(data)
+        case .linkedin:
+            linkedInImageData = data
+        case .medium:
+            mediumImageData = data
+        default:
+            // Generic metadata image handling
+            if linkedInImageData == nil { // LinkedInImageData'yı generic placeholder olarak kullanıyoruz
+                linkedInImageData = data
+            }
         }
     }
     
@@ -401,51 +462,6 @@ final class AddBookmarkViewModel {
     
     func isMediumURL(_ urlString: String) -> Bool {
         MediumService.shared.isMediumURL(urlString)
-    }
-    
-    // MARK: - Metadata Helper
-    
-    /// Metinden akıllıca bir başlık çıkarır (ilk cümle veya satır)
-    private func smartTitle(from text: String, maxLength: Int = 100) -> String {
-        let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if cleanText.isEmpty { return "" }
-        
-        // İlk satır sonunu veya cümle sonunu bul
-        let delimiters: Set<Character> = [".", "!", "?", "\n"]
-        var firstDelimiterIndex: String.Index? = nil
-        
-        for index in cleanText.indices {
-            if delimiters.contains(cleanText[index]) {
-                // Eğer "." ise ve sayıların arasındaysa (örn 1.5) ayırma
-                if cleanText[index] == "." {
-                    let nextIndex = cleanText.index(after: index)
-                    if nextIndex < cleanText.endIndex, cleanText[nextIndex].isNumber {
-                        continue
-                    }
-                }
-                firstDelimiterIndex = index
-                break
-            }
-        }
-        
-        if let delimiterIndex = firstDelimiterIndex {
-            let sentence = cleanText[...delimiterIndex].trimmingCharacters(in: .whitespacesAndNewlines)
-            if sentence.count <= maxLength + 20 { // Biraz esneme payı
-                return String(sentence)
-            }
-        }
-        
-        // Eğer cümle çok uzunsa veya ayraç yoksa, kelime bazlı truncate et
-        if cleanText.count <= maxLength {
-            return cleanText
-        }
-        
-        let truncated = cleanText.prefix(maxLength)
-        if let lastSpace = truncated.lastIndex(of: " ") {
-            return String(truncated[..<lastSpace]) + "..."
-        }
-        
-        return String(truncated) + "..."
     }
     
     /// Başlık ve not bilgilerini akıllıca ayarlar, dublikasyonu önler
@@ -483,173 +499,6 @@ final class AddBookmarkViewModel {
             
             self.note = finalNote.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-    }
-    
-    // MARK: - Twitter Content
-    
-    private func fetchTwitterContent() async {
-        do {
-            let tweet = try await TwitterService.shared.fetchTweet(from: url)
-            
-            await MainActor.run {
-                self.fetchedTweet = tweet
-                
-                // 1. Akıllı başlık oluştur (ilk cümle)
-                let cleanTitle = self.smartTitle(from: tweet.text)
-                self.updateMetadata(title: cleanTitle, note: tweet.text)
-                
-                // 2. Kullanıcı adını EN ALTA ekle
-                if !self.note.isEmpty {
-                    self.note += "\n\n— @\(tweet.authorUsername)"
-                } else {
-                    self.note = "@\(tweet.authorUsername)"
-                }
-            }
-            
-            // mediaURLs
-            for mediaURL in tweet.mediaURLs {
-                if let data = try? await downloadImageData(from: mediaURL.absoluteString) {
-                    await MainActor.run {
-                        self.tweetImagesData.append(data)
-                    }
-                }
-            }
-            
-        } catch let error as TwitterError {
-            await MainActor.run {
-                self.serviceError = .twitter(error)
-            }
-        } catch {
-            await MainActor.run {
-                self.serviceError = .unknown(error.localizedDescription)
-            }
-        }
-    }
-    
-    // MARK: - Reddit Content
-    
-    private func fetchRedditContent() async {
-        do {
-            let post = try await RedditService.shared.fetchPost(from: url)
-            
-            await MainActor.run {
-                self.fetchedRedditPost = post
-                self.updateMetadata(title: post.title, note: post.summary)
-            }
-            
-            // RedditPost.imageURL tek URL (optional)
-            if let imageURL = post.imageURL {
-                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
-                    await MainActor.run {
-                        self.redditImagesData.append(data)
-                    }
-                }
-            }
-            
-        } catch let error as RedditService.RedditError {
-            await MainActor.run {
-                self.serviceError = .reddit(error)
-            }
-        } catch {
-            await MainActor.run {
-                self.serviceError = .unknown(error.localizedDescription)
-            }
-        }
-    }
-    
-    // MARK: - LinkedIn Content
-    
-    private func fetchLinkedInContent() async {
-        do {
-            let post = try await LinkedInService.shared.fetchPost(from: url)
-            
-            await MainActor.run {
-                self.fetchedLinkedInContent = post
-                self.updateMetadata(title: post.title, note: post.content)
-            }
-            
-            // imageURL zaten URL? tipinde
-            if let imageURL = post.imageURL {
-                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
-                    await MainActor.run {
-                        self.linkedInImageData = data
-                    }
-                }
-            }
-            
-        } catch let error as LinkedInService.LinkedInError {
-            await MainActor.run {
-                self.serviceError = .linkedin(error)
-            }
-        } catch {
-            await MainActor.run {
-                self.serviceError = .unknown(error.localizedDescription)
-            }
-        }
-    }
-    
-    // MARK: - Medium Content
-    
-    private func fetchMediumContent() async {
-        do {
-            let post = try await MediumService.shared.fetchPost(from: url)
-            
-            await MainActor.run {
-                self.fetchedMediumPost = post
-                
-                var combinedNote = post.subtitle
-                if post.hasFullContent {
-                    if !combinedNote.isEmpty {
-                        combinedNote += "\n\n"
-                    }
-                    combinedNote += post.fullContent
-                }
-                
-                self.updateMetadata(title: post.title, note: combinedNote)
-            }
-            
-            // imageURL zaten URL? tipinde
-            if let imageURL = post.imageURL {
-                if let data = try? await downloadImageData(from: imageURL.absoluteString) {
-                    await MainActor.run {
-                        self.mediumImageData = data
-                    }
-                }
-            }
-            
-        } catch let error as MediumService.MediumError {
-            await MainActor.run {
-                self.serviceError = .medium(error)
-            }
-        } catch {
-            await MainActor.run {
-                self.serviceError = .unknown(error.localizedDescription)
-            }
-        }
-    }
-    
-    // MARK: - Generic Metadata
-    
-    private func fetchGenericMetadata() async {
-        guard let metadata = try? await URLMetadataService.shared.fetchMetadata(from: url) else {
-            return
-        }
-        
-        await MainActor.run {
-            self.fetchedMetadata = metadata
-            self.updateMetadata(title: metadata.title ?? "", note: metadata.description ?? "")
-        }
-    }
-    
-    // MARK: - Helper Methods
-    
-    private func downloadImageData(from urlString: String) async throws -> Data {
-        guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
-        }
-        
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return data
     }
     
     func validate() -> Bool {
@@ -737,17 +586,27 @@ final class AddBookmarkViewModel {
                     }
                 }
                 
-                // PDF ise metin çıkar
+                // Metin çıkarma işlemi
+                var extractedText: String?
+                
                 if ext == "pdf" {
                     let result = try await PDFService.shared.extractText(from: url)
-                    
-                    await MainActor.run {
-                        if !result.cleanText.isEmpty {
-                            if self.note.isEmpty {
-                                self.note = result.cleanText
-                            } else {
-                                self.note += "\n\n---\n\n" + result.cleanText
-                            }
+                    extractedText = result.cleanText
+                } else if ext == "txt" || ext == "md" {
+                    extractedText = try? String(contentsOf: url, encoding: .utf8)
+                } else if ext == "rtf" {
+                    if let attrString = try? NSAttributedString(url: url, options: [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil) {
+                        extractedText = attrString.string
+                    }
+                }
+                
+                await MainActor.run {
+                    if let text = extractedText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        if self.note.isEmpty {
+                            self.note = text
+                        } else {
+                            // Var olan notun sonuna ekle
+                            self.note += "\n\n---\n\n" + text
                         }
                     }
                 }

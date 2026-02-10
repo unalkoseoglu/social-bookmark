@@ -1,302 +1,295 @@
 /* Localizable.strings
    Social Bookmark
-   English Localization - Cleaned & Optimized Version
+   한국어 로컬라이제이션
 */
 
-
 // MARK: - Common
-"common.ok" = "OK";
-"common.offline" = "Offline";
-"common.error" = "Error";
-"common.unknown_error" = "Unknown error";
-"common.offline_save_info" = "Changes will be saved";
-"common.cancel" = "Cancel";
-"common.done" = "Done";
-"common.delete" = "Delete";
-"common.edit" = "Edit";
-"common.save" = "Save";
-"common.copy" = "Copy";
-"common.go_back" = "Go Back";
-"common.loading" = "Loading...";
-"common.success" = "Success";
-"common.retry" = "Retry";
-"common.all" = "All";
-"common.today" = "Today";
-"common.this_week" = "This Week";
-"common.favorites" = "Favorites";
-"common.uncategorized" = "Uncategorized";
-"common.skip" = "Skip";
-"common.continue" = "Continue";
-"common.getStarted" = "Get Started";
-"common.min_read" = "min read";
-"common.words" = "words";
-"common.days" = "Days";
-"common.show_more" = "Show More";
+"common.ok" = "확인";
+"common.offline" = "오프라인";
+"common.error" = "오류";
+"common.unknown_error" = "알 수 없는 오류";
+"common.offline_save_info" = "변경사항이 저장됩니다";
+"common.cancel" = "취소";
+"common.done" = "완료";
+"common.delete" = "삭제";
+"common.edit" = "편집";
+"common.save" = "저장";
+"common.copy" = "복사";
+"common.go_back" = "뒤로 가기";
+"common.loading" = "로딩 중...";
+"common.success" = "성공";
+"common.retry" = "재시도";
+"common.all" = "전체";
+"common.today" = "오늘";
+"common.this_week" = "이번 주";
+"common.favorites" = "즐겨찾기";
+"common.uncategorized" = "미분류";
+"common.skip" = "건너뛰기";
+"common.continue" = "계속하기";
+"common.getStarted" = "시작하기";
+"common.min_read" = "분 분량";
+"common.words" = "단어";
+"common.days" = "일";
+"common.show_more" = "더 보기";
 
 // MARK: - Auth
 "auth.welcome_title" = "Social Bookmark";
-"auth.welcome_subtitle" = "Save, organize and access your social media content from anywhere.";
-"auth.or_divider" = "or";
-"auth.continue_anonymously" = "Continue Without Account";
-"auth.sign_in_apple" = "Sign in with Apple";
-"auth.sign_up" = "Sign Up";
-"auth.terms_notice" = "By continuing, you agree to the Terms of Service and Privacy Policy.";
-"auth.error_title" = "Error";
-"auth.sign_in" = "Sign In";
-"auth.anonymous_user" = "Anonymous User";
-"auth.user" = "User";
-"auth.anonymous_account" = "Anonymous Account";
-"auth.not_signed_in" = "Not Signed In";
-"auth.sign_in_to_sync" = "Sign in to sync your data";
-"auth.tap_to_secure" = "Tap to secure";
+"auth.welcome_subtitle" = "어디서나 소셜 미디어 콘텐츠를 저장하고 정리하며 액세스하세요.";
+"auth.or_divider" = "또는";
+"auth.continue_anonymously" = "로그인 없이 계속하기";
+"auth.sign_in_apple" = "Apple로 로그인";
+"auth.sign_up" = "회원가입";
+"auth.terms_notice" = "계속 진행하면 서비스 약관 및 개인정보 처리방침에 동의하게 됩니다.";
+"auth.error_title" = "오류";
+"auth.sign_in" = "로그인";
+"auth.anonymous_user" = "익명 사용자";
+"auth.user" = "사용자";
+"auth.anonymous_account" = "익명 계정";
+"auth.not_signed_in" = "로그인되지 않음";
+"auth.sign_in_to_sync" = "데이터 동기화를 위해 로그인하세요";
+"auth.tap_to_secure" = "계정 보호를 위해 탭하세요";
 
 /* Auth - Errors */
-"auth.error.not_authenticated" = "You need to sign in";
-"auth.error.not_anonymous" = "This action is only for anonymous accounts";
-"auth.error.sign_up_failed" = "Sign up failed";
-"auth.error.apple_sign_in_failed" = "Apple Sign In failed";
-"auth.error.invalid_credentials" = "Invalid email or password";
-"auth.error.email_not_confirmed" = "Please confirm your email";
-"auth.error.user_already_exists" = "This email is already registered";
-"auth.error.weak_password" = "Password must be at least 6 characters";
-"auth.error.invalid_email" = "Invalid email address";
-"auth.error.rate_limit" = "Too many attempts. Please wait";
-"auth.error.user_not_found" = "User not found";
-"auth.error.network" = "No internet connection";
-"auth.error.unknown" = "An unknown error occurred";
+"auth.error.not_authenticated" = "로그인이 필요합니다";
+"auth.error.not_anonymous" = "이 작업은 익명 계정에서만 가능합니다";
+"auth.error.sign_up_failed" = "회원가입 실패";
+"auth.error.apple_sign_in_failed" = "Apple 로그인 실패";
+"auth.error.invalid_credentials" = "잘못된 이메일 또는 비밀번호입니다";
+"auth.error.email_not_confirmed" = "이메일 인증을 확인해 주세요";
+"auth.error.user_already_exists" = "이미 등록된 이메일입니다";
+"auth.error.weak_password" = "비밀번호는 최소 6자 이상이어야 합니다";
+"auth.error.invalid_email" = "유효하지 않은 이메일 주소입니다";
+"auth.error.rate_limit" = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요";
+"auth.error.user_not_found" = "사용자를 찾을 수 없습니다";
+"auth.error.network" = "네트워크 연결 없음";
+"auth.error.unknown" = "알 수 없는 오류가 발생했습니다";
 
 // MARK: - Greetings
-"greeting.morning" = "Good morning";
-"greeting.afternoon" = "Good afternoon";
-"greeting.evening" = "Good evening";
-"greeting.night" = "Good night";
-"greeting.welcome" = "Welcome";
+"greeting.morning" = "좋은 아침입니다";
+"greeting.afternoon" = "즐거운 오후입니다";
+"greeting.evening" = "편안한 저녁입니다";
+"greeting.night" = "안녕히 주무세요";
+"greeting.welcome" = "환영합니다";
 
 // MARK: - Tab Bar
-"tab.home" = "Home";
-"tab.library" = "Library";
-"tab.add" = "Add";
-"tab.search" = "Search";
+"tab.home" = "홈";
+"tab.library" = "라이브러리";
+"tab.add" = "추가";
+"tab.search" = "검색";
 
 // MARK: - Home View
-"home.title" = "Bookmarks";
-"home.greeting.morning" = "Good Morning";
-"home.greeting.afternoon" = "Good Afternoon";
-"home.greeting.evening" = "Good Evening";
-"home.stats_summary %lld %lld" = "%lld total • %lld unread";
-"home.stat.total" = "Total";
-"home.stat.unread" = "Unread";
-"home.stat.total_count %lld" = "%lld bookmarks";
-"home.stat.unread_count %lld" = "%lld unread";
-"home.stat.this_week" = "This Week";
+"home.title" = "북마크";
+"home.greeting.morning" = "좋은 아침입니다";
+"home.greeting.afternoon" = "즐거운 오후입니다";
+"home.greeting.evening" = "편안한 저녁입니다";
+"home.stats_summary %lld %lld" = "총 %lld개 • 읽지 않음 %lld개";
+"home.stat.total" = "전체";
+"home.stat.unread" = "읽지 않음";
+"home.stat.total_count %lld" = "%lld개의 북마크";
+"home.stat.unread_count %lld" = "%lld개 읽지 않음";
+"home.stat.this_week" = "이번 주";
+"home.section.quick_access" = "빠른 액세스";
+"home.section.categories" = "카테고리";
+"home.section.recent" = "최근 추가";
 
-"home.section.quick_access" = "Quick Access";
-"home.section.categories" = "Categories";
-"home.section.recent" = "Recently Added";
-
-"home.filter.unread" = "Unread";
-"home.filter.favorites" = "Favorites";
-"home.filter.today" = "Today";
-
-"home.action.edit" = "Edit";
-"home.action.see_all" = "See All";
-"home.action.create_categories" = "Create Categories";
-"home.action.add_first" = "Add Your First Bookmark";
-
-"home.empty.no_bookmarks" = "No bookmarks yet";
-"home.empty.no_bookmarks_desc" = "Add content using the share button or start by adding your first bookmark.";
-"home.empty.add_category" = "Add Category";
-"home.empty.add_category_desc" = "Create categories to organize your bookmarks";
-"home.limit.approaching" = "Limit approaching";
-"home.limit.approaching_desc" = "Upgrade to Pro for unlimited space and features.";
-"home.action.upgrade" = "Upgrade";
+"home.filter.unread" = "읽지 않음";
+"home.filter.favorites" = "즐겨찾기";
+"home.filter.today" = "오늘";
+"home.action.edit" = "편집";
+"home.action.see_all" = "전체 보기";
+"home.action.create_categories" = "카테고리 생성";
+"home.action.add_first" = "첫 북마크 추가하기";
+"home.empty.no_bookmarks" = "북마크가 없습니다";
+"home.empty.no_bookmarks_desc" = "공유 버튼을 사용하여 콘텐츠를 추가하거나 아래 버튼을 눌러 시작하세요.";
+"home.empty.add_category" = "카테고리 추가";
+"home.empty.add_category_desc" = "북마크 정리를 위해 카테고리를 만드세요";
+"home.limit.approaching" = "제한에 도달함";
+"home.limit.approaching_desc" = "무제한 공간과 기능을 위해 Pro로 업그레이드하세요.";
+"home.action.upgrade" = "업그레이드";
 
 // MARK: - Library View
-"library.title" = "Library";
-"library.segment.all" = "All";
-"library.segment.categories" = "Categories";
-"library.segment.sources" = "Sources";
-"library.empty.title" = "No bookmarks yet";
-"library.empty.subtitle" = "Save content from social media";
-"library.categories.empty.title" = "No categories";
-"library.categories.empty.subtitle" = "Create categories to organize your bookmarks";
-"library.action.create_default_categories" = "Create Default Categories";
+"library.title" = "라이브러리";
+"library.segment.all" = "전체";
+"library.segment.categories" = "카테고리";
+"library.segment.sources" = "소스";
+"library.empty.title" = "북마크가 없습니다";
+"library.empty.subtitle" = "소셜 미디어에서 콘텐츠를 저장해 보세요";
+"library.categories.empty.title" = "카테고리 없음";
+"library.categories.empty.subtitle" = "북마크를 정리할 카테고리를 생성하세요";
+"library.action.create_default_categories" = "기본 카테고리 생성";
 
 // MARK: - All Bookmarks View
-"all.title" = "All Bookmarks";
-"all.search_prompt" = "Search title, notes or tags...";
-"all.section.bookmarks" = "Bookmarks";
-"all.stats.total" = "Total";
-"all.stats.read" = "Read";
-"all.stats.unread" = "Unread";
+"all.title" = "모든 북마크";
+"all.search_prompt" = "제목, 메모 또는 태그 검색...";
+"all.section.bookmarks" = "북마크";
+"all.stats.total" = "전체";
+"all.stats.read" = "읽음";
+"all.stats.unread" = "읽지 않음";
+"all.sort.newest" = "최신순";
+"all.sort.oldest" = "오래된순";
+"all.sort.alphabetical" = "가나다순";
+"all.sort.source" = "소스별";
+"all.filter.title" = "필터";
+"all.filter.all" = "전체";
+"all.filter.source" = "소스";
+"all.filter.only_unread" = "읽지 않은 것만";
+"all.menu.sort" = "정렬";
 
-"all.sort.newest" = "Newest";
-"all.sort.oldest" = "Oldest";
-"all.sort.alphabetical" = "Alphabetical";
-"all.sort.source" = "By Source";
-"all.filter.title" = "Filter";
-"all.filter.all" = "All";
-"all.filter.source" = "Source";
-"all.filter.only_unread" = "Only Unread";
-"all.menu.sort" = "Sort";
+"all.action.mark_read" = "읽음으로 표시";
+"all.action.mark_unread" = "읽지 않음으로 표시";
+"all.action.mark_all_read" = "모두 읽음으로 표시";
+"all.action.clear_filters" = "필터 해제";
 
-"all.action.mark_read" = "Mark as Read";
-"all.action.mark_unread" = "Mark as Unread";
-"all.action.mark_all_read" = "Mark All as Read";
-"all.action.clear_filters" = "Clear Filters";
+"all.empty.title" = "북마크 없음";
+"all.empty.desc" = "아직 추가된 북마크가 없습니다.";
+"all.empty.no_results" = "검색 결과와 일치하는 북마크가 없습니다.";
 
-"all.empty.title" = "No Bookmarks";
-"all.empty.desc" = "You haven't added any bookmarks yet.";
-"all.empty.no_results" = "No bookmarks match your search.";
+"filtered.search_prompt" = "검색...";
+"filtered.section.bookmarks" = "북마크";
+"filtered.mark_read" = "읽음으로 표시";
+"filtered.unfavorite" = "즐겨찾기 해제";
+"filtered.desc.unread" = "아직 읽지 않은 북마크들";
+"filtered.desc.favorites" = "즐겨찾기로 표시한 북마크들";
+"filtered.desc.today" = "오늘 추가한 북마크들";
 
-"filtered.search_prompt" = "Search...";
-"filtered.section.bookmarks" = "Bookmarks";
-"filtered.mark_read" = "Mark as Read";
-"filtered.unfavorite" = "Remove from Favorites";
-"filtered.desc.unread" = "Bookmarks you haven't read yet";
-"filtered.desc.favorites" = "Bookmarks you marked as favorite";
-"filtered.desc.today" = "Bookmarks you added today";
-
-"filtered.empty.unread.title" = "All Caught Up!";
-"filtered.empty.unread.desc" = "You've read all your bookmarks. Great job!";
-"filtered.empty.favorites.title" = "No Favorites";
-"filtered.empty.favorites.desc" = "You haven't added any favorites yet.";
-"filtered.empty.today.title" = "Nothing Today";
-"filtered.empty.today.desc" = "You haven't added any bookmarks today.";
+"filtered.empty.unread.title" = "모두 읽었습니다!";
+"filtered.empty.unread.desc" = "모든 북마크를 확인했습니다. 멋지네요!";
+"filtered.empty.favorites.title" = "즐겨찾기 없음";
+"filtered.empty.favorites.desc" = "즐겨찾기에 추가된 항목이 없습니다.";
+"filtered.empty.today.title" = "오늘 추가된 항목 없음";
+"filtered.empty.today.desc" = "오늘 추가한 북마크가 없습니다.";
 
 // MARK: - Category Detail
-"categoryDetail.search_prompt" = "Search...";
-"categoryDetail.empty_title" = "No Bookmarks Yet";
-"categoryDetail.empty_desc" = "There are no bookmarks in this category.";
+"categoryDetail.search_prompt" = "검색...";
+"categoryDetail.empty_title" = "북마크가 없습니다";
+"categoryDetail.empty_desc" = "이 카테고리에 북마크가 없습니다.";
 
 // MARK: - Search View
-"search.title" = "Search";
-"search.placeholder" = "Search bookmarks...";
-"search.scope.all" = "All";
-"search.scope.title" = "Title";
-"search.scope.notes" = "Notes";
-"search.scope.tags" = "Tags";
-"search.recent" = "Recent Searches";
-"search.clear" = "Clear";
-"search.popular_tags" = "Popular Tags";
-"search.browse_by_source" = "Browse by Source";
-"search.suggestions" = "Suggestions";
-"search.results_count %lld" = "%lld results found";
-"search.no_results.title" = "No Results";
-"search.no_results.desc %@" = "No results found for \"%@\".";
-"search.try_again" = "Try Again";
-"search.empty" = "No results found";
-"search.searching" = "Searching...";
+"search.title" = "검색";
+"search.placeholder" = "북마크 검색...";
+"search.scope.all" = "전체";
+"search.scope.title" = "제목";
+"search.scope.notes" = "메모";
+"search.scope.tags" = "태그";
+"search.recent" = "최근 검색어";
+"search.clear" = "지우기";
+"search.popular_tags" = "인기 태그";
+"search.browse_by_source" = "소스로 찾아보기";
+"search.suggestions" = "추천";
+"search.results_count %lld" = "%lld개의 결과를 찾았습니다";
+"search.no_results.title" = "결과 없음";
+"search.no_results.desc %@" = "\"%@\"에 대한 검색 결과가 없습니다.";
+"search.try_again" = "다시 시도";
+"search.empty" = "검색 결과가 없습니다";
+"search.searching" = "검색 중...";
 "search.mockup.query" = "SwiftUI";
 
 // MARK: - Bookmark Add / Edit
-"addBookmark.title" = "New Bookmark";
-"addBookmark.section.basic" = "Basic Info";
-"addBookmark.section.notes" = "Notes";
-"addBookmark.section.organization" = "Organization";
-"addBookmark.section.tags" = "Tags";
-"addBookmark.section.image" = "Image";
-"addBookmark.section.category" = "Category";
-"addBookmark.section.source" = "Source";
+"addBookmark.title" = "새 북마크";
+"addBookmark.section.basic" = "기본 정보";
+"addBookmark.section.notes" = "메모";
+"addBookmark.section.organization" = "분류";
+"addBookmark.section.tags" = "태그";
+"addBookmark.section.image" = "이미지";
+"addBookmark.section.category" = "카테고리";
+"addBookmark.section.source" = "소스";
 
-"addBookmark.field.title" = "Title";
+"addBookmark.field.title" = "제목";
 "addBookmark.field.url" = "URL";
-"addBookmark.field.notes" = "Add your notes here";
-"addBookmark.field.note" = "Note";
-"addBookmark.field.tags" = "Tags";
-"addBookmark.field.tags.hint" = "Separate with commas";
-"addBookmark.field.source" = "Source";
-"addBookmark.field.category" = "Category";
+"addBookmark.field.notes" = "여기에 메모를 추가하세요";
+"addBookmark.field.note" = "메모";
+"addBookmark.field.tags" = "태그";
+"addBookmark.field.tags.hint" = "쉼표로 구분";
+"addBookmark.field.source" = "소스";
+"addBookmark.field.category" = "카테고리";
 
-"addBookmark.select" = "Select";
-"addBookmark.no_category" = "No Category";
-"addBookmark.category.none" = "Uncategorized";
-"addBookmark.tags.placeholder" = "swift, ios, development";
-"addBookmark.tags.hint" = "Separate multiple tags with commas";
+"addBookmark.select" = "선택";
+"addBookmark.no_category" = "카테고리 없음";
+"addBookmark.category.none" = "미분류";
+"addBookmark.tags.placeholder" = "swift, ios, 개발";
+"addBookmark.tags.hint" = "여러 태그는 쉼표로 구분하세요";
 
-"addBookmark.image.add" = "Add Photo";
-"addBookmark.image.edit" = "Edit";
-"addBookmark.image.remove" = "Remove";
+"addBookmark.image.add" = "이미지 추가";
+"addBookmark.image.edit" = "편집";
+"addBookmark.image.remove" = "삭제";
+"addBookmark.status.content_fetched" = "콘텐츠를 가져왔습니다";
+"addBookmark.status.page_filled" = "페이지 정보가 입력되었습니다";
+"addBookmark.status.linkedin_fetched" = "LinkedIn 콘텐츠를 가져왔습니다";
+"addBookmark.status.reddit_fetched" = "Reddit 콘텐츠를 가져왔습니다";
+"addBookmark.status.tweet_fetched" = "트윗 콘텐츠를 가져왔습니다";
+"addBookmark.status.images_count %lld" = "(이미지 %lld개)";
 
-"addBookmark.status.content_fetched" = "Content fetched";
-"addBookmark.status.page_filled" = "Page info filled";
-"addBookmark.status.linkedin_fetched" = "LinkedIn content fetched";
-"addBookmark.status.reddit_fetched" = "Reddit content fetched";
-"addBookmark.status.tweet_fetched" = "Tweet content fetched";
-"addBookmark.status.images_count %lld" = "(%lld images)";
+"addBookmark.preview.linkedin" = "LinkedIn 미리보기";
+"addBookmark.preview.reddit" = "Reddit 미리보기";
+"addBookmark.preview.tweet" = "트윗 미리보기";
+"addBookmark.preview.images %lld" = "이미지 %lld개";
+"addBookmark.loading.images %lld" = "이미지 %lld개 로딩 중...";
 
-"addBookmark.preview.linkedin" = "LinkedIn Preview";
-"addBookmark.preview.reddit" = "Reddit Preview";
-"addBookmark.preview.tweet" = "Tweet Preview";
-"addBookmark.preview.images %lld" = "%lld images";
-"addBookmark.loading.images %lld" = "Loading %lld images...";
-
-"addBookmark.ocr.processing" = "Processing OCR...";
-"addBookmark.errors" = "Errors";
-"addBookmark.error.invalid_url" = "Invalid URL format";
-"addBookmark.action.save" = "Save";
-"addBookmark.action.cancel" = "Cancel";
-"addBookmark.saving" = "Saving...";
+"addBookmark.ocr.processing" = "OCR 처리 중...";
+"addBookmark.errors" = "오류";
+"addBookmark.error.invalid_url" = "유효하지 않은 URL 형식입니다";
+"addBookmark.action.save" = "저장";
+"addBookmark.action.cancel" = "취소";
+"addBookmark.saving" = "저장 중...";
 
 // MARK: - Bookmark Detail
-"bookmarkDetail.title" = "Details";
-"bookmarkDetail.section.content" = "Content";
-"bookmarkDetail.section.source" = "Source";
-"bookmarkDetail.section.tags" = "Tags";
-"bookmarkDetail.section.info" = "Information";
-"bookmarkDetail.section.actions" = "Actions";
+"bookmarkDetail.title" = "상세 정보";
+"bookmarkDetail.section.content" = "콘텐츠";
+"bookmarkDetail.section.source" = "소스";
+"bookmarkDetail.section.tags" = "태그";
+"bookmarkDetail.section.info" = "정보";
+"bookmarkDetail.section.actions" = "작업";
 
-"bookmarkDetail.status.read" = "Read";
-"bookmarkDetail.markRead" = "Read";
-"bookmarkDetail.markUnread" = "Unread";
-"bookmarkDetail.addFavorite" = "Add to Favorites";
-"bookmarkDetail.removeFavorite" = "Remove from Favorites";
-"bookmarkDetail.openInBrowser" = "Open in Browser";
-"bookmarkDetail.copyUrl" = "Copy URL";
-"bookmarkDetail.share" = "Share";
-"bookmarkDetail.delete" = "Delete";
-"bookmarkDetail.delete_title" = "Delete Bookmark?";
-"bookmarkDetail.delete_confirmation" = "Are you sure you want to delete this bookmark? This action cannot be undone.";
-"bookmarkDetail.word_count %lld" = "%lld words";
-"bookmarkDetail.document" = "Document";
-"bookmarkDetail.openDocument" = "View Document";
-"bookmarkDetail.summarize" = "Summarize with AI";
-"bookmarkDetail.summary_title" = "AI Summary";
-"bookmarkDetail.summary_mock %@" = "This content summarizes the topic of %@. The main points highlighted are content organization, user experience, and productivity increase. The rest of the document provides an in-depth analysis of these concepts.";
-"bookmarkDetail.search_in_text" = "Search in text";
-"bookmarkDetail.focus_mode" = "Focus Mode";
-"bookmarkDetail.linked_bookmarks" = "Linked Bookmarks";
-"bookmarkDetail.linked_bookmarks_empty" = "No linked bookmarks yet. Link related content to create a series or reading list.";
-"bookmark.no_content" = "No content available";
+"bookmarkDetail.status.read" = "읽음";
+"bookmarkDetail.markRead" = "읽음 표시";
+"bookmarkDetail.markUnread" = "읽지 않음 표시";
+"bookmarkDetail.addFavorite" = "즐겨찾기 추가";
+"bookmarkDetail.removeFavorite" = "즐겨찾기 해제";
+"bookmarkDetail.openInBrowser" = "브라우저에서 열기";
+"bookmarkDetail.copyUrl" = "URL 복사";
+"bookmarkDetail.share" = "공유";
+"bookmarkDetail.delete" = "삭제";
+"bookmarkDetail.delete_title" = "북마크를 삭제하시겠습니까?";
+"bookmarkDetail.delete_confirmation" = "이 북마크를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.";
+"bookmarkDetail.word_count %lld" = "%lld 단어";
+"bookmarkDetail.document" = "문서";
+"bookmarkDetail.openDocument" = "문서 보기";
+"bookmarkDetail.summarize" = "AI 요약";
+"bookmarkDetail.summary_title" = "AI 요약";
+"bookmarkDetail.summary_mock %@" = "이 콘텐츠는 %@ 주제를 요약합니다. 핵심 포인트는 콘텐츠 구성, 사용자 경험 및 생산성 향상입니다. 나머지 문서는 이러한 개념에 대한 심층 분석을 제공합니다.";
+"bookmarkDetail.search_in_text" = "본문 검색";
+"bookmarkDetail.focus_mode" = "집중 모드";
+"bookmarkDetail.linked_bookmarks" = "연결된 북마크";
+"bookmarkDetail.linked_bookmarks_empty" = "연결된 북마크가 없습니다. 시리즈나 읽기 목록을 만들기 위해 관련 콘텐츠를 연결해 보세요.";
+"bookmark.no_content" = "콘텐츠를 사용할 수 없습니다";
 
 // MARK: - Categories Management
-"categories.title" = "Categories";
-"categories.empty" = "No categories yet";
-"categories.create" = "New Category";
-"category.new.title" = "New Category";
-"category.edit.title" = "Edit Category";
-"category.field.name" = "Category Name";
-"category.field.name_placeholder" = "e.g. Work, Reading List, Research";
-"category.field.icon" = "Icon";
-"category.field.color" = "Color";
-"category.color.picker" = "Select Color";
-"category.preview" = "Preview";
+"categories.title" = "카테고리";
+"categories.empty" = "카테고리가 없습니다";
+"categories.create" = "새 카테고리";
+"category.new.title" = "새 카테고리";
+"category.edit.title" = "카테고리 편집";
+"category.field.name" = "카테고리 이름";
+"category.field.name_placeholder" = "예: 업무, 읽기 목록, 연구";
+"category.field.icon" = "아이콘";
+"category.field.color" = "색상";
+"category.color.picker" = "색상 선택";
+"category.preview" = "미리보기";
+"category.delete.title" = "카테고리 삭제";
+"category.delete.message" = "이 카테고리는 삭제되지만, 포함된 북마크는 삭제되지 않습니다.";
+"categories.management.info_title" = "카테고리";
+"categories.management.info_desc" = "북마크를 정리하기 위해 카테고리를 생성하세요. 드래그하여 순서를 변경할 수 있습니다.";
+"categories.management.count %lld" = "카테고리 (%lld개)";
+"categories.management.bookmark_count %lld" = "%lld개의 북마크";
+"categories.management.delete_confirmation %@" = "'%@' 카테고리를 삭제하시겠습니까?";
+"categories.management.delete_with_bookmarks %lld %@" = "이 카테고리에는 %lld개의 북마크가 포함되어 있습니다. '%@'을 삭제하면 해당 북마크들은 '미분류' 상태가 됩니다. 계속하시겠습니까?";
+"categories.management.editing_status" = "편집 중";
+"categories.sort.manual" = "수동";
+"categories.sort.count" = "북마크 개수순";
 
-"category.delete.title" = "Delete Category";
-"category.delete.message" = "This category will be deleted but bookmarks inside won't be removed.";
-"categories.management.info_title" = "Categories";
-"categories.management.info_desc" = "Create categories to organize your bookmarks. You can drag to reorder them.";
-"categories.management.count %lld" = "Categories (%lld)";
-"categories.management.bookmark_count %lld" = "%lld bookmarks";
-"categories.management.delete_confirmation %@" = "Are you sure you want to delete the '%@' category?";
-"categories.management.delete_with_bookmarks %lld %@" = "This category contains %lld bookmarks. Deleting '%@' will categorize its bookmarks as Uncategorized. Continue?";
-"categories.management.editing_status" = "Editing";
-"categories.sort.manual" = "Manual";
-"categories.sort.count" = "Bookmark Count";
-
-"category_picker.title" = "Category";
-"category_picker.none" = "Not Selected";
-"category_picker.selection_title" = "Categories";
+"category_picker.title" = "카테고리";
+"category_picker.none" = "선택 안 함";
+"category_picker.selection_title" = "카테고리 선택";
 
 // MARK: - Bookmark Sources
 "source.twitter" = "X";
@@ -306,607 +299,572 @@
 "source.youtube" = "YouTube";
 "source.instagram" = "Instagram";
 "source.github" = "GitHub";
-"source.article" = "Article";
-"source.blog" = "Blog";
-"source.other" = "Other";
+"source.article" = "기사";
+"source.blog" = "블로그";
+"source.other" = "기타";
 
 // MARK: - Previews & Special Content
-"preview.twitter.title" = "Tweet Preview";
-"preview.reddit.title" = "Reddit Preview";
-"preview.linkedin.title" = "LinkedIn Preview";
-"preview.medium.title" = "Medium Preview";
+"preview.twitter.title" = "트윗 미리보기";
+"preview.reddit.title" = "Reddit 미리보기";
+"preview.linkedin.title" = "LinkedIn 미리보기";
+"preview.medium.title" = "Medium 미리보기";
 
-"reddit.preview.title" = "Reddit Preview";
-"reddit.images_count %lld" = "%lld images";
-"reddit.comments_count %lld" = "%lld comments";
+"reddit.preview.title" = "Reddit 미리보기";
+"reddit.images_count %lld" = "이미지 %lld개";
+"reddit.comments_count %lld" = "댓글 %lld개";
+"linkedin.preview.title" = "LinkedIn 미리보기";
+"linkedin.partial_content_warning" = "일부 콘텐츠";
 
-"linkedin.preview.title" = "LinkedIn Preview";
-"linkedin.partial_content_warning" = "Partial Content";
+"tweet.preview.title" = "트윗 미리보기";
 
-"tweet.preview.title" = "Tweet Preview";
-
-"medium.preview.title" = "Medium Article";
-"medium.preview.badge" = "Member";
-"medium.read_time %lld" = "%lld min read";
+"medium.preview.title" = "Medium 기사";
+"medium.preview.badge" = "멤버";
+"medium.read_time %lld" = "%lld분 분량";
 
 // MARK: - Errors (Network & Service)
-"error.network" = "Check your internet connection";
-"error.network.title" = "Connection Error";
-"error.rate_limited" = "Too many requests. Please wait.";
+"error.network" = "인터넷 연결을 확인해 주세요";
+"error.network.title" = "연결 오류";
+"error.rate_limited" = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
 
-"error.twitter.title" = "X Error";
-"error.twitter.not_found" = "𝕏 Tweet not found or may have been deleted.";
-"error.twitter.invalid_url" = "𝕏 Invalid Twitter URL.";
-"error.twitter.parse" = "⚠️ Could not process tweet content.";
-"error.twitter.generic" = "𝕏 Could not fetch Twitter content.";
+"error.twitter.title" = "X 오류";
+"error.twitter.not_found" = "𝕏 트윗을 찾을 수 없거나 삭제되었습니다.";
+"error.twitter.invalid_url" = "𝕏 유효하지 않은 Twitter URL입니다.";
+"error.twitter.parse" = "⚠️ 트윗 콘텐츠를 분석할 수 없습니다.";
+"error.twitter.generic" = "𝕏 Twitter 콘텐츠를 가져오지 못했습니다.";
 
-"error.reddit.title" = "Reddit Error";
-"error.reddit.not_found" = "👽 Reddit content not found.";
-"error.reddit.invalid_url" = "👽 Invalid Reddit URL.";
-"error.reddit.parse" = "⚠️ Could not process Reddit content.";
+"error.reddit.title" = "Reddit 오류";
+"error.reddit.not_found" = "👽 Reddit 콘텐츠를 찾을 수 없습니다.";
+"error.reddit.invalid_url" = "👽 유효하지 않은 Reddit URL입니다.";
+"error.reddit.parse" = "⚠️ Reddit 콘텐츠를 분석할 수 없습니다.";
 
-"error.linkedin.title" = "LinkedIn Error";
-"error.linkedin.auth_required" = "🔒 Sign in required to view this LinkedIn content.";
-"error.linkedin.bot_detected" = "⏳ LinkedIn access temporarily restricted.";
-
-"error.medium.title" = "Medium Error";
-"error.medium.paywall" = "📗 This article requires membership.";
-"error.medium.parse" = "⚠️ Could not process Medium content.";
-
-"error.action.open_browser" = "Open in Browser";
+"error.linkedin.title" = "LinkedIn 오류";
+"error.linkedin.auth_required" = "🔒 LinkedIn 콘텐츠를 보려면 로그인이 필요합니다.";
+"error.linkedin.bot_detected" = "⏳ LinkedIn 액세스가 일시적으로 제한되었습니다.";
+"error.medium.title" = "Medium 오류";
+"error.medium.paywall" = "📗 이 기사는 멤버십 구독이 필요합니다.";
+"error.medium.parse" = "⚠️ Medium 콘텐츠를 분석할 수 없습니다.";
+"error.action.open_browser" = "브라우저에서 열기";
 
 // MARK: - Share Extension
-"share.title" = "Save Bookmark";
-"share.section.source" = "Source";
-"share.section.basic" = "Basic Info";
-"share.section.notes" = "Notes";
-"share.section.tags" = "Tags";
-"share.saving" = "Saving...";
-"share.success" = "Saved!";
+"share.title" = "북마크 저장";
+"share.section.source" = "소스";
+"share.section.basic" = "기본 정보";
+"share.section.notes" = "메모";
+"share.section.tags" = "태그";
+"share.saving" = "저장 중...";
+"share.success" = "저장됨!";
 
 // MARK: - Validation
-"validation.titleRequired" = "Title is required";
-"validation.title_required" = "Title is required";
-"validation.titleTooLong" = "Title too long (max 200 characters)";
-"validation.invalidURL" = "Invalid URL format";
-"validation.invalid_url" = "Invalid URL format";
-"validation.noteTooLong" = "Note too long (max 5000 characters)";
+"validation.titleRequired" = "제목이 필요합니다";
+"validation.title_required" = "제목이 필요합니다";
+"validation.titleTooLong" = "제목이 너무 깁니다 (최대 200자)";
+"validation.invalidURL" = "유효하지 않은 URL 형식입니다";
+"validation.invalid_url" = "유효하지 않은 URL 형식입니다";
+"validation.noteTooLong" = "메모가 너무 깁니다 (최대 5000자)";
 
 // MARK: - Image & OCR
-"image.title" = "Image";
-"image.addPhoto" = "Add Photo";
-"image.takePhoto" = "Take Photo";
-"image.selectFromGallery" = "Select from Gallery";
-"image.picker_subtitle" = "Take a photo or select from gallery";
-"image.source_title" = "Image Source";
-"image.crop" = "Crop";
-"image.rotate" = "Rotate";
-"image.reset" = "Reset";
+"image.title" = "이미지";
+"image.addPhoto" = "사진 추가";
+"image.takePhoto" = "사진 촬영";
+"image.selectFromGallery" = "갤러리에서 선택";
+"image.picker_subtitle" = "사진을 촬영하거나 갤러리에서 선택하세요";
+"image.source_title" = "이미지 소스";
+"image.crop" = "자르기";
+"image.rotate" = "회전";
+"image.reset" = "초기화";
 
-"ocr.title" = "OCR";
-"ocr.processing" = "Extracting text...";
-"ocr.noText" = "No text found";
-"ocr.result" = "OCR Result";
-"ocr.error.invalid_image" = "Invalid image format";
-"ocr.error.no_text" = "No text found in image";
-"ocr.error.crop_failed" = "Could not crop image";
-"ocr.error.processing" = "OCR Processing Error";
+"ocr.title" = "문자 인식 (OCR)";
+"ocr.processing" = "텍스트 추출 중...";
+"ocr.noText" = "텍스트를 찾을 수 없음";
+"ocr.result" = "OCR 결과";
+"ocr.error.invalid_image" = "유효하지 않은 이미지 형식입니다";
+"ocr.error.no_text" = "이미지에서 텍스트를 찾을 수 없습니다";
+"ocr.error.crop_failed" = "이미지를 자를 수 없습니다";
+"ocr.error.processing" = "OCR 처리 오류";
 
 // MARK: - Settings & Account
-"settings.title" = "Settings";
-"settings.section.general" = "General";
-"settings.section.bookmark" = "Bookmark Settings";
-"settings.section.about" = "About";
-"settings.section.danger" = "Danger Zone";
-"settings.appearance" = "Appearance";
-"settings.language" = "Language";
-"settings.autoDetectSource" = "Auto-detect Source";
-"settings.showReadingTime" = "Show Reading Time";
-"settings.pro_banner_title" = "Link Bookmark PRO";
-"settings.pro_banner_subtitle" = "Remove all limits and access from anywhere.";
-"settings.notifications" = "Notifications";
-"settings.notifications_header" = "Notification Settings";
-"settings.notifications_footer" = "Stay informed about new features, reminders, and important updates.";
+"settings.title" = "설정";
+"settings.section.general" = "일반";
+"settings.section.bookmark" = "북마크 설정";
+"settings.section.about" = "정보";
+"settings.section.danger" = "위험 구역";
+"settings.appearance" = "디자인";
+"settings.language" = "언어";
+"settings.autoDetectSource" = "소스 자동 감지";
+"settings.showReadingTime" = "읽기 시간 표시";
+"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_subtitle" = "모든 제한을 해제하고 어디서나 액세스하세요.";
+"settings.notifications" = "알림";
+"settings.notifications_header" = "알림 설정";
+"settings.notifications_footer" = "새로운 기능, 알림 및 중요한 업데이트 소식을 받으세요.";
 
-"appearance.font.system" = "System";
-"appearance.font.serif" = "Serif";
-"appearance.font.mono" = "Mono";
-"appearance.font.rounded" = "Rounded";
+"appearance.font.system" = "시스템";
+"appearance.font.serif" = "세리프";
+"appearance.font.mono" = "고정폭";
+"appearance.font.rounded" = "라운드";
 
-"appearance.theme.light" = "Light";
-"appearance.theme.sepia" = "Sepia";
-"appearance.theme.dark" = "Dark";
-"appearance.theme.black" = "Black";
+"appearance.theme.light" = "라이트";
+"appearance.theme.sepia" = "세피아";
+"appearance.theme.dark" = "다크";
+"appearance.theme.black" = "블랙";
 
-"settings.account" = "Account";
-"settings.account_info" = "Account Information";
-"settings.account_actions" = "Account Actions";
-"settings.link_account" = "Link Account";
-"settings.link_account_title" = "Link Your Account";
-"settings.link_account_subtitle" = "Sign in with Apple to secure your bookmarks.";
-"settings.link_account_footer" = "Link your Apple account to secure your data and sync across all your devices.";
-"settings.link_keeps_data" = "Your existing data will be preserved.";
-"settings.benefit_secure" = "Your data stays safe";
-"settings.benefit_sync" = "Automatic sync";
-"settings.benefit_devices" = "Access on all devices";
+"settings.account" = "계정";
+"settings.account_info" = "계정 정보";
+"settings.account_actions" = "계정 작업";
+"settings.link_account" = "계정 연결";
+"settings.link_account_title" = "계정 연결하기";
+"settings.link_account_subtitle" = "북마크 보호를 위해 Apple로 로그인하세요.";
+"settings.link_account_footer" = "데이터를 보호하고 모든 기기에서 동기화하려면 Apple 계정을 연결하세요.";
+"settings.link_keeps_data" = "기존 데이터는 유지됩니다.";
+"settings.benefit_secure" = "데이터가 안전하게 보관됩니다";
+"settings.benefit_sync" = "자동 동기화";
+"settings.benefit_devices" = "모든 기기에서 액세스";
 
-"settings.anonymous_warning_title" = "Your Account is Not Secure";
-"settings.anonymous_warning_message" = "You may lose your data if you delete the app.";
-"settings.secure_your_account" = "Secure Your Account";
-"settings.link_with_apple" = "Link with Apple";
+"settings.anonymous_warning_title" = "계정이 보호되지 않음";
+"settings.anonymous_warning_message" = "앱을 삭제하면 데이터를 잃을 수 있습니다.";
+"settings.secure_your_account" = "계정 보호하기";
+"settings.link_with_apple" = "Apple로 연결";
 
-"settings.sign_out" = "Sign Out";
-"settings.sign_out_title" = "Sign Out";
-"settings.sign_out_message" = "Are you sure you want to sign out?";
+"settings.sign_out" = "로그아웃";
+"settings.sign_out_title" = "로그아웃";
+"settings.sign_out_message" = "정말 로그아웃하시겠습니까?";
 
-"settings.delete_account" = "Delete Account";
-"settings.delete_account_title" = "Delete Account";
-"settings.delete_account_message" = "This action cannot be undone. All data will be deleted.";
-"settings.delete_account_warning" = "Deleting your account will permanently remove all your bookmarks and data.";
+"settings.delete_account" = "계정 삭제";
+"settings.delete_account_title" = "계정 삭제";
+"settings.delete_account_message" = "이 작업은 되돌릴 수 없습니다. 모든 데이터가 삭제됩니다.";
+"settings.delete_account_warning" = "계정을 삭제하면 모든 북마크와 데이터가 영구적으로 삭제됩니다.";
 
 // MARK: - Synchronization
-"settings.sync_section" = "Synchronization";
-"settings.sync" = "Sync Status";
-"settings.sync_status" = "Sync Status";
-"settings.synced" = "Synced";
-"sync.settings.title" = "Sync Settings";
-"sync.status_section" = "Sync Status";
-"sync.network_status" = "Network Status";
-"sync.connected" = "Connected";
-"sync.disconnected" = "Disconnected";
-"sync.status" = "Status";
-"sync.state.idle" = "Idle";
-"sync.state.syncing" = "Syncing...";
-"sync.state.uploading" = "Uploading...";
-"sync.state.downloading" = "Downloading...";
-"sync.state.offline" = "Offline";
-"sync.state.error" = "Error";
-"sync.calculating" = "Calculating...";
-"sync.sync_now" = "Sync Now";
-"sync.every_5_minutes" = "Every 5 minutes";
-"sync.download_from_cloud" = "Download from Cloud";
-"sync.download_confirmation_title" = "Download from Cloud?";
-"sync.download_confirmation_message" = "Your local data will be replaced with the data from the cloud. This action cannot be undone.";
-"sync.download_confirm" = "Download and Replace";
-"sync.actions_section" = "Actions";
-"sync.actions_footer" = "You can manually synchronize your data.";
-"sync.last_sync" = "Last Sync";
-"sync.last_sync_footer" = "Your data was last updated at the time shown above.";
-"sync.user_id" = "User ID";
-"sync.auto_sync" = "Auto Sync";
+"settings.sync_section" = "동기화";
+"settings.sync" = "동기화 상태";
+"settings.sync_status" = "동기화 상태";
+"settings.synced" = "동기화됨";
+"sync.settings.title" = "동기화 설정";
+"sync.status_section" = "동기화 상태";
+"sync.network_status" = "네트워크 상태";
+"sync.connected" = "연결됨";
+"sync.disconnected" = "연결 안 됨";
+"sync.status" = "상태";
+"sync.state.idle" = "대기 중";
+"sync.state.syncing" = "동기화 중...";
+"sync.state.uploading" = "업로드 중...";
+"sync.state.downloading" = "다운로드 중...";
+"sync.state.offline" = "오프라인";
+"sync.state.error" = "오류";
+"sync.calculating" = "계산 중...";
+"sync.sync_now" = "지금 동기화";
+"sync.every_5_minutes" = "5분마다";
+"sync.download_from_cloud" = "클라우드에서 다운로드";
+"sync.download_confirmation_title" = "다운로드하시겠습니까?";
+"sync.download_confirmation_message" = "로컬 데이터가 클라우드 데이터로 교체됩니다. 이 작업은 되돌릴 수 없습니다.";
+"sync.download_confirm" = "다운로드 및 교체";
+"sync.actions_section" = "작업";
+"sync.actions_footer" = "데이터를 수동으로 동기화할 수 있습니다.";
+"sync.last_sync" = "최근 동기화";
+"sync.last_sync_footer" = "데이터가 마지막으로 업데이트된 시간입니다.";
+"sync.user_id" = "사용자 ID";
+"sync.auto_sync" = "자동 동기화";
+"sync.cache_section" = "캐시";
+"sync.cache_size" = "캐시 크기";
+"sync.clear_cache" = "캐시 삭제";
+"sync.clear_cache_title" = "캐시 삭제";
+"sync.clear_cache_confirm" = "모든 로컬 캐시가 삭제됩니다. 계속하시겠습니까?";
+"sync.cache_footer" = "캐시를 삭제하면 기기 공간을 확보할 수 있습니다.";
 
-"sync.cache_section" = "Cache";
-"sync.cache_size" = "Cache Size";
-"sync.clear_cache" = "Clear Cache";
-"sync.clear_cache_title" = "Clear Cache";
-"sync.clear_cache_confirm" = "All local cache will be cleared. Do you want to continue?";
-"sync.cache_footer" = "Clearing the cache frees up space on your device.";
-
-"sync.error.not_authenticated" = "Please sign in";
-"sync.error.network" = "No network connection";
-"sync.error.failed" = "Sync failed";
-"sync.error.conflict" = "Data conflict detected";
-"sync.error.bookmark_failed" = "Bookmark could not be synced";
-"sync.error.category_failed" = "Category could not be synced";
-"error.sync_failed" = "An error occurred during synchronization. Some data may not be saved to the cloud.";
+"sync.error.not_authenticated" = "로그인해 주세요";
+"sync.error.network" = "네트워크 연결 없음";
+"sync.error.failed" = "동기화 실패";
+"sync.error.conflict" = "데이터 충돌 감지됨";
+"sync.error.bookmark_failed" = "북마크 동기화 실패";
+"sync.error.category_failed" = "카테고리 동기화 실패";
+"error.sync_failed" = "동기화 중 오류가 발생했습니다. 일부 데이터가 클라우드에 저장되지 않았을 수 있습니다.";
 
 // MARK: - Language Settings
-"settings.language.system" = "System";
-"settings.language.turkish" = "Turkish";
-"settings.language.english" = "English";
-"settings.language.system_desc" = "Use device language";
-"settings.language.turkish_desc" = "Use Turkish interface";
-"settings.language.english_desc" = "Use English interface";
-"settings.language_hint" = "Language change applies immediately";
-"settings.language_changed_title" = "Language Changed";
-"settings.language_changed_message" = "App language has been changed successfully.";
-"settings.language_change_title" = "Change Language";
-"settings.language_change_message" = "The app needs to restart to fully apply the language change.";
-"settings.language_footer" = "App will restart to apply language change";
-"settings_language_footer" = "The app will restart to fully apply the language change.";
-"settings.restart_now" = "Restart Now";
-"settings.restart_later" = "Later";
+"settings.language.system" = "시스템 설정";
+"settings.language.turkish" = "터키어";
+"settings.language.english" = "영어";
+"settings.language.korean" = "한국어";
+"settings.language.system_desc" = "기기 언어 사용";
+"settings.language.turkish_desc" = "터키어 인터페이스 사용";
+"settings.language.english_desc" = "영어 인터페이스 사용";
+"settings.language.korean_desc" = "한국어 인터페이스 사용";
+"settings.language_hint" = "언어 변경은 즉시 적용됩니다";
+"settings.language_changed_title" = "언어 변경됨";
+"settings.language_changed_message" = "앱 언어가 성공적으로 변경되었습니다.";
+"settings.language_change_title" = "언어 변경";
+"settings.language_change_message" = "언어 변경을 완전히 적용하려면 앱을 재시작해야 합니다.";
+"settings.language_footer" = "언어 변경을 위해 앱이 재시작됩니다";
+"settings_language_footer" = "언어 변경을 완전히 적용하기 위해 앱 재시작이 필요합니다.";
+"settings.restart_now" = "지금 재시작";
+"settings.restart_later" = "나중에";
 
 // MARK: - About & Info
-"settings.version" = "Version";
-"settings.build" = "Build";
-"settings.source_code" = "Source Code";
-"settings.contact" = "Contact Us";
+"settings.version" = "버전";
+"settings.build" = "빌드";
+"settings.source_code" = "소스 코드";
+"settings.contact" = "문의하기";
 "settings.github" = "GitHub";
-"settings.feedback" = "Feedback";
-"settings.about" = "About";
-"settings.rate_app" = "Rate App";
-"settings.rate_app_desc" = "If you like Social Bookmark, please give us a rating!";
+"settings.feedback" = "피드백";
+"settings.about" = "정보";
+"settings.rate_app" = "앱 평가하기";
+"settings.rate_app_desc" = "Social Bookmark가 마음에 드신다면 평가를 남겨주세요!";
 
 // MARK: - Danger Zone
-"settings.deleteAll" = "Delete All Data";
-"settings.deleteAll.title" = "Delete All Data";
-"settings.deleteAll.message" = "All bookmarks and categories will be deleted. This cannot be undone!";
+"settings.deleteAll" = "모든 데이터 삭제";
+"settings.deleteAll.title" = "모든 데이터 삭제";
+"settings.deleteAll.message" = "모든 북마크와 카테고리가 삭제됩니다. 이 작업은 되돌릴 수 없습니다!";
 
 // MARK: - Widgets
-"widget.reading_progress" = "Reading Progress";
-"widget.quick_stats" = "Quick Stats";
-"widget.popular_tags" = "Popular Tags";
-"widget.read_count %lld %lld" = "%lld/%lld read";
-
+"widget.reading_progress" = "읽기 진행도";
+"widget.quick_stats" = "빠른 통계";
+"widget.popular_tags" = "인기 태그";
+"widget.read_count %lld %lld" = "%lld/%lld 읽음";
 
 // MARK: - Migration States
-"migration.state.idle" = "Ready";
-"migration.state.preparing" = "Preparing...";
-"migration.state.categories %lld %lld" = "Migrating categories (%lld/%lld)";
-"migration.state.bookmarks %lld %lld" = "Migrating bookmarks (%lld/%lld)";
-"migration.state.images %lld %lld" = "Uploading images (%lld/%lld)";
-"migration.state.cleaning" = "Cleaning up...";
-"migration.state.completed" = "Completed!";
-"migration.state.failed %@" = "Error: %@";
+"migration.state.idle" = "준비";
+"migration.state.preparing" = "준비 중...";
+"migration.state.categories %lld %lld" = "카테고리 이동 중 (%lld/%lld)";
+"migration.state.bookmarks %lld %lld" = "북마크 이동 중 (%lld/%lld)";
+"migration.state.images %lld %lld" = "이미지 업로드 중 (%lld/%lld)";
+"migration.state.cleaning" = "정리 중...";
+"migration.state.completed" = "완료!";
+"migration.state.failed %@" = "오류: %@";
 
 // MARK: - Migration Errors
-"migration.error.not_anonymous" = "Only anonymous accounts can be migrated";
-"migration.error.no_new_account" = "New account not found";
-"migration.error.same_account" = "Cannot migrate to the same account";
-"migration.error.in_progress" = "Migration already in progress";
-"migration.error.no_data" = "No data to migrate";
-"migration.error.category_failed %@" = "Category migration failed: %@";
-"migration.error.bookmark_failed %@" = "Bookmark migration failed: %@";
-"migration.error.image_failed %@" = "Image migration failed: %@";
-"migration.error.cleanup_failed %@" = "Cleanup failed: %@";
-"migration.error.network" = "Internet connection required";
+"migration.error.not_anonymous" = "익명 계정만 이동할 수 있습니다";
+"migration.error.no_new_account" = "새 계정을 찾을 수 없습니다";
+"migration.error.same_account" = "동일한 계정으로 이동할 수 없습니다";
+"migration.error.in_progress" = "이미 이동이 진행 중입니다";
+"migration.error.no_data" = "이동할 데이터가 없습니다";
+"migration.error.category_failed %@" = "카테고리 이동 실패: %@";
+"migration.error.bookmark_failed %@" = "북마크 이동 실패: %@";
+"migration.error.image_failed %@" = "이미지 이동 실패: %@";
+"migration.error.cleanup_failed %@" = "정리 실패: %@";
+"migration.error.network" = "인터넷 연결이 필요합니다";
 
 // MARK: - Account Settings
-"settings.secure_your_data" = "Secure Your Data";
-"settings.link_description" = "Sign in with your Apple account to backup your data to the cloud and sync across all your devices.";
-"settings.benefit_sync" = "Sync across all devices";
-"settings.benefit_restore" = "Restore your data anytime";
-"settings.benefit_secure" = "End-to-end encryption security";
-"settings.link_keeps_data" = "All your existing bookmarks and categories will be transferred to your Apple account.";
+"settings.secure_your_data" = "데이터 안전하게 보호하기";
+"settings.link_description" = "Apple 계정으로 로그인하여 데이터를 클라우드에 백업하고 모든 기기에서 동기화하세요.";
+"settings.benefit_sync" = "모든 기기에서 동기화";
+"settings.benefit_restore" = "언제든지 데이터 복구";
+"settings.benefit_secure" = "종단간 암호화 보안";
+"settings.link_keeps_data" = "기존의 모든 북마크와 카테고리가 Apple 계정으로 연결됩니다.";
 
-"settings.migration_warning_title" = "Important";
-"settings.migration_warning_body" = "This action cannot be undone. Your data will be permanently linked to your Apple account.";
+"settings.migration_warning_title" = "중요";
+"settings.migration_warning_body" = "이 작업은 되돌릴 수 없습니다. 데이터가 영구적으로 Apple 계정에 연결됩니다.";
+"settings.migrating_data" = "데이터 이동 중";
+"settings.do_not_close" = "앱을 닫지 마세요";
 
-"settings.migrating_data" = "Migrating Data";
-"settings.do_not_close" = "Please don't close the app";
+"settings.migration_complete" = "이동 완료!";
+"settings.migration_complete_desc" = "모든 데이터가 성공적으로 Apple 계정으로 전송되었습니다.";
 
-"settings.migration_complete" = "Migration Complete!";
-"settings.migration_complete_desc" = "All your data has been successfully transferred to your Apple account.";
+"settings.categories_migrated" = "카테고리 이동됨";
+"settings.bookmarks_migrated" = "북마크 이동됨";
+"settings.images_migrated" = "이미지 이동됨";
 
-"settings.categories_migrated" = "Categories";
-"settings.bookmarks_migrated" = "Bookmarks";
-"settings.images_migrated" = "Images";
-
-"settings.migration_failed" = "Migration Failed";
+"settings.migration_failed" = "이동 실패";
 
 // MARK: - Sign Out
-"settings.signout_warning_title" = "Sign Out?";
-"settings.signout_warning_anonymous" = "All data in your anonymous account will be deleted and cannot be recovered.";
-"settings.signout_warning_authenticated" = "Data on this device will be cleared. Your data will be restored when you sign in again.";
-"settings.signout_confirm" = "Sign Out";
+"settings.signout_warning_title" = "로그아웃하시겠습니까?";
+"settings.signout_warning_anonymous" = "익명 계정의 모든 데이터가 삭제되며 복구할 수 없습니다.";
+"settings.signout_warning_authenticated" = "이 기기의 데이터가 삭제됩니다. 다시 로그인하면 데이터가 복구됩니다.";
+"settings.signout_confirm" = "로그아웃";
 
 // MARK: - Common
-"common.try_again" = "Try Again";
-"common.done" = "Done";
-
-
-/*
-  EditBookmark Localization - English
-  Add to existing Localizable.strings file
-*/
+"common.try_again" = "다시 시도";
+"common.done" = "완료";
 
 // MARK: - Edit Bookmark Screen
-"editBookmark.title" = "Edit";
-"editBookmark.section.basic" = "Basic Info";
-"editBookmark.section.images" = "Images";
-"editBookmark.section.category" = "Category";
-"editBookmark.section.details" = "Details";
-"editBookmark.section.tags" = "Tags";
+"editBookmark.title" = "편집";
+"editBookmark.section.basic" = "기본 정보";
+"editBookmark.section.images" = "이미지";
+"editBookmark.section.category" = "카테고리";
+"editBookmark.section.details" = "세부 정보";
+"editBookmark.section.tags" = "태그";
 
-"editBookmark.field.title" = "Title";
-"editBookmark.field.url" = "URL (optional)";
-"editBookmark.field.notes" = "Notes (optional)";
-"editBookmark.field.tags" = "Tags (comma separated)";
+"editBookmark.field.title" = "제목";
+"editBookmark.field.url" = "URL (선택 사항)";
+"editBookmark.field.notes" = "메모 (선택 사항)";
+"editBookmark.field.tags" = "태그 (쉼표로 구분)";
 
-"editBookmark.addImage" = "Add Image";
-"editBookmark.maxImages" = "You can add up to 4 images";
-"editBookmark.imageCount %lld" = "%lld/4 images";
-"editBookmark.processingImages" = "Processing images...";
-"editBookmark.tapToEdit" = "Tap image to edit";
-"editBookmark.newBadge" = "NEW";
+"editBookmark.addImage" = "이미지 추가";
+"editBookmark.maxImages" = "최대 4개의 이미지를 추가할 수 있습니다";
+"editBookmark.imageCount %lld" = "이미지 %lld/4개";
+"editBookmark.processingImages" = "이미지 처리 중...";
+"editBookmark.tapToEdit" = "편집하려면 이미지를 탭하세요";
+"editBookmark.newBadge" = "신규";
 
-"editBookmark.imageOptions" = "Image Options";
-"editBookmark.viewFullScreen" = "View Full Screen";
+"editBookmark.imageOptions" = "이미지 옵션";
+"editBookmark.viewFullScreen" = "전체 화면 보기";
+"editBookmark.category" = "카테고리";
+"editBookmark.uncategorized" = "미분류";
+"editBookmark.noCategories" = "정의된 카테고리 없음";
+"editBookmark.createCategoryHint" = "홈 화면에서 새 카테고리를 만들 수 있습니다";
 
-"editBookmark.category" = "Category";
-"editBookmark.uncategorized" = "Uncategorized";
-"editBookmark.noCategories" = "No categories defined";
-"editBookmark.createCategoryHint" = "You can create a new category from the home screen";
+"editBookmark.source" = "소스";
+"editBookmark.tagsHint" = "예: Swift, iOS, 교육";
 
-"editBookmark.source" = "Source";
-"editBookmark.tagsHint" = "Example: Swift, iOS, Tutorial";
+"editBookmark.saveError" = "저장 중 오류가 발생했습니다";
+"common.add" = "추가";
 
-"editBookmark.saveError" = "An error occurred while saving";
-
-// MARK: - Common (if not already present)
-"common.add" = "Add";
-
-// MARK: - UI Static Additions (2025-12-25)
-"filters.title" = "Filters";
-"preview.title" = "Preview";
-"toolbar.title" = "Toolbar";
-"image.preview" = "Image Preview";
-"button.close" = "Close";
-"button.confirm" = "Confirm";
-"button.cancel" = "Cancel";
-"button.save" = "Save";
-"button.edit" = "Edit";
-"button.delete" = "Delete";
-"button.copy" = "Copy";
+// MARK: - UI Static Additions
+"filters.title" = "필터";
+"preview.title" = "미리보기";
+"toolbar.title" = "도구 모음";
+"image.preview" = "이미지 미리보기";
+"button.close" = "닫기";
+"button.confirm" = "확인";
+"button.cancel" = "취소";
+"button.save" = "저장";
+"button.edit" = "편집";
+"button.delete" = "삭제";
+"button.copy" = "복사";
 
 // MARK: - Category Icons
+"category.icons.show_more" = "더 많은 아이콘 보기";
+"category.icons.all_title" = "모든 아이콘";
+"category.icons.search" = "아이콘 검색...";
+"category.icons.total_count %lld" = "총 %lld개 아이콘";
 
-// Icon Picker
-"category.icons.show_more" = "More Icons";
-"category.icons.all_title" = "All Icons";
-"category.icons.search" = "Search icons...";
-"category.icons.total_count %lld" = "Total %lld icons";
-
-// Icon Categories
-"category.icons.general" = "General";
-"category.icons.books" = "Books & Reading";
-"category.icons.communication" = "Communication";
-"category.icons.people" = "People";
-"category.icons.sports" = "Sports & Fitness";
-"category.icons.nature" = "Nature & Weather";
-"category.icons.objects" = "Objects";
-"category.icons.devices" = "Devices";
-"category.icons.transport" = "Transport";
-"category.icons.places" = "Places";
-"category.icons.work" = "Work & Office";
-"category.icons.health" = "Health";
-"category.icons.food" = "Food & Drink";
-"category.icons.entertainment" = "Entertainment";
-"category.icons.education" = "Education";
-"category.icons.tech" = "Technology";
-"category.icons.symbols" = "Symbols & Shapes";
-"category.icons.security" = "Security";
-"category.icons.media" = "Media Controls";
-"category.icons.badges" = "Flags & Badges";
+"category.icons.general" = "일반";
+"category.icons.books" = "도서 및 독서";
+"category.icons.communication" = "통신";
+"category.icons.people" = "인물";
+"category.icons.sports" = "스포츠 및 피트니스";
+"category.icons.nature" = "자연 및 날씨";
+"category.icons.objects" = "사물";
+"category.icons.devices" = "기기";
+"category.icons.transport" = "교통";
+"category.icons.places" = "장소";
+"category.icons.work" = "업무 및 사무";
+"category.icons.health" = "건강";
+"category.icons.food" = "음식 및 음료";
+"category.icons.entertainment" = "엔터테인먼트";
+"category.icons.education" = "교육";
+"category.icons.tech" = "기술";
+"category.icons.symbols" = "기호 및 모양";
+"category.icons.security" = "보안";
+"category.icons.media" = "미디어 컨트롤";
+"category.icons.badges" = "깃발 및 배지";
 
 // MARK: - Add Bookmark - New Keys
-// Clear All
-"addBookmark.clearAll" = "Clear All";
+"addBookmark.clearAll" = "모두 지우기";
+"addBookmark.category.no_category_hint" = "미분류로 저장";
 
-// Category Picker
-"addBookmark.category.no_category_hint" = "Save without category";
+"addBookmark.section.coverImage" = "커버 이미지";
+"addBookmark.coverImage.add" = "커버 이미지 추가";
+"addBookmark.coverImage.hint" = "북마크를 위한 특별한 이미지를 선택하세요";
+"addBookmark.coverImage.footer" = "목록에 표시될 사용자 지정 커버 이미지를 추가하세요";
+"addBookmark.coverImage.edit" = "자르기";
+"addBookmark.coverImage.change" = "변경";
+"addBookmark.coverImage.remove" = "삭제";
 
-// Cover Image Section
-"addBookmark.section.coverImage" = "Cover Image";
-"addBookmark.coverImage.add" = "Add Cover Image";
-"addBookmark.coverImage.hint" = "Choose a custom image for the bookmark";
-"addBookmark.coverImage.footer" = "Add a custom cover image that will appear in the list";
-"addBookmark.coverImage.edit" = "Crop";
-"addBookmark.coverImage.change" = "Change";
-"addBookmark.coverImage.remove" = "Remove";
+"addBookmark.section.ocr" = "텍스트 추출 (OCR)";
+"addBookmark.ocr.add" = "이미지에서 텍스트 추출";
+"addBookmark.ocr.hint" = "사진 속 텍스트를 메모에 추가하세요";
+"addBookmark.ocr.footer" = "이미지에서 텍스트를 추출하여 자동으로 메모에 추가합니다";
+"addBookmark.ocr.processing" = "텍스트 인식 중...";
+"addBookmark.ocr.completed" = "인식 완료";
+"addBookmark.ocr.completedHint" = "텍스트가 메모에 추가되었습니다";
+"addBookmark.ocr.recrop" = "다시 자르기";
+"addBookmark.ocr.remove" = "삭제";
 
-// OCR Section
-"addBookmark.section.ocr" = "Text Extraction (OCR)";
-"addBookmark.ocr.add" = "Extract Text from Image";
-"addBookmark.ocr.hint" = "Add text from photo to notes";
-"addBookmark.ocr.footer" = "Extract text from an image and automatically add it to notes";
-"addBookmark.ocr.processing" = "Extracting text...";
-"addBookmark.ocr.completed" = "Text extracted";
-"addBookmark.ocr.completedHint" = "Text added to notes";
-"addBookmark.ocr.recrop" = "Recrop";
-"addBookmark.ocr.remove" = "Remove";
-
-// Source Descriptions
-"source.twitter.description" = "Twitter/X posts";
-"source.reddit.description" = "Reddit posts & comments";
-"source.linkedin.description" = "LinkedIn posts";
-"source.medium.description" = "Medium articles";
-"source.youtube.description" = "YouTube videos";
-"source.github.description" = "GitHub repositories";
-"source.news.description" = "News articles";
-"source.blog.description" = "Blog posts";
-"source.documentation.description" = "Technical documentation";
-"source.document" = "File";
-
+"source.twitter.description" = "Twitter/X 게시물";
+"source.reddit.description" = "Reddit 게시물 및 댓글";
+"source.linkedin.description" = "LinkedIn 게시물";
+"source.medium.description" = "Medium 기사";
+"source.youtube.description" = "YouTube 동영상";
+"source.github.description" = "GitHub 저장소";
+"source.news.description" = "뉴스 기사";
+"source.blog.description" = "블로그 게시물";
+"source.documentation.description" = "기술 문서";
+"source.document" = "파일";
 
 /* Encryption Key Backup View */
+"encryption.status.title" = "상태";
+"encryption.status.label" = "암호화 상태";
+"encryption.status.active" = "활성";
+"encryption.status.inactive" = "비활성";
+"encryption.status.footer" = "데이터는 기기에서 암호화됩니다. 서버에는 암호화된 버전만 저장됩니다.";
+"encryption.export.title" = "백업";
+"encryption.export.button" = "키 내보내기";
+"encryption.export.key_label" = "암호화 키:";
+"encryption.export.copy_button" = "복사";
+"encryption.export.footer" = "⚠️ 이 키를 안전한 곳에 보관하세요. 분실 시 데이터를 복구할 수 없습니다.";
 
-/* Status Section */
-"encryption.status.title" = "Status";
-"encryption.status.label" = "Encryption Status";
-"encryption.status.active" = "Active";
-"encryption.status.inactive" = "Inactive";
-"encryption.status.footer" = "Your data is encrypted on your device. Only the encrypted version is stored on the server.";
+"encryption.import.title" = "복구";
+"encryption.import.placeholder" = "키를 붙여넣으세요...";
+"encryption.import.button" = "키 가져오기";
 
-/* Export Section */
-"encryption.export.title" = "Backup";
-"encryption.export.button" = "Export Key";
-"encryption.export.key_label" = "Your Encryption Key:";
-"encryption.export.copy_button" = "Copy";
-"encryption.export.footer" = "⚠️ Keep this key in a safe place. If you lose it, you won't be able to access your data.";
+"encryption.danger.title" = "위험 구역";
+"encryption.danger.reset_button" = "키 초기화";
+"encryption.danger.footer" = "⚠️ 키를 초기화하면 기존의 모든 암호화된 데이터를 읽을 수 없게 됩니다!";
 
-/* Import Section */
-"encryption.import.title" = "Restore";
-"encryption.import.placeholder" = "Paste key...";
-"encryption.import.button" = "Import Key";
+"encryption.alert.info" = "정보";
+"encryption.alert.ok" = "확인";
+"encryption.alert.reset_title" = "키 초기화";
+"encryption.alert.reset_message" = "이 작업은 되돌릴 수 없습니다. 기존의 모든 암호화된 데이터를 해독할 수 없게 됩니다.";
+"encryption.alert.cancel" = "취소";
+"encryption.alert.reset_confirm" = "초기화";
+"encryption.alert.import_success" = "키를 성공적으로 가져왔습니다";
 
-/* Danger Zone */
-"encryption.danger.title" = "Danger Zone";
-"encryption.danger.reset_button" = "Reset Key";
-"encryption.danger.footer" = "⚠️ If you reset the key, all your encrypted data will become unreadable!";
-
-/* Alerts */
-"encryption.alert.info" = "Info";
-"encryption.alert.ok" = "OK";
-"encryption.alert.reset_title" = "Reset Key";
-"encryption.alert.reset_message" = "This action cannot be undone. All your encrypted data will become unreadable.";
-"encryption.alert.cancel" = "Cancel";
-"encryption.alert.reset_confirm" = "Reset";
-"encryption.alert.import_success" = "Key imported successfully";
-
-/* Navigation */
-"encryption.navigation_title" = "Encryption";
-
-/* Errors - from EncryptionError enum */
-"encryption.error.key_not_found" = "Encryption key not found";
-"encryption.error.invalid_key_format" = "Invalid key format";
-"encryption.error.encoding_failed" = "Data could not be encoded";
-"encryption.error.decoding_failed" = "Data could not be decoded";
-"encryption.error.encryption_failed" = "Encryption failed";
-"encryption.error.decryption_failed" = "Decryption failed";
-"encryption.error.invalid_ciphertext" = "Invalid encrypted data";
-"encryption.error.keychain_error" = "Keychain error: %d";
+"encryption.navigation_title" = "암호화";
+"encryption.error.key_not_found" = "암호화 키를 찾을 수 없습니다";
+"encryption.error.invalid_key_format" = "유효하지 않은 키 형식입니다";
+"encryption.error.encoding_failed" = "데이터 인코딩 실패";
+"encryption.error.decoding_failed" = "데이터 디코딩 실패";
+"encryption.error.encryption_failed" = "암호화 실패";
+"encryption.error.decryption_failed" = "복호화 실패";
+"encryption.error.invalid_ciphertext" = "유효하지 않은 암호문입니다";
+"encryption.error.keychain_error" = "키체인 오류: %d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "Welcome to Social Bookmark!";
-"onboarding.welcome.subtitle" = "Save, organize, and access your content from anywhere";
+"onboarding.welcome.title" = "Social Bookmark에 오신 것을 환영합니다!";
+"onboarding.welcome.subtitle" = "어디서나 콘텐츠를 저장하고 정리하며 액세스하세요";
+"onboarding.sources.title" = "모든 즐겨찾기를 한곳에";
+"onboarding.sources.subtitle" = "Twitter, Reddit, LinkedIn, Medium 등에서 콘텐츠를 저장하세요";
+"onboarding.sources.features.smart" = "✨ 스마트 콘텐츠 추출";
+"onboarding.sources.features.ocr" = "📸 이미지 텍스트 인식 (OCR)";
+"onboarding.sources.features.web" = "🔗 웹 페이지 전체 내용 저장";
 
-"onboarding.sources.title" = "All Your Favorites in One Place";
-"onboarding.sources.subtitle" = "Save content from Twitter, Reddit, LinkedIn, Medium and more";
-"onboarding.sources.features.smart" = "✨ Smart content extraction";
-"onboarding.sources.features.ocr" = "📸 Read text in images (OCR)";
-"onboarding.sources.features.web" = "🔗 Save web pages with full content";
+"onboarding.share.title" = "어디서나 원터치 저장";
+"onboarding.share.subtitle" = "Safari, Twitter, Reddit 등 앱의 공유 메뉴를 사용하세요...";
+"onboarding.share.step1" = "앱에서 공유 버튼을 탭하세요";
+"onboarding.share.step2" = "Social Bookmark를 선택하세요";
+"onboarding.share.step3" = "콘텐츠가 자동으로 저장되고 분류됩니다";
+"onboarding.share.reminder" = "처음 사용 시 공유 확장을 활성화하는 것을 잊지 마세요!";
+"onboarding.search.title" = "무엇이든 즉시 검색";
+"onboarding.search.subtitle" = "제목, 설명은 물론 본문 전체에서 강력한 검색 기능을 제공합니다";
+"onboarding.search.features.fulltext" = "📝 전체 텍스트 검색 - 모든 내용 검색";
+"onboarding.search.features.filter" = "🏷️ 카테고리별 필터링";
+"onboarding.search.features.sync" = "☁️ 모든 기기 동기화";
+"onboarding.search.features.secure" = "🔐 종단간 암호화로 안전하게";
+"onboarding.notifications.title" = "중요한 정보를 놓치지 마세요";
+"onboarding.notifications.subtitle" = "업데이트 소식과 읽기 알림으로 북마크를 더 효율적으로 관리하세요.";
+"onboarding.notifications.feature1" = "읽기 알림";
+"onboarding.notifications.feature2" = "새로운 기능 안내";
+"onboarding.notifications.feature3" = "안전하고 사적인 알림";
 
-"onboarding.share.title" = "Save with One Tap, Anywhere";
-"onboarding.share.subtitle" = "Use the share menu from any app like Safari, Twitter, Reddit...";
-"onboarding.share.step1" = "Tap the share button in any app";
-"onboarding.share.step2" = "Select Social Bookmark";
-"onboarding.share.step3" = "Content is automatically saved and categorized";
-"onboarding.share.reminder" = "Don't forget to enable the Share Extension on first use!";
+"home.notification_card.title" = "알림 활성화";
+"home.notification_card.subtitle" = "알림 및 업데이트 소식을 받으려면 알림을 켜세요.";
+"home.notification_card.button" = "지금 활성화";
 
-"onboarding.search.title" = "Find Anything Instantly";
-"onboarding.search.subtitle" = "Search across all your content, titles, descriptions and full texts with powerful search";
-"onboarding.search.features.fulltext" = "📝 Full-text search - search in all content";
-"onboarding.search.features.filter" = "🏷️ Filter by categories";
-"onboarding.search.features.sync" = "☁️ Sync across all your devices";
-"onboarding.search.features.secure" = "🔐 Secure with end-to-end encryption";
-"onboarding.notifications.title" = "Never Miss a Thing";
-"onboarding.notifications.subtitle" = "Use your bookmarks more efficiently with important updates and reading reminders.";
-"onboarding.notifications.feature1" = "Reading reminders";
-"onboarding.notifications.feature2" = "New feature announcements";
-"onboarding.notifications.feature3" = "Secure and private notifications";
-
-"home.notification_card.title" = "Enable Notifications";
-"home.notification_card.subtitle" = "Activate notifications for reminders and updates.";
-"home.notification_card.button" = "Enable Now";
-
-"onboarding.action.login" = "Have an account? Sign In";
-"common.skip" = "Skip";
+"onboarding.action.login" = "이미 계정이 있으신가요? 로그인하기";
+"common.skip" = "건너뛰기";
 
 // MARK: - Paywall
-"paywall.unauthenticated_title" = "Sign In First";
-"paywall.unauthenticated_subtitle" = "Please sign in to use Pro features and backup your data.";
-"paywall.pro_features_title" = "What's in Pro?";
-"paywall.feature.unlimited_bookmarks" = "Unlimited Bookmarks";
-"paywall.feature.custom_categories" = "Create Custom Categories";
-"paywall.feature.ocr" = "Image Text Search (OCR)";
-"paywall.feature.multi_image" = "Multiple Image Support";
-"paywall.feature.cloud_sync" = "Cross-Device Sync";
-"paywall.feature.ad_free" = "Ad-free Experience";
+"paywall.unauthenticated_title" = "먼저 로그인하세요";
+"paywall.unauthenticated_subtitle" = "Pro 기능을 사용하고 데이터를 백업하려면 로그인해 주세요.";
+"paywall.pro_features_title" = "Pro 버전 기능";
+"paywall.feature.unlimited_bookmarks" = "무제한 북마크";
+"paywall.feature.custom_categories" = "사용자 정의 카테고리";
+"paywall.feature.ocr" = "이미지 텍스트 검색 (OCR)";
+"paywall.feature.multi_image" = "다중 이미지 지원";
+"paywall.feature.cloud_sync" = "기기 간 클라우드 동기화";
+"paywall.feature.ad_free" = "광고 없는 경험";
 
 // MARK: - Settings - Advanced
-"settings.advanced.cleanup" = "Data Cleanup";
-"settings.advanced.encryption_debug" = "Encryption Debug";
+"settings.advanced.cleanup" = "데이터 정리";
+"settings.advanced.encryption_debug" = "암호화 디버깅";
 
 // MARK: - Data Cleanup
-"cleanup.title" = "Data Cleanup";
-"cleanup.status.label" = "Status";
-"cleanup.status.ready" = "Ready";
-"cleanup.action.delete_all" = "Clear All Data and Re-sync";
-"cleanup.section.danger" = "⚠️ Dangerous Operations";
-"cleanup.footer.danger" = "This operation will delete all local bookmarks and categories and re-download them from Supabase. Encrypted data will be correctly decrypted.";
-"cleanup.alert.title" = "Are you sure?";
-"cleanup.alert.cancel" = "Cancel";
-"cleanup.alert.confirm" = "Yes, Clear";
-"cleanup.alert.message" = "All local data will be deleted and re-downloaded from Supabase.";
-"cleanup.status.deleting" = "🗑️ Deleting local data...";
-"cleanup.status.deleted_count %lld %lld" = "✅ %lld bookmarks, %lld categories deleted";
-"cleanup.status.preparing" = "⚙️ Preparing sync service...";
-"cleanup.status.downloading" = "📥 Downloading from Supabase...";
-"cleanup.status.completed_count %lld %lld" = "✅ Completed! %lld categories, %lld bookmarks downloaded.";
-"cleanup.status.error %@" = "❌ Error: %@";
+"cleanup.title" = "데이터 정리";
+"cleanup.status.label" = "상태";
+"cleanup.status.ready" = "준비됨";
+"cleanup.action.delete_all" = "모든 데이터 삭제 후 다시 동기화";
+"cleanup.section.danger" = "⚠️ 위험한 작업";
+"cleanup.footer.danger" = "이 작업은 로컬의 모든 북마크와 카테고리를 삭제하고 서버에서 다시 다운로드합니다. 암호화된 데이터는 정상적으로 해독됩니다.";
+"cleanup.alert.title" = "확실합니까?";
+"cleanup.alert.cancel" = "취소";
+"cleanup.alert.confirm" = "예, 정리합니다";
+"cleanup.alert.message" = "모든 로컬 데이터가 삭제되고 클라우드에서 다시 동기화됩니다.";
+"cleanup.status.deleting" = "🗑️ 로컬 데이터 삭제 중...";
+"cleanup.status.deleted_count %lld %lld" = "✅ 북마크 %lld개, 카테고리 %lld개 삭제됨";
+"cleanup.status.preparing" = "⚙️ 동기화 서비스 준비 중...";
+"cleanup.status.downloading" = "📥 서버에서 다운로드 중...";
+"cleanup.status.completed_count %lld %lld" = "✅ 완료! 카테고리 %lld개, 북마크 %lld개 다운로드됨.";
+"cleanup.status.error %@" = "❌ 오류: %@";
 
 // MARK: - Encryption Debug
-"encryption.debug.title" = "Encryption Debug";
-"encryption.debug.key_status" = "Encryption Key Status";
-"encryption.debug.has_key" = "Key Exists?";
-"encryption.debug.yes" = "✅ YES";
-"encryption.debug.no" = "❌ NO";
-"encryption.debug.check_key" = "Check Key";
-"encryption.debug.test_section" = "Test Encryption";
-"encryption.debug.run_test" = "Run Encryption Test";
-"encryption.debug.export_section" = "Key Export";
-"encryption.debug.export_button" = "Export Key";
-"encryption.debug.import_section" = "Key Import";
-"encryption.debug.import_placeholder" = "Paste key here...";
-"encryption.debug.import_button" = "Import Key";
-"encryption.debug.import_footer" = "Paste the key you exported from your iPhone here to import it.";
-"encryption.debug.test_success" = "✅ Encryption key loaded successfully";
-"encryption.debug.test_fail %@" = "❌ Encryption key load failed: %@";
-"encryption.debug.test_run_success %@" = "✅ Encryption/Decryption successful!\nOriginal: %@";
-"encryption.debug.test_run_fail %@" = "❌ Decryption failed!\nOriginal: %@";
-"encryption.debug.copy_success %@" = "✅ Key copied! First 20 characters: %@...";
-"encryption.debug.import_success" = "✅ Key imported successfully!";
+"encryption.debug.title" = "암호화 디버깅";
+"encryption.debug.key_status" = "키 상태";
+"encryption.debug.has_key" = "키 존재 여부";
+"encryption.debug.yes" = "✅ 예";
+"encryption.debug.no" = "❌ 아니요";
+"encryption.debug.check_key" = "키 확인";
+"encryption.debug.test_section" = "암호화 테스트";
+"encryption.debug.run_test" = "테스트 실행";
+"encryption.debug.export_section" = "키 내보내기";
+"encryption.debug.export_button" = "키 내보내기";
+"encryption.debug.import_section" = "키 가져오기";
+"encryption.debug.import_placeholder" = "키를 여기에 붙여넣으세요...";
+"encryption.debug.import_button" = "키 가져오기";
+"encryption.debug.import_footer" = "다른 기기에서 내보낸 키를 여기에 붙여넣어 가져오세요.";
+"encryption.debug.test_success" = "✅ 암호화 키 로드 성공";
+"encryption.debug.test_fail %@" = "❌ 암호화 키 로드 실패: %@";
+"encryption.debug.test_run_success %@" = "✅ 암호화/복호화 성공!\n원본: %@";
+"encryption.debug.test_run_fail %@" = "❌ 복호화 실패!\n원본: %@";
+"encryption.debug.copy_success %@" = "✅ 키 복사됨! 앞 20자: %@...";
+"encryption.debug.import_success" = "✅ 키 가져오기 성공!";
 
 // MARK: - Analytics
-"analytics.title" = "Analytics";
-"analytics.tabs.general" = "General";
-"analytics.tabs.time" = "Time";
-"analytics.tabs.categories" = "Categories";
-"analytics.time.morning" = "Morning";
-"analytics.time.afternoon" = "Afternoon";
-"analytics.time.evening" = "Evening";
-"analytics.time.night" = "Night";
-"analytics.filters.read" = "Read";
-"analytics.filters.stale" = "Stale";
-"analytics.calculating" = "Calculating statistics...";
-"analytics.window.30" = "30 Days";
-"analytics.window.90" = "90 Days";
-"analytics.category_analysis" = "Category Analysis";
-"analytics.no_categories" = "No category data yet";
-"analytics.bookmark_not_found" = "Bookmark not found";
-"analytics.highlights" = "🌟 Highlights";
-"analytics.most_favorited" = "Most favorited";
-"analytics.oldest_unread" = "Oldest unread";
-"analytics.current_streak" = "Current Streak";
-"analytics.longest_streak" = "Longest Streak";
-"analytics.most_active_day" = "Most Active Day";
-"analytics.read_bookmarks" = "Read Bookmarks";
-"analytics.stale_bookmarks" = "Stale Bookmarks";
-"analytics.productivity_hours" = "Productivity Hours";
-"analytics.peak_time_template %@" = "You enjoy **%@** time the most.";
-"analytics.last_30_days_activity" = "Last 30 Days Activity";
-"analytics.most_active_day_template %@" = "Your most active day: %@";
-"analytics.overview.title" = "Statistics";
+"analytics.title" = "분석";
+"analytics.tabs.general" = "일반";
+"analytics.tabs.time" = "시간";
+"analytics.tabs.categories" = "카테고리";
+"analytics.time.morning" = "아침";
+"analytics.time.afternoon" = "오후";
+"analytics.time.evening" = "저녁";
+"analytics.time.night" = "밤";
+"analytics.filters.read" = "읽음";
+"analytics.filters.stale" = "오래됨";
+"analytics.calculating" = "통계 계산 중...";
+"analytics.window.30" = "30일";
+"analytics.window.90" = "90일";
+"analytics.category_analysis" = "카테고리 분석";
+"analytics.no_categories" = "카테고리 데이터 없음";
+"analytics.bookmark_not_found" = "북마크를 찾을 수 없음";
+"analytics.highlights" = "🌟 주요 통계";
+"analytics.most_favorited" = "최다 즐겨찾기";
+"analytics.oldest_unread" = "가장 오래된 읽지 않은 항목";
+"analytics.current_streak" = "현재 연속 기록";
+"analytics.longest_streak" = "최장 연속 기록";
+"analytics.most_active_day" = "가장 활발한 요일";
+"analytics.read_bookmarks" = "읽은 북마크";
+"analytics.stale_bookmarks" = "오래된 북마크";
+"analytics.productivity_hours" = "생산적인 시간대";
+"analytics.peak_time_template %@" = "당신은 주로 **%@** 시간에 독서를 즐깁니다.";
+"analytics.last_30_days_activity" = "최근 30일 활동";
+"analytics.most_active_day_template %@" = "가장 활발한 요일: %@";
+"analytics.overview.title" = "통계";
 
 // MARK: - Developer
-"settings.developer.title" = "Developer Settings";
-"settings.developer.force_sync" = "Force Full Sync";
-"settings.developer.reset_sync" = "Reset Data & Re-sync";
-"settings.developer.local_data" = "Local Data Stats";
-"settings.developer.bookmarks" = "Bookmarks";
-"settings.developer.categories" = "Categories";
-"settings.developer.user_id" = "User ID";
-"settings.developer.force_sync_footer" = "Forces a complete data synchronization with the server. Use this if bookmarks or categories are not appearing.";
+"settings.developer.title" = "개발자 설정";
+"settings.developer.force_sync" = "강제 전체 동기화";
+"settings.developer.reset_sync" = "데이터 초기화 및 재동기화";
+"settings.developer.local_data" = "로컬 데이터 통계";
+"settings.developer.bookmarks" = "북마크";
+"settings.developer.categories" = "카테고리";
+"settings.developer.user_id" = "사용자 ID";
+"settings.developer.force_sync_footer" = "서버와 강제로 전체 데이터를 동기화합니다. 북마크나 카테고리가 보이지 않을 때 사용하세요.";
 
 // MARK: - Selection
-"selection.search_prompt" = "Search bookmarks...";
-"selection.title" = "Select Bookmarks";
+"selection.search_prompt" = "북마크 검색...";
+"selection.title" = "북마크 선택";
 
 // MARK: - Debug logs
-"debug.logs.title" = "Network Logs";
-"debug.logs.no_logs" = "No logs yet";
-"debug.logs.request_details" = "Request Details";
-"debug.logs.section.general" = "General";
-"debug.logs.section.error" = "Error";
-"debug.logs.section.req_headers" = "Request Headers";
-"debug.logs.section.req_body" = "Request Body";
-"debug.logs.section.res_headers" = "Response Headers";
-"debug.logs.section.res_body" = "Response Body";
+"debug.logs.title" = "네트워크 로그";
+"debug.logs.no_logs" = "로그가 없습니다";
+"debug.logs.request_details" = "요청 상세 정보";
+"debug.logs.section.general" = "일반";
+"debug.logs.section.error" = "오류";
+"debug.logs.section.req_headers" = "요청 헤더";
+"debug.logs.section.req_body" = "요청 본문";
+"debug.logs.section.res_headers" = "응답 헤더";
+"debug.logs.section.res_body" = "응답 본문";
 
 // MARK: - Encryption Sync
-"encryption.sync.title" = "Sync";
-"encryption.sync.reset_button" = "Reset Sync";
-"encryption.sync.footer" = "Clears local data and re-downloads everything from the server. Use this if you see duplicate or outdated data.";
-"encryption.sync.reset_alert_message" = "Sync reset! Pull to refresh to download fresh data from server.";
+"encryption.sync.title" = "동기화";
+"encryption.sync.reset_button" = "동기화 초기화";
+"encryption.sync.footer" = "로컬 데이터를 삭제하고 서버에서 모든 내용을 다시 가져옵니다. 중복되거나 오래된 데이터가 보일 때 사용하세요.";
+"encryption.sync.reset_alert_message" = "동기화가 초기화되었습니다! 서버에서 새로운 데이터를 가져오려면 아래로 당겨서 새로고침하세요.";

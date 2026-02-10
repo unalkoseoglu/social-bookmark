@@ -18,16 +18,15 @@ struct MainTabView: View {
     // MARK: - Properties
     
     @Bindable var viewModel: HomeViewModel
-    @State private var selectedTab: AppTab = .home
     @State private var searchText = ""
     @StateObject private var sessionStore = SessionStore()
     
     // MARK: - Body
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $viewModel.selectedTab) {
             // Home Tab
-            Tab(String(localized: "tab.home"), systemImage: "house.fill", value: .home) {
+            Tab(LanguageManager.shared.localized("tab.home"), systemImage: "house.fill", value: .home) {
                 NavigationStack {
                     HomeView(viewModel: viewModel)
                         .environmentObject(sessionStore)
@@ -35,24 +34,24 @@ struct MainTabView: View {
             }
             
             // Library Tab
-            Tab(String(localized: "tab.library"), systemImage: "books.vertical.fill", value: .library) {
+            Tab(LanguageManager.shared.localized("tab.library"), systemImage: "books.vertical.fill", value: .library) {
                 NavigationStack {
-                    LibraryView(viewModel: viewModel, selectedTab: $selectedTab)
+                    LibraryView(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
                         .environmentObject(sessionStore)
                 }
             }
             
             // Add Tab
-            Tab(String(localized: "tab.add"), systemImage: "plus.circle.fill", value: .add) {
-                AddTabContent(viewModel: viewModel, selectedTab: $selectedTab)
+            Tab(LanguageManager.shared.localized("tab.add"), systemImage: "plus.circle.fill", value: .add) {
+                AddTabContent(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
             }
             
             // Search Tab - role: .search ile Liquid Glass'ta ayrı görünür
             Tab(value: .search,  role: .search) {
                 NavigationStack {
-                    SearchView(viewModel: viewModel, selectedTab: $selectedTab, searchText: $searchText)
+                    SearchView(viewModel: viewModel, selectedTab: $viewModel.selectedTab, searchText: $searchText)
                         .environmentObject(sessionStore)
-                        .navigationTitle(String(localized: "tab.search"))
+                        .navigationTitle(LanguageManager.shared.localized("tab.search"))
                 }
                 .searchable(text: $searchText, placement: .automatic)
             }
@@ -66,14 +65,13 @@ struct MainTabView: View {
 @available(iOS 18.0, *)
 struct MainTabViewiOS18: View {
     @Bindable var viewModel: HomeViewModel
-    @State private var selectedTab: AppTab = .home
     @State private var searchText = ""
     @StateObject private var sessionStore = SessionStore()
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $viewModel.selectedTab) {
             // Home Tab
-            Tab(String(localized: "tab.home"), systemImage: "house.fill", value: .home) {
+            Tab(LanguageManager.shared.localized("tab.home"), systemImage: "house.fill", value: .home) {
                 NavigationStack {
                     HomeView(viewModel: viewModel)
                         .environmentObject(sessionStore)
@@ -81,24 +79,24 @@ struct MainTabViewiOS18: View {
             }
             
             // Library Tab
-            Tab(String(localized: "tab.library"), systemImage: "books.vertical.fill", value: .library) {
+            Tab(LanguageManager.shared.localized("tab.library"), systemImage: "books.vertical.fill", value: .library) {
                 NavigationStack {
-                    LibraryView(viewModel: viewModel, selectedTab: $selectedTab)
+                    LibraryView(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
                         .environmentObject(sessionStore)
                 }
             }
             
             // Add Tab
-            Tab(String(localized: "tab.add"), systemImage: "plus.circle.fill", value: .add) {
-                AddTabContent(viewModel: viewModel, selectedTab: $selectedTab)
+            Tab(LanguageManager.shared.localized("tab.add"), systemImage: "plus.circle.fill", value: .add) {
+                AddTabContent(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
             }
             
             // Search Tab with role: .search
             Tab(value: .search, role: .search) {
                 NavigationStack {
-                    SearchView(viewModel: viewModel, selectedTab: $selectedTab, searchText: $searchText)
+                    SearchView(viewModel: viewModel, selectedTab: $viewModel.selectedTab, searchText: $searchText)
                         .environmentObject(sessionStore)
-                        .navigationTitle(String(localized: "tab.search"))
+                        .navigationTitle(LanguageManager.shared.localized("tab.search"))
                 }
                 .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             }
@@ -110,48 +108,47 @@ struct MainTabViewiOS18: View {
 
 struct MainTabViewLegacy: View {
     @Bindable var viewModel: HomeViewModel
-    @State private var selectedTab: AppTab = .home
     @State private var searchText = ""
     @StateObject private var sessionStore = SessionStore()
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $viewModel.selectedTab) {
             // Home
             NavigationStack {
                 HomeView(viewModel: viewModel)
                     .environmentObject(sessionStore)
             }
             .tabItem {
-                Label(String(localized: "tab.home"), systemImage: "house.fill")
+                Label(LanguageManager.shared.localized("tab.home"), systemImage: "house.fill")
             }
             .tag(AppTab.home)
             
             // Library
             NavigationStack {
-                LibraryView(viewModel: viewModel, selectedTab: $selectedTab)
+                LibraryView(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
                     .environmentObject(sessionStore)
             }
             .tabItem {
-                Label(String(localized: "tab.library"), systemImage: "books.vertical.fill")
+                Label(LanguageManager.shared.localized("tab.library"), systemImage: "books.vertical.fill")
             }
             .tag(AppTab.library)
             
             // Add
-            AddTabContent(viewModel: viewModel, selectedTab: $selectedTab)
+            AddTabContent(viewModel: viewModel, selectedTab: $viewModel.selectedTab)
                 .tabItem {
-                    Label(String(localized: "tab.add"), systemImage: "plus.circle.fill")
+                    Label(LanguageManager.shared.localized("tab.add"), systemImage: "plus.circle.fill")
                 }
                 .tag(AppTab.add)
             
             // Search
             NavigationStack {
-                SearchView(viewModel: viewModel, selectedTab: $selectedTab, searchText: $searchText)
+                SearchView(viewModel: viewModel, selectedTab: $viewModel.selectedTab, searchText: $searchText)
                     .environmentObject(sessionStore)
-                    .navigationTitle(String(localized: "tab.search"))
+                    .navigationTitle(LanguageManager.shared.localized("tab.search"))
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .tabItem {
-                Label(String(localized: "tab.search"), systemImage: "magnifyingglass")
+                Label(LanguageManager.shared.localized("tab.search"), systemImage: "magnifyingglass")
             }
             .tag(AppTab.search)
         }

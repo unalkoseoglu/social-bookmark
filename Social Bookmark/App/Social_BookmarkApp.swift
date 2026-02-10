@@ -34,29 +34,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct Social_BookmarkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    // MARK: - Properties
-
-    /// SwiftData container - veritabanı yöneticisi
-    let modelContainer: ModelContainer
-
-    /// Bookmark repository - app genelinde paylaşılan
-    /// ✅ DÜZELTME: SyncableBookmarkRepository kullanılıyor
-    let bookmarkRepository: BookmarkRepositoryProtocol
     
-    /// Category repository - kategori yönetimi
-    /// ✅ DÜZELTME: SyncableCategoryRepository kullanılıyor
-    let categoryRepository: CategoryRepositoryProtocol
-
-    /// App Group ID - Extension ile paylaşım için
-    static let appGroupID = "group.com.unal.socialbookmark"
+    /// SwiftData container
+    let modelContainer: ModelContainer
+    
+    @ObservedObject private var languageManager = LanguageManager.shared
     
     // MARK: - Initialization
     
     @available(iOS 17.0, *)
     init() {
         do {
+            let appGroupID = "group.com.unal.socialbookmark"
             guard let containerURL = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: Social_BookmarkApp.appGroupID
+                forSecurityApplicationGroupIdentifier: appGroupID
             ) else { fatalError("App Group container bulunamadı") }
 
             let storeURL = containerURL.appendingPathComponent("bookmark.sqlite")
@@ -74,43 +65,55 @@ struct Social_BookmarkApp: App {
             fatalError("ModelContainer oluşturulamadı: \(error)")
         }
 
-        // ✅ DÜZELTME: Base repository'leri oluştur
-        let baseBookmarkRepo = BookmarkRepository(modelContext: modelContainer.mainContext)
-        let baseCategoryRepo = CategoryRepository(modelContext: modelContainer.mainContext)
-        
-        // ✅ DÜZELTME: Syncable wrapper'larla wrap et
-        // Bu sayede her CRUD işleminden sonra otomatik sync tetiklenir
-        bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
-        categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
-
-        // ✅ AccountMigrationService'i ModelContext ile configure et
+        // Services initialization
         AccountMigrationService.shared.configure(modelContext: modelContainer.mainContext)
-
-        // Uygulama servislerini başlat
-        initializeApp()
-        
-        // OneSignal başlat
         initializeOneSignal(launchOptions: nil)
-        
-        // RevenueCat IAP başlat
         SubscriptionManager.shared.configure()
-        
-        // Review Manager başlat
         ReviewManager.shared.logLaunch()
     }
     
-    // MARK: - Body
-    
     var body: some Scene {
         WindowGroup {
-            RootView(
-                homeViewModel: HomeViewModel(
-                    bookmarkRepository: bookmarkRepository,
-                    categoryRepository: categoryRepository
-                )
-            )
-            .environment(\.locale, LanguageManager.shared.currentLanguage.locale)
+            LanguageWrapperView(modelContainer: modelContainer)
+                .environment(\.locale, languageManager.currentLanguage.locale)
+                .id(languageManager.refreshID)
         }
         .modelContainer(modelContainer)
+    }
+}
+
+/// A wrapper view that handles the lifecycle of the Main ViewModel and reacts to language changes.
+@available(iOS 17.0, *)
+struct LanguageWrapperView: View {
+    let modelContainer: ModelContainer
+    
+    @State private var homeViewModel: HomeViewModel
+    let bookmarkRepository: BookmarkRepositoryProtocol
+    let categoryRepository: CategoryRepositoryProtocol
+    
+    init(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
+        
+        let baseBookmarkRepo = BookmarkRepository(modelContext: modelContainer.mainContext)
+        let baseCategoryRepo = CategoryRepository(modelContext: modelContainer.mainContext)
+        
+        let bRepo = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
+        let cRepo = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
+        
+        self.bookmarkRepository = bRepo
+        self.categoryRepository = cRepo
+        
+        let vm = HomeViewModel(
+            bookmarkRepository: bRepo,
+            categoryRepository: cRepo
+        )
+        _homeViewModel = State(initialValue: vm)
+    }
+    
+    var body: some View {
+        RootView(homeViewModel: homeViewModel)
+            .onAppear {
+                SyncService.shared.configure(modelContext: modelContainer.mainContext)
+            }
     }
 }

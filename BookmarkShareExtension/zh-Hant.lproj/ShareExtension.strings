@@ -1,78 +1,76 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Share Extension Localization - English
+   Share Extension Localization - Chinese, Traditional (zh-Hant)
    ═══════════════════════════════════════════════════════════════════ */
-"CFBundleDisplayName" = "Save to Link Bookmark";
+"CFBundleDisplayName" = "儲存至連結書籤";
 
 /* Navigation */
-
-"extension.title" = "Save Bookmark";
-"extension.cancel" = "Cancel";
-"extension.save" = "Save";
+"extension.title" = "儲存書籤";
+"extension.cancel" = "取消";
+"extension.save" = "儲存";
 
 /* URL Section */
-"extension.source" = "Source";
+"extension.source" = "來源";
 
 /* Error Banner */
-"extension.error.twitter" = "Twitter Error";
-"extension.error.reddit" = "Reddit Error";
-"extension.error.linkedin" = "LinkedIn Error";
-"extension.error.medium" = "Medium Error";
-"extension.error.network" = "Connection Error";
-"extension.error.openInBrowser" = "Open in Browser";
+"extension.error.twitter" = "Twitter 錯誤";
+"extension.error.reddit" = "Reddit 錯誤";
+"extension.error.linkedin" = "LinkedIn 錯誤";
+"extension.error.medium" = "Medium 錯誤";
+"extension.error.network" = "連線錯誤";
+"extension.error.openInBrowser" = "在瀏覽器中開啟";
 
 /* LinkedIn Specific Errors */
-"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
-"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+"extension.linkedin.authRequired" = "需要登入 LinkedIn 才能檢視此內容。";
+"extension.linkedin.botDetected" = "LinkedIn 存取暫時受限。請稍後再試。";
 
 /* Preview Sections */
-"extension.preview.tweet" = "Tweet Preview";
-"extension.preview.reddit" = "Reddit Preview";
-"extension.preview.linkedin" = "LinkedIn Preview";
-"extension.preview.medium" = "Medium Preview";
+"extension.preview.tweet" = "推文預覽";
+"extension.preview.reddit" = "Reddit 預覽";
+"extension.preview.linkedin" = "LinkedIn 預覽";
+"extension.preview.medium" = "Medium 預覽";
 
 /* Preview Stats */
-"extension.stats.images" = "%d images";
-"extension.stats.comments" = "%@ comments";
-"extension.stats.readTime" = "%d min read";
-"extension.stats.membersOnly" = "Members Only";
+"extension.stats.images" = "%d 張圖片";
+"extension.stats.comments" = "%@ 條評論";
+"extension.stats.readTime" = "%d 分鐘閱讀";
+"extension.stats.membersOnly" = "僅限會員";
 
 /* Basic Info Section */
-"extension.basicInfo" = "Basic Information";
-"extension.title.placeholder" = "Title";
-"extension.source.label" = "Source";
-"extension.contentFetched" = "Content fetched";
+"extension.basicInfo" = "基本資訊";
+"extension.title.placeholder" = "標題";
+"extension.source.label" = "來源";
+"extension.contentFetched" = "內容已擷取";
 
 /* Category Section */
-"extension.category" = "Category";
-"extension.category.none" = "Uncategorized";
-"extension.category.empty" = "No categories";
-"extension.category.emptyHint" = "You can create categories from the main app";
+"extension.category" = "分類";
+"extension.category.none" = "未分類";
+"extension.category.empty" = "無分類";
+"extension.category.emptyHint" = "您可以在主應用程式中建立分類";
 
 /* Notes Section */
-"extension.notes" = "Notes";
-"extension.notes.placeholder" = "Add your notes here";
+"extension.notes" = "備註";
+"extension.notes.placeholder" = "在此新增備註";
 
 /* Tags Section */
-"extension.tags" = "Tags";
-"extension.tags.placeholder" = "Tags (comma separated)";
-"extension.tags.hint" = "Example: swift, ios, tutorial";
+"extension.tags" = "標籤";
+"extension.tags.placeholder" = "標籤（以逗號分隔）";
+"extension.tags.hint" = "範例：swift, ios, tutorial";
 
 /* Medium */
-"extension.medium.readOn" = "Read on Medium";
+"extension.medium.readOn" = "在 Medium 上閱讀";
 
 /* Status */
-"extension.loading" = "Loading...";
-"extension.saved" = "Saved";
+"extension.loading" = "載入中...";
+"extension.saved" = "已儲存";
 
-"extension.fallback.title" = "Link Saved";
-"extension.fallback.message" = "This link will be processed in the main app.";
-"extension.fallback.ok" = "OK";
+"extension.fallback.title" = "連結已儲存";
+"extension.fallback.message" = "此連結將在主應用程式中進行處理。";
+"extension.fallback.ok" = "確定";
 
 // MARK: - Share Extension (ShareViewController)
 
 // Loading
-"extension.loading.hint" = "First launch may take a moment";
+"extension.loading.hint" = "首次啟動可能需要一點時間";
 
 // First Launch Banner
-"extension.firstLaunch.message" = "First launch may take longer, please wait...";
-
+"extension.firstLaunch.message" = "首次啟動可能耗時較長，請稍候...";

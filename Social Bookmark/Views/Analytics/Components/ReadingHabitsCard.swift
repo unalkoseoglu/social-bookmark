@@ -11,7 +11,7 @@ struct ReadingHabitsCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Okuma Alışkanlıkları")
+            Text(LanguageManager.shared.localized("analytics.reading_habits"))
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -32,7 +32,7 @@ struct ReadingHabitsCard: View {
                     VStack {
                         Text("\(Int(percentage * 100))%")
                             .font(.title3.bold())
-                        Text("Tamamlandı")
+                        Text(LanguageManager.shared.localized("analytics.completed"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -40,11 +40,11 @@ struct ReadingHabitsCard: View {
                 .frame(width: 100, height: 100)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HabitMetricRow(color: .emerald, title: "Tamamlanan", count: readCount)
-                    HabitMetricRow(color: .orange, title: "Bekleyen", count: unreadCount)
+                    HabitMetricRow(color: .emerald, title: LanguageManager.shared.localized("all.stats.read"), count: readCount)
+                    HabitMetricRow(color: .orange, title: LanguageManager.shared.localized("all.stats.unread"), count: unreadCount)
                     
                     if readCount >= 5 {
-                        Text("Bu hafta 5 içerik okudun, harika! 🎉")
+                        Text(LanguageManager.shared.localized("analytics.reading_habits_subtitle"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.top, 4)

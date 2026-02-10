@@ -1,78 +1,76 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Share Extension Localization - English
+   Share Extension Localization - Arabic (ar)
    ═══════════════════════════════════════════════════════════════════ */
-"CFBundleDisplayName" = "Save to Link Bookmark";
+"CFBundleDisplayName" = "حفظ في إشارات الروابط";
 
 /* Navigation */
-
-"extension.title" = "Save Bookmark";
-"extension.cancel" = "Cancel";
-"extension.save" = "Save";
+"extension.title" = "حفظ الإشارة";
+"extension.cancel" = "إلغاء";
+"extension.save" = "حفظ";
 
 /* URL Section */
-"extension.source" = "Source";
+"extension.source" = "المصدر";
 
 /* Error Banner */
-"extension.error.twitter" = "Twitter Error";
-"extension.error.reddit" = "Reddit Error";
-"extension.error.linkedin" = "LinkedIn Error";
-"extension.error.medium" = "Medium Error";
-"extension.error.network" = "Connection Error";
-"extension.error.openInBrowser" = "Open in Browser";
+"extension.error.twitter" = "خطأ في Twitter";
+"extension.error.reddit" = "خطأ في Reddit";
+"extension.error.linkedin" = "خطأ في LinkedIn";
+"extension.error.medium" = "خطأ في Medium";
+"extension.error.network" = "خطأ في الاتصال";
+"extension.error.openInBrowser" = "فتح في المتصفح";
 
 /* LinkedIn Specific Errors */
-"extension.linkedin.authRequired" = "Login to LinkedIn is required to view this content.";
-"extension.linkedin.botDetected" = "LinkedIn access is temporarily restricted. Please try again later.";
+"extension.linkedin.authRequired" = "يلزم تسجيل الدخول إلى LinkedIn لعرض هذا المحتوى.";
+"extension.linkedin.botDetected" = "الوصول إلى LinkedIn مقيد مؤقتًا. يرجى المحاولة مرة أخرى لاحقًا.";
 
 /* Preview Sections */
-"extension.preview.tweet" = "Tweet Preview";
-"extension.preview.reddit" = "Reddit Preview";
-"extension.preview.linkedin" = "LinkedIn Preview";
-"extension.preview.medium" = "Medium Preview";
+"extension.preview.tweet" = "معاينة التغريدة";
+"extension.preview.reddit" = "معاينة Reddit";
+"extension.preview.linkedin" = "معاينة LinkedIn";
+"extension.preview.medium" = "معاينة Medium";
 
 /* Preview Stats */
-"extension.stats.images" = "%d images";
-"extension.stats.comments" = "%@ comments";
-"extension.stats.readTime" = "%d min read";
-"extension.stats.membersOnly" = "Members Only";
+"extension.stats.images" = "%d صور";
+"extension.stats.comments" = "%@ تعليقات";
+"extension.stats.readTime" = "قراءة %d دقائق";
+"extension.stats.membersOnly" = "للأعضاء فقط";
 
 /* Basic Info Section */
-"extension.basicInfo" = "Basic Information";
-"extension.title.placeholder" = "Title";
-"extension.source.label" = "Source";
-"extension.contentFetched" = "Content fetched";
+"extension.basicInfo" = "معلومات أساسية";
+"extension.title.placeholder" = "العنوان";
+"extension.source.label" = "المصدر";
+"extension.contentFetched" = "تم جلب المحتوى";
 
 /* Category Section */
-"extension.category" = "Category";
-"extension.category.none" = "Uncategorized";
-"extension.category.empty" = "No categories";
-"extension.category.emptyHint" = "You can create categories from the main app";
+"extension.category" = "الفئة";
+"extension.category.none" = "غير مصنف";
+"extension.category.empty" = "لا توجد فئات";
+"extension.category.emptyHint" = "يمكنك إنشاء فئات من التطبيق الرئيسي";
 
 /* Notes Section */
-"extension.notes" = "Notes";
-"extension.notes.placeholder" = "Add your notes here";
+"extension.notes" = "ملاحظات";
+"extension.notes.placeholder" = "أضف ملاحظاتك هنا";
 
 /* Tags Section */
-"extension.tags" = "Tags";
-"extension.tags.placeholder" = "Tags (comma separated)";
-"extension.tags.hint" = "Example: swift, ios, tutorial";
+"extension.tags" = "الوسوم";
+"extension.tags.placeholder" = "الوسوم (مفصولة بفاصلة)";
+"extension.tags.hint" = "مثال: swift, ios, tutorial";
 
 /* Medium */
-"extension.medium.readOn" = "Read on Medium";
+"extension.medium.readOn" = "القراءة على Medium";
 
 /* Status */
-"extension.loading" = "Loading...";
-"extension.saved" = "Saved";
+"extension.loading" = "جاري التحميل...";
+"extension.saved" = "تم الحفظ";
 
-"extension.fallback.title" = "Link Saved";
-"extension.fallback.message" = "This link will be processed in the main app.";
-"extension.fallback.ok" = "OK";
+"extension.fallback.title" = "تم حفظ الرابط";
+"extension.fallback.message" = "سيتم معالجة هذا الرابط في التطبيق الرئيسي.";
+"extension.fallback.ok" = "موافق";
 
 // MARK: - Share Extension (ShareViewController)
 
 // Loading
-"extension.loading.hint" = "First launch may take a moment";
+"extension.loading.hint" = "قد يستغرق التشغيل الأول لحظة";
 
 // First Launch Banner
-"extension.firstLaunch.message" = "First launch may take longer, please wait...";
-
+"extension.firstLaunch.message" = "قد يستغرق التشغيل الأول وقتًا أطول، يرجى الانتظار...";

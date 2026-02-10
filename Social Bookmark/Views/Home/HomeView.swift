@@ -27,19 +27,19 @@ struct HomeView: View {
         
         switch hour {
         case 5..<12:
-            return String(localized: "greeting.morning")
+            return languageManager.localized("greeting.morning")
         case 12..<18:
-            return String(localized: "greeting.afternoon")
+            return languageManager.localized("greeting.afternoon")
         case 18..<22:
-            return String(localized: "greeting.evening")
+            return languageManager.localized("greeting.evening")
         default:
-            return String(localized: "greeting.night")
+            return languageManager.localized("greeting.night")
         }
     }
     
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.locale = Locale.current
+        formatter.locale = languageManager.currentLanguage.locale
         formatter.dateFormat = "d MMMM, EEEE"
         return formatter.string(from: Date())
     }
@@ -123,6 +123,16 @@ struct HomeView: View {
                 await viewModel.refresh()
             }
         }
+        .alert(LanguageManager.shared.localized("common.error"), isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { _ in viewModel.errorMessage = nil }
+        )) {
+            Button(LanguageManager.shared.localized("common.ok"), role: .cancel) { }
+        } message: {
+            if let error = viewModel.errorMessage {
+                Text(error)
+            }
+        }
     }
     
     // MARK: - Header Section
@@ -192,18 +202,18 @@ struct HomeView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.limit.approaching"))
+                    Text(LanguageManager.shared.localized("home.limit.approaching"))
                         .font(.subheadline)
                         .fontWeight(.bold)
                     
-                    Text(String(localized: "home.limit.approaching_desc"))
+                    Text(LanguageManager.shared.localized("home.limit.approaching_desc"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
                 
-                Text(String(localized: "home.action.upgrade"))
+                Text(LanguageManager.shared.localized("home.action.upgrade"))
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
@@ -241,11 +251,11 @@ struct HomeView: View {
                 
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "home.notification_card.title"))
+                    Text(LanguageManager.shared.localized("home.notification_card.title"))
                         .font(.subheadline)
                         .fontWeight(.bold)
                     
-                    Text(String(localized: "home.notification_card.subtitle"))
+                    Text(LanguageManager.shared.localized("home.notification_card.subtitle"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -258,7 +268,7 @@ struct HomeView: View {
                 Button {
                     notificationManager.requestAuthorization()
                 } label: {
-                    Text(String(localized: "common.ok"))
+                    Text(LanguageManager.shared.localized("common.ok"))
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
@@ -301,17 +311,18 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 HomeSectionHeader(
-                    title: String(localized: "home.section.categories"),
+                    title: languageManager.localized("home.section.categories"),
                     icon: "folder.fill"
                 )
                 
                 Spacer()
                 
                 if !viewModel.categories.isEmpty {
-                    NavigationLink {
-                        CategoriesManagementView(viewModel: viewModel)
+                    Button {
+                        viewModel.librarySegment = .categories
+                        viewModel.selectedTab = .library
                     } label: {
-                        Text(String(localized: "home.action.see_all"))
+                        Text(languageManager.localized("home.action.see_all"))
                             .font(.subheadline)
                             .foregroundStyle(.blue)
                     }
@@ -339,13 +350,13 @@ struct HomeView: View {
                                 .background(Color.yellow)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                             
-                            Text("common.favorites")
+                            Text(LanguageManager.shared.localized("common.favorites"))
                                 .font(.caption)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                             
-                            Text("categories.management.bookmark_count \(viewModel.favoritesCount)")
+                            Text(LanguageManager.shared.localized("categories.management.bookmark_count %lld", Int64(viewModel.favoritesCount)))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .contentTransition(.numericText())
@@ -368,8 +379,6 @@ struct HomeView: View {
                         }
                     }
                 }
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
                 .padding(.horizontal, 16)
             }
         }
@@ -391,11 +400,11 @@ struct HomeView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "home.empty.add_category"))
+                    Text(LanguageManager.shared.localized("home.empty.add_category"))
                         .font(.headline)
                         .foregroundStyle(.primary)
                     
-                    Text(String(localized: "home.empty.add_category_desc"))
+                    Text(LanguageManager.shared.localized("home.empty.add_category_desc"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.leading)
@@ -420,7 +429,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 HomeSectionHeader(
-                    title: String(localized: "home.section.recent"),
+                    title: languageManager.localized("home.section.recent"),
                     icon: "bookmark.fill"
                 )
                 
@@ -430,7 +439,7 @@ struct HomeView: View {
                     NavigationLink {
                         AllBookmarksView(viewModel: viewModel)
                     } label: {
-                        Text(String(localized: "home.action.see_all"))
+                        Text(languageManager.localized("home.action.see_all"))
                             .font(.subheadline)
                             .foregroundStyle(.blue)
                     }
@@ -438,64 +447,74 @@ struct HomeView: View {
             }
             .padding(.horizontal, 16)
             
-            if viewModel.recentBookmarks.isEmpty {
-                emptyRecentCard
-                    .padding(.horizontal, 16)
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(viewModel.recentBookmarks.prefix(6).enumerated()), id: \.element.id) { index, bookmark in
-                        NavigationLink {
-                            BookmarkDetailView(
-                                bookmark: bookmark,
-                                viewModel: viewModel
-                            )
-                        } label: {
-                            EnhancedBookmarkRow(
-                                bookmark: bookmark,
-                                category: viewModel.categories.first { $0.id == bookmark.categoryId }
-                            )
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .contextMenu {
-                            Button {
-                                bookmark.isFavorite.toggle()
-                                viewModel.bookmarkRepository.update(bookmark)
-                            } label: {
-                                Label(bookmark.isFavorite ? "all.action.unfavorite" : "all.action.favorite",
-                                      systemImage: bookmark.isFavorite ? "star.slash" : "star.fill")
+                if viewModel.recentDisplayBookmarks.isEmpty {
+                    emptyRecentCard
+                        .padding(.horizontal, 16)
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(Array(viewModel.recentDisplayBookmarks.prefix(6).enumerated()), id: \.element.id) { index, displayModel in
+                            let realBookmark = viewModel.bookmark(with: displayModel.id)
+                            
+                            Group {
+                                if let realBookmark = realBookmark {
+                                    NavigationLink {
+                                        BookmarkDetailView(
+                                            bookmark: realBookmark,
+                                            viewModel: viewModel
+                                        )
+                                    } label: {
+                                        EnhancedBookmarkRow(bookmark: displayModel)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    EnhancedBookmarkRow(bookmark: displayModel)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                }
+                            }
+                            .contextMenu {
+                                if let realBookmark = realBookmark {
+                                    Button {
+                                        realBookmark.isFavorite.toggle()
+                                        viewModel.bookmarkRepository.update(realBookmark)
+                                    } label: {
+                                        Label(realBookmark.isFavorite ? LanguageManager.shared.localized("all.action.unfavorite") : LanguageManager.shared.localized("all.action.favorite"),
+                                              systemImage: realBookmark.isFavorite ? "star.slash" : "star.fill")
+                                    }
+                                    
+                                    Button {
+                                        realBookmark.isRead.toggle()
+                                        viewModel.bookmarkRepository.update(realBookmark)
+                                    } label: {
+                                        Label(realBookmark.isRead ? LanguageManager.shared.localized("all.action.mark_unread") : LanguageManager.shared.localized("all.action.mark_read"),
+                                              systemImage: realBookmark.isRead ? "circle" : "checkmark.circle.fill")
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    Button(role: .destructive) {
+                                        // ✅ FIXED: Use ViewModel's deleteBookmark which handles optimistic updates
+                                        viewModel.deleteBookmark(realBookmark)
+                                        // Task { await viewModel.refresh() } // ViewModel already handles this
+                                    } label: {
+                                        Label(LanguageManager.shared.localized("common.delete"), systemImage: "trash")
+                                    }
+                                }
                             }
                             
-                            Button {
-                                bookmark.isRead.toggle()
-                                viewModel.bookmarkRepository.update(bookmark)
-                            } label: {
-                                Label(bookmark.isRead ? "all.action.mark_unread" : "all.action.mark_read",
-                                      systemImage: bookmark.isRead ? "circle" : "checkmark.circle.fill")
+                            if index < min(5, viewModel.recentDisplayBookmarks.count - 1) {
+                                Divider()
+                                    .padding(.leading, 88)
                             }
-                            
-                            Divider()
-                            
-                            Button(role: .destructive) {
-                                viewModel.bookmarkRepository.delete(bookmark)
-                                Task { await viewModel.refresh() }
-                            } label: {
-                                Label("common.delete", systemImage: "trash")
-                            }
-                        }
-                        
-                        if index < min(5, viewModel.recentBookmarks.count - 1) {
-                            Divider()
-                                .padding(.leading, 88)
                         }
                     }
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, 16)
                 }
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .padding(.horizontal, 16)
-            }
         }
     }
     
@@ -506,11 +525,11 @@ struct HomeView: View {
                 .foregroundStyle(.secondary)
             
             VStack(spacing: 4) {
-                Text(String(localized: "home.empty.no_bookmarks"))
+                Text(LanguageManager.shared.localized("home.empty.no_bookmarks"))
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                Text(String(localized: "home.empty.no_bookmarks_desc"))
+                Text(LanguageManager.shared.localized("home.empty.no_bookmarks_desc"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -605,7 +624,7 @@ struct CompactCategoryCard: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 
-                Text("categories.management.bookmark_count \(count)")
+                Text(LanguageManager.shared.localized("categories.management.bookmark_count %lld", Int64(count)))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .contentTransition(.numericText())
@@ -643,7 +662,7 @@ struct ReadingProgressWidget: View {
             HStack {
                 Image(systemName: "book.fill")
                     .foregroundStyle(.blue)
-                Text(String(localized: "widget.reading_progress"))
+                Text(LanguageManager.shared.localized("widget.reading_progress"))
                     .font(.caption)
                     .fontWeight(.semibold)
             }
@@ -677,7 +696,7 @@ struct ReadingProgressWidget: View {
             
             Spacer()
             
-            Text(String(localized: "widget.read_count \(readCount) \(totalCount)"))
+            Text(LanguageManager.shared.localized("widget.read_count %lld %lld", Int64(readCount), Int64(totalCount)))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
@@ -701,7 +720,7 @@ struct QuickStatsWidget: View {
             HStack {
                 Image(systemName: "chart.bar.fill")
                     .foregroundStyle(.purple)
-                Text(String(localized: "widget.quick_stats"))
+                Text(LanguageManager.shared.localized("widget.quick_stats"))
                     .font(.caption)
                     .fontWeight(.semibold)
             }
@@ -711,7 +730,7 @@ struct QuickStatsWidget: View {
             VStack(spacing: 10) {
                 quickStatRow(
                     icon: "sun.max.fill",
-                    title: String(localized: "common.today"),
+                    title: LanguageManager.shared.localized("common.today"),
                     count: todayCount,
                     color: .orange
                 ) {
@@ -720,7 +739,7 @@ struct QuickStatsWidget: View {
                 
                 quickStatRow(
                     icon: "calendar",
-                    title: String(localized: "common.this_week"),
+                    title: LanguageManager.shared.localized("common.this_week"),
                     count: weekCount,
                     color: .green
                 ) {
@@ -729,7 +748,7 @@ struct QuickStatsWidget: View {
                 
                 quickStatRow(
                     icon: "star.fill",
-                    title: String(localized: "common.favorites"),
+                    title: LanguageManager.shared.localized("common.favorites"),
                     count: favoritesCount,
                     color: .yellow
                 ) {
@@ -786,7 +805,7 @@ struct PopularTagsWidget: View {
             HStack {
                 Image(systemName: "tag.fill")
                     .foregroundStyle(.green)
-                Text(String(localized: "widget.popular_tags"))
+                Text(LanguageManager.shared.localized("widget.popular_tags"))
                     .font(.caption)
                     .fontWeight(.semibold)
                 
@@ -828,10 +847,12 @@ struct TaggedBookmarksView: View {
     
     var body: some View {
         UnifiedBookmarkList(
-            bookmarks: filteredBookmarks,
+            bookmarks: filteredBookmarks.map { bookmark in
+                BookmarkDisplayModel(bookmark: bookmark, category: viewModel.categories.first { cat in cat.id == bookmark.categoryId })
+            },
             viewModel: viewModel,
             emptyTitle: "#\(tag)",
-            emptySubtitle: String(localized: "all.empty.no_results"),
+            emptySubtitle: LanguageManager.shared.localized("all.empty.no_results"),
             emptyIcon: "tag"
         )
         .navigationTitle("#\(tag)")
@@ -850,9 +871,9 @@ enum QuickFilter: String, Identifiable {
     
     var title: String {
         switch self {
-        case .unread: return String(localized: "home.filter.unread")
-        case .favorites: return String(localized: "home.filter.favorites")
-        case .today: return String(localized: "home.filter.today")
+        case .unread: return LanguageManager.shared.localized("home.filter.unread")
+        case .favorites: return LanguageManager.shared.localized("home.filter.favorites")
+        case .today: return LanguageManager.shared.localized("home.filter.today")
         }
     }
     
