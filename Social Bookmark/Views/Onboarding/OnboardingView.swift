@@ -1,4 +1,5 @@
 import SwiftUI
+import OneSignalFramework
 
 struct OnboardingView: View {
     @Binding var isPresented: Bool

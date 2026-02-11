@@ -60,17 +60,12 @@ class ShareViewController: UIViewController {
     
     private let appGroupId = APIConstants.appGroupId
     private let inboxKey = "share_inbox_payloads"
-    private let loadingTimeoutSeconds: TimeInterval = 15.0
+    private let loadingTimeoutSeconds: TimeInterval = 10.0
     private let imageDirectory = "SharedImages"
     
     // MARK: - Properties
     
     private var hostingController: UIViewController?
-    private var collectedURLs: Set<String> = []
-    private var collectedTexts: [String] = []
-    private var collectedImageFileNames: [String] = []
-    
-    /// ModelContainer - background'da oluşturulacak
     private var modelContainer: ModelContainer?
     
     // MARK: - Lifecycle
@@ -78,50 +73,110 @@ class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Create initial loading view immediately
+        // 1. Show loading view immediately
+        showInitialLoadingView()
+        
+        Task {
+            // 2. Start all initialization tasks in parallel
+            // - collectPayload: Extracts URL/Text from attachments
+            // - sessionInit: Restores user session
+            // - containerInit: Sets up SwiftData
+            
+            async let payload = collectPayloadSafe()
+            async let sessionInit: () = SessionStore.shared.initializeOnce()
+            
+            // Background Task for ModelContainer (heaviest part)
+            let containerTask = Task.detached(priority: .userInitiated) {
+                await self.createModelContainerAsync()
+            }
+            
+            // 3. Wait for payload FIRST to show the UI
+            // This is what makes the extension feel fast
+            guard let collectedPayload = await payload else {
+                print("❌ [Share] No payload found, closing")
+                close()
+                return
+            }
+            
+            // 4. Update UI with payload as soon as possible
+            // We don't wait for SessionStore or ModelContainer here
+            await MainActor.run {
+                self.setupSwiftUIView(with: collectedPayload)
+            }
+            
+            // 5. Wait for SessionStore and ModelContainer in the background
+            await sessionInit
+            let container = await containerTask.value
+            
+            // 6. Inject repositories once they are ready
+            await MainActor.run {
+                self.modelContainer = container
+                self.updateUIWithReadyComponents(container: container, payload: collectedPayload)
+            }
+        }
+    }
+    
+    private func showInitialLoadingView() {
         let loadingView = UIHostingController(rootView: LoadingView())
         addChild(loadingView)
         view.addSubview(loadingView.view)
         loadingView.view.frame = view.bounds
         loadingView.didMove(toParent: self)
         self.hostingController = loadingView
+    }
+    
+    // MARK: - UI Logic
+    
+    private func updateUIWithReadyComponents(container: ModelContainer?, payload: SharedInboxPayload) {
+        guard let hosting = hostingController as? UIHostingController<AnyView> else { return }
         
-        Task {
-            // 1. Session ve Payload toplamayı paralel başlat
-            // Session initialization is critical for repository creation
-            async let sessionInit: () = SessionStore.shared.initializeOnce()
-            async let payloadTask = collectPayloadSafe()
-            
-            // 2. Arka planda ModelContainer'ı başlat (en yavaş işlem)
-            let containerTask = Task.detached(priority: .userInitiated) {
-                await self.createModelContainerAsync()
-            }
-            
-            // 3. Payload ve Session'ı bekle
-            let (payload, _) = await (payloadTask, sessionInit)
-            
-            // 4. Session hazır olduğunda UI'ı hemen güncelle (ModelContainer gelene kadar bekleme)
-            // Bu sayede kullanıcı yazmaya/seçmeye başlayabilir
-            if let payload = payload {
-                await self.showUIWithPayload(payload)
-            } else {
-                close()
-                return
-            }
-            
-            // 5. ModelContainer bittiğinde repository'leri enjekte et
-            let container = await containerTask.value
-            
-            await MainActor.run {
-                self.modelContainer = container
-                if let payload = payload {
-                    self.updateUIWithContainer(container, payload: payload)
+        print("🔄 [Share] Injecting ready components (Container: \(container != nil))")
+        
+        let urlString = payload.urls.first ?? payload.texts.first ?? ""
+        guard let url = URL(string: urlString) ?? parseURL(from: urlString) else { return }
+        
+        let (bookmarkRepo, categoryRepo) = createRepositories(with: container)
+        
+        let swiftUIView = ShareExtensionView(
+            url: url,
+            repository: bookmarkRepo,
+            categoryRepository: categoryRepo,
+            onSave: { [weak self] in
+                if container == nil {
+                    self?.persistToAppGroup(payload: payload)
                 }
+                self?.close()
+            },
+            onCancel: { [weak self] in
+                self?.close()
             }
+        )
+        
+        let viewWithEnv = AnyView(
+            swiftUIView
+                .environmentObject(SessionStore.shared)
+        )
+        
+        if let container = container {
+            hosting.rootView = AnyView(viewWithEnv.modelContainer(container))
+        } else {
+            hosting.rootView = viewWithEnv
         }
     }
     
-    // MARK: - Loading View
+    private func createRepositories(with container: ModelContainer?) -> (BookmarkRepositoryProtocol?, CategoryRepositoryProtocol?) {
+        guard let container = container else { return (nil, nil) }
+        
+        let baseBookmarkRepo = BookmarkRepository(modelContext: container.mainContext)
+        let baseCategoryRepo = CategoryRepository(modelContext: container.mainContext)
+        
+        return (
+            SyncableBookmarkRepository(baseRepository: baseBookmarkRepo),
+            SyncableCategoryRepository(baseRepository: baseCategoryRepo)
+        )
+    }
+    
+    // MARK: - Legacy Loading View
     
     private var hintLabel: UILabel?
     
@@ -308,33 +363,7 @@ class ShareViewController: UIViewController {
         }
     }
     
-    // MARK: - Show UI
-    
-    private func showUIWithPayload(_ payload: SharedInboxPayload?) async {
-        guard let payload = payload else {
-            await MainActor.run { close() }
-            return
-        }
-        
-        // URL bul
-        var targetURL: URL?
-        
-        if let firstURL = payload.urls.first, let url = URL(string: firstURL) {
-            targetURL = url
-        } else if let text = payload.texts.first, let url = parseURL(from: text) {
-            targetURL = url
-        }
-        
-        if let url = targetURL {
-            await MainActor.run {
-                setupSwiftUIView(with: url, payload: payload)
-            }
-        } else {
-            // URL yok, App Group'a kaydet ve kapat
-            persistToAppGroup(payload: payload)
-            await MainActor.run { close() }
-        }
-    }
+    // MARK: - Legacy Show UI (REMOVED)
     
     // MARK: - Collect Payload (Safe)
     
@@ -342,7 +371,7 @@ class ShareViewController: UIViewController {
         do {
             return try await collectPayload()
         } catch {
-            print("❌ Payload collection error: \(error.localizedDescription)")
+            print("❌ [Share] Payload collection error: \(error.localizedDescription)")
             return nil
         }
     }
@@ -353,31 +382,54 @@ class ShareViewController: UIViewController {
             throw NSError(domain: "ShareExtension", code: 1, userInfo: [NSLocalizedDescriptionKey: "No attachments"])
         }
         
-        print("📱 Share Extension: \(attachments.count) attachment(s) found")
+        print("📱 [Share] \(attachments.count) attachment(s) found")
         
-        // Paralel olarak tüm attachment'ları işle
-        await withTaskGroup(of: Void.self) { group in
+        // Use structured concurrency to collect results without data races
+        return await withTaskGroup(of: AttachmentResult.self) { group in
             for provider in attachments {
-                group.addTask { [weak self] in
-                    await self?.processAttachment(provider)
+                group.addTask {
+                    await self.processAttachmentSafe(provider)
                 }
             }
+            
+            var urls: Set<String> = []
+            var texts: [String] = []
+            var imageFileNames: [String] = []
+            
+            for await result in group {
+                switch result {
+                case .url(let url):
+                    urls.insert(url)
+                case .text(let text):
+                    texts.append(text)
+                case .image(let fileName):
+                    imageFileNames.append(fileName)
+                case .none:
+                    break
+                }
+            }
+            
+            return SharedInboxPayload(
+                urls: Array(urls),
+                texts: texts,
+                imageFileNames: imageFileNames
+            )
         }
-        
-        return SharedInboxPayload(
-            urls: Array(collectedURLs),
-            texts: collectedTexts,
-            imageFileNames: collectedImageFileNames
-        )
     }
     
-    private func processAttachment(_ provider: NSItemProvider) async {
+    private enum AttachmentResult {
+        case url(String)
+        case text(String)
+        case image(String)
+        case none
+    }
+    
+    private func processAttachmentSafe(_ provider: NSItemProvider) async -> AttachmentResult {
         // URL kontrolü (öncelikli - en hızlı)
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = await loadURL(from: provider) {
-                collectedURLs.insert(url.absoluteString)
-                print("   ✅ URL: \(url.absoluteString)")
-                return // URL bulunca diğerlerini kontrol etme
+                print("   ✅ [Share] URL: \(url.absoluteString)")
+                return .url(url.absoluteString)
             }
         }
         
@@ -386,11 +438,11 @@ class ShareViewController: UIViewController {
             if let text = await loadText(from: provider) {
                 // URL içeriyor mu kontrol et
                 if let extractedURL = parseURL(from: text) {
-                    collectedURLs.insert(extractedURL.absoluteString)
-                    print("   ✅ URL from text: \(extractedURL.absoluteString)")
+                    print("   ✅ [Share] URL from text: \(extractedURL.absoluteString)")
+                    return .url(extractedURL.absoluteString)
                 } else {
-                    collectedTexts.append(text)
-                    print("   ✅ Text: \(text.prefix(50))...")
+                    print("   ✅ [Share] Text: \(text.prefix(50))...")
+                    return .text(text)
                 }
             }
         }
@@ -398,13 +450,16 @@ class ShareViewController: UIViewController {
         // Image kontrolü (en yavaş - sona bırak)
         if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             if let fileName = await loadAndSaveImage(from: provider) {
-                collectedImageFileNames.append(fileName)
-                print("   ✅ Image saved: \(fileName)")
+                print("   ✅ [Share] Image saved: \(fileName)")
+                return .image(fileName)
             }
         }
+        
+        return .none
     }
     
     // MARK: - Load Helpers
+    // (Existing loadURL, loadText, loadAndSaveImage remain same)
     
     private func loadURL(from provider: NSItemProvider) async -> URL? {
         await withCheckedContinuation { continuation in
@@ -478,7 +533,7 @@ class ShareViewController: UIViewController {
             try data.write(to: fileURL)
             return fileName
         } catch {
-            print("❌ Failed to save image: \(error.localizedDescription)")
+            print("❌ [Share] Failed to save image: \(error.localizedDescription)")
             return nil
         }
     }
@@ -487,7 +542,7 @@ class ShareViewController: UIViewController {
     
     private func persistToAppGroup(payload: SharedInboxPayload) {
         guard let defaults = UserDefaults(suiteName: appGroupId) else {
-            print("❌ Failed to access App Group UserDefaults")
+            print("❌ [Share] Failed to access App Group UserDefaults")
             return
         }
         
@@ -507,36 +562,30 @@ class ShareViewController: UIViewController {
         if let data = try? encoder.encode(payloads) {
             defaults.set(data, forKey: inboxKey)
             defaults.synchronize()
-            print("✅ Payload persisted to App Group (\(payloads.count) total)")
+            print("✅ [Share] Payload persisted to App Group (\(payloads.count) total)")
         }
     }
     
     // MARK: - Setup SwiftUI View
     
-    private func setupSwiftUIView(with url: URL, payload: SharedInboxPayload? = nil) {
-        print("🔧 Setting up SwiftUI view...")
+    private func setupSwiftUIView(with payload: SharedInboxPayload) {
+        print("🔧 [Share] Setting up SwiftUI view...")
         
         // Eski view'ları temizle
         view.subviews.forEach { $0.removeFromSuperview() }
         
-        var bookmarkRepository: BookmarkRepositoryProtocol?
-        var categoryRepository: CategoryRepositoryProtocol?
-        
-        if let container = modelContainer {
-            let baseBookmarkRepo = BookmarkRepository(modelContext: container.mainContext)
-            let baseCategoryRepo = CategoryRepository(modelContext: container.mainContext)
-            bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
-            categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
+        let urlString = payload.urls.first ?? payload.texts.first ?? ""
+        guard let url = URL(string: urlString) ?? parseURL(from: urlString) else {
+            close()
+            return
         }
         
         let swiftUIView = ShareExtensionView(
             url: url,
-            repository: bookmarkRepository,
-            categoryRepository: categoryRepository,
+            repository: nil, // Initial setup without repository
+            categoryRepository: nil,
             onSave: { [weak self] in
-                if self?.modelContainer == nil, let payload = payload {
-                    self?.persistToAppGroup(payload: payload)
-                }
+                self?.persistToAppGroup(payload: payload)
                 self?.close()
             },
             onCancel: { [weak self] in
@@ -559,71 +608,6 @@ class ShareViewController: UIViewController {
         ])
         
         hosting.didMove(toParent: self)
-        
-        // Eğer container varsa bağla
-        if let container = modelContainer {
-            hosting.rootView = AnyView(swiftUIView.modelContainer(container).environmentObject(SessionStore.shared))
-        }
-        
-        print("✅ SwiftUI view setup complete")
-    }
-    
-    private func updateUIWithContainer(_ container: ModelContainer?, payload: SharedInboxPayload) {
-        guard let urlString = payload.urls.first, let url = URL(string: urlString) else { return }
-        
-        print("🔄 Updating UI with ModelContainer...")
-        
-        var bookmarkRepository: BookmarkRepositoryProtocol?
-        var categoryRepository: CategoryRepositoryProtocol?
-        
-        if let container = container {
-            let baseBookmarkRepo = BookmarkRepository(modelContext: container.mainContext)
-            let baseCategoryRepo = CategoryRepository(modelContext: container.mainContext)
-            bookmarkRepository = SyncableBookmarkRepository(baseRepository: baseBookmarkRepo)
-            categoryRepository = SyncableCategoryRepository(baseRepository: baseCategoryRepo)
-        }
-        
-        let swiftUIView = ShareExtensionView(
-            url: url,
-            repository: bookmarkRepository,
-            categoryRepository: categoryRepository,
-            onSave: { [weak self] in
-                if self?.modelContainer == nil {
-                    self?.persistToAppGroup(payload: payload)
-                }
-                self?.close()
-            },
-            onCancel: { [weak self] in
-                self?.close()
-            }
-        )
-        
-        if let hosting = hostingController as? UIHostingController<AnyView> {
-            if let container = container {
-                hosting.rootView = AnyView(swiftUIView.modelContainer(container).environmentObject(SessionStore.shared))
-            } else {
-                hosting.rootView = AnyView(swiftUIView.environmentObject(SessionStore.shared))
-            }
-        } else {
-            // Re-setup if type mismatch
-            setupSwiftUIView(with: url, payload: payload)
-        }
-    }
-    
-    // MARK: - Fallback Alert
-    
-    private func showFallbackAlert(url: URL) {
-        let alert = UIAlertController(
-            title: L("extension.fallback.title"),
-            message: L("extension.fallback.message"),
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: L("extension.fallback.ok"), style: .default) { [weak self] _ in
-            self?.close()
-        })
-        
-        present(alert, animated: true)
     }
     
     // MARK: - Helpers

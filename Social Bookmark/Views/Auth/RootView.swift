@@ -140,7 +140,23 @@ struct RootView: View {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
+        .onChange(of: showPaywall) { oldVal, newVal in
+            // Paywall kapandığında (yeni kullanıcı akışı)
+            if oldVal == true && newVal == false {
+                requestNotificationPermissionIfNeeded()
+            }
+        }
         .environment(\.locale, languageManager.currentLanguage.locale)
+    }
+
+    private func requestNotificationPermissionIfNeeded() {
+        // Zaten izin verilmişse tekrar sorma
+        guard !NotificationManager.shared.isAuthorized else { return }
+        
+        // Bir saniye bekle ki UI kendine gelsin (sheet kapandıktan hemen sonra çıkmasın)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            NotificationManager.shared.requestAuthorization()
+        }
     }
     
     // MARK: - Loading View
@@ -225,6 +241,9 @@ struct RootView: View {
             
             Logger.sync.info("✅ [RootView] User authenticated - triggering sync")
             await performInitialSync()
+            
+            // Mevcut kullanıcılar için (Splash sonrası)
+            requestNotificationPermissionIfNeeded()
         } else {
             Logger.sync.warning("⚠️ [RootView] User not authenticated - skipping sync")
         }

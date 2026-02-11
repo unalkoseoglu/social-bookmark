@@ -101,7 +101,16 @@ final class SessionStore: ObservableObject {
             self.didInitialize = true
             
             // Refresh in background if needed
-            Task { await loadUserProfile() }
+            Task { @MainActor in await loadUserProfile() }
+            return
+        }
+        
+        // If in extension but no token/ID, we still want to be fast
+        if isExtension && !hasToken {
+            Logger.auth.info("ℹ️ [SessionStore] Extension launch without token")
+            resetUserState()
+            isLoading = false
+            didInitialize = true
             return
         }
         
@@ -140,7 +149,12 @@ final class SessionStore: ObservableObject {
             // Eğer lastId nil ise ve içeride veri kalmışsa (ghost data), temizle
             if lastId == nil {
                 Logger.auth.warning("⚠️ [SessionStore] No session found and no lastUserId. Ensuring local data is wiped.")
-                await AccountMigrationService.shared.clearAllLocalData()
+                // Extension'da ise bu işlemi arka plana at ki açılışı bloklamasın
+                if isExtension {
+                    Task { await AccountMigrationService.shared.clearAllLocalData() }
+                } else {
+                    await AccountMigrationService.shared.clearAllLocalData()
+                }
             }
             
             resetUserState()

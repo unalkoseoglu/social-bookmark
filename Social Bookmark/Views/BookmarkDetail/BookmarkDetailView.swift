@@ -78,10 +78,13 @@ struct BookmarkDetailView: View {
     
     private var allImages: [UIImage] {
         let localImages = bookmark.allImagesData.compactMap { UIImage(data: $0) }
-        if !localImages.isEmpty {
-            return localImages
+        
+        // Eğer cloud'dan daha fazla/güncel görsel geldiyse onu tercih et
+        if !loadedImages.isEmpty && (loadedImages.count > localImages.count) {
+            return loadedImages
         }
-        return loadedImages
+        
+        return localImages.isEmpty ? loadedImages : localImages
     }
     
     private var hasImages: Bool {
@@ -751,8 +754,11 @@ struct BookmarkDetailView: View {
     }
     
     private func loadImagesFromStorage() async {
-        guard bookmark.allImagesData.isEmpty,
-              let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else { return }
+        guard let imageUrls = bookmark.imageUrls, !imageUrls.isEmpty else { return }
+        
+        // Eğer yerel görseller eksikse veya hiç yoksa buluttan çek
+        let localCount = bookmark.allImagesData.count
+        guard localCount < imageUrls.count else { return }
         
         await MainActor.run { isLoadingImages = true }
         

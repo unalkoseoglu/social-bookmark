@@ -12,14 +12,11 @@ struct HomeView: View {
     @State private var selectedFilter: QuickFilter?
     @State private var showingAddCategory = false
     @StateObject private var subscriptionManager = SubscriptionManager.shared
-    @StateObject private var notificationManager = NotificationManager.shared
     @Environment(\.modelContext) private var modelContext
     @State private var showingFavorites = false
     @State private var showingPaywall = false
     @State private var showingAnalytics = false
-    @AppStorage("hasDismissedNotificationCard") private var hasDismissedNotificationCard = false
     
-    // MARK: - Time-based Greeting
     // MARK: - Time-based Greeting
     
     private var greeting: String {
@@ -59,11 +56,6 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                 }
                 
-                // Bildirim Promosyon Kartı (Eğer izin verilmemişse ve dismiss edilmemişse)
-                if !notificationManager.isAuthorized && !hasDismissedNotificationCard {
-                    notificationPromotionalCard
-                        .padding(.horizontal, 16)
-                }
                 
                 // Kategoriler (max 6, 2x3 grid)
                 categoriesSection
@@ -231,78 +223,6 @@ struct HomeView: View {
             )
         }
         .buttonStyle(.plain)
-    }
-    
-    // MARK: - Notification Promotional Card
-    
-    private var notificationPromotionalCard: some View {
-        ZStack(alignment: .topTrailing) {
-            HStack(spacing: 12) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(Color.blue.opacity(0.1))
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: "bell.badge.fill")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.blue)
-                }
-                
-                // Text
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(LanguageManager.shared.localized("home.notification_card.title"))
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                    
-                    Text(LanguageManager.shared.localized("home.notification_card.subtitle"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Spacer()
-                
-                // Action Button
-                Button {
-                    notificationManager.requestAuthorization()
-                } label: {
-                    Text(LanguageManager.shared.localized("common.ok"))
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.blue)
-                        .clipShape(Capsule())
-                }
-                
-               
-                
-            }
-            .padding(.leading, 12)
-            .padding(.vertical, 16)
-            .padding(.trailing, 16)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.blue.opacity(0.1), lineWidth: 1)
-            )
-            
-            // Close Button
-            Button {
-                withAnimation {
-                    hasDismissedNotificationCard = true
-                }
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary.opacity(0.4))
-                    .font(.system(size: 18))
-                    .padding(4)
-            }
-        }
     }
     
     // MARK: - Categories Section (max 6, 3x2)

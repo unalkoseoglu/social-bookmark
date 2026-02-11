@@ -291,6 +291,9 @@
 "category_picker.none" = "Seçilmedi";
 "category_picker.selection_title" = "Kategoriler";
 
+// MARK: - Genel Kategori
+"category.general" = "Genel";
+
 // MARK: - Bookmark Sources
 "source.twitter" = "X";
 "source.reddit" = "Reddit";

@@ -176,10 +176,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("🔄 [HomeViewModel] Sync completed, refreshing data...")
-                self?.loadData()
-            }
+            print("🔄 [HomeViewModel] Sync completed, refreshing data...")
+            self?.loadData()
         }
         
         NotificationCenter.default.addObserver(
@@ -187,10 +185,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("🔄 [HomeViewModel] Categories synced, refreshing data...")
-                self?.loadData()
-            }
+            print("🔄 [HomeViewModel] Categories synced, refreshing data...")
+            self?.loadData()
         }
         
         NotificationCenter.default.addObserver(
@@ -198,10 +194,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("🔄 [HomeViewModel] Bookmarks synced, refreshing data...")
-                self?.loadData()
-            }
+            print("🔄 [HomeViewModel] Bookmarks synced, refreshing data...")
+            self?.loadData()
         }
         
         NotificationCenter.default.addObserver(
@@ -209,8 +203,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("🔐 [HomeViewModel] User signed in, refreshing and syncing...")
+            print("🔐 [HomeViewModel] User signed in, refreshing and syncing...")
+            Task {
                 await self?.refresh()
             }
         }
@@ -220,10 +214,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("👋 [HomeViewModel] User signed out, clearing data...")
-                self?.loadData()
-            }
+            print("👋 [HomeViewModel] User signed out, clearing data...")
+            self?.loadData()
         }
         
         NotificationCenter.default.addObserver(
@@ -231,10 +223,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("🧹 [HomeViewModel] Local data cleared, refreshing UI...")
-                self?.loadData()
-            }
+            print("🧹 [HomeViewModel] Local data cleared, refreshing UI...")
+            self?.loadData()
         }
         
         NotificationCenter.default.addObserver(
@@ -242,10 +232,8 @@ final class HomeViewModel {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                print("⚠️ [HomeViewModel] Sync failed notification received")
-                self?.errorMessage = String(localized: "error.sync_failed")
-            }
+            print("⚠️ [HomeViewModel] Sync failed notification received")
+            self?.errorMessage = String(localized: "error.sync_failed")
         }
     }
     
@@ -317,13 +305,25 @@ final class HomeViewModel {
     /// Kategori sil
     /// ✅ DÜZELTME: Manuel sync kaldırıldı
     func deleteCategory(_ category: Category) {
+        let categoryId = category.id
+        
         // Önce bu kategorideki bookmarkların categoryId'sini nil yap
         for bookmark in bookmarks(for: category) {
             bookmark.categoryId = nil
             bookmarkRepository.update(bookmark)
         }
-        
+
         categoryRepository.delete(category)
+        
+        // ✅ Sync: Sunucudan sil
+        Task {
+            do {
+                try await SyncService.shared.deleteCategory(id: categoryId)
+            } catch {
+                print("❌ [HomeViewModel] Failed to sync category deletion: \(error)")
+            }
+        }
+        
         loadData()
     }
     

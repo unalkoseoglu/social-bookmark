@@ -1282,12 +1282,18 @@ extension ShareExtensionView {
             print("📸 [ShareExtension] Saving with multiple images: \(multiple.count) items")
         }
         
+        // ✅ DEFAULT CATEGORY LOGIC
+        var categoryIdToSave = selectedCategoryId
+        if categoryIdToSave == nil {
+            categoryIdToSave = getOrCreateGeneralCategoryId()
+        }
+        
         let newBookmark = Bookmark(
             title: title.trimmingCharacters(in: .whitespaces),
             url: url.absoluteString,
             note: note.trimmingCharacters(in: .whitespaces),
             source: selectedSource,
-            categoryId: selectedCategoryId,
+            categoryId: categoryIdToSave,
             tags: parsedTags,
             imageData: finalImageData,
             imagesData: finalImagesData
@@ -1300,5 +1306,33 @@ extension ShareExtensionView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             onSave()
         }
+    }
+    
+    /// ✅ "General" kategorisini bul veya oluştur
+    private func getOrCreateGeneralCategoryId() -> UUID? {
+        guard let categoryRepository = categoryRepository else { return nil }
+        
+        let allCategories = categoryRepository.fetchAll()
+        
+        // 1. İsim bazlı ara (Yerelleştirilmiş veya sabit)
+        let generalName = L("category.general")
+        if let existing = allCategories.first(where: { 
+            $0.name.lowercased() == generalName.lowercased() || 
+            $0.name.lowercased() == "general" 
+        }) {
+            return existing.id
+        }
+        
+        // 2. Yoksa oluştur
+        print("📁 [ShareExtension] Creating 'General' category...")
+        let newGeneral = Category(
+            name: generalName,
+            icon: "folder.fill",
+            colorHex: "#8E8E93", // Gray
+            order: (allCategories.map { $0.order }.max() ?? 0) + 1
+        )
+        
+        categoryRepository.create(newGeneral)
+        return newGeneral.id
     }
 }

@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		433740C43F9FD8DBC84DDADA /* Pods_Social_Bookmark_Social_BookmarkUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */; };
+		91B2927EEBB797DAD403F8EB /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF4A2CEF21DF9BCB0C200ABF /* Pods_OneSignalNotificationServiceExtension.framework */; };
+		C011C8FB2F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C011C8F42F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C05B512D2EF5FEED007DF808 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */; };
 		C05B51392EF5FEED007DF808 /* BookmarkActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
-		C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */; };
 		C0867F8A2EEA2A73000C8D7D /* BookmarkShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C0D7B8542F25530D00560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8532F25530D00560E34 /* RevenueCat */; };
 		C0D7B8582F25741500560E34 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = C0D7B8572F25741500560E34 /* RevenueCat */; };
@@ -24,6 +24,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C011C8F92F3B5DC8005ED6D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C0867EF32EE9A86D000C8D7D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C011C8F32F3B5DC8005ED6D4;
+			remoteInfo = OneSignalNotificationServiceExtension;
+		};
 		C05B51372EF5FEED007DF808 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C0867EF32EE9A86D000C8D7D /* Project object */;
@@ -61,6 +68,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				C011C8FB2F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */,
 				C05B51392EF5FEED007DF808 /* BookmarkActionExtension.appex in Embed Foundation Extensions */,
 				C0867F8A2EEA2A73000C8D7D /* BookmarkShareExtension.appex in Embed Foundation Extensions */,
 			);
@@ -76,11 +84,14 @@
 		6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig"; path = "Target Support Files/Pods-Social Bookmark-Social BookmarkUITests/Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6FFB52CE080249EEB4437FBC /* Pods-Social Bookmark.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Social Bookmark.debug.xcconfig"; path = "Target Support Files/Pods-Social Bookmark/Pods-Social Bookmark.debug.xcconfig"; sourceTree = "<group>"; };
 		7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Social_Bookmark_Social_BookmarkUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C6EE6BF8B7B084B50CE8AEC /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		A7F1F6589FB8AA355328E136 /* Pods_Social_BookmarkTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Social_BookmarkTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B511DD2B95A0F73BE8C04E5B /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		BF4A2CEF21DF9BCB0C200ABF /* Pods_OneSignalNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OneSignalNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C011C8F42F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookmarkActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C05B512C2EF5FEED007DF808 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
-		C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Supabase.xcconfig; sourceTree = "<group>"; };
-		C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		C05DE4462EEF7A5200EFC6B2 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		C0867EFB2EE9A86D000C8D7D /* Social Bookmark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Social Bookmark.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F082EE9A86F000C8D7D /* Social BookmarkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social BookmarkUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +101,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C011C8FF2F3B5DC8005ED6D4 /* Exceptions for "OneSignalNotificationServiceExtension" folder in "OneSignalNotificationServiceExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C011C8F32F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */;
+		};
 		C05B513A2EF5FEED007DF808 /* Exceptions for "BookmarkActionExtension" folder in "BookmarkActionExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -222,6 +240,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C011C8F52F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C011C8FF2F3B5DC8005ED6D4 /* Exceptions for "OneSignalNotificationServiceExtension" folder in "OneSignalNotificationServiceExtension" target */,
+			);
+			path = OneSignalNotificationServiceExtension;
+			sourceTree = "<group>";
+		};
 		C05B512E2EF5FEED007DF808 /* BookmarkActionExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -262,6 +288,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C011C8F12F3B5DC8005ED6D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				91B2927EEBB797DAD403F8EB /* Pods_OneSignalNotificationServiceExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C05B51282EF5FEED007DF808 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -319,6 +353,8 @@
 				6A5569DBF38CA7B4DE909352 /* Pods-Social Bookmark-Social BookmarkUITests.release.xcconfig */,
 				309EEB1F89467173B1311FA3 /* Pods-Social BookmarkTests.debug.xcconfig */,
 				FDF0DD2CFE483BC5BD6DFFA7 /* Pods-Social BookmarkTests.release.xcconfig */,
+				B511DD2B95A0F73BE8C04E5B /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */,
+				7C6EE6BF8B7B084B50CE8AEC /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -326,8 +362,7 @@
 		C05DE4402EEF79B300EFC6B2 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */,
-				C05DE4492EEF7ABA00EFC6B2 /* Secrets.xcconfig.example */,
+				C05DE4462EEF7A5200EFC6B2 /* Secrets.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -339,6 +374,7 @@
 				4706D99C73DA9828B80279D9 /* Pods_Social_Bookmark.framework */,
 				7A7055BE7EFF84195702C329 /* Pods_Social_Bookmark_Social_BookmarkUITests.framework */,
 				A7F1F6589FB8AA355328E136 /* Pods_Social_BookmarkTests.framework */,
+				BF4A2CEF21DF9BCB0C200ABF /* Pods_OneSignalNotificationServiceExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -351,6 +387,7 @@
 				C0867F152EE9A86F000C8D7D /* Social BookmarkUITests */,
 				C0867F812EEA2A73000C8D7D /* BookmarkShareExtension */,
 				C05B512E2EF5FEED007DF808 /* BookmarkActionExtension */,
+				C011C8F52F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */,
 				C0867EFC2EE9A86D000C8D7D /* Products */,
 				C05DE4402EEF79B300EFC6B2 /* Config */,
 				C05DE4662EEF838E00EFC6B2 /* Frameworks */,
@@ -366,6 +403,7 @@
 				C0867F122EE9A86F000C8D7D /* Social BookmarkUITests.xctest */,
 				C0867F802EEA2A72000C8D7D /* BookmarkShareExtension.appex */,
 				C05B512B2EF5FEED007DF808 /* BookmarkActionExtension.appex */,
+				C011C8F42F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -373,6 +411,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C011C8F32F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C011C8FC2F3B5DC8005ED6D4 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
+			buildPhases = (
+				A556303DEC6C22C40263EE7F /* [CP] Check Pods Manifest.lock */,
+				C011C8F02F3B5DC8005ED6D4 /* Sources */,
+				C011C8F12F3B5DC8005ED6D4 /* Frameworks */,
+				C011C8F22F3B5DC8005ED6D4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C011C8F52F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */,
+			);
+			name = OneSignalNotificationServiceExtension;
+			productName = OneSignalNotificationServiceExtension;
+			productReference = C011C8F42F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C05B513B2EF5FEED007DF808 /* Build configuration list for PBXNativeTarget "BookmarkActionExtension" */;
@@ -413,6 +472,7 @@
 			dependencies = (
 				C0867F892EEA2A73000C8D7D /* PBXTargetDependency */,
 				C05B51382EF5FEED007DF808 /* PBXTargetDependency */,
+				C011C8FA2F3B5DC8005ED6D4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C0867EFD2EE9A86D000C8D7D /* Social Bookmark */,
@@ -505,6 +565,9 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					C011C8F32F3B5DC8005ED6D4 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
 					C05B512A2EF5FEED007DF808 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -552,11 +615,19 @@
 				C0867F112EE9A86F000C8D7D /* Social BookmarkUITests */,
 				C0867F7F2EEA2A72000C8D7D /* BookmarkShareExtension */,
 				C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */,
+				C011C8F32F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C011C8F22F3B5DC8005ED6D4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C05B51292EF5FEED007DF808 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -568,7 +639,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C05DE44B2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,7 +660,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C05DE44A2EEF7ABA00EFC6B2 /* Secrets.xcconfig.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -662,6 +731,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A556303DEC6C22C40263EE7F /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OneSignalNotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		C5765F8CED035E0063C15670 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -708,6 +799,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C011C8F02F3B5DC8005ED6D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C05B51272EF5FEED007DF808 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -746,6 +844,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C011C8FA2F3B5DC8005ED6D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C011C8F32F3B5DC8005ED6D4 /* OneSignalNotificationServiceExtension */;
+			targetProxy = C011C8F92F3B5DC8005ED6D4 /* PBXContainerItemProxy */;
+		};
 		C05B51382EF5FEED007DF808 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C05B512A2EF5FEED007DF808 /* BookmarkActionExtension */;
@@ -769,6 +872,73 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		C011C8FD2F3B5DC8005ED6D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B511DD2B95A0F73BE8C04E5B /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2NR24646H4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OneSignalNotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.OneSignalNotificationServiceExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C011C8FE2F3B5DC8005ED6D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7C6EE6BF8B7B084B50CE8AEC /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2NR24646H4;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OneSignalNotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.OneSignalNotificationServiceExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		C05B513C2EF5FEED007DF808 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -844,7 +1014,7 @@
 		};
 		C0867F1A2EE9A86F000C8D7D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */;
+			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -910,7 +1080,7 @@
 		};
 		C0867F1B2EE9A86F000C8D7D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Supabase.xcconfig */;
+			baseConfigurationReference = C05DE4462EEF7A5200EFC6B2 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1270,6 +1440,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C011C8FC2F3B5DC8005ED6D4 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C011C8FD2F3B5DC8005ED6D4 /* Debug */,
+				C011C8FE2F3B5DC8005ED6D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C05B513B2EF5FEED007DF808 /* Build configuration list for PBXNativeTarget "BookmarkActionExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
