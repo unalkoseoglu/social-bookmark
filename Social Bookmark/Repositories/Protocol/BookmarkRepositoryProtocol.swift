@@ -16,7 +16,7 @@ protocol BookmarkRepositoryProtocol {
     
     /// Yeni bookmark oluştur
     /// - Parameter bookmark: Kaydedilecek bookmark
-    func create(_ bookmark: Bookmark)
+    func create(_ bookmark: Bookmark) throws
     
     /// Mevcut bookmark'ı güncelle
     /// - Parameter bookmark: Güncellenecek bookmark

@@ -24,7 +24,7 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     
     init(baseRepository: BookmarkRepositoryProtocol) {
         self.baseRepository = baseRepository
-        print("✅ [SyncableBookmarkRepository] Initialized with sync enabled")
+        Logger.sync.info("✅ [SyncableBookmarkRepository] Initialized with sync enabled")
     }
     
     // MARK: - BookmarkRepositoryProtocol
@@ -45,9 +45,9 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
         baseRepository.fetch(by: id)
     }
     
-    func create(_ bookmark: Bookmark) {
-        print("📝 [SyncableBookmarkRepository] Creating bookmark: \(bookmark.title)")
-        baseRepository.create(bookmark)
+    func create(_ bookmark: Bookmark) throws {
+        Logger.sync.debug("📝 [SyncableBookmarkRepository] Creating bookmark: \(bookmark.title)")
+        try baseRepository.create(bookmark)
         
         if isSyncEnabled {
             // Bookmark bilgilerini capture et
@@ -64,16 +64,16 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
                     }
                     
                     try await SyncService.shared.syncBookmark(snapshot)
-                    print("✅ [SyncableBookmarkRepository] Synced new bookmark: \(snapshot.title)")
+                    Logger.sync.info("✅ [SyncableBookmarkRepository] Synced new bookmark: \(snapshot.title)")
                 } catch {
-                    print("❌ [SyncableBookmarkRepository] Sync failed for new bookmark: \(error.localizedDescription)")
+                    Logger.sync.error("❌ [SyncableBookmarkRepository] Sync failed for new bookmark: \(error.localizedDescription)")
                 }
             }
         }
     }
     
     func update(_ bookmark: Bookmark) {
-        print("📝 [SyncableBookmarkRepository] Updating bookmark: \(bookmark.title)")
+        Logger.sync.debug("📝 [SyncableBookmarkRepository] Updating bookmark: \(bookmark.title)")
         baseRepository.update(bookmark)
         
         if isSyncEnabled {
@@ -83,9 +83,9 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
             Task.detached { @MainActor in
                 do {
                     try await SyncService.shared.syncBookmark(snapshot)
-                    print("✅ [SyncableBookmarkRepository] Synced updated bookmark: \(snapshot.title)")
+                    Logger.sync.info("✅ [SyncableBookmarkRepository] Synced updated bookmark: \(snapshot.title)")
                 } catch {
-                    print("❌ [SyncableBookmarkRepository] Sync failed for updated bookmark: \(error.localizedDescription)")
+                    Logger.sync.error("❌ [SyncableBookmarkRepository] Sync failed for updated bookmark: \(error.localizedDescription)")
                 }
             }
         }
@@ -140,10 +140,10 @@ final class SyncableBookmarkRepository: BookmarkRepositoryProtocol {
     private func createBookmarkSnapshot(_ bookmark: Bookmark) -> Bookmark {
         // IMAGE LOGGING:
         if let data = bookmark.imageData {
-            print("📸 [SyncableRepository] Snapshotting with single image data: \(data.count) bytes")
+            Logger.sync.debug("📸 [SyncableRepository] Snapshotting with single image data: \(data.count) bytes")
         }
         if let multiple = bookmark.imagesData, !multiple.isEmpty {
-            print("📸 [SyncableRepository] Snapshotting with multiple images: \(multiple.count) items")
+            Logger.sync.debug("📸 [SyncableRepository] Snapshotting with multiple images: \(multiple.count) items")
         }
         
         let snapshot = Bookmark(
@@ -228,9 +228,9 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
         baseRepository.fetch(by: id)
     }
     
-    func create(_ category: Category) {
+    func create(_ category: Category) throws {
         Logger.sync.info("Creating category: \(category.name)")
-        baseRepository.create(category)
+        try baseRepository.create(category)
         
         if isSyncEnabled {
             let snapshot = createCategorySnapshot(category)
@@ -238,9 +238,9 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
             Task.detached { @MainActor in
                 do {
                     try await SyncService.shared.syncCategory(snapshot)
-                    print("✅ [SyncableCategoryRepository] Synced new category: \(snapshot.name)")
+                    Logger.sync.info("✅ [SyncableCategoryRepository] Synced new category: \(snapshot.name)")
                 } catch {
-                    print("❌ [SyncableCategoryRepository] Sync failed for new category: \(error.localizedDescription)")
+                    Logger.sync.error("❌ [SyncableCategoryRepository] Sync failed for new category: \(error.localizedDescription)")
                 }
             }
         }
@@ -256,9 +256,9 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
             Task.detached { @MainActor in
                 do {
                     try await SyncService.shared.syncCategory(snapshot)
-                    print("✅ [SyncableCategoryRepository] Synced updated category: \(snapshot.name)")
+                    Logger.sync.info("✅ [SyncableCategoryRepository] Synced updated category: \(snapshot.name)")
                 } catch {
-                    print("❌ [SyncableCategoryRepository] Sync failed for updated category: \(error.localizedDescription)")
+                    Logger.sync.error("❌ [SyncableCategoryRepository] Sync failed for updated category: \(error.localizedDescription)")
                 }
             }
         }
@@ -274,9 +274,9 @@ final class SyncableCategoryRepository: CategoryRepositoryProtocol {
             Task.detached { @MainActor in
                 do {
                     try await SyncService.shared.deleteCategory(id: categoryId)
-                    print("✅ [SyncableCategoryRepository] Deleted from cloud: \(categoryName)")
+                    Logger.sync.info("✅ [SyncableCategoryRepository] Deleted from cloud: \(categoryName)")
                 } catch {
-                    print("❌ [SyncableCategoryRepository] Cloud delete failed: \(error.localizedDescription)")
+                    Logger.sync.error("❌ [SyncableCategoryRepository] Cloud delete failed: \(error.localizedDescription)")
                 }
             }
         }

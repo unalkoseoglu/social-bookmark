@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import OSLog
 
 enum NetworkError: LocalizedError {
     case invalidURL
@@ -13,13 +14,13 @@ enum NetworkError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-        case .invalidURL: return "Geçersiz URL"
-        case .noData: return "Veri alınamadı"
-        case .decodingError: return "Veri işlenemedi"
+        case .invalidURL: return String(localized: "network.error.invalid_url")
+        case .noData: return String(localized: "network.error.no_data")
+        case .decodingError: return String(localized: "network.error.decoding_error")
         case .serverError(let msg): return msg
-        case .unauthorized: return "Oturum geçersiz"
-        case .forbidden: return "Yetkisiz erişim"
-        case .unexpectedStatusCode(let code): return "Sunucu hatası (\(code))"
+        case .unauthorized: return String(localized: "network.error.unauthorized")
+        case .forbidden: return String(localized: "network.error.forbidden")
+        case .unexpectedStatusCode(let code): return String(localized: "network.error.unexpected_status_code \(Int64(code))")
         }
     }
 }
@@ -81,7 +82,7 @@ final class NetworkManager {
         // Custom headers
         headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
         
-        print("🌐 [Network] \(method) \(url.absoluteString)")
+        Logger.network.debug("🌐 [Network] \(method) \(url.absoluteString)")
         
         let startTime = Date()
         
@@ -111,7 +112,7 @@ final class NetworkManager {
                 do {
                     return try decoder.decode(T.self, from: data)
                 } catch {
-                    print("❌ [Network] Decoding Error: \(error)")
+                    Logger.network.error("❌ [Network] Decoding Error: \(error)")
                     throw NetworkError.decodingError
                 }
             case 401:
@@ -186,7 +187,7 @@ final class NetworkManager {
         let totalSize = files.reduce(0) { $0 + $1.data.count }
         let startTime = Date()
         
-        print("🌐 [Network] MULTIPART UPLOAD \(url.absoluteString) (\(totalSize / 1024) KB, \(files.count) files)")
+        Logger.network.info("🌐 [Network] MULTIPART UPLOAD \(url.absoluteString) (\(totalSize / 1024) KB, \(files.count) files)")
         
         do {
             let (data, response) = try await session.data(for: request)

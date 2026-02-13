@@ -33,7 +33,7 @@
 "common.show_more" = "더 보기";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "어디서나 소셜 미디어 콘텐츠를 저장하고 정리하며 액세스하세요.";
 "auth.or_divider" = "또는";
 "auth.continue_anonymously" = "로그인 없이 계속하기";
@@ -326,6 +326,13 @@
 "error.network.title" = "연결 오류";
 "error.rate_limited" = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
 
+"network.error.invalid_url" = "잘못된 URL";
+"network.error.no_data" = "데이터를 받지 못했습니다";
+"network.error.decoding_error" = "데이터를 처리할 수 없습니다";
+"network.error.unauthorized" = "세션이 유효하지 않습니다";
+"network.error.forbidden" = "접근이 거부되었습니다";
+"network.error.unexpected_status_code %lld" = "서버 오류 (%lld)";
+
 "error.twitter.title" = "X 오류";
 "error.twitter.not_found" = "𝕏 트윗을 찾을 수 없거나 삭제되었습니다.";
 "error.twitter.invalid_url" = "𝕏 유효하지 않은 Twitter URL입니다.";
@@ -392,7 +399,7 @@
 "settings.language" = "언어";
 "settings.autoDetectSource" = "소스 자동 감지";
 "settings.showReadingTime" = "읽기 시간 표시";
-"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "모든 제한을 해제하고 어디서나 액세스하세요.";
 "settings.notifications" = "알림";
 "settings.notifications_header" = "알림 설정";
@@ -507,7 +514,7 @@
 "settings.feedback" = "피드백";
 "settings.about" = "정보";
 "settings.rate_app" = "앱 평가하기";
-"settings.rate_app_desc" = "Social Bookmark가 마음에 드신다면 평가를 남겨주세요!";
+"settings.rate_app_desc" = "Link Bookmark가 마음에 드신다면 평가를 남겨주세요!";
 
 // MARK: - Danger Zone
 "settings.deleteAll" = "모든 데이터 삭제";
@@ -719,7 +726,7 @@
 "encryption.error.keychain_error" = "키체인 오류: %d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "Social Bookmark에 오신 것을 환영합니다!";
+"onboarding.welcome.title" = "Link Bookmark에 오신 것을 환영합니다!";
 "onboarding.welcome.subtitle" = "어디서나 콘텐츠를 저장하고 정리하며 액세스하세요";
 "onboarding.sources.title" = "모든 즐겨찾기를 한곳에";
 "onboarding.sources.subtitle" = "Twitter, Reddit, LinkedIn, Medium 등에서 콘텐츠를 저장하세요";
@@ -730,7 +737,7 @@
 "onboarding.share.title" = "어디서나 원터치 저장";
 "onboarding.share.subtitle" = "Safari, Twitter, Reddit 등 앱의 공유 메뉴를 사용하세요...";
 "onboarding.share.step1" = "앱에서 공유 버튼을 탭하세요";
-"onboarding.share.step2" = "Social Bookmark를 선택하세요";
+"onboarding.share.step2" = "Link Bookmark를 선택하세요";
 "onboarding.share.step3" = "콘텐츠가 자동으로 저장되고 분류됩니다";
 "onboarding.share.reminder" = "처음 사용 시 공유 확장을 활성화하는 것을 잊지 마세요!";
 "onboarding.search.title" = "무엇이든 즉시 검색";
@@ -762,6 +769,11 @@
 "paywall.feature.multi_image" = "다중 이미지 지원";
 "paywall.feature.cloud_sync" = "기기 간 클라우드 동기화";
 "paywall.feature.ad_free" = "광고 없는 경험";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "무료 한도에 도달했습니다. 무제한 이용을 위해 Pro로 업그레이드하세요.";
+"pro.document.message" = "문서 첨부는 Pro 기능입니다. 무제한 이용을 위해 Pro로 업그레이드하세요.";
+"pro.ocr.message" = "텍스트 인식(OCR)은 Pro 기능입니다. 무제한 이용을 위해 Pro로 업그레이드하세요.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "데이터 정리";

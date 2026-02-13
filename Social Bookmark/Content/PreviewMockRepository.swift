@@ -24,7 +24,7 @@ final class PreviewMockRepository: BookmarkRepositoryProtocol {
         bookmarks.first { $0.id == id }
     }
     
-    func create(_ bookmark: Bookmark) {
+    func create(_ bookmark: Bookmark) throws {
         bookmarks.append(bookmark)
         print("✅ Mock: Created bookmark - \(bookmark.title)")
     }

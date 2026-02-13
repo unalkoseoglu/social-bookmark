@@ -50,7 +50,11 @@ final class CategoryRepository: CategoryRepositoryProtocol {
         }
     }
     
-    func create(_ category: Category) {
+    func create(_ category: Category) throws {
+        guard UsageLimitService.shared.canAddCategory(context: modelContext) else {
+            throw UsageLimitError.categoryLimitReached
+        }
+        
         // Yeni kategori için sıra numarası
         category.order = count
         

@@ -33,7 +33,7 @@
 "common.show_more" = "عرض المزيد";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "احفظ، نظم، واصل إلى محتوى وسائل التواصل الاجتماعي الخاصة بك من أي مكان.";
 "auth.or_divider" = "أو";
 "auth.continue_anonymously" = "المتابعة كضيف";
@@ -326,6 +326,13 @@
 "error.network.title" = "خطأ في الاتصال";
 "error.rate_limited" = "طلبات كثيرة جداً. حاول لاحقاً.";
 
+"network.error.invalid_url" = "رابط غير صالح";
+"network.error.no_data" = "لم يتم استلام بيانات";
+"network.error.decoding_error" = "تعذر معالجة البيانات";
+"network.error.unauthorized" = "جلسة غير صالحة";
+"network.error.forbidden" = "تم رفض الوصول";
+"network.error.unexpected_status_code %lld" = "خطأ في الخادم (%lld)";
+
 "error.twitter.title" = "خطأ X";
 "error.twitter.not_found" = "𝕏 لم يتم العثور على التغريدة أو تم حذفها.";
 "error.twitter.invalid_url" = "𝕏 رابط Twitter غير صالح.";
@@ -392,7 +399,7 @@
 "settings.language" = "اللغة";
 "settings.autoDetectSource" = "كشف المصدر تلقائياً";
 "settings.showReadingTime" = "عرض وقت القراءة";
-"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "افتح كافة القيود وقم بالوصول من أي مكان.";
 "settings.notifications" = "التنبيهات";
 "settings.notifications_header" = "إعدادات التنبيهات";
@@ -715,7 +722,7 @@
 "encryption.error.keychain_error" = "خطأ في Keychain: %d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "مرحباً بك في Social Bookmark!";
+"onboarding.welcome.title" = "مرحباً بك في Link Bookmark!";
 "onboarding.welcome.subtitle" = "احفظ ونظم وقم بالوصول لمحتواك من أي مكان";
 "onboarding.sources.title" = "كل مفضلاتك في مكان واحد";
 "onboarding.sources.subtitle" = "احفظ المحتوى من Twitter, Reddit, LinkedIn, Medium وغيرها";
@@ -726,7 +733,7 @@
 "onboarding.share.title" = "حفظ بلمسة واحدة من أي مكان";
 "onboarding.share.subtitle" = "استخدم قائمة المشاركة من Safari و Twitter و Reddit...";
 "onboarding.share.step1" = "اضغط على زر المشاركة في أي تطبيق";
-"onboarding.share.step2" = "اختر Social Bookmark";
+"onboarding.share.step2" = "اختر Link Bookmark";
 "onboarding.share.step3" = "سيتم حفظ المحتوى وتصنيفه تلقائياً";
 "onboarding.share.reminder" = "لا تنسَ تفعيل إضافة المشاركة عند الاستخدام الأول!";
 "onboarding.search.title" = "ابحث عن أي شيء فوراً";
@@ -758,6 +765,11 @@
 "paywall.feature.multi_image" = "دعم الصور المتعددة";
 "paywall.feature.cloud_sync" = "مزامنة سحابية بين الأجهزة";
 "paywall.feature.ad_free" = "تجربة خالية من الإعلانات";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "لقد وصلت إلى الحد المجاني. قم بالترقية إلى Pro للوصول غير المحدود.";
+"pro.document.message" = "إرفاق المستندات ميزة Pro. قم بالترقية إلى Pro للوصول غير المحدود.";
+"pro.ocr.message" = "التعرف على النص (OCR) ميزة Pro. قم بالترقية إلى Pro للوصول غير المحدود.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "تنظيف البيانات";

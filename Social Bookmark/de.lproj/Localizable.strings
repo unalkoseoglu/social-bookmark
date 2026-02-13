@@ -33,7 +33,7 @@
 "common.show_more" = "Mehr anzeigen";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "Speichere, organisiere und greife von überall auf deine Social-Media-Inhalte zu.";
 "auth.or_divider" = "oder";
 "auth.continue_anonymously" = "Als Gast fortfahren";
@@ -325,6 +325,13 @@
 "error.network.title" = "Verbindungsfehler";
 "error.rate_limited" = "Zu viele Anfragen. Bitte später versuchen.";
 
+"network.error.invalid_url" = "Ungültige URL";
+"network.error.no_data" = "Keine Daten empfangen";
+"network.error.decoding_error" = "Daten konnten nicht verarbeitet werden";
+"network.error.unauthorized" = "Sitzung ungültig";
+"network.error.forbidden" = "Zugriff verweigert";
+"network.error.unexpected_status_code %lld" = "Serverfehler (%lld)";
+
 "error.twitter.title" = "X Fehler";
 "error.twitter.not_found" = "𝕏 Tweet nicht gefunden oder gelöscht.";
 "error.twitter.invalid_url" = "𝕏 Ungültige Twitter URL.";
@@ -391,7 +398,7 @@
 "settings.language" = "Sprache";
 "settings.autoDetectSource" = "Quelle automatisch erkennen";
 "settings.showReadingTime" = "Lesezeit anzeigen";
-"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "Schalte alle Limits frei und synchronisiere überall.";
 "settings.notifications" = "Mitteilungen";
 "settings.notifications_header" = "Benachrichtigungs-Einstellungen";
@@ -717,7 +724,7 @@
 "onboarding.share.title" = "Speichern mit einem Tipp";
 "onboarding.share.subtitle" = "Nutze das Teilen-Menü in Safari, Twitter, Reddit...";
 "onboarding.share.step1" = "Tippe auf 'Teilen' in einer beliebigen App";
-"onboarding.share.step2" = "Wähle Social Bookmark";
+"onboarding.share.step2" = "Wähle Link Bookmark";
 "onboarding.share.step3" = "Inhalt wird automatisch gespeichert";
 "onboarding.share.reminder" = "Vergiss nicht, die Erweiterung beim ersten Mal zu aktivieren!";
 "onboarding.search.title" = "Finde alles sofort";
@@ -749,6 +756,11 @@
 "paywall.feature.multi_image" = "Support für mehrere Bilder";
 "paywall.feature.cloud_sync" = "Cloud Sync";
 "paywall.feature.ad_free" = "Werbefrei";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "Du hast das kostenlose Limit erreicht. Upgrade auf Pro für unbeschränkten Zugang.";
+"pro.document.message" = "Dokumentanhang ist eine Pro-Funktion. Upgrade auf Pro für unbeschränkten Zugang.";
+"pro.ocr.message" = "Texterkennung (OCR) ist eine Pro-Funktion. Upgrade auf Pro für unbeschränkten Zugang.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "Daten bereinigen";

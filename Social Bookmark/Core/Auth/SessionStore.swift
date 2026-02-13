@@ -138,7 +138,7 @@ final class SessionStore: ObservableObject {
                 Logger.auth.info("✓ Skipping profile fetch (already loaded or in extension: \(isExtension))")
             }
             
-            os.Logger.auth.info("Session restored for user: \(user.id.uuidString)")
+            Logger.auth.info("✅ [SessionStore] Session restored for user: \(user.id.uuidString)")
             
             // Son başarılı ID'yi kaydet
             defaults.set(user.id.uuidString, forKey: lastUserIdKey)
@@ -161,7 +161,7 @@ final class SessionStore: ObservableObject {
         }
         
         isLoading = false
-        os.Logger.auth.info("Session initialization complete, authenticated: \(self.isAuthenticated)")
+        Logger.auth.info("✅ [SessionStore] Session initialization complete, authenticated: \(self.isAuthenticated)")
         
         // ✅ PROD-READY: Otomatik geçiş kontrolü
         if isAuthenticated {

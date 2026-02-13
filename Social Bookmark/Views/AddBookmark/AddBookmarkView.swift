@@ -791,7 +791,7 @@ struct AddBookmarkView: View {
                 .padding(.vertical, 4)
             } else {
                 Button {
-                    if subscriptionManager.isPro {
+                    if UsageLimitService.shared.isFeatureAllowed(.documents) {
                         showingFileImporter = true
                     } else {
                         paywallReason = LanguageManager.shared.localized("pro.document.message")
@@ -906,9 +906,10 @@ struct AddBookmarkView: View {
             } else {
                 // OCR ekleme butonu
                 Button {
-                    if subscriptionManager.isPro {
+                    if UsageLimitService.shared.isFeatureAllowed(.ocr) {
                         activeOCRSheet = .picker
                     } else {
+                        paywallReason = LanguageManager.shared.localized("pro.ocr.message")
                         showingPaywall = true
                     }
                 } label: {
@@ -991,14 +992,11 @@ struct AddBookmarkView: View {
     // MARK: - Actions
     
     private func saveBookmark() {
-        // PRO Kontrolü - Bookmark Sınırı (Free: 50)
-        if !subscriptionManager.isPro {
-            let count = (try? modelContext.fetchCount(FetchDescriptor<Bookmark>())) ?? 0
-            if count >= 50 {
-                paywallReason = LanguageManager.shared.localized("pro.limit.message")
-                showingPaywall = true
-                return
-            }
+        // PRO Kontrolü - Bookmark Sınırı
+        if !UsageLimitService.shared.canAddBookmark(context: modelContext) {
+            paywallReason = LanguageManager.shared.localized("pro.limit.message")
+            showingPaywall = true
+            return
         }
         
         // Cover image öncelikli, yoksa tweet/platform görseli

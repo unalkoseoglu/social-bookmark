@@ -33,7 +33,7 @@
 "common.show_more" = "顯示更多";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "隨時隨地儲存、整理及存取您的社群媒體內容。";
 "auth.or_divider" = "或";
 "auth.continue_anonymously" = "以訪客身份繼續";
@@ -326,6 +326,13 @@
 "error.network.title" = "連線錯誤";
 "error.rate_limited" = "請求過多，請稍後再試。";
 
+"network.error.invalid_url" = "無效的連結";
+"network.error.no_data" = "未收到數據";
+"network.error.decoding_error" = "無法處理數據";
+"network.error.unauthorized" = "會話無效";
+"network.error.forbidden" = "拒絕存取";
+"network.error.unexpected_status_code %lld" = "伺服器錯誤 (%lld)";
+
 "error.twitter.title" = "X 錯誤";
 "error.twitter.not_found" = "𝕏 找不到推文或已被刪除。";
 "error.twitter.invalid_url" = "𝕏 無效的 Twitter 網址。";
@@ -392,7 +399,7 @@
 "settings.language" = "語言";
 "settings.autoDetectSource" = "自動偵測來源";
 "settings.showReadingTime" = "顯示閱讀時間";
-"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "解鎖所有限制，隨時隨地存取。";
 "settings.notifications" = "通知";
 "settings.notifications_header" = "通知設定";
@@ -509,7 +516,7 @@
 "settings.feedback" = "意見回饋";
 "settings.about" = "關於";
 "settings.rate_app" = "評價應用程式";
-"settings.rate_app_desc" = "如果您喜歡 Social Bookmark，請給我們好評！";
+"settings.rate_app_desc" = "如果您喜歡 Link Bookmark，請給我們好評！";
 
 // MARK: - Danger Zone
 "settings.deleteAll" = "刪除所有數據";
@@ -717,7 +724,7 @@
 "encryption.error.keychain_error" = "Keychain 錯誤：%d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "歡迎使用 Social Bookmark！";
+"onboarding.welcome.title" = "歡迎使用 Link Bookmark！";
 "onboarding.welcome.subtitle" = "隨時隨地儲存、整理及存取您的內容";
 "onboarding.sources.title" = "所有收藏盡在其中";
 "onboarding.sources.subtitle" = "儲存來自 Twitter, Reddit, LinkedIn, Medium 等平台的內容";
@@ -728,7 +735,7 @@
 "onboarding.share.title" = "隨處一鍵儲存";
 "onboarding.share.subtitle" = "在 Safari, Twitter, Reddit 等應用程式中使用分享清單...";
 "onboarding.share.step1" = "在任何應用程式中點擊分享按鈕";
-"onboarding.share.step2" = "選擇 Social Bookmark";
+"onboarding.share.step2" = "選擇 Link Bookmark";
 "onboarding.share.step3" = "內容將被自動儲存並分類";
 "onboarding.share.reminder" = "別忘了在第一次使用時啟用分享擴充功能！";
 "onboarding.search.title" = "立即搜尋任何內容";
@@ -760,6 +767,11 @@
 "paywall.feature.multi_image" = "支援多張圖片";
 "paywall.feature.cloud_sync" = "跨設備雲端同步";
 "paywall.feature.ad_free" = "無廣告體驗";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "已達到免費限額。升級至 Pro 以獲得無限存取。";
+"pro.document.message" = "文件附件是 Pro 功能。升級至 Pro 以獲得無限存取。";
+"pro.ocr.message" = "文字辨識 (OCR) 是 Pro 功能。升級至 Pro 以獲得無限存取。";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "數據清理";

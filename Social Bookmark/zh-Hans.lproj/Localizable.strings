@@ -33,7 +33,7 @@
 "common.show_more" = "显示更多";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "随时随地保存、整理和访问您的社交媒体内容。";
 "auth.or_divider" = "或";
 "auth.continue_anonymously" = "以游客身份继续";
@@ -326,6 +326,13 @@
 "error.network.title" = "连接错误";
 "error.rate_limited" = "请求过多。请稍后再试。";
 
+"network.error.invalid_url" = "无效的链接";
+"network.error.no_data" = "未收到数据";
+"network.error.decoding_error" = "无法处理数据";
+"network.error.unauthorized" = "会话无效";
+"network.error.forbidden" = "拒绝访问";
+"network.error.unexpected_status_code %lld" = "服务器错误 (%lld)";
+
 "error.twitter.title" = "X 错误";
 "error.twitter.not_found" = "𝕏 推文未找到或已被删除。";
 "error.twitter.invalid_url" = "𝕏 无效的 Twitter 链接。";
@@ -392,7 +399,7 @@
 "settings.language" = "语言";
 "settings.autoDetectSource" = "自动检测来源";
 "settings.showReadingTime" = "显示阅读时间";
-"settings.pro_banner_title" = "Social Bookmark PRO";
+"settings.pro_banner_title" = "Link Bookmark PRO";
 "settings.pro_banner_subtitle" = "解锁无限限制，随时随地访问。";
 "settings.notifications" = "通知";
 "settings.notifications_header" = "通知设置";
@@ -507,7 +514,7 @@
 "settings.feedback" = "反馈";
 "settings.about" = "关于";
 "settings.rate_app" = "评价应用";
-"settings.rate_app_desc" = "如果您喜欢 Social Bookmark，请给我们好评！";
+"settings.rate_app_desc" = "如果您喜欢 Link Bookmark，请给我们好评！";
 
 // MARK: - Danger Zone
 "settings.deleteAll" = "删除所有数据";
@@ -719,7 +726,7 @@
 "encryption.error.keychain_error" = "钥匙串错误：%d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "欢迎来到 Social Bookmark！";
+"onboarding.welcome.title" = "欢迎来到 Link Bookmark！";
 "onboarding.welcome.subtitle" = "随时随地保存、整理和访问您的内容";
 "onboarding.sources.title" = "所有收藏 尽在一处";
 "onboarding.sources.subtitle" = "从 Twitter, Reddit, LinkedIn, Medium 等平台保存内容";
@@ -730,7 +737,7 @@
 "onboarding.share.title" = "随时随地一键保存";
 "onboarding.share.subtitle" = "通过 Safari, Twitter, Reddit 等应用的分享菜单保存内容...";
 "onboarding.share.step1" = "在任何应用中点击分享按钮";
-"onboarding.share.step2" = "选择 Social Bookmark";
+"onboarding.share.step2" = "选择 Link Bookmark";
 "onboarding.share.step3" = "内容将被自动保存并分类";
 "onboarding.share.reminder" = "首次使用前别忘了启用分享扩展程序！";
 "onboarding.search.title" = "瞬间找到任何内容";
@@ -762,6 +769,11 @@
 "paywall.feature.multi_image" = "多图片支持";
 "paywall.feature.cloud_sync" = "多设备云同步";
 "paywall.feature.ad_free" = "无广告体验";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "已达到免费限额。升级到 Pro 以获得无限访问。";
+"pro.document.message" = "文档附件是 Pro 功能。升级到 Pro 以获得无限访问。";
+"pro.ocr.message" = "文字识别 (OCR) 是 Pro 功能。升级到 Pro 以获得无限访问。";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "数据清理";

@@ -33,7 +33,7 @@
 "common.show_more" = "Daha Fazla Göster";
 
 // MARK: - Auth
-"auth.welcome_title" = "Social Bookmark";
+"auth.welcome_title" = "Link Bookmark";
 "auth.welcome_subtitle" = "Sosyal medya içeriklerinizi her yerden kaydedin, düzenleyin ve erişin.";
 "auth.or_divider" = "veya";
 "auth.continue_anonymously" = "Hesapsız Devam Et";
@@ -329,6 +329,13 @@
 "error.network.title" = "Bağlantı Hatası";
 "error.rate_limited" = "Çok fazla istek. Lütfen bekleyin.";
 
+"network.error.invalid_url" = "Geçersiz URL";
+"network.error.no_data" = "Veri alınamadı";
+"network.error.decoding_error" = "Veri işlenemedi";
+"network.error.unauthorized" = "Oturum geçersiz";
+"network.error.forbidden" = "Yetkisiz erişim";
+"network.error.unexpected_status_code %lld" = "Sunucu hatası (%lld)";
+
 "error.twitter.title" = "X Hatası";
 "error.twitter.not_found" = "𝕏 Tweet bulunamadı veya silinmiş olabilir.";
 "error.twitter.invalid_url" = "𝕏 Geçersiz Twitter URL'si.";
@@ -508,7 +515,7 @@
 "settings.feedback" = "Geri Bildirim";
 "settings.about" = "Hakkında";
 "settings.rate_app" = "Uygulamayı Puanla";
-"settings.rate_app_desc" = "Social Bookmark'ı sevdiyseniz, lütfen bize puan verin!";
+"settings.rate_app_desc" = "Link Bookmark'ı sevdiyseniz, lütfen bize puan verin!";
 
 // MARK: - Danger Zone
 "settings.deleteAll" = "Tüm Verileri Sil";
@@ -720,7 +727,7 @@
 "encryption.error.keychain_error" = "Keychain hatası: %d";
 
 // MARK: - Onboarding
-"onboarding.welcome.title" = "Social Bookmark'a Hoş Geldiniz!";
+"onboarding.welcome.title" = "Link Bookmark'a Hoş Geldiniz!";
 "onboarding.welcome.subtitle" = "İçeriklerinizi her yerden kaydedin, düzenleyin ve erişin";
 "onboarding.sources.title" = "Tüm Favorileriniz Tek Bir Yerde";
 "onboarding.sources.subtitle" = "Twitter, Reddit, LinkedIn, Medium ve daha fazlasından içerik kaydedin";
@@ -731,7 +738,7 @@
 "onboarding.share.title" = "Her Yerden Tek Dokunuşla Kaydet";
 "onboarding.share.subtitle" = "Safari, Twitter, Reddit gibi herhangi bir uygulamadan paylaşım menüsünü kullanın...";
 "onboarding.share.step1" = "Herhangi bir uygulamada paylaş butonuna dokunun";
-"onboarding.share.step2" = "Social Bookmark'ı seçin";
+"onboarding.share.step2" = "Link Bookmark'ı seçin";
 "onboarding.share.step3" = "İçerik otomatik olarak kaydedilir ve kategorize edilir";
 "onboarding.share.reminder" = "İlk kullanımda Paylaşım Eklentisini etkinleştirmeyi unutmayın!";
 "onboarding.search.title" = "Her Şeyi Anında Bulun";
@@ -763,6 +770,11 @@
 "paywall.feature.multi_image" = "Çoklu Görsel Desteği";
 "paywall.feature.cloud_sync" = "Cihazlar Arası Eşitleme";
 "paywall.feature.ad_free" = "Reklamsız Deneyim";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "Ücretsiz sınıra ulaştınız. Sınırsız erişim için Pro'ya yükseltin.";
+"pro.document.message" = "Belge ekleme Pro özelliğidir. Sınırsız erişim için Pro'ya yükseltin.";
+"pro.ocr.message" = "Metin tanıma (OCR) Pro özelliğidir. Sınırsız erişim için Pro'ya yükseltin.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "Veri Temizliği";

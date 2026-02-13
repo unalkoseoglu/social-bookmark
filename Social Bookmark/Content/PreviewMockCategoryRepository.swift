@@ -26,7 +26,7 @@ final class PreviewMockCategoryRepository: CategoryRepositoryProtocol {
         categories.first { $0.id == id }
     }
     
-    func create(_ category: Category) {
+    func create(_ category: Category) throws {
         category.order = categories.count
         categories.append(category)
         print("✅ Mock: Created category - \(category.name)")

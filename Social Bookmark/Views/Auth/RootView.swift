@@ -232,7 +232,7 @@ struct RootView: View {
         if sessionStore.isAuthenticated {
             Logger.sync.info("🔐 [RootView] Ensuring encryption key is loaded...")
             do {
-                _ = try await EncryptionService.shared.getOrCreateKey()
+                _ = try EncryptionService.shared.getOrCreateKey()
                 Logger.sync.info("✅ [RootView] Encryption key loaded successfully")
             } catch {
                 Logger.sync.error("❌ [RootView] Failed to load encryption key: \(error.localizedDescription)")

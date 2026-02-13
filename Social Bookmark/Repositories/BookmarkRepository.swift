@@ -44,7 +44,11 @@ final class BookmarkRepository: BookmarkRepositoryProtocol {
         return try? modelContext.fetch(descriptor).first
     }
     
-    func create(_ bookmark: Bookmark) {
+    func create(_ bookmark: Bookmark) throws {
+        guard UsageLimitService.shared.canAddBookmark(context: modelContext) else {
+            throw UsageLimitError.bookmarkLimitReached
+        }
+        
         // INSERT INTO Bookmark ...
         modelContext.insert(bookmark)
         

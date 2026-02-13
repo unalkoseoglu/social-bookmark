@@ -1299,7 +1299,7 @@ extension ShareExtensionView {
             imagesData: finalImagesData
         )
         
-        repository.create(newBookmark)
+        try? repository.create(newBookmark)
         
         print("💾 Bookmark kaydedildi: \(newBookmark.title)")
         
@@ -1332,7 +1332,7 @@ extension ShareExtensionView {
             order: (allCategories.map { $0.order }.max() ?? 0) + 1
         )
         
-        categoryRepository.create(newGeneral)
+        try? categoryRepository.create(newGeneral)
         return newGeneral.id
     }
 }

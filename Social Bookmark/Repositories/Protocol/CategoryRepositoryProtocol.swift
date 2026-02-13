@@ -18,7 +18,7 @@ protocol CategoryRepositoryProtocol {
     func fetch(by id: UUID) -> Category?
     
     /// Yeni kategori oluştur
-    func create(_ category: Category)
+    func create(_ category: Category) throws
     
     /// Kategori güncelle
     func update(_ category: Category)

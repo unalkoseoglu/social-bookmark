@@ -6,7 +6,7 @@ struct SearchFeaturesPage: View {
     
     let sampleResults = [
         ("SwiftUI Layout", "Learn how to build beautiful layouts...", "Web"),
-        ("Social Bookmark API", "Documenting the endpoints for Social Bookmark", "Docs"),
+        ("Link Bookmark API", "Documenting the endpoints for Link Bookmark", "Docs"),
         ("X Post by @username", "Check out this amazing thread about AI...", "X")
     ]
     

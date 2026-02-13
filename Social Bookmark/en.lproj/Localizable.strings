@@ -337,6 +337,13 @@
 "error.network.title" = "Connection Error";
 "error.rate_limited" = "Too many requests. Please wait.";
 
+"network.error.invalid_url" = "Invalid URL";
+"network.error.no_data" = "No data received";
+"network.error.decoding_error" = "Could not process data";
+"network.error.unauthorized" = "Session invalid";
+"network.error.forbidden" = "Access denied";
+"network.error.unexpected_status_code %lld" = "Server error (%lld)";
+
 "error.twitter.title" = "X Error";
 "error.twitter.not_found" = "𝕏 Tweet not found or may have been deleted.";
 "error.twitter.invalid_url" = "𝕏 Invalid Twitter URL.";
@@ -807,6 +814,11 @@
 "paywall.feature.multi_image" = "Multiple Image Support";
 "paywall.feature.cloud_sync" = "Cross-Device Sync";
 "paywall.feature.ad_free" = "Ad-free Experience";
+
+// MARK: - Pro Limits
+"pro.limit.message" = "You've reached the free limit. Upgrade to Pro for unlimited access.";
+"pro.document.message" = "Document attachment is a Pro feature. Upgrade to Pro for unlimited access.";
+"pro.ocr.message" = "Text recognition (OCR) is a Pro feature. Upgrade to Pro for unlimited access.";
 
 // MARK: - Settings - Advanced
 "settings.advanced.cleanup" = "Data Cleanup";

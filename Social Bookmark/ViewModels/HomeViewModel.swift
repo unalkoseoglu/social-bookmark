@@ -8,6 +8,7 @@
 import SwiftUI
 import Observation
 import SwiftData
+import OSLog
 
 /// Ana sayfa ViewModel'i
 /// Dashboard için gerekli tüm verileri yönetir
@@ -298,8 +299,13 @@ final class HomeViewModel {
     /// Yeni kategori ekle
     /// ✅ DÜZELTME: Manuel sync kaldırıldı - SyncableCategoryRepository otomatik sync yapıyor
     func addCategory(_ category: Category) {
-        categoryRepository.create(category)
-        loadCategories()
+        do {
+            try categoryRepository.create(category)
+            loadCategories()
+        } catch {
+            Logger.app.error("❌ [HomeViewModel] Add category failed: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
     }
     
     /// Kategori sil

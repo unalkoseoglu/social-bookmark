@@ -13,6 +13,7 @@
 
 import SwiftUI
 import Observation
+import OSLog
 
 @Observable
 final class AddBookmarkViewModel {
@@ -342,15 +343,21 @@ final class AddBookmarkViewModel {
         )
         newBookmark.fileData = selectedFileData // Transient veriyi set et
 
-        repository.create(newBookmark)
-        
-        print("✅ [AddBookmarkViewModel] Bookmark saved: \(newBookmark.title)")
-        
-        await MainActor.run {
-            resetForm()
+        do {
+            try repository.create(newBookmark)
+            print("✅ [AddBookmarkViewModel] Bookmark saved: \(newBookmark.title)")
+            
+            await MainActor.run {
+                resetForm()
+            }
+            return true
+        } catch {
+            Logger.app.error("❌ [AddBookmarkViewModel] Save failed: \(error.localizedDescription)")
+            await MainActor.run {
+                saveError = error.localizedDescription
+            }
+            return false
         }
-        
-        return true
     }
     
     // MARK: - Metadata Fetch
@@ -600,8 +607,9 @@ final class AddBookmarkViewModel {
                     }
                 }
                 
+                let finalText = extractedText
                 await MainActor.run {
-                    if let text = extractedText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if let text = finalText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         if self.note.isEmpty {
                             self.note = text
                         } else {

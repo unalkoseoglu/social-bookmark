@@ -14,10 +14,14 @@ struct CategoriesManagementView: View {
     
     @Bindable var viewModel: HomeViewModel
     
+    @Environment(\.modelContext) private var modelContext
     @State private var showingAddCategory = false
     @State private var editingCategory: Category?
     @State private var showingDeleteAlert = false
     @State private var categoryToDelete: Category?
+    
+    @State private var showingPaywall = false
+    @State private var paywallReason = ""
     
     // MARK: - Body
     
@@ -107,7 +111,12 @@ struct CategoriesManagementView: View {
                     }
 
                     Button {
-                        showingAddCategory = true
+                        if UsageLimitService.shared.canAddCategory(context: modelContext) {
+                            showingAddCategory = true
+                        } else {
+                            paywallReason = LanguageManager.shared.localized("pro.limit.message")
+                            showingPaywall = true
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -140,6 +149,9 @@ struct CategoriesManagementView: View {
                     Text(LanguageManager.shared.localized("categories.management.delete_confirmation %@", category.name))
                 }
             }
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView(reason: paywallReason)
         }
     }
     

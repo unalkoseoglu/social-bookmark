@@ -131,14 +131,17 @@
 				Core/Auth/MigrationState.swift,
 				Core/Auth/NetworkingHelpers.swift,
 				Core/Auth/NetworkManager.swift,
+				Core/Auth/NetworkMonitor.swift,
 				Core/Auth/SessionStore.swift,
 				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
+				Core/Support/UsageLimitService.swift,
 				Language/LanguageManager.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
+				Models/SharedInboxPayload.swift,
 				Models/SubscriptionManager.swift,
 				Repositories/BookmarkRepository.swift,
 				Repositories/CategoryRepository.swift,
@@ -196,14 +199,17 @@
 				Core/Auth/MigrationState.swift,
 				Core/Auth/NetworkingHelpers.swift,
 				Core/Auth/NetworkManager.swift,
+				Core/Auth/NetworkMonitor.swift,
 				Core/Auth/SessionStore.swift,
 				Core/Auth/SyncModels.swift,
 				Core/Auth/SyncService.swift,
 				"Core/Logging/Logger+Extensions.swift",
+				Core/Support/UsageLimitService.swift,
 				Language/LanguageManager.swift,
 				Models/Bookmark.swift,
 				Models/BookmarkSource.swift,
 				Models/Category.swift,
+				Models/SharedInboxPayload.swift,
 				Models/SortOption.swift,
 				Models/SubscriptionManager.swift,
 				Repositories/BookmarkRepository.swift,
@@ -944,20 +950,20 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark'a Kaydet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkActionExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -980,20 +986,20 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkActionExtension/BookmarkActionExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkActionExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Link Bookmark'a Kaydet";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkActionExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1145,7 +1151,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Social Bookmark/Social Bookmark.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_APP_SANDBOX = YES;
@@ -1177,7 +1183,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1205,7 +1211,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Social Bookmark/Social Bookmark.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				ENABLE_APP_SANDBOX = YES;
@@ -1237,7 +1243,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1371,19 +1377,19 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookmarkShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1406,19 +1412,19 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = BookmarkShareExtension/BookmarkShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 2NR24646H4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookmarkShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BookmarkShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.unal.Social-Bookmark.BookmarkShareExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

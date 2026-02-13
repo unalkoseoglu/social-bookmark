@@ -114,6 +114,12 @@ struct LanguageWrapperView: View {
         RootView(homeViewModel: homeViewModel)
             .onAppear {
                 SyncService.shared.configure(modelContext: modelContainer.mainContext)
+                
+                // Process any pending inbox payloads from Share Extension
+                Task {
+                    let inboxService = InboxProcessingService(modelContext: modelContainer.mainContext)
+                    await inboxService.processPendingPayloads()
+                }
             }
     }
 }
