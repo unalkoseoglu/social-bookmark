@@ -9,6 +9,7 @@ import UIKit
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import Combine
 
 // MARK: - Loading View
 struct LoadingView: View {
@@ -36,19 +37,21 @@ struct LoadingView: View {
 
 /// Share Extension'ın entry point'i
 /// Safari ve diğer uygulamalardan gelen URL, text ve image'ları alıp işler
+
 class ShareViewController: UIViewController {
     
     // MARK: - Constants
     
     private let appGroupId = APIConstants.appGroupId
     private let inboxKey = "share_inbox_payloads"
-    private let loadingTimeoutSeconds: TimeInterval = 10.0
+    private let extensionTimeoutSeconds: TimeInterval = 5.0
     private let imageDirectory = "SharedImages"
     
     // MARK: - Properties
     
     private var hostingController: UIViewController?
     private var modelContainer: ModelContainer?
+    private let extensionState = ShareExtensionState()
     
     // MARK: - Lifecycle
     
@@ -58,42 +61,47 @@ class ShareViewController: UIViewController {
         // 1. Show loading view immediately
         showInitialLoadingView()
         
+        // 2. Safety timeout - prevent watchdog kills
+        let timeoutTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(5.0 * 1_000_000_000))
+            guard let self = self, !self.extensionState.isReady else { return }
+            print("⏰ [Share] Timeout reached, showing UI with available data")
+        }
+        
         Task {
-            // 2. Start all initialization tasks in parallel
-            // - collectPayload: Extracts URL/Text from attachments
-            // - sessionInit: Restores user session
-            // - containerInit: Sets up SwiftData
-            
+            // 3. Collect payload (fast, no network)
             async let payload = collectPayloadSafe()
+            
+            // 4. Start SessionStore init in background (no auth listener in extension)
             async let sessionInit: () = SessionStore.shared.initializeOnce()
             
-            // Background Task for ModelContainer (heaviest part)
+            // 5. Start ModelContainer in background
             let containerTask = Task.detached(priority: .userInitiated) {
                 await self.createModelContainerAsync()
             }
             
-            // 3. Wait for payload FIRST to show the UI
-            // This is what makes the extension feel fast
+            // 6. Wait for payload FIRST (this is the fastest)
             guard let collectedPayload = await payload else {
                 print("❌ [Share] No payload found, closing")
+                timeoutTask.cancel()
                 close()
                 return
             }
             
-            // 4. Update UI with payload as soon as possible
-            // We don't wait for SessionStore or ModelContainer here
+            // 7. Show UI immediately with payload (no repos yet)
             await MainActor.run {
                 self.setupSwiftUIView(with: collectedPayload)
             }
             
-            // 5. Wait for SessionStore and ModelContainer in the background
+            // 8. Wait for SessionStore and ModelContainer in background
             await sessionInit
             let container = await containerTask.value
+            timeoutTask.cancel()
             
-            // 6. Inject repositories once they are ready
+            // 9. Inject repositories via shared state (no view recreation)
             await MainActor.run {
                 self.modelContainer = container
-                self.updateUIWithReadyComponents(container: container, payload: collectedPayload)
+                self.injectRepositories(container: container)
             }
         }
     }
@@ -109,41 +117,16 @@ class ShareViewController: UIViewController {
     
     // MARK: - UI Logic
     
-    private func updateUIWithReadyComponents(container: ModelContainer?, payload: SharedInboxPayload) {
-        guard let hosting = hostingController as? UIHostingController<AnyView> else { return }
-        
-        print("🔄 [Share] Injecting ready components (Container: \(container != nil))")
-        
-        let urlString = payload.urls.first ?? payload.texts.first ?? ""
-        guard let url = URL(string: urlString) ?? parseURL(from: urlString) else { return }
+    /// Inject repositories into the shared state object (no view recreation needed)
+    private func injectRepositories(container: ModelContainer?) {
+        print("🔄 [Share] Injecting repositories (Container: \(container != nil))")
         
         let (bookmarkRepo, categoryRepo) = createRepositories(with: container)
+        extensionState.repository = bookmarkRepo
+        extensionState.categoryRepository = categoryRepo
+        extensionState.isReady = true
         
-        let swiftUIView = ShareExtensionView(
-            url: url,
-            repository: bookmarkRepo,
-            categoryRepository: categoryRepo,
-            onSave: { [weak self] in
-                if container == nil {
-                    self?.persistToAppGroup(payload: payload)
-                }
-                self?.close()
-            },
-            onCancel: { [weak self] in
-                self?.close()
-            }
-        )
-        
-        let viewWithEnv = AnyView(
-            swiftUIView
-                .environmentObject(SessionStore.shared)
-        )
-        
-        if let container = container {
-            hosting.rootView = AnyView(viewWithEnv.modelContainer(container))
-        } else {
-            hosting.rootView = viewWithEnv
-        }
+        print("✅ [Share] Repositories injected successfully")
     }
     
     private func createRepositories(with container: ModelContainer?) -> (BookmarkRepositoryProtocol?, CategoryRepositoryProtocol?) {
@@ -555,6 +538,7 @@ class ShareViewController: UIViewController {
         
         // Eski view'ları temizle
         view.subviews.forEach { $0.removeFromSuperview() }
+        children.forEach { $0.removeFromParent() }
         
         let urlString = payload.urls.first ?? payload.texts.first ?? ""
         guard let url = URL(string: urlString) ?? parseURL(from: urlString) else {
@@ -564,10 +548,11 @@ class ShareViewController: UIViewController {
         
         let swiftUIView = ShareExtensionView(
             url: url,
-            repository: nil, // Initial setup without repository
-            categoryRepository: nil,
+            extensionState: extensionState,
             onSave: { [weak self] in
-                self?.persistToAppGroup(payload: payload)
+                if self?.extensionState.repository == nil {
+                    self?.persistToAppGroup(payload: payload)
+                }
                 self?.close()
             },
             onCancel: { [weak self] in
@@ -575,7 +560,10 @@ class ShareViewController: UIViewController {
             }
         )
         
-        let hosting = UIHostingController(rootView: AnyView(swiftUIView.environmentObject(SessionStore.shared)))
+        let hosting = UIHostingController(rootView: AnyView(
+            swiftUIView
+                .environmentObject(SessionStore.shared)
+        ))
         self.hostingController = hosting
         
         addChild(hosting)

@@ -123,6 +123,8 @@
 "all.search_prompt" = "ابحث في العناوين، الملاحظات أو الأوسمة...";
 "all.section.bookmarks" = "الإشارات المرجعية";
 "all.stats.total" = "الإجمالي";
+"library.stats.category_count" = "عدد الفئات";
+"library.stats.bookmark_count" = "إجمالي الإشارات";
 "all.stats.read" = "مقروء";
 "all.stats.unread" = "غير مقروء";
 "all.sort.newest" = "الأحدث";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "تحديد كغير مقروء";
 "all.action.mark_all_read" = "تحديد الكل كمقروء";
 "all.action.clear_filters" = "مسح التصفية";
+"all.action.favorite" = "إضافة إلى المفضلة";
+"all.action.unfavorite" = "إزالة من المفضلة";
 
 "all.empty.title" = "لا توجد إشارات";
 "all.empty.desc" = "لم تقم بإضافة أي إشارات مرجعية بعد.";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "بحث...";
 "categoryDetail.empty_title" = "لا توجد إشارات";
 "categoryDetail.empty_desc" = "لا يوجد محتوى في هذه الفئة.";
+"categoryDetail.empty.title" = "لا توجد إشارات";
+"categoryDetail.empty.desc" = "لا يوجد محتوى في هذه الفئة.";
 
 // MARK: - Search View
 "search.title" = "بحث";
@@ -593,6 +599,7 @@
 "editBookmark.addImage" = "إضافة صورة";
 "editBookmark.maxImages" = "يمكنك إضافة حتى 4 صور";
 "editBookmark.imageCount %lld" = "صور %lld/4";
+"editBookmark.imageCount %@" = "صور %@/4";
 "editBookmark.processingImages" = "جاري معالجة الصور...";
 "editBookmark.tapToEdit" = "اضغط على الصورة لتعديلها";
 "editBookmark.newBadge" = "جديد";
@@ -682,6 +689,21 @@
 "source.blog.description" = "منشور مدونة";
 "source.documentation.description" = "وثائق تقنية";
 "source.document" = "ملف";
+"source.article.description" = "مقالات وصفحات ويب";
+"source.document.description" = "مستندات وملفات";
+"source.instagram.description" = "منشورات إنستغرام";
+"source.manual.description" = "مضاف يدوياً";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "ملف";
+"addBookmark.file.add" = "إضافة ملف";
+"addBookmark.file.hint" = "إضافة مستند (PDF)";
+"addBookmark.file.footer" = "يمكنك إرفاق ملف بالإشارة المرجعية";
+"addBookmark.file.pdf_processed" = "تمت معالجة PDF";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "الإحصائيات";
+"settings.analytics_header" = "الإحصائيات والتقارير";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "الحالة";

@@ -68,18 +68,14 @@ final class AddBookmarkViewModel {
         tweetImagesData.first
     }
     
-    var tweetImages: [UIImage] {
-        tweetImagesData.compactMap { UIImage(data: $0) }
-    }
+    var tweetImages: [UIImage] = []
     
     // MARK: - Reddit State
     
     private(set) var fetchedRedditPost: RedditPost?
     private(set) var redditImagesData: [Data] = []
     
-    var redditImages: [UIImage] {
-        redditImagesData.compactMap { UIImage(data: $0) }
-    }
+    var redditImages: [UIImage] = []
     
     // MARK: - LinkedIn State
     
@@ -238,6 +234,7 @@ final class AddBookmarkViewModel {
         
         // Görsel verilerini temizle
         tweetImagesData = []
+        tweetImages = []
         redditImagesData = []
         linkedInImageData = nil
         
@@ -419,6 +416,7 @@ final class AddBookmarkViewModel {
     private func clearPlatformSpecificData() {
         fetchedTweet = nil
         tweetImagesData = []
+        tweetImages = []
         fetchedRedditPost = nil
         redditImagesData = []
         fetchedLinkedInContent = nil
@@ -432,8 +430,10 @@ final class AddBookmarkViewModel {
         switch source {
         case .twitter:
             tweetImagesData.append(data)
+            tweetImages = tweetImagesData.compactMap { UIImage(data: $0) }
         case .reddit:
             redditImagesData.append(data)
+            redditImages = redditImagesData.compactMap { UIImage(data: $0) }
         case .linkedin:
             linkedInImageData = data
         case .medium:
@@ -539,8 +539,10 @@ final class AddBookmarkViewModel {
         
         fetchedTweet = nil
         tweetImagesData = []
+        tweetImages = []
         fetchedRedditPost = nil
         redditImagesData = []
+        redditImages = []
         fetchedLinkedInContent = nil
         linkedInImageData = nil
         fetchedMediumPost = nil

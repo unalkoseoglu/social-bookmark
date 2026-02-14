@@ -123,6 +123,8 @@
 "all.search_prompt" = "搜尋標題、備註或標籤...";
 "all.section.bookmarks" = "書籤";
 "all.stats.total" = "總計";
+"library.stats.category_count" = "分類數量";
+"library.stats.bookmark_count" = "書籤總數";
 "all.stats.read" = "已讀";
 "all.stats.unread" = "未讀";
 "all.sort.newest" = "從新到舊";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "標記為未讀";
 "all.action.mark_all_read" = "全部標記為已讀";
 "all.action.clear_filters" = "清除篩選";
+"all.action.favorite" = "加入收藏";
+"all.action.unfavorite" = "取消收藏";
 
 "all.empty.title" = "沒有書籤";
 "all.empty.desc" = "您尚未新增任何書籤。";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "搜尋...";
 "categoryDetail.empty_title" = "沒有書籤";
 "categoryDetail.empty_desc" = "此分類中目前沒有書籤。";
+"categoryDetail.empty.title" = "沒有書籤";
+"categoryDetail.empty.desc" = "此分類中目前沒有書籤。";
 
 // MARK: - Search View
 "search.title" = "搜尋";
@@ -595,6 +601,7 @@
 "editBookmark.addImage" = "新增圖片";
 "editBookmark.maxImages" = "最多可新增 4 張圖片";
 "editBookmark.imageCount %lld" = "圖片 %lld/4";
+"editBookmark.imageCount %@" = "圖片 %@/4";
 "editBookmark.processingImages" = "正在處理圖片...";
 "editBookmark.tapToEdit" = "點擊圖片進行編輯";
 "editBookmark.newBadge" = "新";
@@ -684,6 +691,21 @@
 "source.blog.description" = "部落格貼文";
 "source.documentation.description" = "技術文件";
 "source.document" = "檔案";
+"source.article.description" = "文章與網頁";
+"source.document.description" = "文件與檔案";
+"source.instagram.description" = "Instagram 貼文";
+"source.manual.description" = "手動新增";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "檔案";
+"addBookmark.file.add" = "新增檔案";
+"addBookmark.file.hint" = "新增文件 (PDF)";
+"addBookmark.file.footer" = "可以將檔案附加到書籤";
+"addBookmark.file.pdf_processed" = "PDF 已處理";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "統計";
+"settings.analytics_header" = "統計與報告";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "狀態";

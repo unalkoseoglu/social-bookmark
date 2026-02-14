@@ -109,7 +109,10 @@ struct RootView: View {
                 hasCompletedOnboarding = true
                 justFinishedOnboarding = true
             }
+            
+            showSplash = true
             await initializeAuth()
+            showSplash = false
             
             // Dil değişimi sonrası splash gösteriliyorsa kapat
             if languageManager.languageJustChanged {
@@ -129,13 +132,6 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: .userDidSignOut)) { _ in
             showSplash = true
             hasPerformedInitialSync = false
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .userDidSignIn)) { _ in
-            print("🔐 [RootView] User signed in - triggering initial sync")
-            hasPerformedInitialSync = false
-            Task {
-                await initializeAuth()
-            }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)

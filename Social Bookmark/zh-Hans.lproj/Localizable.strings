@@ -123,6 +123,8 @@
 "all.search_prompt" = "搜索标题、笔记或标签...";
 "all.section.bookmarks" = "书签";
 "all.stats.total" = "总计";
+"library.stats.category_count" = "分类数量";
+"library.stats.bookmark_count" = "书签总数";
 "all.stats.read" = "已读";
 "all.stats.unread" = "未读";
 "all.sort.newest" = "最新添加";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "标记为未读";
 "all.action.mark_all_read" = "全部标记为已读";
 "all.action.clear_filters" = "清除筛选";
+"all.action.favorite" = "添加到收藏";
+"all.action.unfavorite" = "取消收藏";
 
 "all.empty.title" = "无书签";
 "all.empty.desc" = "您还没有添加任何书签。";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "搜索...";
 "categoryDetail.empty_title" = "暂无书签";
 "categoryDetail.empty_desc" = "此分类下没有书签。";
+"categoryDetail.empty.title" = "暂无书签";
+"categoryDetail.empty.desc" = "此分类下没有书签。";
 
 // MARK: - Search View
 "search.title" = "搜索";
@@ -597,6 +603,7 @@
 "editBookmark.addImage" = "添加图片";
 "editBookmark.maxImages" = "最多可添加 4 张图片";
 "editBookmark.imageCount %lld" = "%lld/4 张图片";
+"editBookmark.imageCount %@" = "%@/4 张图片";
 "editBookmark.processingImages" = "处理图片中...";
 "editBookmark.tapToEdit" = "点击图片进行编辑";
 "editBookmark.newBadge" = "新增";
@@ -686,6 +693,21 @@
 "source.blog.description" = "博客文章";
 "source.documentation.description" = "技术文档";
 "source.document" = "文件";
+"source.article.description" = "文章和网页";
+"source.document.description" = "文档和文件";
+"source.instagram.description" = "Instagram 帖子";
+"source.manual.description" = "手动添加";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "文件";
+"addBookmark.file.add" = "添加文件";
+"addBookmark.file.hint" = "添加文档 (PDF)";
+"addBookmark.file.footer" = "可以为书签附加文件";
+"addBookmark.file.pdf_processed" = "PDF 已处理";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "统计";
+"settings.analytics_header" = "统计与报告";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "状态";

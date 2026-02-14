@@ -123,6 +123,8 @@
 "all.search_prompt" = "Başlık, not veya etiket ara...";
 "all.section.bookmarks" = "Yer İşaretleri";
 "all.stats.total" = "Toplam";
+"library.stats.category_count" = "Kategori Sayısı";
+"library.stats.bookmark_count" = "Toplam Yer İmi";
 "all.stats.read" = "Okundu";
 "all.stats.unread" = "Okunmadı";
 "all.sort.newest" = "En Yeni";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "Okunmadı Olarak İşaretle";
 "all.action.mark_all_read" = "Hepsini Okundu Olarak İşaretle";
 "all.action.clear_filters" = "Filtreleri Temizle";
+"all.action.favorite" = "Favorilere Ekle";
+"all.action.unfavorite" = "Favorilerden Kaldır";
 
 "all.empty.title" = "Yer İşareti Yok";
 "all.empty.desc" = "Henüz herhangi bir yer işareti eklemediniz.";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "Ara...";
 "categoryDetail.empty_title" = "Henüz Yer İşareti Yok";
 "categoryDetail.empty_desc" = "Bu kategoride yer işareti bulunmuyor.";
+"categoryDetail.empty.title" = "Henüz Yer İşareti Yok";
+"categoryDetail.empty.desc" = "Bu kategoride yer işareti bulunmuyor.";
 
 // MARK: - Search View
 "search.title" = "Ara";
@@ -598,6 +604,7 @@
 "editBookmark.addImage" = "Görsel Ekle";
 "editBookmark.maxImages" = "En fazla 4 görsel ekleyebilirsiniz";
 "editBookmark.imageCount %lld" = "%lld/4 görsel";
+"editBookmark.imageCount %@" = "%@/4 görsel";
 "editBookmark.processingImages" = "Görseller işleniyor...";
 "editBookmark.tapToEdit" = "Düzenlemek için görsele dokunun";
 "editBookmark.newBadge" = "YENİ";
@@ -687,6 +694,21 @@
 "source.blog.description" = "Blog yazıları";
 "source.documentation.description" = "Teknik dokümantasyon";
 "source.document" = "Dosya";
+"source.article.description" = "Makaleler ve web sayfaları";
+"source.document.description" = "Belgeler ve dosyalar";
+"source.instagram.description" = "Instagram gönderileri";
+"source.manual.description" = "Manuel olarak eklenen";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "Dosya";
+"addBookmark.file.add" = "Dosya Ekle";
+"addBookmark.file.hint" = "Belge ekleyin (PDF)";
+"addBookmark.file.footer" = "Yer işaretine dosya ekleyebilirsiniz";
+"addBookmark.file.pdf_processed" = "PDF işlendi";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "İstatistikler";
+"settings.analytics_header" = "İstatistikler ve Raporlar";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "Durum";

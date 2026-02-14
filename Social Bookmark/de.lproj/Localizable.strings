@@ -123,6 +123,8 @@
 "all.search_prompt" = "Suche in Titeln, Notizen oder Tags...";
 "all.section.bookmarks" = "Lesezeichen";
 "all.stats.total" = "Gesamt";
+"library.stats.category_count" = "Kategorien";
+"library.stats.bookmark_count" = "Lesezeichen Gesamt";
 "all.stats.read" = "Gelesen";
 "all.stats.unread" = "Ungelesen";
 "all.sort.newest" = "Neueste zuerst";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "Als ungelesen markieren";
 "all.action.mark_all_read" = "Alle als gelesen markieren";
 "all.action.clear_filters" = "Filter löschen";
+"all.action.favorite" = "Zu Favoriten hinzufügen";
+"all.action.unfavorite" = "Aus Favoriten entfernen";
 
 "all.empty.title" = "Keine Lesezeichen";
 "all.empty.desc" = "Du hast noch keine Lesezeichen hinzugefügt.";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "Suchen...";
 "categoryDetail.empty_title" = "Keine Lesezeichen";
 "categoryDetail.empty_desc" = "Keine Inhalte in dieser Kategorie.";
+"categoryDetail.empty.title" = "Keine Lesezeichen";
+"categoryDetail.empty.desc" = "Keine Inhalte in dieser Kategorie.";
 
 // MARK: - Search View
 "search.title" = "Suche";
@@ -587,6 +593,7 @@
 "editBookmark.addImage" = "Bild hinzufügen";
 "editBookmark.maxImages" = "Max. 4 Bilder möglich";
 "editBookmark.imageCount %lld" = "Bilder %lld/4";
+"editBookmark.imageCount %@" = "Bilder %@/4";
 "editBookmark.processingImages" = "Verarbeite Bilder...";
 "editBookmark.tapToEdit" = "Zum Bearbeiten Bild tippen";
 "editBookmark.newBadge" = "NEU";
@@ -675,6 +682,21 @@
 "source.blog.description" = "Blog Post";
 "source.documentation.description" = "Dokumentation";
 "source.document" = "Datei";
+"source.article.description" = "Artikel und Webseiten";
+"source.document.description" = "Dokumente und Dateien";
+"source.instagram.description" = "Instagram-Beiträge";
+"source.manual.description" = "Manuell hinzugefügt";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "Datei";
+"addBookmark.file.add" = "Datei hinzufügen";
+"addBookmark.file.hint" = "Dokument hinzufügen (PDF)";
+"addBookmark.file.footer" = "Sie können eine Datei an das Lesezeichen anhängen";
+"addBookmark.file.pdf_processed" = "PDF verarbeitet";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "Statistiken";
+"settings.analytics_header" = "Statistiken & Berichte";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "Status";

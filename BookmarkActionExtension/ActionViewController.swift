@@ -372,10 +372,15 @@ class ActionViewController: UIViewController {
         
         print("📂 Categories loaded: \(categoryRepository.fetchAll().count)")
         
+        // Create shared state with repos already ready
+        let state = ShareExtensionState()
+        state.repository = SyncableBookmarkRepository(baseRepository: bookmarkRepository)
+        state.categoryRepository = SyncableCategoryRepository(baseRepository: categoryRepository)
+        state.isReady = true
+        
         let swiftUIView = ShareExtensionView(
             url: url,
-            repository: bookmarkRepository,
-            categoryRepository: categoryRepository,
+            extensionState: state,
             onSave: { [weak self] in
                 print("💾 Bookmark saved from Action Extension")
                 self?.close()

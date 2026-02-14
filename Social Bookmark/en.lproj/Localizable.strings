@@ -127,6 +127,8 @@
 "all.search_prompt" = "Search title, notes or tags...";
 "all.section.bookmarks" = "Bookmarks";
 "all.stats.total" = "Total";
+"library.stats.category_count" = "Categories";
+"library.stats.bookmark_count" = "Total Bookmarks";
 "all.stats.read" = "Read";
 "all.stats.unread" = "Unread";
 
@@ -144,6 +146,8 @@
 "all.action.mark_unread" = "Mark as Unread";
 "all.action.mark_all_read" = "Mark All as Read";
 "all.action.clear_filters" = "Clear Filters";
+"all.action.favorite" = "Add to Favorites";
+"all.action.unfavorite" = "Remove from Favorites";
 
 "all.empty.title" = "No Bookmarks";
 "all.empty.desc" = "You haven't added any bookmarks yet.";
@@ -168,6 +172,8 @@
 "categoryDetail.search_prompt" = "Search...";
 "categoryDetail.empty_title" = "No Bookmarks Yet";
 "categoryDetail.empty_desc" = "There are no bookmarks in this category.";
+"categoryDetail.empty.title" = "No Bookmarks Yet";
+"categoryDetail.empty.desc" = "There are no bookmarks in this category.";
 
 // MARK: - Search View
 "search.title" = "Search";
@@ -617,6 +623,7 @@
 "editBookmark.addImage" = "Add Image";
 "editBookmark.maxImages" = "You can add up to 4 images";
 "editBookmark.imageCount %lld" = "%lld/4 images";
+"editBookmark.imageCount %@" = "%@/4 images";
 "editBookmark.processingImages" = "Processing images...";
 "editBookmark.tapToEdit" = "Tap image to edit";
 "editBookmark.newBadge" = "NEW";
@@ -718,6 +725,21 @@
 "source.blog.description" = "Blog posts";
 "source.documentation.description" = "Technical documentation";
 "source.document" = "File";
+"source.article.description" = "Articles and web pages";
+"source.document.description" = "Documents and files";
+"source.instagram.description" = "Instagram posts";
+"source.manual.description" = "Manually added";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "File";
+"addBookmark.file.add" = "Add File";
+"addBookmark.file.hint" = "Add a document (PDF)";
+"addBookmark.file.footer" = "You can attach a file to the bookmark";
+"addBookmark.file.pdf_processed" = "PDF processed";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "Analytics";
+"settings.analytics_header" = "Analytics & Reports";
 
 
 /* Encryption Key Backup View */

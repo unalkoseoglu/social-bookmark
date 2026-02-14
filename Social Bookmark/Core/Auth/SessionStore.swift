@@ -18,7 +18,7 @@ final class SessionStore: ObservableObject {
     @Published private(set) var displayName: String?
     @Published private(set) var userProfile: UserProfile?
     @Published private(set) var isAnonymous = false
-    @Published private(set) var isLoading = true
+    @Published private(set) var isLoading = false
     @Published private(set) var error: AuthError?
     
     // MARK: - Constants
@@ -61,7 +61,14 @@ final class SessionStore: ObservableObject {
     init(authService: AuthService? = nil, repository: AuthRepositoryProtocol = AuthRepository()) {
         self.authService = authService ?? AuthService.shared
         self.repository = repository
-        startListeningToAuthChanges()
+        
+        // Extension'da auth listener gereksiz - sadece initializeOnce() yeterli
+        // Bu listener .initialSession event'i ile initialize() tekrar çağırıp
+        // race condition ve main thread blocking'e neden oluyordu
+        let isExtension = Bundle.main.bundlePath.hasSuffix(".appex")
+        if !isExtension {
+            startListeningToAuthChanges()
+        }
     }
     
     deinit {
@@ -196,7 +203,6 @@ final class SessionStore: ObservableObject {
     
     /// Ensures user is authenticated (restores session or signs in anonymously)
     func ensureAuthenticated() async {
-        isLoading = true
         error = nil
         
         do {
@@ -209,8 +215,6 @@ final class SessionStore: ObservableObject {
             self.error = .unknown(error.localizedDescription)
             Logger.auth.error("ensureAuthenticated failed: \(error.localizedDescription)")
         }
-        
-        isLoading = false
     }
     
     /// Signs in anonymously

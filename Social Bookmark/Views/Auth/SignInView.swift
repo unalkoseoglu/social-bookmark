@@ -13,6 +13,7 @@ struct SignInView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @State private var showingError = false
+    @State private var isSigningIn = false
     
     var isPresented: Bool = false
     var isFromPaywall: Bool = false
@@ -27,7 +28,7 @@ struct SignInView: View {
     private var contentView: some View {
         mainStack
             .modifier(SignInToolbarModifier(isPresented: isPresented, dismiss: dismiss))
-            .modifier(SignInLoadingModifier(isLoading: sessionStore.isLoading))
+            .modifier(SignInLoadingModifier(isLoading: isSigningIn))
             .modifier(SignInAlertModifier(showingError: $showingError, error: sessionStore.error, sessionStore: sessionStore))
             .modifier(SignInLogicModifier(isPresented: isPresented, sessionStore: sessionStore, dismiss: dismiss, showingError: $showingError))
     }
@@ -238,10 +239,13 @@ extension SignInView {
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let authorization):
+            isSigningIn = true
             Task {
                 await sessionStore.signInWithApple(credential: authorization)
+                isSigningIn = false
             }
         case .failure(let error):
+            isSigningIn = false
             if let authError = error as? ASAuthorizationError,
                authError.code == .canceled {
                 return

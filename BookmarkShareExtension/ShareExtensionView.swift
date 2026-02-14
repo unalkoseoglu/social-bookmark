@@ -1,4 +1,24 @@
 import SwiftUI
+import Combine
+
+// MARK: - ShareExtensionState
+
+/// Observable state object shared between ShareViewController and ShareExtensionView
+/// Allows updating repositories without recreating the entire view hierarchy
+@MainActor
+final class ShareExtensionState: ObservableObject {
+    @Published var repository: BookmarkRepositoryProtocol?
+    @Published var categoryRepository: CategoryRepositoryProtocol?
+    @Published var isReady = false
+    
+    /// Pro status read directly from App Group cache (no RevenueCat init needed)
+    @Published var isPro: Bool
+    
+    init() {
+        let defaults = UserDefaults(suiteName: APIConstants.appGroupId)
+        self.isPro = defaults?.bool(forKey: "isProUser") ?? false
+    }
+}
 
 // MARK: - ShareExtensionView
 
@@ -8,10 +28,14 @@ struct ShareExtensionView: View {
     // MARK: - Properties
     
     let url: URL
-    let repository: BookmarkRepositoryProtocol?
-    let categoryRepository: CategoryRepositoryProtocol?
+    @ObservedObject var extensionState: ShareExtensionState
     let onSave: () -> Void
     let onCancel: () -> Void
+    
+    // MARK: - Convenience accessors
+    
+    private var repository: BookmarkRepositoryProtocol? { extensionState.repository }
+    private var categoryRepository: CategoryRepositoryProtocol? { extensionState.categoryRepository }
     
     // MARK: - State
     
@@ -49,20 +73,14 @@ struct ShareExtensionView: View {
     @FocusState private var focusedField: Field?
     @Environment(\.openURL) private var openURL
     
-    // IAP State
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    // IAP State (read from App Group cache via extensionState)
     @State private var showingPaywall = false
     @State private var paywallReason: String? = nil
     
-    // MARK: - Computed Properties
+    // MARK: - Cached Image Properties
     
-    private var tweetImages: [UIImage] {
-        tweetImagesData.compactMap { UIImage(data: $0) }
-    }
-    
-    private var redditImages: [UIImage] {
-        redditImagesData.compactMap { UIImage(data: $0) }
-    }
+    @State private var tweetImages: [UIImage] = []
+    @State private var redditImages: [UIImage] = []
     
     private var linkedInImage: UIImage? {
         guard let data = linkedInImageData else { return nil }
@@ -130,11 +148,16 @@ struct ShareExtensionView: View {
             .toolbar { toolbarContent }
             .disabled(isSaving)
             .task {
-                subscriptionManager.configure(shouldFetch: false)
-                if repository != nil {
+                // Eğer repolar hazırsa kategorileri yükle
+                if extensionState.isReady {
                     loadCategories()
                 }
                 await fetchContent()
+            }
+            .onChange(of: extensionState.isReady) { _, isReady in
+                if isReady {
+                    loadCategories()
+                }
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView(reason: paywallReason)
@@ -1010,6 +1033,7 @@ extension ShareExtensionView {
                 await downloadImages(from: tweet.mediaURLs) { data in
                     await MainActor.run {
                         tweetImagesData = data
+                        tweetImages = data.compactMap { UIImage(data: $0) }
                     }
                 }
             }
@@ -1043,6 +1067,7 @@ extension ShareExtensionView {
                 await downloadSingleImage(from: imageURL) { data in
                     await MainActor.run {
                         redditImagesData = [data]
+                        redditImages = [data].compactMap { UIImage(data: $0) }
                     }
                 }
             }
@@ -1187,6 +1212,10 @@ extension ShareExtensionView {
                         if let httpResponse = response as? HTTPURLResponse,
                            httpResponse.statusCode == 200,
                            data.count > 1000 {
+                            // Optimize image to prevent memory crashes in extension
+                            if let optimized = Self.optimizeImageData(data, maxDimension: 800) {
+                                return (index, optimized)
+                            }
                             return (index, data)
                         }
                     } catch {
@@ -1219,12 +1248,33 @@ extension ShareExtensionView {
             if let httpResponse = response as? HTTPURLResponse,
                httpResponse.statusCode == 200,
                data.count > 1000 {
-                print("✅ Görsel indirildi: \(data.count) bytes")
-                await completion(data)
+                let optimized = Self.optimizeImageData(data, maxDimension: 800) ?? data
+                print("✅ Görsel indirildi: \(optimized.count) bytes (orig: \(data.count))")
+                await completion(optimized)
             }
         } catch {
             print("❌ Görsel hatası: \(error.localizedDescription)")
         }
+    }
+    
+    // MARK: - Image Optimization Helper
+    
+    /// Görseli küçültür ve sıkıştırır — Share Extension'ın sınırlı belleğini korur
+    private static func optimizeImageData(_ data: Data, maxDimension: CGFloat = 800) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+        let maxDim = max(image.size.width, image.size.height)
+        
+        var targetImage = image
+        if maxDim > maxDimension {
+            let scale = maxDimension / maxDim
+            let newSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+            defer { UIGraphicsEndImageContext() }
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+            targetImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+        }
+        
+        return targetImage.jpegData(compressionQuality: 0.7)
     }
 }
 
@@ -1240,7 +1290,7 @@ extension ShareExtensionView {
         }
         
         // PRO Kontrolü - Bookmark Sınırı (Free: 50)
-        if !subscriptionManager.isPro {
+        if !extensionState.isPro {
             let count = repository.fetchAll().count
             if count >= 50 {
                 paywallReason = String(localized: "pro.limit.message")

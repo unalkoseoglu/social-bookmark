@@ -236,6 +236,15 @@ final class HomeViewModel {
             print("⚠️ [HomeViewModel] Sync failed notification received")
             self?.errorMessage = String(localized: "error.sync_failed")
         }
+        
+        NotificationCenter.default.addObserver(
+            forName: .bookmarkDidUpdate,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("📝 [HomeViewModel] Bookmark updated, refreshing data...")
+            self?.loadData()
+        }
     }
     
     // MARK: - Public Methods
@@ -252,12 +261,7 @@ final class HomeViewModel {
     
     /// Belirli bir kategori için bookmark sayısı
     func bookmarkCount(for category: Category) -> Int {
-        // Öncelik sunucudan gelen sayıda (sync performansı için)
-        if let serverCount = category.bookmarksCount, serverCount > 0 {
-            return serverCount
-        }
-        
-        // Sunucu bilgisi yoksa veya 0 ise yerelde filtrele (yeni eklenenler için)
+        // Her zaman yerel veriyi kullan — kategori değişikliklerinde anlık güncellenir
         return bookmarks.filter { $0.categoryId == category.id }.count
     }
     

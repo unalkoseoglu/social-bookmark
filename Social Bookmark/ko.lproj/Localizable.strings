@@ -123,6 +123,8 @@
 "all.search_prompt" = "제목, 메모 또는 태그 검색...";
 "all.section.bookmarks" = "북마크";
 "all.stats.total" = "전체";
+"library.stats.category_count" = "카테고리 수";
+"library.stats.bookmark_count" = "전체 북마크";
 "all.stats.read" = "읽음";
 "all.stats.unread" = "읽지 않음";
 "all.sort.newest" = "최신순";
@@ -139,6 +141,8 @@
 "all.action.mark_unread" = "읽지 않음으로 표시";
 "all.action.mark_all_read" = "모두 읽음으로 표시";
 "all.action.clear_filters" = "필터 해제";
+"all.action.favorite" = "즐겨찾기에 추가";
+"all.action.unfavorite" = "즐겨찾기에서 제거";
 
 "all.empty.title" = "북마크 없음";
 "all.empty.desc" = "아직 추가된 북마크가 없습니다.";
@@ -163,6 +167,8 @@
 "categoryDetail.search_prompt" = "검색...";
 "categoryDetail.empty_title" = "북마크가 없습니다";
 "categoryDetail.empty_desc" = "이 카테고리에 북마크가 없습니다.";
+"categoryDetail.empty.title" = "북마크가 없습니다";
+"categoryDetail.empty.desc" = "이 카테고리에 북마크가 없습니다.";
 
 // MARK: - Search View
 "search.title" = "검색";
@@ -597,6 +603,7 @@
 "editBookmark.addImage" = "이미지 추가";
 "editBookmark.maxImages" = "최대 4개의 이미지를 추가할 수 있습니다";
 "editBookmark.imageCount %lld" = "이미지 %lld/4개";
+"editBookmark.imageCount %@" = "이미지 %@/4개";
 "editBookmark.processingImages" = "이미지 처리 중...";
 "editBookmark.tapToEdit" = "편집하려면 이미지를 탭하세요";
 "editBookmark.newBadge" = "신규";
@@ -686,6 +693,21 @@
 "source.blog.description" = "블로그 게시물";
 "source.documentation.description" = "기술 문서";
 "source.document" = "파일";
+"source.article.description" = "기사 및 웹 페이지";
+"source.document.description" = "문서 및 파일";
+"source.instagram.description" = "인스타그램 게시물";
+"source.manual.description" = "수동으로 추가됨";
+
+// MARK: - Add Bookmark - File Section
+"addBookmark.section.file" = "파일";
+"addBookmark.file.add" = "파일 추가";
+"addBookmark.file.hint" = "문서 추가 (PDF)";
+"addBookmark.file.footer" = "북마크에 파일을 첨부할 수 있습니다";
+"addBookmark.file.pdf_processed" = "PDF 처리 완료";
+
+// MARK: - Settings Analytics
+"settings.analytics" = "통계";
+"settings.analytics_header" = "통계 및 보고서";
 
 /* Encryption Key Backup View */
 "encryption.status.title" = "상태";

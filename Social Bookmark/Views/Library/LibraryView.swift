@@ -98,6 +98,7 @@ struct LibraryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             // Back button - Ana Sayfa'ya döner
+            // Back button - Ana Sayfa'ya döner
             ToolbarItem(placement: .topBarLeading) {
                 Button {
                     selectedTab = .home
@@ -304,12 +305,6 @@ struct LibraryView: View {
                         subtitle: LanguageManager.shared.localized("library.categories.empty.subtitle")
                     )
                     
-                    Button {
-                        viewModel.createDefaultCategories()
-                    } label: {
-                        Label(LanguageManager.shared.localized("library.action.create_default_categories"), systemImage: "folder.badge.plus")
-                    }
-                    .buttonStyle(.borderedProminent)
                 }
             } else {
                 ScrollView {
@@ -360,7 +355,7 @@ struct LibraryView: View {
                 Text("\(viewModel.categories.count)")
                     .font(.title2)
                     .fontWeight(.bold)
-                Text(LanguageManager.shared.localized("categories.management.count"))
+                Text(LanguageManager.shared.localized("library.stats.category_count"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -373,7 +368,7 @@ struct LibraryView: View {
                 Text("\(viewModel.allBookmarks.count)")
                     .font(.title2)
                     .fontWeight(.bold)
-                Text(LanguageManager.shared.localized("all.stats.total"))
+                Text(LanguageManager.shared.localized("library.stats.bookmark_count"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

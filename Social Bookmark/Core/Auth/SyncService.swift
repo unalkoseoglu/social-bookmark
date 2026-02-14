@@ -1019,4 +1019,5 @@ extension Notification.Name {
     static let bookmarksDidSync = Notification.Name("bookmarksDidSync")
     static let categoriesDidSync = Notification.Name("categoriesDidSync")
     static let localDataCleared = Notification.Name("localDataCleared")
+    static let bookmarkDidUpdate = Notification.Name("bookmarkDidUpdate")
 }

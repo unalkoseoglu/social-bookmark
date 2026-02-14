@@ -666,6 +666,9 @@ struct EditBookmarkView: View {
         // Veritabanını güncelle (SyncableRepository otomatik sync yapacak)
         repository.update(bookmark)
         
+        // ✅ HomeViewModel'i bilgilendir (kategori sayıları vs. güncellensin)
+        NotificationCenter.default.post(name: .bookmarkDidUpdate, object: nil)
+        
         print("✅ [EditBookmark] Bookmark updated successfully")
         
         // Görünümü kapat
